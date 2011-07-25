@@ -1,3 +1,2 @@
-//TODO: More detailed description
 To build the framework simple run 'ant build'
-To run it set into the 'bin' directory and run './run.sh ../res/config/iris_setosa_versicolor.txt' which runs the P2Pegasos algorithm (http://www.inf.u-szeged.hu/~ormandi/papers/EUROPAR2011_draft.pdf) on the Iris Setosa-Versicolor database.
+To run it set into the 'bin' directory and run 'ln -s ../res/script/run.sh run.sh && ./run.sh ../res/config/iris_setosa_versicolor.txt' which creates a link to the runner script and runs the P2Pegasos algorithm (http://www.inf.u-szeged.hu/~ormandi/papers/EUROPAR2011_draft.pdf) on the Iris Setosa-Versicolor database.
