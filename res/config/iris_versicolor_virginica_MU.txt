@@ -1,0 +1,129 @@
+ONLINESIZE 80
+NETWORKSIZE 90
+C 40000
+
+CYCLE C*ONLINESIZE+1
+LOGTIME ONLINESIZE
+SEED 1234567890
+
+# Transport parameters
+DELAY 10.0
+DROP 0.5
+MINDELAY ONLINESIZE
+MAXDELAY DELAY*ONLINESIZE
+
+# Churn parameters
+CHURN_MU 0
+CHURN_SIGMA 1
+
+# Overlay parameters
+NEWSCAST_CACHESIZE 5
+NEWSCAST_FREQ ONLINESIZE/10.0
+
+# Learner parameters
+LAMBDA 0.0001
+MEMORY 10
+DELAY_MEAN ONLINESIZE
+DELAY_VAR ONLINESIZE/10.0
+
+
+#-------------------- General Simulation Properties --------------------
+simulation.instanceReaderClass gossipLearning.utils.database.MapReader
+network.size NETWORKSIZE
+simulation.endtime CYCLE
+simulation.logtime LOGTIME
+random.seed SEED
+
+#-------------------- Transport layer --------------------
+protocol.transport UniformRandomTransport
+protocol.transport.mindelay MINDELAY
+protocol.transport.maxdelay MAXDELAY
+
+protocol.msgNewscastCounterTransport gossipLearning.observers.messageCounter.MessageCounterTransport
+protocol.msgNewscastCounterTransport.transport transport
+protocol.msgNewscastCounterTransport.msgClass peersim.extras.mj.ednewscast.EdNewscastMessage
+
+protocol.msgModelCounterTransport gossipLearning.observers.messageCounter.MessageCounterTransport
+protocol.msgModelCounterTransport.transport msgNewscastCounterTransport
+protocol.msgModelCounterTransport.msgClass gossipLearning.messages.ModelMessage
+
+protocol.dropTransport UnreliableTransport
+protocol.dropTransport.transport msgModelCounterTransport
+protocol.dropTransport.drop DROP
+
+#-------------------- Connection layer --------------------
+protocol.overlay gossipLearning.overlays.ChurnableNewscast
+protocol.overlay.transport dropTransport
+protocol.overlay.cache NEWSCAST_CACHESIZE
+protocol.overlay.baseFreq NEWSCAST_FREQ
+
+
+#-------------------- Application layer(s) --------------------
+protocol.gradient gossipLearning.algorithms.pegasos.PegasosMU
+protocol.gradient.linkable overlay
+protocol.gradient.transport dropTransport
+protocol.gradient.lambda LAMBDA
+protocol.gradient.memory MEMORY
+protocol.gradient.delayMean DELAY_MEAN
+protocol.gradient.delayVar DELAY_VAR
+
+
+#-------------------- Initializers --------------------
+init.overlayInit WireKOut
+init.overlayInit.k NEWSCAST_CACHESIZE
+init.overlayInit.protocol overlay
+
+init.overlayStart peersim.extras.mj.ednewscast.EventInitializer
+init.overlayStart.protocolID overlay
+
+init.instanceLoader gossipLearning.initializers.InstanceLoader
+init.instanceLoader.protocol gradient
+init.instanceLoader.file ../db/iris_versicolor_virginica_train.arff
+
+init.modelInitializer gossipLearning.initializers.ModelInitializer
+init.modelInitializer.protocol gradient
+
+init.gradientStart gossipLearning.initializers.StartMessageInitializer
+init.gradientStart.protocol gradient
+init.gradientStart.delay 0
+
+init.churnInit p2pChurn.initializers.ChurnInitializer
+init.churnInit.protocol gradient
+init.churnInit.size ONLINESIZE
+
+#-------------------- Define Init Sequence --------------------
+include.init overlayInit overlayStart instanceLoader modelInitializer gradientStart churnInit
+
+
+#-------------------- Observers --------------------
+control.0 p2pChurn.controls.ChurnControl
+control.0.protocol gradient
+control.0.step LOGTIME
+control.0.size ONLINESIZE
+control.0.mu CHURN_MU
+control.0.sigma CHURN_SIGMA
+
+control.1 gossipLearning.observers.ModelObserver
+control.1.step LOGTIME
+control.1.protocol gradient
+control.1.format gpt
+
+control.4 gossipLearning.observers.PredictionObserver
+control.4.errorComputatorClass gossipLearning.observers.errorComputation.EfficientVotedZeroOneErrorComputator
+control.4.step LOGTIME
+control.4.protocol gradient
+control.4.eval ../db/iris_versicolor_virginica_eval.arff
+control.4.format gpt
+
+control.6 gossipLearning.observers.messageCounter.MessageCounterObserver
+control.6.step LOGTIME
+control.6.protocol msgNewscastCounterTransport
+control.6.format gpt
+
+control.7 gossipLearning.observers.messageCounter.MessageCounterObserver
+control.7.step LOGTIME
+control.7.protocol msgModelCounterTransport
+control.7.format gpt
+
+
+

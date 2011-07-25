@@ -1,0 +1,1 @@
+../res/script/run.sh
