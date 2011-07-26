@@ -1,12 +1,5 @@
 package gossipLearning.utils;
 
-/**
- * A simple type parametrized version of Java SDK provided Cloneable class.
- * 
- * @author ormandi
- *
- * @param <T>
- */
-public interface Cloneable<T> {
+public interface Cloneable<T extends gossipLearning.utils.Cloneable<T>> extends java.lang.Cloneable {
   public T clone();
 }

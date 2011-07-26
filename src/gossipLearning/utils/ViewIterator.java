@@ -10,7 +10,7 @@ import java.util.Iterator;
  *
  * @param <T>
  */
-public class ViewIterator<T extends Cloneable<? super T> & Comparable<? super T>> implements Iterator<T> {
+public class ViewIterator<T extends gossipLearning.utils.Cloneable<T> & Comparable<? super T>> implements Iterator<T> {
   private final View<T> view;
   private int c = 0;
   
