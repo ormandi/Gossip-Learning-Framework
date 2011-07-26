@@ -14,7 +14,7 @@ import java.util.Iterator;
  * of the elements in the view is based on this comparator, but - it is very important - the contains and remove 
  * operations are based on the equal method! 
  */
-public class View <T extends gossipLearning.utils.Cloneable<T> & Comparable<? super T>> implements gossipLearning.utils.Cloneable<View<T>>, Iterable<T> {
+public class View <T extends gossipLearning.utils.Cloneable<T> & Comparable<? super T>> extends gossipLearning.utils.Cloneable<View<T>> implements Iterable<T> {
   private final T[] view;
   private int c = 0;
   
@@ -22,6 +22,7 @@ public class View <T extends gossipLearning.utils.Cloneable<T> & Comparable<? su
    * This is the only one constructor of the class. It creates an empty view with bound size length.
    * @param length
    */
+  @SuppressWarnings("unchecked")
   public View(int length) {
     gossipLearning.utils.Cloneable<T>[] tmp = new Cloneable[length];
     this.view = (T[]) tmp;
@@ -32,7 +33,8 @@ public class View <T extends gossipLearning.utils.Cloneable<T> & Comparable<? su
    * view through the network in a message. Basically it creates a new empty view and copies each element of the
    * original view applying the its clone methods.<br/>(Recall that the element type T has to be Cloneable!!!)
    */
-  public View<T> clone() {
+  @SuppressWarnings("unchecked")
+  protected View<T> genericClone() {
     View<T> ret = new View<T>(view.length);
     ret.c = c;
     for (int i = 0; i < size(); i ++) {

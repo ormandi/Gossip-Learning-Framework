@@ -30,6 +30,7 @@ public class PegasosMU extends P2Pegasos {
     return s;
   }
   
+  @SuppressWarnings("unchecked")
   protected void passiveThread(Node currentNode, int currentProtocolID, Object messageObj) {
     // passive thread => receive & process incomming message
     ModelMessage<PegasosModel> message = (ModelMessage<PegasosModel>) messageObj;

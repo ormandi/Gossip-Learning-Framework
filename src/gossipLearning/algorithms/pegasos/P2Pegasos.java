@@ -25,6 +25,7 @@ import peersim.edsim.EDProtocol;
 import peersim.edsim.EDSimulator;
 import peersim.transport.Transport;
 
+@SuppressWarnings("rawtypes")
 public class P2Pegasos extends AbstractEDNode implements EDProtocol,InstanceHolder<Map<Integer, Double>>,ModelHolder<PegasosModel>,ModelQueueHolder<PegasosModel>,Churnable {
   private static final String PAR_DELAYMEAN = "delayMean";
   protected double delayMean = Double.POSITIVE_INFINITY;
@@ -104,6 +105,7 @@ public class P2Pegasos extends AbstractEDNode implements EDProtocol,InstanceHold
     }
   }
   
+  @SuppressWarnings("unchecked")
   protected void passiveThread(Node currentNode, int currentProtocolID, Object messageObj) {
     // passive thread => receive & process incomming message
     ModelMessage<PegasosModel> message = (ModelMessage<PegasosModel>) messageObj;

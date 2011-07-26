@@ -27,6 +27,7 @@ public class ModelObserver extends GraphObserver {
   /**
    * It observes the min and max similarities of the models of the nodes.
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public boolean execute() {
     updateGraph();
     if (format.equals("gpt") && CommonState.getTime() == 0) {

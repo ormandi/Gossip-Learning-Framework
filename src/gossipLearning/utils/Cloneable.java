@@ -1,5 +1,8 @@
 package gossipLearning.utils;
 
-public interface Cloneable<T extends gossipLearning.utils.Cloneable<T>> extends java.lang.Cloneable {
-  public T clone();
+public abstract class Cloneable<T> implements java.lang.Cloneable {
+  public Object clone() {
+    return genericClone();
+  }
+  protected abstract T genericClone();
 }
