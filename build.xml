@@ -15,16 +15,16 @@
   <property name="src" location="src"/>
   <property name="resources" location="resources"/>
   
-  <property name="projectName" value="P2PGradient"/>
-  <property name="jarName" value="p2pgradient.jar"/>
+  <property name="projectName" value="GossipLearningFramework"/>
+  <property name="jarName" value="gossipLearning.jar"/>
   
   <!-- Environment property must be set for using environment variables -->
   <property environment="env"/>
   
   <!--Remote run properites -->
-  <property name="remoteRunDir" value="~/p2pGradient"/>
+  <property name="remoteRunDir" value="~/gossipLearning"/>
   <property name="remoteRunScript" value="run.sh"/>
-  <property name="remoteRunHost" value="rgai2"/>
+  <property name="remoteRunHost" value="localhost"/>
   <property name="sshKeyFile" value="${env.HOME}/.ssh/id_rsa"/>
    
   
@@ -46,6 +46,7 @@
           <include name="**/*.jar"/>
         </fileset>
       </classpath>
+      <compilerarg value="-Xlint:unchecked"/> 
     </javac>
   </target>
   

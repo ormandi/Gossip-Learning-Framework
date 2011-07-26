@@ -5,7 +5,7 @@ export memory="1G";
 export result=`basename ${config} .txt`"_base_result.txt";
 export restricted_result=`basename ${config} .txt`"_result.txt";
 export picture=`basename ${config} .txt`".png";
-export classPath=`ls ../lib/*\.jar | awk '{printf("../%s:",$0)}END{printf("../../bin/p2pgradient.jar")}'`;
+export classPath=`ls ../lib/*\.jar | awk '{printf("../%s:",$0)}END{printf("../../bin/gossipLearning.jar")}'`;
 
 mkdir -p results
 cd ../res/config && java -Xmx${memory} -cp ${classPath} peersim.Simulator ${config} >../../bin/results/${result} 2>/dev/null && cd ../../bin
