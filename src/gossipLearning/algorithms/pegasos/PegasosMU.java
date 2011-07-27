@@ -12,22 +12,15 @@ import peersim.core.Node;
 public class PegasosMU extends P2Pegasos {
   protected PegasosModel previousNonUpdatedModel = null;
   protected PegasosModel currentNonUpdatedModel = null;
-  
-  protected PegasosMU() {
-    super();
-  }
+  protected String prefix;
   
   public PegasosMU(String prefix) {
     super(prefix);
+    this.prefix = prefix;
   }
   
-  public P2Pegasos clone() {
-    PegasosMU s = new PegasosMU();
-    s.lambda = lambda;
-    s.delayMean = delayMean;
-    s.delayVar = delayVar;
-    s.memorySize = memorySize;
-    return s;
+  public PegasosMU clone() {
+    return new PegasosMU(prefix);
   }
   
   @SuppressWarnings("unchecked")
@@ -44,14 +37,14 @@ public class PegasosMU extends P2Pegasos {
     currentNonUpdatedModel = message.getModel();
     
     // do a gradient update on the received model and send it
-    process(null, currentNode, currentProtocolID, true, false);
+    createModel(null, currentNode, currentProtocolID, true, false);
     
     //
     //-------------------- end of work --------------------
     //
   }
   
-  protected void process(PegasosModel model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
+  protected void createModel(PegasosModel model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
     if (isUpdateAndStore) {
       // get the previous model which is not updated yet OR the currentModel if it is not available
       PegasosModel mj = (previousNonUpdatedModel != null) ? previousNonUpdatedModel : currentModel ;

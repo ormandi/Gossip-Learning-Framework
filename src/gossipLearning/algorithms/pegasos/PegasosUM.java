@@ -2,57 +2,26 @@ package gossipLearning.algorithms.pegasos;
 
 import gossipLearning.algorithms.pegasos.model.PegasosModel;
 import gossipLearning.algorithms.pegasos.model.PegasosModelComparator;
-import gossipLearning.messages.ModelMessage;
 
 import java.util.Map;
 import java.util.TreeMap;
 
 import peersim.core.Node;
 
-public class PegasosUM extends P2Pegasos {
+public class PegasosUM extends PegasosMU {
   protected PegasosModel previousNonUpdatedModel = null;
   protected PegasosModel currentNonUpdatedModel = null;
   private static final PegasosModelComparator mc = new PegasosModelComparator();
-  
-  protected PegasosUM() {
-    super();
-  }
   
   public PegasosUM(String prefix) {
     super(prefix);
   }
   
-  public P2Pegasos clone() {
-    PegasosUM s = new PegasosUM();
-    s.lambda = lambda;
-    s.delayMean = delayMean;
-    s.delayVar = delayVar;
-    s.memorySize = memorySize;
-    return s;
+  public PegasosUM clone() {
+    return new PegasosUM(prefix);
   }
   
-  @SuppressWarnings("unchecked")
-  protected void passiveThread(Node currentNode, int currentProtocolID, Object messageObj) {
-    // passive thread => receive & process incomming message
-    ModelMessage<PegasosModel> message = (ModelMessage<PegasosModel>) messageObj;
-    
-    //
-    //-------------------- begin of work ------------------
-    //
-    
-    // process incomming message
-    previousNonUpdatedModel = currentNonUpdatedModel;
-    currentNonUpdatedModel = message.getModel();
-    
-    // do a gradient update on the received model and send it
-    process(null, currentNode, currentProtocolID, true, false);
-    
-    //
-    //-------------------- end of work --------------------
-    //
-  }
-  
-  protected void process(PegasosModel model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
+  protected void createModel(PegasosModel model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
     if (isUpdateAndStore) {
       // get the previous model which is not updated yet OR the currentModel if it is not available
       PegasosModel mj = (previousNonUpdatedModel != null) ? previousNonUpdatedModel : currentModel ;
