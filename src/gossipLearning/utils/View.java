@@ -10,7 +10,7 @@ import java.util.Iterator;
  * 
  * @author ormandi
  *
- * @param <T> - T is the type of state which has to be Cloneable<? super T> and Comparable<? super T> the sorting
+ * @param <T> T is the type of state which has to be Cloneable<T> (own implementation) and Comparable<? super T> the sorting
  * of the elements in the view is based on this comparator, but - it is very important - the contains and remove 
  * operations are based on the equal method! 
  */
@@ -138,6 +138,26 @@ public class View <T extends gossipLearning.utils.Cloneable<T> & Comparable<? su
       }
     }
     clearNulls();
+  }
+  
+  /**
+   * The method simply checks that two views are equal or not. Here the equation means that they contains equal number of elements
+   * which are all pairwised equals
+   */
+  @SuppressWarnings("unchecked")
+  public boolean equals(Object otherViewObject) {
+    if (otherViewObject != null && otherViewObject instanceof View) {
+      View<T> otherView = (View<T>) otherViewObject;
+      if (size() == otherView.size()) {
+        for (int i = 0; i < size(); i++) {
+          if ((get(i) != null || otherView.get(i) != null) && (get(i) == null || otherView.get(i) == null || !get(i).equals(otherView.get(i)))) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+    return false;
   }
   
   /**

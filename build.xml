@@ -13,7 +13,7 @@
   <property name="dist" location="dist"/>
   <property name="lib"  location="lib"/>
   <property name="src" location="src"/>
-  <property name="resources" location="resources"/>
+  <property name="res" location="res"/>
   
   <property name="projectName" value="GossipLearningFramework"/>
   <property name="jarName" value="gossipLearning.jar"/>
@@ -35,6 +35,8 @@
     <mkdir dir="${doc}"/>
     <mkdir dir="${apidoc}"/>
     <mkdir dir="${reports}"/>
+    <mkdir dir="${reports}/raw/"/>
+    <mkdir dir="${reports}/html/"/>
   </target>
 
   <target name="compile" depends="init" description="compile the source">
@@ -52,7 +54,11 @@
   
   <target name="dist" depends="compile" description="generate jar">
     <!-- Create jar -->
-    <jar jarfile="${bin}/${jarName}" basedir="${build}"/>
+    <jar jarfile="${bin}/${jarName}" filesonly="true">
+      <fileset dir="${build}">
+        <exclude name="tests/**/*Test*.class"/>
+      </fileset>
+    </jar>
   </target>
 
   <target name="clean" description="clean up">
@@ -61,11 +67,12 @@
     <delete dir="${apidoc}"/>
     <delete dir="${reports}"/>
     <delete dir="${dist}"/>
+    <delete file="${bin}/${jarName}"/>
   </target>
   
   <target name="doc" depends="init" description="generate api doc">
     <!-- Generate doc -->
-    <javadoc sourcepath="${src}" destdir="${apidoc}" extdirs="${lib}" author="true" version="true" use="true" windowtitle="${projectName}">
+    <javadoc destdir="${apidoc}" extdirs="${lib}" author="true" version="true" use="true" windowtitle="${projectName}">
       <fileset dir="${src}" defaultexcludes="yes">
         <include name="**/*.java"/>
         <exclude name="**/*Test*.java"/>
@@ -86,7 +93,7 @@
     <sshexec host="${remoteRunHost}" username="${env.USER}" keyfile="${sshKeyFile}" command="cd ${remoteRunDir} &amp;&amp; ./${remoteRunScript}"/>
   </target>
   
-  <target name="package" depends="doc,dist" description="create package">
+  <target name="package" depends="doc,test,dist" description="create package">
     <!-- Create package -->
     <mkdir dir="${dist}"/>
     <mkdir dir="${dist}/bin"/>
@@ -97,6 +104,10 @@
     <copy todir="${dist}/lib">
       <fileset dir="${lib}"/>
     </copy>
+    <mkdir dir="${dist}/res"/>
+    <copy todir="${dist}/res">
+      <fileset dir="${res}"/>
+    </copy>
     <mkdir dir="${dist}/doc"/>
     <copy todir="${dist}/doc">
       <fileset dir="${doc}"/>
@@ -105,8 +116,12 @@
     <copy todir="${dist}/doc/api">
       <fileset dir="${apidoc}"/>
     </copy>
+    <copy file="README" todir="${dist}"/>
+    <tstamp>
+      <format property="packageTime" pattern="hh.mm_dd-MM-yyyy"/>
+    </tstamp>
     <tar tarfile="${dist}/${projectName}.tar" basedir="${dist}"/>
-    <gzip zipfile="${projectName}.tar.gz" src="${dist}/${projectName}.tar"/>
+    <gzip zipfile="${projectName}-${packageTime}.tar.gz" src="${dist}/${projectName}.tar"/>
     <delete dir="${dist}"/>
   </target>
   
@@ -132,7 +147,7 @@
       <fileset dir="${reports}/raw/">
         <include name="TEST-*.xml"/>
       </fileset>
-      <report format="frames" todir="${reports}\html\"/>
+      <report format="frames" todir="${reports}/html/"/>
     </junitreport>
     
     <junit printsummary="no" haltonfailure="yes" showoutput="no" >

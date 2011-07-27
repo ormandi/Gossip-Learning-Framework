@@ -1,0 +1,5 @@
+27-07-2011
+	* adding git support for ant building script
+	* code review and adding JUnit tests
+	* refactoring based on Istvan's proposal
+	* code commenting
