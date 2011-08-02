@@ -1,17 +1,16 @@
 package gossipLearning.observers.errorComputation;
 
-import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 
 import java.util.Vector;
 
-public class ZeroOneErrorComputator<I, M extends Model<I>> extends AbstractErrorComputator<I, M> {
+public class ZeroOneErrorComputator<I> extends AbstractErrorComputator<I> {
 
   public ZeroOneErrorComputator(int pid, Vector<I> instances, Vector<Double> labels) {
     super(pid, instances, labels);
   }
   
-  public double[] computeError(ModelHolder<M> modelHolder, int nodeID) {
+  public double[] computeError(ModelHolder<I> modelHolder, int nodeID) {
     double avgZeroOneErrorOfNodeI = 0.0;
     for (int j = 0; j < instances.size(); j ++) {
       I testInstance = instances.get(j);

@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class PegasosModel extends gossipLearning.utils.Cloneable<PegasosModel> implements SimilarityComputableModel<Map<Integer, Double>>, Serializable, Comparable<PegasosModel> {
+public class PegasosModel implements SimilarityComputableModel<Map<Integer, Double>>, Serializable, Comparable<PegasosModel> {
   private static final long serialVersionUID = -1243440216048664692L;
   private Map<Integer, Double> w;
   private double b; // currently not used
@@ -23,7 +23,7 @@ public class PegasosModel extends gossipLearning.utils.Cloneable<PegasosModel> i
     this.age = age;
   }
   
-  protected PegasosModel genericClone() {
+  public Object clone() {
     return new PegasosModel(w, b, age);
   }
   

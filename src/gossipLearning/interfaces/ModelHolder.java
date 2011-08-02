@@ -1,7 +1,7 @@
 package gossipLearning.interfaces;
 
-public interface ModelHolder<M extends Model<?>> {
+public interface ModelHolder<I> {
   public void initModel();
-  public M getModel();
-  public void setModel(M m);
+  public Model<I> getModel();
+  public void setModel(Model<I> m);
 }

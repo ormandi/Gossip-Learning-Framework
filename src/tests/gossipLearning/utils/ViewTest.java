@@ -1,7 +1,9 @@
 package tests.gossipLearning.utils;
 
-import gossipLearning.utils.Cloneable;
 import gossipLearning.utils.View;
+
+import java.io.Serializable;
+
 import junit.framework.TestCase;
 
 /**
@@ -10,22 +12,19 @@ import junit.framework.TestCase;
  * @author ormandi
  *
  */
-public class ViewTest extends TestCase {
-  
+public class ViewTest extends TestCase implements Serializable {
+  private static final long serialVersionUID = 8155283223775025419L;
+
   /**
    * Sample content for the testcases. It simpley stores an integer.
    *
    */
-  class SampleContent extends Cloneable<SampleContent> implements Comparable<SampleContent> {
+  class SampleContent implements Serializable, Comparable<SampleContent> {
+    private static final long serialVersionUID = -2560671308181906799L;
     private int c = 0;
     
     public SampleContent(int c) {
       this.c = c;
-    }
-    
-    @Override
-    protected SampleContent genericClone() {
-      return new SampleContent(c);
     }
     
     @Override
@@ -90,6 +89,17 @@ public class ViewTest extends TestCase {
   }
   
   /**
+   * It tests the deep copy property of clone method.
+   */
+  @SuppressWarnings("unchecked")
+  public void testCloneSecondCase() {
+    cloneView = null;
+    cloneView = (View<SampleContent>) testView.clone();
+    testView.clear();
+    assertEquals(cloneView.size(), VIEW_SIZE);
+  }
+  
+  /**
    * It tests the size method of class View
    */
   public void testSize() {
@@ -149,6 +159,4 @@ public class ViewTest extends TestCase {
     final String tExpected = "11, 10, 5, 4, 3, 2";
     assertEquals(tExpected, testView.toString());
   }
-  
-
 }

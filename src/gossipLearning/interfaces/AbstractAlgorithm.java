@@ -15,7 +15,7 @@ import peersim.edsim.EDProtocol;
 import peersim.edsim.EDSimulator;
 
 @SuppressWarnings("rawtypes")
-public abstract class AbstractAlgorithm<M extends gossipLearning.utils.Cloneable<M> & Model<I>,I> extends AbstractEDNode implements EDProtocol,ModelHolder<M>,ModelQueueHolder<M>,Churnable {
+public abstract class AbstractAlgorithm<I> extends AbstractEDNode implements EDProtocol,ModelHolder<I>,ModelQueueHolder<I>,Churnable {
   protected static final String PAR_LAMBDA = "lambda";
   protected double lambda;
   protected static final String PAR_DELAYMEAN = "delayMean";
@@ -25,8 +25,8 @@ public abstract class AbstractAlgorithm<M extends gossipLearning.utils.Cloneable
   protected static final String PAR_MEMORYSIZE = "memory";
   protected int memorySize = 1;
   
-  protected M currentModel;
-  protected Queue<M> observedModels;                       // model queue
+  protected Model<I> currentModel;
+  protected Queue<Model<I>> observedModels;                       // model queue
   
   public void processEvent(Node currentNode, int currentProtocolID, Object messageObj) {
     if ( messageObj instanceof ActiveThreadMessage ||
@@ -71,7 +71,7 @@ public abstract class AbstractAlgorithm<M extends gossipLearning.utils.Cloneable
   @SuppressWarnings("unchecked")
   protected void passiveThread(Node currentNode, int currentProtocolID, Object messageObj) {
     // passive thread => receive & process incomming message
-    ModelMessage<M> message = (ModelMessage<M>) messageObj;
+    ModelMessage<I> message = (ModelMessage<I>) messageObj;
     
     //
     //-------------------- begin of work ------------------
@@ -88,7 +88,7 @@ public abstract class AbstractAlgorithm<M extends gossipLearning.utils.Cloneable
     //
   }
   
-  protected void createModel(M model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
+  protected void createModel(Model<I> model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
     if (isUpdateAndStore) {
       // update the model
       updateModel(model);
@@ -102,9 +102,9 @@ public abstract class AbstractAlgorithm<M extends gossipLearning.utils.Cloneable
     }
   }
   
-  abstract protected void sendModel(M model, Node currentNode, int currentProtocolID);
-  abstract protected void storeModel(M model);
-  abstract protected M updateModel(M model);
+  abstract protected void sendModel(Model<I> model, Node currentNode, int currentProtocolID);
+  abstract protected void storeModel(Model<I> model);
+  abstract protected Model<I> updateModel(Model<I> model);
     
   protected Node selectNeighbor() {
     // selecting a uniform random neighbor to communicate with
@@ -112,15 +112,15 @@ public abstract class AbstractAlgorithm<M extends gossipLearning.utils.Cloneable
     return overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
   }
   
-  public M getModel() {
+  public Model<I> getModel() {
     return currentModel;
   }
   
-  public void setModel(M model) {
+  public void setModel(Model<I> model) {
     currentModel = model;
   }
   
-  public Queue<M> getModelQueue() {
+  public Queue<Model<I>> getModelQueue() {
     return observedModels;
   }
   

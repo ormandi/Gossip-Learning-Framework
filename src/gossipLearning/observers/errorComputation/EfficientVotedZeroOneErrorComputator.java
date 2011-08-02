@@ -9,7 +9,7 @@ import java.util.Vector;
 
 import peersim.core.Network;
 
-public class EfficientVotedZeroOneErrorComputator<I, M extends Model<I>> extends AbstractErrorComputator<I, M> {
+public class EfficientVotedZeroOneErrorComputator<I> extends AbstractErrorComputator<I> {
   protected int numberOfModels = -1;
 
   public EfficientVotedZeroOneErrorComputator(int pid, Vector<I> instances, Vector<Double> labels) {
@@ -17,9 +17,9 @@ public class EfficientVotedZeroOneErrorComputator<I, M extends Model<I>> extends
   }
   
   @SuppressWarnings("unchecked")
-  public double[] computeError(ModelHolder<M> mH, int nodeID) {
-    if (mH instanceof ModelQueueHolder && ((ModelQueueHolder<M>)mH).getModelQueue() instanceof LinkedList) {
-      LinkedList<M> modelQueue = (LinkedList<M>)((ModelQueueHolder<M>) mH).getModelQueue();
+  public double[] computeError(ModelHolder<I> mH, int nodeID) {
+    if (mH instanceof ModelQueueHolder && ((ModelQueueHolder<I>)mH).getModelQueue() instanceof LinkedList) {
+      LinkedList<Model<I>> modelQueue = (LinkedList<Model<I>>)((ModelQueueHolder<I>) mH).getModelQueue();
             
       double[] errors = new double[numberOfComputedErrors()];
       int[] numOfPosPreds = new int[instances.size()];
@@ -30,7 +30,7 @@ public class EfficientVotedZeroOneErrorComputator<I, M extends Model<I>> extends
       for (int modelIdx = modelQueue.size() - 1, errorIdx = 0; errorIdx < errors.length; modelIdx --, errorIdx ++) {
         if (modelIdx >= 0) {
           double error = 0.0;
-          M model = modelQueue.get(modelIdx);
+          Model<I> model = modelQueue.get(modelIdx);
           
           for (int testIdx = 0; testIdx < instances.size(); testIdx ++) {
             I testInstance = instances.get(testIdx);
@@ -65,7 +65,7 @@ public class EfficientVotedZeroOneErrorComputator<I, M extends Model<I>> extends
   @SuppressWarnings("unchecked")
   public int numberOfComputedErrors() {
     if (numberOfModels < 0) {
-      numberOfModels = ((ModelQueueHolder<M>)Network.get(0).getProtocol(pid)).getMemorySize();
+      numberOfModels = ((ModelQueueHolder<I>)Network.get(0).getProtocol(pid)).getMemorySize();
     }
     return numberOfModels;
   }

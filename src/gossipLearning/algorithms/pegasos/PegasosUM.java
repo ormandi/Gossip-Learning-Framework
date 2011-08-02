@@ -2,6 +2,7 @@ package gossipLearning.algorithms.pegasos;
 
 import gossipLearning.algorithms.pegasos.model.PegasosModel;
 import gossipLearning.algorithms.pegasos.model.PegasosModelComparator;
+import gossipLearning.interfaces.Model;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,14 +18,14 @@ public class PegasosUM extends PegasosMU {
     super(prefix);
   }
   
-  public PegasosUM clone() {
+  public Object clone() {
     return new PegasosUM(prefix);
   }
   
-  protected void createModel(PegasosModel model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
+  protected void createModel(Model<Map<Integer,Double>> model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
     if (isUpdateAndStore) {
       // get the previous model which is not updated yet OR the currentModel if it is not available
-      PegasosModel mj = (previousNonUpdatedModel != null) ? previousNonUpdatedModel : currentModel ;
+      PegasosModel mj = (PegasosModel) ((previousNonUpdatedModel != null) ? previousNonUpdatedModel : currentModel);
       // update it
       updateModel(mj);
       long agej = mj.getAge();
@@ -32,7 +33,7 @@ public class PegasosUM extends PegasosMU {
       
       
       // get the currently stored model which cannot be null
-      PegasosModel mi = (currentNonUpdatedModel != null) ? currentNonUpdatedModel : currentModel;
+      PegasosModel mi = (PegasosModel) ((currentNonUpdatedModel != null) ? currentNonUpdatedModel : currentModel);
       // update it
       if ( mc.compare(mj, mi) != 0 ) {
         updateModel(mi);

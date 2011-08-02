@@ -1,6 +1,5 @@
 package gossipLearning.observers;
 
-import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.observers.errorComputation.AbstractErrorComputator;
 import gossipLearning.utils.database.Database;
@@ -18,7 +17,7 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
 
-public class PredictionObserver<I, M extends Model<I>> extends GraphObserver {
+public class PredictionObserver<I> extends GraphObserver {
   private static final String PAR_PROT = "protocol";
   protected final int pid;
   private static final String PAR_FORMAT = "format";
@@ -27,7 +26,7 @@ public class PredictionObserver<I, M extends Model<I>> extends GraphObserver {
   protected final String eval;
   private static final String PAR_EC = "errorComputatorClass";
   
-  protected AbstractErrorComputator<I, M> errorComputator;
+  protected AbstractErrorComputator<I> errorComputator;
     
   @SuppressWarnings({"unchecked", "rawtypes"})
   public PredictionObserver(String prefix) throws Exception {
@@ -85,7 +84,7 @@ public class PredictionObserver<I, M extends Model<I>> extends GraphObserver {
       Protocol p = ((Node) g.getNode(i)).getProtocol(pid);
       if (p instanceof ModelHolder) {
         // evaluating the model of the ith node
-        ModelHolder<M> model = (ModelHolder<M>) p;
+        ModelHolder<I> model = (ModelHolder<I>) p;
         
         double[] errorVecOfNodeI = errorComputator.computeError(model, i);
         for (int j = 0; j < errorComputator.numberOfComputedErrors(); j ++) {

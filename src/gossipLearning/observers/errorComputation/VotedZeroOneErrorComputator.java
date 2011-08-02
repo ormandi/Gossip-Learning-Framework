@@ -7,22 +7,22 @@ import gossipLearning.interfaces.ModelQueueHolder;
 import java.util.Vector;
 
 
-public class VotedZeroOneErrorComputator<I, M extends Model<I>> extends AbstractErrorComputator<I, M> {
+public class VotedZeroOneErrorComputator<I> extends AbstractErrorComputator<I> {
   
   public VotedZeroOneErrorComputator(int pid, Vector<I> instances, Vector<Double> labels) {
     super(pid, instances, labels);
   }
 
   @SuppressWarnings("unchecked")
-  public double[] computeError(ModelHolder<M> mH, int nodeID) {
+  public double[] computeError(ModelHolder<I> mH, int nodeID) {
     if (mH instanceof ModelQueueHolder) {
-      ModelQueueHolder<M> modelHolder = (ModelQueueHolder<M>) mH;
+      ModelQueueHolder<I> modelHolder = (ModelQueueHolder<I>) mH;
       double avgZeroOneErrorOfNodeI = 0.0;
       
       for (int j = 0; j < instances.size(); j ++) {
         I testInstance = instances.get(j);
         double pClassRatio = 0.0;
-        for (M model : modelHolder.getModelQueue()) {
+        for (Model<I> model : modelHolder.getModelQueue()) {
           //double p = (Utils.innerProduct(model.getModel(), testInstance) + model.getBias() > 0.0) ? 1.0 : -1.0;
           double p = model.predict(testInstance);
           pClassRatio += (p == 1.0) ? 1.0 : 0.0;

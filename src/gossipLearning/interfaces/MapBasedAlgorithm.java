@@ -3,7 +3,7 @@ package gossipLearning.interfaces;
 import java.util.Map;
 
 
-public abstract class MapBasedAlgorithm<M extends gossipLearning.utils.Cloneable<M> & Model<Map<Integer,Double>>> extends AbstractAlgorithm<M,Map<Integer,Double>> implements InstanceHolder<Map<Integer,Double>> {
+public abstract class MapBasedAlgorithm extends AbstractAlgorithm<Map<Integer,Double>> implements InstanceHolder<Map<Integer,Double>> {
   protected Map<Integer,Double> x;                                // instance (sparse)
   protected double y;                                             // class label (+1.0 or -1.0)
 

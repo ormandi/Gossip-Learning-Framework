@@ -1,6 +1,7 @@
 package gossipLearning.algorithms.pegasos;
 
 import gossipLearning.algorithms.pegasos.model.PegasosModel;
+import gossipLearning.interfaces.Model;
 import gossipLearning.messages.ModelMessage;
 
 import java.util.Map;
@@ -10,8 +11,8 @@ import peersim.core.Node;
 
 
 public class PegasosMU extends P2Pegasos {
-  protected PegasosModel previousNonUpdatedModel = null;
-  protected PegasosModel currentNonUpdatedModel = null;
+  protected Model<Map<Integer,Double>> previousNonUpdatedModel = null;
+  protected Model<Map<Integer,Double>> currentNonUpdatedModel = null;
   protected String prefix;
   
   public PegasosMU(String prefix) {
@@ -19,14 +20,14 @@ public class PegasosMU extends P2Pegasos {
     this.prefix = prefix;
   }
   
-  public PegasosMU clone() {
+  public Object clone() {
     return new PegasosMU(prefix);
   }
   
   @SuppressWarnings("unchecked")
   protected void passiveThread(Node currentNode, int currentProtocolID, Object messageObj) {
     // passive thread => receive & process incomming message
-    ModelMessage<PegasosModel> message = (ModelMessage<PegasosModel>) messageObj;
+    ModelMessage<Map<Integer,Double>> message = (ModelMessage<Map<Integer,Double>>) messageObj;
     
     //
     //-------------------- begin of work ------------------
@@ -34,7 +35,7 @@ public class PegasosMU extends P2Pegasos {
     
     // process incomming message
     previousNonUpdatedModel = currentNonUpdatedModel;
-    currentNonUpdatedModel = message.getModel();
+    currentNonUpdatedModel = (PegasosModel) message.getModel();
     
     // do a gradient update on the received model and send it
     createModel(null, currentNode, currentProtocolID, true, false);
@@ -44,15 +45,15 @@ public class PegasosMU extends P2Pegasos {
     //
   }
   
-  protected void createModel(PegasosModel model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
+  protected void createModel(Model<Map<Integer,Double>> model, Node currentNode, int currentProtocolID, boolean isUpdateAndStore, boolean isSend) {
     if (isUpdateAndStore) {
       // get the previous model which is not updated yet OR the currentModel if it is not available
-      PegasosModel mj = (previousNonUpdatedModel != null) ? previousNonUpdatedModel : currentModel ;
+      PegasosModel mj = (PegasosModel)((previousNonUpdatedModel != null) ? previousNonUpdatedModel : currentModel) ;
       long agej = mj.getAge();
       Map<Integer, Double> wj = mj.getW();
       
       // get the currently stored model which cannot be null
-      PegasosModel mi = (currentNonUpdatedModel != null) ? currentNonUpdatedModel : currentModel;
+      PegasosModel mi = (PegasosModel)((currentNonUpdatedModel != null) ? currentNonUpdatedModel : currentModel);
       long agei = mi.getAge() ;
       Map<Integer, Double> wi = mi.getW();
       
