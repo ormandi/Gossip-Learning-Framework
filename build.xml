@@ -24,7 +24,7 @@
   <!--Remote run properites -->
   <property name="remoteRunDir" value="~/gossipLearning"/>
   <property name="remoteRunScript" value="run.sh"/>
-  <property name="remoteRunHost" value="localhost"/>
+  <property name="remoteRunHost" value="rgai"/>
   <property name="sshKeyFile" value="${env.HOME}/.ssh/id_rsa"/>
    
   
@@ -70,8 +70,9 @@
     <delete file="${bin}/${jarName}"/>
   </target>
   
-  <target name="doc" depends="init" description="generate api doc">
-    <!-- Generate doc -->
+  <target name="doc" depends="compile" description="generates javadoc and class diagrams">
+    <!-- Generate doc with class diagrams-->
+    <!-- dot from graphviz is required for building class diagrams -->
     <javadoc destdir="${apidoc}" extdirs="${lib}" author="true" version="true" use="true" windowtitle="${projectName}">
       <fileset dir="${src}" defaultexcludes="yes">
         <include name="**/*.java"/>
@@ -84,12 +85,22 @@
       <tag name="fixme" scope="all" description="Fix me:" enabled="true"/>
       <doctitle><![CDATA[<h1>Gossip Learning</h1>]]></doctitle>
       <bottom><![CDATA[<i>Copyright &#169; 2011 Robert Ormandi, Szeged. All Rights Reserved.</i>]]></bottom>
+      <doclet name="org.umlgraph.doclet.UmlGraphDoc" path="${lib}/build/UmlGraph-5.4.jar">
+        <param name="-inferrel" />
+        <param name="-attributes" />
+        <param name="-operations" />
+        <param name="-qualify" />
+        <param name="-types" />
+        <param name="-visibility" />
+      </doclet>
     </javadoc>
-  </target>
+  </target> 
   
   <target name="remoteRun" depends="dist">
     <!-- Remote run -->
+    <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp" classpath="${lib}/build/jsch-0.1.44.jar;${lib}/build/ant-jsch-1.8.2.jar"/>
     <scp file="${bin}/${jarName}" todir="${env.USER}@${remoteRunHost}:${remoteRunDir}" keyfile="${sshKeyFile}"/>
+    <taskdef name="sshexec" classname="org.apache.tools.ant.taskdefs.optional.ssh.SSHExec" classpath="${lib}/build/jsch-0.1.44.jar;${lib}/build/ant-jsch-1.8.2.jar"/>
     <sshexec host="${remoteRunHost}" username="${env.USER}" keyfile="${sshKeyFile}" command="cd ${remoteRunDir} &amp;&amp; ./${remoteRunScript}"/>
   </target>
   
@@ -102,7 +113,9 @@
     </copy>
     <mkdir dir="${dist}/lib"/>
     <copy todir="${dist}/lib">
-      <fileset dir="${lib}"/>
+      <fileset dir="${lib}">
+        <exclude name="build/"/>
+      </fileset>
     </copy>
     <mkdir dir="${dist}/res"/>
     <copy todir="${dist}/res">
