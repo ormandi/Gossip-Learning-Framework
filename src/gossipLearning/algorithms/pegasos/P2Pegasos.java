@@ -39,6 +39,7 @@ public class P2Pegasos extends MapBasedAlgorithm {
     return new P2Pegasos(lambda, delayMean, delayVar, memorySize);    
   }
   
+  @Override
   protected void sendModel(Model<Map<Integer,Double>> model, Node currentNode, int currentProtocolID) {
     // select a uniform random node and send my model to him
     Node neighbor = selectNeighbor();
@@ -46,6 +47,7 @@ public class P2Pegasos extends MapBasedAlgorithm {
     transport.send(currentNode, neighbor, new ModelMessage<Map<Integer,Double>>(currentNode, model), currentProtocolID);
   }
   
+  @Override
   protected void storeModel(Model<Map<Integer,Double>> model) {
     // store the new model in the limited sized model queue
     PegasosModel pModel = (PegasosModel)model;
@@ -55,6 +57,7 @@ public class P2Pegasos extends MapBasedAlgorithm {
     }
   }
   
+  @Override
   protected Model<Map<Integer,Double>> updateModel(Model<Map<Integer,Double>> model) {
     PegasosModel pModel = (PegasosModel) model;
     pModel.setAge(pModel.getAge() + 1);
@@ -83,6 +86,7 @@ public class P2Pegasos extends MapBasedAlgorithm {
     return pModel;
   }
   
+  @Override
   public void initModel() {
     currentModel = new PegasosModel(new TreeMap<Integer, Double>(), 0.0, 1);
   }
