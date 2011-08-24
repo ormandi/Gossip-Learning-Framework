@@ -16,6 +16,8 @@ import peersim.core.Node;
 import peersim.transport.Transport;
 
 public class P2Pegasos extends MapBasedAlgorithm {
+  protected static final String PAR_LAMBDA = "lambda";
+  protected double lambda;
   
   @SuppressWarnings({ "unchecked", "rawtypes" })
   protected P2Pegasos(double lambda, double delayMean, double delayVar, int memorySize) {
@@ -62,18 +64,18 @@ public class P2Pegasos extends MapBasedAlgorithm {
     PegasosModel pModel = (PegasosModel) model;
     pModel.setAge(pModel.getAge() + 1);
     double nu = 1.0/(lambda * (double) (pModel.getAge()));
-    boolean isSV = y * Utils.innerProduct(pModel.getW(), x) < 1.0;
+    boolean isSV = getLabel() * Utils.innerProduct(pModel.getW(), getInstance()) < 1.0;
     int max = findMaxIdx();
     for (int i = 0; i <= max; i ++) {
       Double wOldCompD = pModel.getW().get(i);
-      Double xCompD = x.get(i);
+      Double xCompD = getInstance().get(i);
       if (wOldCompD != null || xCompD != null) {
         double wOldComp = (wOldCompD == null) ? 0.0 : wOldCompD.doubleValue();
         double xComp = (xCompD == null) ? 0.0 : xCompD.doubleValue();
         if (isSV) {
           // the current point in the current model is a SV
           // => applying the SV-based update rule
-          pModel.getW().put(i, (1.0 - 1.0/((double)pModel.getAge())) * wOldComp + nu * y * xComp);
+          pModel.getW().put(i, (1.0 - 1.0/((double)pModel.getAge())) * wOldComp + nu * getLabel() * xComp);
         } else {
           // the current point is not a SV in the currently stored model
           // => applying the normal update rule
@@ -98,7 +100,7 @@ public class P2Pegasos extends MapBasedAlgorithm {
         max = d;
       }
     }
-    for (int d : x.keySet()) {
+    for (int d : getInstance().keySet()) {
       if (d > max) {
         max = d;
       }

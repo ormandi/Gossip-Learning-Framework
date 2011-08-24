@@ -4,8 +4,8 @@ import java.util.Map;
 
 
 public abstract class MapBasedAlgorithm extends AbstractAlgorithm<Map<Integer,Double>> implements InstanceHolder<Map<Integer,Double>> {
-  protected Map<Integer,Double> x;                                // instance (sparse)
-  protected double y;                                             // class label (+1.0 or -1.0)
+  private Map<Integer,Double> x;                                // instance (sparse)
+  private double y;                                             // class label (+1.0 or -1.0)
 
   public Map<Integer, Double> getInstance() {
     return x;

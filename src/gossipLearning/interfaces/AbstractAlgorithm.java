@@ -16,8 +16,6 @@ import peersim.edsim.EDSimulator;
 
 @SuppressWarnings("rawtypes")
 public abstract class AbstractAlgorithm<I> extends AbstractEDNode implements EDProtocol,ModelHolder<I>,ModelQueueHolder<I>,Churnable {
-  protected static final String PAR_LAMBDA = "lambda";
-  protected double lambda;
   protected static final String PAR_DELAYMEAN = "delayMean";
   protected double delayMean = Double.POSITIVE_INFINITY;
   protected static final String PAR_DELAYVAR = "delayVar";
