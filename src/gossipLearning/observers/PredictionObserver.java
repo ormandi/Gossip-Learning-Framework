@@ -27,8 +27,12 @@ public class PredictionObserver<I> extends GraphObserver {
   private static final String PAR_EC = "errorComputatorClass";
   
   protected AbstractErrorComputator<I> errorComputator;
+  
+  private Constructor<? extends AbstractErrorComputator<I>> errorComputatorConstructor;
+  private Vector<I> instances;
+  private Vector<Double> labels;
     
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings("unchecked")
   public PredictionObserver(String prefix) throws Exception {
     super(prefix);
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
@@ -38,14 +42,13 @@ public class PredictionObserver<I> extends GraphObserver {
     // read instances and convert them to inner sparse representation
     DatabaseReader<I> reader = DatabaseReader.createReader(new File(eval)); // FIXME: get a correct reader
     Database<I> db = reader.getDatabase(); 
-    Vector<I> instances = db.getInstances();
-    Vector<Double> labels = db.getLabels();
+    instances = db.getInstances();
+    labels = db.getLabels();
     
     // create error computator
     String errorComputatorClassName = Configuration.getString(prefix + "." + PAR_EC);
-    Class<? extends AbstractErrorComputator> errorCompuatorClass = (Class<? extends AbstractErrorComputator>) Class.forName(errorComputatorClassName);
-    Constructor<? extends AbstractErrorComputator> errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, instances.getClass(), labels.getClass());
-    errorComputator = errorComputatorConstructor.newInstance(pid, instances, labels);
+    Class<? extends AbstractErrorComputator<I>> errorCompuatorClass = (Class<? extends AbstractErrorComputator<I>>) Class.forName(errorComputatorClassName);
+    errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, instances.getClass(), labels.getClass());
   }
   
   protected Set<Integer> generateIndices() {
@@ -58,6 +61,11 @@ public class PredictionObserver<I> extends GraphObserver {
   
   @SuppressWarnings("unchecked")
   public boolean execute() {
+    try {
+      errorComputator = errorComputatorConstructor.newInstance(pid, instances, labels);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     updateGraph();
     
     double[] errorCounter = new double[errorComputator.numberOfComputedErrors()];
@@ -88,7 +96,7 @@ public class PredictionObserver<I> extends GraphObserver {
         
         double[] errorVecOfNodeI = errorComputator.computeError(model, i);
         for (int j = 0; j < errorComputator.numberOfComputedErrors(); j ++) {
-          // aggregate the results of nodes in term of jth eror
+          // aggregate the results of nodes in term of jth error
           errorCounter[j] ++;
           devError[j] += errorVecOfNodeI[j] * errorVecOfNodeI[j];
           avgError[j] += errorVecOfNodeI[j];
@@ -119,5 +127,38 @@ public class PredictionObserver<I> extends GraphObserver {
     
     return false;
   }
+
+  /**
+   * Returns the instances of the test database as a Vector.
+   * @return test instances.
+   */
+  public Vector<I> getInstances() {
+    return instances;
+  }
+
+  /**
+   * Stores the instances as test database.
+   * @param instances - instances for testing.
+   */
+  public void setInstances(Vector<I> instances) {
+    this.instances = instances;
+  }
+
+  /**
+   * Returns the labels belong to the test instances.
+   * @return labels of test instances.
+   */
+  public Vector<Double> getLabels() {
+    return labels;
+  }
+
+  /**
+   * Sets the labels for the instances of test database.
+   * @param labels - labels of test instances.
+   */
+  public void setLabels(Vector<Double> labels) {
+    this.labels = labels;
+  }
+  
 
 }
