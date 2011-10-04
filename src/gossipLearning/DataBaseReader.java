@@ -90,27 +90,11 @@ public class DataBaseReader {
   }
   
   /**
-   * Returns the labels of the parsed training set as a Vector<Double> object.
-   * @return - the labels of training set.
-   */
-  public Vector<Double> getTrainingLabels(){
-    return trainingSet.getLabels();
-  }
-  
-  /**
    * Returns the instances of the parsed evaluation set as a Vector<Map<Integer, Double>> object.
    * @return - evaluation set.
    */
   public Vector<Map<Integer, Double>> getEvalInstances(){
     return evalSet.getInstances();
-  }
-  
-  /**
-   * Returns the labels of the parsed evaluation set as a Vector<Double> object.
-   * @return - the labels of evaluation set.
-   */
-  public Vector<Double> getEvalLabels(){
-    return evalSet.getLabels();
   }
   
   /**
