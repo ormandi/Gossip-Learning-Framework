@@ -1,41 +1,35 @@
-package gossipLearning.initializers;
+package gossipLearning.controls.initializers;
 
-import gossipLearning.interfaces.InstanceHolder;
-import gossipLearning.interfaces.InstancesHolder;
-import gossipLearning.utils.database.Database;
-import gossipLearning.utils.database.DatabaseReader;
+import gossipLearning.DataBaseReader;
+import gossipLearning.controls.observers.PredictionObserver;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Vector;
 
 import peersim.config.Configuration;
 import peersim.core.Control;
-import peersim.core.Network;
-import peersim.core.Node;
-import peersim.core.Protocol;
 
-public class InstanceLoader<I> implements Control {
+public class InstanceLoader implements Control {
   public static final String PAR_PROT = "protocol";
-  public static final String PAR_FILE = "file";
-  protected final int pid;
-  protected final File file;
-  //
+  public static final String PAR_TFILE = "trainingFile";
+  public static final String PAR_OBSERVER = "observer";
+  public static final String PAR_EFILE = "evaluationFile";
+  
+  private final int pid;
+  private final File tFile;
+  private final PredictionObserver observer;
+  private final File eFile;
     
   public InstanceLoader(String prefix) {
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
-    file = new File(Configuration.getString(prefix + "." + PAR_FILE));
+    tFile = new File(Configuration.getString(prefix + "." + PAR_TFILE));
+    observer = (PredictionObserver) Configuration.getInstance(prefix + "." + PAR_OBSERVER);
+    eFile = new File(Configuration.getString(prefix + "." + PAR_EFILE));
   }
-  
-  @SuppressWarnings("unchecked")
   public boolean execute(){
     try {
       // read instances
-      DatabaseReader<I> reader = DatabaseReader.createReader(file); // FIXME: get a correct reader
-      Database<I> db = reader.getDatabase();
-      Vector<I> instances = db.getInstances();
-      Vector<Double> labels = db.getLabels();
+      DataBaseReader reader = DataBaseReader.createDataBaseReader(tFile, eFile);
+      /*
       
       // init the nodes by adding the instances read before
       
@@ -60,16 +54,11 @@ public class InstanceLoader<I> implements Control {
           throw new RuntimeException("The protocol " + pid + " have to implements InstanceHolder or InstancesHolder interfaces!");
         }
       }
-    } catch (FileNotFoundException ex) {
-      System.err.println("Instances file is missing: " + ex.getMessage() + "!");
-      ex.printStackTrace(System.err);
-    } catch (IOException ex) {
-      System.err.println("Reading error of instances file: " + ex.getMessage() + "!");
-      ex.printStackTrace(System.err);
+      */
     } catch (Exception ex) {
-      System.err.println("Other exception: " + ex.getMessage() + "!");
-      ex.printStackTrace(System.err);
+      throw new RuntimeException("Exception has occurred in InstanceLoader!", ex);
     }
+    
     return false;
   }
 

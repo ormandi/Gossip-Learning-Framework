@@ -7,7 +7,8 @@ import java.util.Vector;
 /**
  * This class stores instances and the corresponding class labels in Vector containers. 
  * An instance is represented as a Map<Integer, Double> and the class label is as a double value. 
- * @author Istvan Hegedus
+ * 
+ * @author István Hegedűs
  *
  */
 public class InstanceHolder implements Serializable{

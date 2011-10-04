@@ -12,7 +12,7 @@ public class Utils {
    * @param y - second vector
    * @return innerProduct
    */
-  public static double innerProduct(Map<Integer, Double> x, Map<Integer, Double> y) {
+  public static double innerProduct(final Map<Integer, Double> x, final Map<Integer, Double> y) {
     if (x == null || y == null || x.size() == 0 || y.size() == 0) {
       return 0.0;
     }
@@ -25,36 +25,6 @@ public class Utils {
     return ret;
   }
   
-  public static double innerProduct(double[] x, double[] y){
-    int min = Math.min(x.length, y.length);
-    double result = 0.0;
-    for (int i = 0; i < min; i++){
-      result += x[i] * y[i];
-    }
-    return result;
-  }
-  
-  public static double getNorm(double[] x){
-    double result = 0.0;
-    for (int i = 0; i < x.length; i++){
-      result += x[i] * x[i];
-    }
-    return Math.sqrt(result);
-  }
-  
-  public static BigDecimal innerProductBig(Map<Integer, BigDecimal> x, Map<Integer, Double> y) {
-    if (x == null || y == null || x.size() == 0 || y.size() == 0) {
-      return new BigDecimal(0.0);
-    }
-    BigDecimal ret = new BigDecimal(0.0);
-    for (int id : x.keySet()) {
-      if (y.containsKey(id)) {
-        ret = ret.add(x.get(id).multiply(new BigDecimal(y.get(id))));
-      }
-    }
-    return ret;
-  }
-  
   /**
    * It computes the Cosine similarity between two models which are vectors in sparse representation (map) basically.
    * 
@@ -62,7 +32,7 @@ public class Utils {
    * @param y - second model
    * @return Cosine similarity between the models. If both of them are 0 vectors, the method returns 1.0. If eighter of them is zero vector or null, it return 0.0.
    */
-  public static double computeSimilarity(Map<Integer, Double> x, Map<Integer, Double> y) {
+  public static double computeSimilarity(final Map<Integer, Double> x, final Map<Integer, Double> y) {
     if (x != null && x.size() == 0 && y != null && y.size() == 0) {
       return 1.0;
     } else if (x.size() == 0 || y.size() == 0 || x == null || y == null) {
@@ -85,22 +55,12 @@ public class Utils {
     return innerP / Math.sqrt(xN * yN);
   }
   
-  public static double computeSimilarity(double[] x, double[] y){
-    double inerp = 0.0;
-    double xN = 0.0;
-    double yN = 0.0;
-    if (x.length != y.length){
-      throw new RuntimeException("cos sim");
-    }
-    for (int i = 0; i < x.length; i++){
-      xN += x[i] * x[i];
-      yN += y[i] * y[i];
-      inerp += x[i] * y[i];
-    }
-    return inerp / Math.sqrt(xN * yN);
-  }
-  
-  public static Map<Integer, Double> normalizeVector(Map<Integer, Double> vector){
+  /**
+   * Returns the normalized vector of the specified vector.
+   * @param vector - vector to be normalized
+   * @return normalized vector
+   */
+  public static Map<Integer, Double> normalize(final Map<Integer, Double> vector){
     double norm = 0.0;
     for (int i : vector.keySet()){
       norm += vector.get(i) * vector.get(i);
@@ -113,22 +73,39 @@ public class Utils {
     return normalized; 
   }
   
-  public static void normalize(double[] x){
+  /**
+   * Returns the squared norm of the specified vector.
+   * @param vector - vector to get squared norm
+   * @return squared norm
+   */
+  public static double getNorm(final Map<Integer, Double> vector){
     double norm = 0.0;
-    for (int i = 0; i < x.length; i++){
-      norm += x[i] * x[i];
-    }
-    if (norm == 0.0){
-      return;
+    for (int i : vector.keySet()){
+      norm += vector.get(i) * vector.get(i);
     }
     norm = Math.sqrt(norm);
-    for (int i = 0; i < x.length; i++){
-      x[i] /= norm;
-    }
+    return norm;
   }
   
-  public static double log2(double x){
-    return Math.log(x) / Math.log(2);
+  /**
+   * Finds the maximal index of specified vectors.
+   * @param a - vector a
+   * @param b - vector b
+   * @return maximal index
+   */
+  public static int findMaxIdx(final Map<Integer, Double> a, final Map<Integer, Double> b) {
+    int max = - Integer.MAX_VALUE;
+    for (int d : a.keySet()) {
+      if (d > max) {
+        max = d;
+      }
+    }
+    for (int d : b.keySet()) {
+      if (d > max) {
+        max = d;
+      }
+    }
+    return max;
   }
 
 }

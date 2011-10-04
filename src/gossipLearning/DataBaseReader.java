@@ -1,4 +1,4 @@
-package gossipLearning.utils;
+package gossipLearning;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,7 +12,8 @@ import java.util.Vector;
  * This class reads and stores the training and the evaluation sets for training machine learning algorithms 
  * and is represented as a singleton. The required files are the training and the evaluation file names with paths. <br/>
  * The files should have Jochaims's SVMLight format.
- * @author Istvan Hegedus
+ * 
+ * @author István Hegedűs
  *
  */
 public class DataBaseReader {
