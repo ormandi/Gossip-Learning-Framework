@@ -8,6 +8,13 @@ import java.io.File;
 import peersim.config.Configuration;
 import peersim.core.Control;
 
+/**
+ * This control reads the training and evaluation files and
+ *  
+ * 
+ * @author Róbert Ormándi
+ *
+ */
 public class InstanceLoader implements Control {
   public static final String PAR_PROT = "protocol";
   public static final String PAR_TFILE = "trainingFile";
@@ -29,6 +36,7 @@ public class InstanceLoader implements Control {
     try {
       // read instances
       DataBaseReader reader = DataBaseReader.createDataBaseReader(tFile, eFile);
+      // TODO: fill nodes and prediction observer
       /*
       
       // init the nodes by adding the instances read before

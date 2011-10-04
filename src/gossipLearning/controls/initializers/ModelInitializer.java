@@ -1,4 +1,4 @@
-package gossipLearning.initializers;
+package gossipLearning.controls.initializers;
 
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
@@ -8,7 +8,7 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.core.Protocol;
 
-public class ModelInitializer<M extends Model<?>> implements Control {
+public class ModelInitializer implements Control {
   private static final String PAR_PROT = "protocol";
   private final int pid;
   
@@ -16,7 +16,6 @@ public class ModelInitializer<M extends Model<?>> implements Control {
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
   }
   
-  @SuppressWarnings("unchecked")
   public boolean execute() {
     // init the nodes
     for (int i = 0; i < Network.size(); i++) {

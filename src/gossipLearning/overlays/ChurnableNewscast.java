@@ -1,7 +1,7 @@
 package gossipLearning.overlays;
 
-import p2pChurn.controls.ChurnControl;
-import p2pChurn.interfaces.Churnable;
+import gossipLearning.controls.ChurnControl;
+import gossipLearning.interfaces.Churnable;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Fallible;
@@ -12,24 +12,27 @@ import peersim.extras.mj.ednewscast.CycleMessage;
 import peersim.extras.mj.ednewscast.EdNewscast;
 
 /**
- * This is a simple extension of the EDProtocol based Newscast which supports the modelling of churn.
+ * This is a simple extension of the EDProtocol based Newscast 
+ * which supports the modelling of churn.
  * 
- * @author ormandi
+ * @author Róbert Ormándi
  *
  */
 public class ChurnableNewscast extends EdNewscast implements Churnable {
   protected int cacheSize;
   private long sessionLength = ChurnControl.INIT_SESSION_LENGTH;
-  public static String p = "";
+  private final String prefix;
+  private Node currentNode;
+  private int currentProtocolID;
   
   public ChurnableNewscast(String prefix) {
     super(prefix);
     cacheSize = Configuration.getInt(prefix + ".cache");
-    p = prefix;
+    this.prefix = prefix;
   }
   
   public ChurnableNewscast clone() {
-    return new ChurnableNewscast(p);
+    return new ChurnableNewscast(prefix);
   }
 
   public long getSessionLength() {
@@ -40,7 +43,7 @@ public class ChurnableNewscast extends EdNewscast implements Churnable {
     this.sessionLength = sessionLength;
   }
 
-  public void init(Node currentNode, int currentProtocolID) {
+  public void initSession() {
     deleteNeighbors();
     while (degree() < cacheSize) {
       int onlineNeighbor = CommonState.r.nextInt(Network.size());
@@ -52,5 +55,12 @@ public class ChurnableNewscast extends EdNewscast implements Churnable {
       }
     }
     EDSimulator.add(0, CycleMessage.inst, currentNode, currentProtocolID);
+  }
+  
+  @Override
+  public void processEvent(Node currentNode, int currentProtocolID, Object messageObject) {
+    this.currentNode = currentNode;
+    this.currentProtocolID = currentProtocolID;
+    super.processEvent(currentNode, currentProtocolID, messageObject);
   }
 }

@@ -1,6 +1,5 @@
 package gossipLearning.interfaces;
 
-import peersim.core.Node;
 
 /**
  * Protocols implementing this interface can model churn i.e. logging in and out of nodes.
@@ -23,8 +22,6 @@ public interface Churnable {
   public long getSessionLength();
   /**
    * This method is called by control ChurnControl each time when a node logs in to the neighbor.
-   * @param currentNode
-   * @param currentProtocolID
    */
-  public void init(Node currentNode, int currentProtocolID);
+  public void initSession();
 }

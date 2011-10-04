@@ -1,5 +1,8 @@
 package gossipLearning.modelHolders;
 
+import gossipLearning.interfaces.Model;
+import gossipLearning.interfaces.ModelHolder;
+
 import java.util.Vector;
 
 /**
