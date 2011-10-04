@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Vector;
 
 /**
  * This class reads and stores the training and the evaluation sets for training machine learning algorithms 
@@ -30,10 +29,10 @@ public class DataBaseReader {
   
   /**
    * This method parses the given file into collections of instances and corresponding class labels.
-   * @param file - the file that have to be parsed
-   * @param instances - the collection for the result instances
-   * @param labels - the collection for the result labels
-   * @throws IOException - if file reading error occurs.
+   * @param file the file that have to be parsed
+   * @param instances the collection for the result instances
+   * @param labels the collection for the result labels
+   * @throws IOException if file reading error occurs.
    */
   private static InstanceHolder parseFile(final File file) throws IOException{
     // throw exception if the file does not exist or null
@@ -82,38 +81,38 @@ public class DataBaseReader {
   }
   
   /**
-   * Returns the instances of the parsed training set as a Vector<Map<Integer, Double>> object.
-   * @return - training set.
+   * Returns a collection of the instances and corresponding labels of the parsed training set.
+   * @return training set.
    */
-  public Vector<Map<Integer, Double>> getTrainingInstances(){
-    return trainingSet.getInstances();
+  public InstanceHolder getTrainingSet() {
+    return trainingSet;
   }
   
   /**
-   * Returns the instances of the parsed evaluation set as a Vector<Map<Integer, Double>> object.
-   * @return - evaluation set.
+   * Returns a collection of the instances and the corresponding labels of the parsed evaluation set.
+   * @return evaluation set.
    */
-  public Vector<Map<Integer, Double>> getEvalInstances(){
-    return evalSet.getInstances();
+  public InstanceHolder getEvalSet() {
+    return evalSet;
   }
   
   /**
    * Returns the String representation of the class.
    */
-  public String toString(){
+  public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append("#train: " + DataBaseReader.tFile + "\n");
-    for (int i = 0; i < trainingSet.size(); i++){
+    for (int i = 0; i < trainingSet.size(); i++) {
       sb.append(trainingSet.getLabel(i));
-      for (int index : trainingSet.getInstance(i).keySet()){
+      for (int index : trainingSet.getInstance(i).keySet()) {
         sb.append(" " + index + ":" + trainingSet.getInstance(i).get(index));
       }
       sb.append("\n");
     }
     sb.append("#eval: " + DataBaseReader.eFile + "\n");
-    for (int i = 0; i < evalSet.size(); i++){
+    for (int i = 0; i < evalSet.size(); i++) {
       sb.append(evalSet.getLabel(i));
-      for (int index : evalSet.getInstance(i).keySet()){
+      for (int index : evalSet.getInstance(i).keySet()) {
         sb.append(" " + index + ":" + evalSet.getInstance(i).get(index));
       }
       sb.append("\n");
@@ -128,13 +127,13 @@ public class DataBaseReader {
   /**
    * Creates and returns a DataBaseReader object that contains the training and the evaluation sets. 
    * Based on the parameter files that should have Jochaims's SVMLight format.
-   * @param tFile - the training file
-   * @param eFile - the evaluation file
-   * @return - An instance of this class
-   * @throws IOException - if file reading error occurs.
+   * @param tFile the training file
+   * @param eFile the evaluation file
+   * @return An instance of this class
+   * @throws IOException if file reading error occurs.
    */
-  public static final DataBaseReader createDataBaseReader(final File tFile, final File eFile) throws IOException{
-    if (instance == null || !tFile.equals(DataBaseReader.tFile) || !eFile.equals(DataBaseReader.eFile)){
+  public static final DataBaseReader createDataBaseReader(final File tFile, final File eFile) throws IOException {
+    if (instance == null || !tFile.equals(DataBaseReader.tFile) || !eFile.equals(DataBaseReader.eFile)) {
       DataBaseReader.tFile = tFile;
       DataBaseReader.eFile = eFile;
       DataBaseReader.instance = new DataBaseReader(tFile, eFile);
@@ -142,13 +141,4 @@ public class DataBaseReader {
     return instance;
   }
   
-  /**
-   * For testing...
-   * @param args
-   */
-  public static void main(String[] args) throws Exception{
-    DataBaseReader dr = createDataBaseReader(new File("train.dat"), new File("test.dat"));
-    System.out.println(dr);
-  }
-
 }
