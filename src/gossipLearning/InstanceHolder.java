@@ -2,6 +2,7 @@ package gossipLearning;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Vector;
 
 /**
@@ -30,6 +31,32 @@ public class InstanceHolder implements Serializable{
     size = 0;
     instances = new Vector<Map<Integer,Double>>();
     labels = new Vector<Double>();
+  }
+  
+  /**
+   * Copy constructor.
+   * @param size
+   * @param instances
+   * @param labels
+   */
+  private InstanceHolder(int size, Vector<Map<Integer, Double>> instances, Vector<Double> labels){
+    this.size = size;
+    this.instances = new Vector<Map<Integer,Double>>();
+    this.labels = new Vector<Double>();
+    for (int i = 0; i < instances.size(); i++){
+      Map<Integer, Double> tmp = new TreeMap<Integer, Double>();
+      for (int key : instances.get(i).keySet()){
+        tmp.put(key, (double)instances.get(i).get(key));
+      }
+      this.instances.add(tmp);
+    }
+    for (int i = 0; i < labels.size(); i++){
+      this.labels.add((double)labels.get(i));
+    }
+  }
+  
+  public Object clone(){
+    return new InstanceHolder(size, instances, labels);
   }
   
   /**

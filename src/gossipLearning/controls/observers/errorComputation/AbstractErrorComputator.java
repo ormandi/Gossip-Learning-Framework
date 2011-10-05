@@ -1,20 +1,17 @@
-package gossipLearning.observers.errorComputation;
+package gossipLearning.controls.observers.errorComputation;
 
+import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.ModelHolder;
 
-import java.util.Vector;
-
-public abstract class AbstractErrorComputator<I> {
+public abstract class AbstractErrorComputator {
   protected final int pid;
-  protected final Vector<I> instances;
-  protected final Vector<Double> labels;
+  protected final InstanceHolder eval;
   
-  public AbstractErrorComputator(int pid, Vector<I> instances, Vector<Double> labels) {
+  public AbstractErrorComputator(int pid, InstanceHolder eval) {
     this.pid = pid;
-    this.instances = instances;
-    this.labels = labels;
+    this.eval = eval;
   }
-  public abstract double[] computeError(ModelHolder<I> modelHolder, int nodeID);
+  public abstract double[] computeError(ModelHolder modelHolder, int nodeID);
   public abstract int numberOfComputedErrors();
 
 }

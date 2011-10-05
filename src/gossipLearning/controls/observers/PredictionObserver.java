@@ -1,9 +1,8 @@
-package gossipLearning.observers;
+package gossipLearning.controls.observers;
 
+import gossipLearning.InstanceHolder;
+import gossipLearning.controls.observers.errorComputation.AbstractErrorComputator;
 import gossipLearning.interfaces.ModelHolder;
-import gossipLearning.observers.errorComputation.AbstractErrorComputator;
-import gossipLearning.utils.database.Database;
-import gossipLearning.utils.database.DatabaseReader;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -17,38 +16,41 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
 
-public class PredictionObserver<I> extends GraphObserver {
+public class PredictionObserver extends GraphObserver {
   private static final String PAR_PROT = "protocol";
   protected final int pid;
   private static final String PAR_FORMAT = "format";
   protected final String format;
-  private static final String PAR_EVAL = "eval";
-  protected final String eval;
+  //private static final String PAR_EVAL = "eval";
+  //protected final String eval;
   private static final String PAR_EC = "errorComputatorClass";
   
-  protected AbstractErrorComputator<I> errorComputator;
+  protected AbstractErrorComputator errorComputator;
   
-  private Constructor<? extends AbstractErrorComputator<I>> errorComputatorConstructor;
-  private Vector<I> instances;
-  private Vector<Double> labels;
+  private Constructor<? extends AbstractErrorComputator> errorComputatorConstructor;
+  private InstanceHolder eval;
     
   @SuppressWarnings("unchecked")
   public PredictionObserver(String prefix) throws Exception {
     super(prefix);
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
     format = Configuration.getString(prefix + "." + PAR_FORMAT, "");
-    eval = Configuration.getString(prefix + "." + PAR_EVAL);
+    //eval = Configuration.getString(prefix + "." + PAR_EVAL);
     
     // read instances and convert them to inner sparse representation
-    DatabaseReader<I> reader = DatabaseReader.createReader(new File(eval)); // FIXME: get a correct reader
-    Database<I> db = reader.getDatabase(); 
-    instances = db.getInstances();
-    labels = db.getLabels();
+    //DatabaseReader<I> reader = DatabaseReader.createReader(new File(eval)); // FIXME: get a correct reader
+    //Database<I> db = reader.getDatabase(); 
+    //instances = db.getInstances();
+    //labels = db.getLabels();
     
     // create error computator
     String errorComputatorClassName = Configuration.getString(prefix + "." + PAR_EC);
-    Class<? extends AbstractErrorComputator<I>> errorCompuatorClass = (Class<? extends AbstractErrorComputator<I>>) Class.forName(errorComputatorClassName);
-    errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, instances.getClass(), labels.getClass());
+    Class<? extends AbstractErrorComputator> errorCompuatorClass = (Class<? extends AbstractErrorComputator>) Class.forName(errorComputatorClassName);
+    errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, InstanceHolder.class);
+  }
+  
+  public void setEvalSet(InstanceHolder eval) {
+    this.eval = eval;
   }
   
   protected Set<Integer> generateIndices() {
@@ -62,7 +64,7 @@ public class PredictionObserver<I> extends GraphObserver {
   @SuppressWarnings("unchecked")
   public boolean execute() {
     try {
-      errorComputator = errorComputatorConstructor.newInstance(pid, instances, labels);
+      errorComputator = errorComputatorConstructor.newInstance(pid, eval);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
