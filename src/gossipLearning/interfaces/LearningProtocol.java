@@ -19,11 +19,19 @@ public interface LearningProtocol {
    */
   public void passiveThread(ModelMessage message);
   
-  // TODO: comments...
+  /**
+   * It provides accessing to the instances stored by the current node.
+   * 
+   * @return An InstanceHolder
+   */
   public InstanceHolder getInstanceHolder();
   public void setInstenceHolder(InstanceHolder instances);
-  // TODO: some refactoring...
-  public ModelHolder[] getModelHolders();
-  public void setModelHolders(ModelHolder[] models);
+  
+  // modelHolders
+  public int size();
+  public ModelHolder getModelHolder(int index);
+  public void setModelHolder(int index, ModelHolder modelHolder);
+  public boolean add(ModelHolder modelHolder);
+  public ModelHolder remove(int index);
 }
 

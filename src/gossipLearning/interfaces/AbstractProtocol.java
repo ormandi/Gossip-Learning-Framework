@@ -1,5 +1,6 @@
 package gossipLearning.interfaces;
 
+import gossipLearning.InstanceHolder;
 import gossipLearning.controls.ChurnControl;
 import gossipLearning.messages.ActiveThreadMessage;
 import gossipLearning.messages.ModelMessage;
@@ -31,6 +32,9 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   // active thread delay mean and varinace, these two value have to be set by any subclass
   protected double delayMean = Double.POSITIVE_INFINITY;
   protected double delayVar = 1.0;
+  
+  // instance varialble
+  protected InstanceHolder instances;
   
   // variables for modeling churn
   protected long sessionLength = ChurnControl.INIT_SESSION_LENGTH;
@@ -135,6 +139,28 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
       throw new RuntimeException("Unrecognized message was received from class " + messageObj.getClass().getCanonicalName() + "!");
     }
   }
+  
+  //----- Instance related methods -----
+  
+  /**
+   * It returns the instances as an InstanceHolder stored by the node.
+   * 
+   * @return The instances stored by the node.
+   */
+  public InstanceHolder getInstanceHolder() {
+    return instances;
+  }
+  
+  /**
+   * It sets a new set of instances for the node.
+   * 
+   * @param instances The new set of instances as an InstanceHolder.
+   */
+  public void setInstenceHolder(InstanceHolder instances) {
+    this.instances = instances;
+  }
+  
+  //----- Churnable related methods -----
   
   /**
    * Basic churn implementation which simply stores the remaining session length
