@@ -1,22 +1,34 @@
 package gossipLearning.protocols;
 
 import gossipLearning.InstanceHolder;
-import gossipLearning.controls.ChurnControl;
 import gossipLearning.interfaces.AbstractProtocol;
+import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.messages.ModelMessage;
+import gossipLearning.modelHolders.BoundedModelHolder;
+
+import java.util.Map;
+
 import peersim.config.Configuration;
 import peersim.core.Node;
 
 /**
  * This is a simple LearningProtocol which handles only one modelHolder with
- * a fixed size. This modelHolder works like a LIFO i.e. when it is full and a 
- * new model arrives the oldest one is removed.<br/>
+ * a fixed size (memory). This modelHolder works like a LIFO i.e. 
+ * when it is full and new models arrive the oldest one is removed.<br/>
  * The active behavior of the protocol is also as simple as possible, it simply
  * select a random node and send the latest model from its ModelHolder.<br/>
  * At the passive thread when a model is received first it will be updated
  * via <b>all</b> of the training smaples contained by the node, then it will be
- * added to the ModelHolder of the node. 
+ * added to the ModelHolder of the node.<br/>
+ * The protocol receives three parameters in its constructor from the Peersim
+ * configuration file:
+ * <ul>
+ *   <li><b>delayMean</b> - expected value of active thread delay (default value: Double.POSITIVE_INFINITY)</li>
+ *   <li><b>delayVar</b> - variance of the delay of active thread (default value: 1.0)</li>
+ *   <li><b>memorySize</b> - the bound parameter which defines at most 
+ *   how many model can be stored in the ModelHolder instance of the protocol (default value: 1)</li>
+ * </ul>
  * 
  * @author Róbert Ormándi
  *
@@ -24,6 +36,9 @@ import peersim.core.Node;
 public class SimpleLearningProtocol extends AbstractProtocol {
   protected static final String PAR_DELAYMEAN = "delayMean";
   protected static final String PAR_DELAYVAR = "delayVar";
+  protected static final String PAR_MEMORYSIZE = "memorySize";
+  
+  protected int memorySize = 1;
 
   private ModelHolder models;
   
@@ -34,7 +49,9 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    */
   public SimpleLearningProtocol(String prefix) {
     delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN, Double.POSITIVE_INFINITY);
-    delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);    
+    delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
+    memorySize = Configuration.getInt(prefix + "." + PAR_MEMORYSIZE, 1);
+    models = new BoundedModelHolder(memorySize);
   }
   
   /**
@@ -70,16 +87,42 @@ public class SimpleLearningProtocol extends AbstractProtocol {
     return new SimpleLearningProtocol(delayMean, delayVar, instances, sessionLength, sessionID, currentNode, currentProtocolID, models);
   }
   
+  /**
+   * It sends the latest model to a uniformly selected random neighbor.
+   */
   @Override
   public void activeThread() {
-    // TODO Auto-generated method stub
-    
+    if (models != null && models.size() > 0) {
+      // the node has at leas one model so we can send it away
+      
+      // store the latest model in a new modelHolder
+      Model latestModel = models.getModel(models.size() - 1);
+      ModelHolder latestModelHolder = new BoundedModelHolder(1);
+      latestModelHolder.add(latestModel);
+      
+      // send the latest model to a random neighbor
+      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder));
+    }
   }
-
+  
+  /**
+   * It process an incomming modelHolder by updating them with all of
+   * stored instances and storing them.
+   */
   @Override
   public void passiveThread(ModelMessage message) {
-    // TODO Auto-generated method stub
-    
+    for (int incommingModelID = 0; message != null && incommingModelID < message.size(); incommingModelID ++) {
+      // process each model that can be found in the message (they are clones, so not necessary to copy them again)
+      Model model = message.getModel(incommingModelID);
+      for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
+        // we use each samples for updating the currently processed model
+        Map<Integer, Double> x = instances.getInstance(sampleID);
+        double y = instances.getLabel(sampleID);
+        model.update(x, y);
+      }
+      // model is updated properly by all of the stored samples => store it
+      models.add(model);
+    }
   }
 
   /**
