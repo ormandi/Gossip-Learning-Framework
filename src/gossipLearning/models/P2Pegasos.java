@@ -1,5 +1,10 @@
 package gossipLearning.models;
 
+import gossipLearning.interfaces.Mergable;
+import gossipLearning.interfaces.Model;
+import gossipLearning.interfaces.SimilarityComputable;
+import gossipLearning.utils.Utils;
+
 import java.util.Map;
 import java.util.TreeMap;
 

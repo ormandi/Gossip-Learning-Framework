@@ -108,7 +108,7 @@ public class ChurnControl implements Control {
         if (prot instanceof Churnable) {
           Churnable churnableProt = (Churnable) prot;
           churnableProt.setSessionLength(offlineToOnline.get(id));
-          churnableProt.init(node, j);
+          churnableProt.initSession();
         }
       }
     }
