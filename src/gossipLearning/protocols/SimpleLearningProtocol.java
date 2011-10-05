@@ -92,9 +92,8 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    */
   @Override
   public void activeThread() {
+    // check whether the node has at least one model
     if (models != null && models.size() > 0) {
-      // the node has at leas one model so we can send it away
-      
       // store the latest model in a new modelHolder
       Model latestModel = models.getModel(models.size() - 1);
       ModelHolder latestModelHolder = new BoundedModelHolder(1);
