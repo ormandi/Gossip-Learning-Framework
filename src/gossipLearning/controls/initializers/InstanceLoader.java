@@ -1,12 +1,16 @@
 package gossipLearning.controls.initializers;
 
 import gossipLearning.DataBaseReader;
+import gossipLearning.InstanceHolder;
 import gossipLearning.controls.observers.PredictionObserver;
 
 import java.io.File;
 
 import peersim.config.Configuration;
 import peersim.core.Control;
+import peersim.core.Network;
+import peersim.core.Node;
+import peersim.core.Protocol;
 
 public class InstanceLoader implements Control {
   public static final String PAR_PROT = "protocol";
@@ -29,11 +33,11 @@ public class InstanceLoader implements Control {
     try {
       // read instances
       DataBaseReader reader = DataBaseReader.createDataBaseReader(tFile, eFile);
-      /*
+      
       
       // init the nodes by adding the instances read before
-      
-      for (int i = 0; i < Network.size() && i < instances.size(); i++) {
+      /*
+      for (int i = 0; i < Network.size() && i < reader.getTrainingSet().size(); i++) {
         Node node = Network.get(i);
         Protocol protocol = node.getProtocol(pid);
         if (protocol instanceof InstanceHolder) {
@@ -53,8 +57,7 @@ public class InstanceLoader implements Control {
         } else {
           throw new RuntimeException("The protocol " + pid + " have to implements InstanceHolder or InstancesHolder interfaces!");
         }
-      }
-      */
+      }*/
     } catch (Exception ex) {
       throw new RuntimeException("Exception has occurred in InstanceLoader!", ex);
     }
