@@ -30,17 +30,17 @@ public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputab
     age = 0.0;
   }
   
-  private P2Pegasos(Map<Integer, Double> w, double age){
-    this.w = w;
+  private P2Pegasos(Map<Integer, Double> w, double age, double lambda){
+    this.w = new TreeMap<Integer, Double>();
+    for (int k : w.keySet()){
+      this.w.put(k, (double)w.get(k));
+    }
     this.age = age;
+    this.lambda = lambda;
   }
   
   public Object clone(){
-    Map<Integer, Double> ret = new TreeMap<Integer, Double>();
-    for (int k : w.keySet()){
-      ret.put(k, (double)w.get(k));
-    }
-    return new P2Pegasos(ret, age);
+    return new P2Pegasos(w, age, lambda);
   }
 
   /**
