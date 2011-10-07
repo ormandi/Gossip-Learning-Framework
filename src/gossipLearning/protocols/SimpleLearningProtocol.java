@@ -38,9 +38,12 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   protected static final String PAR_DELAYVAR = "delayVar";
   protected static final String PAR_MEMORYSIZE = "memorySize";
   
+  protected static final String PAR_MODELNAME = "modelName";
+  
   protected int memorySize = 1;
 
   private ModelHolder models;
+  private final String modelName;
   
   /**
    * Constructor which parses the content of a standard Peersim config file.
@@ -52,6 +55,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
     delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
     memorySize = Configuration.getInt(prefix + "." + PAR_MEMORYSIZE, 1);
     models = new BoundedModelHolder(memorySize);
+    modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
   }
   
   /**
@@ -66,7 +70,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    * @param currentProtocolID
    * @param models
    */
-  private SimpleLearningProtocol(double delayMean, double delayVar, InstanceHolder instances, long sessionLength, int sessionID, Node currentNode, int currentProtocolID, ModelHolder models) {
+  private SimpleLearningProtocol(double delayMean, double delayVar, InstanceHolder instances, long sessionLength, int sessionID, Node currentNode, int currentProtocolID, ModelHolder models, String modelName) {
     this.delayMean = delayMean;
     this.delayVar = delayVar;
     this.instances = (InstanceHolder) instances.clone();
@@ -75,6 +79,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
     this.currentNode = currentNode;
     this.currentProtocolID = currentProtocolID;
     this.models = (ModelHolder)models.clone();
+    this.modelName = modelName;
   }
   
   /**
@@ -84,7 +89,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    */
   @Override
   public Object clone() {
-    return new SimpleLearningProtocol(delayMean, delayVar, instances, sessionLength, sessionID, currentNode, currentProtocolID, models);
+    return new SimpleLearningProtocol(delayMean, delayVar, instances, sessionLength, sessionID, currentNode, currentProtocolID, models, modelName);
   }
   
   /**
@@ -92,16 +97,29 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    */
   @Override
   public void activeThread() {
-    // check whether the node has at least one model
-    if (models != null && models.size() > 0) {
-      // store the latest model in a new modelHolder
-      Model latestModel = models.getModel(models.size() - 1);
-      ModelHolder latestModelHolder = new BoundedModelHolder(1);
-      latestModelHolder.add(latestModel);
-      
-      // send the latest model to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder));
+    // check whether the node has at least one model, if not then probably it is a 
+    // new node and makes an initialization step
+    if (models == null) {
+      models = new BoundedModelHolder(memorySize);
     }
+    if (models.size() == 0){
+      Model model = null;
+      try {
+        model = (Model)Class.forName(modelName).newInstance();
+      } catch (Exception e) {
+        throw new RuntimeException("Exception occured in " + getClass().getCanonicalName() + ": " + e);
+      }
+      model.init();
+      models.add(model);
+    }
+    
+    // store the latest model in a new modelHolder
+    Model latestModel = models.getModel(models.size() - 1);
+    ModelHolder latestModelHolder = new BoundedModelHolder(1);
+    latestModelHolder.add(latestModel);
+    
+    // send the latest model to a random neighbor
+    sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder));
   }
   
   /**
