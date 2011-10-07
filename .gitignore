@@ -1,2 +1,5 @@
+bin/
+build/
+doc/
 .classpath
 .project

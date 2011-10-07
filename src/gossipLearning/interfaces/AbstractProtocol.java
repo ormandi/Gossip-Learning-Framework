@@ -20,7 +20,8 @@ import peersim.transport.Transport;
  * from the viewpoint of learning protocols. 
  * So in the concrete protocols we have to take care of only the learning dependent 
  * code pieces.<br/>
- *  
+ * Make sure you initialize well the delayMean and delayVar fields which defines the 
+ * length of active thread delay. These fields are used here but not initialized!<br/> 
  * This implementation also adds some useful method like getTransport, getOverlay and 
  * getCurrentProtocol. 
  * 
