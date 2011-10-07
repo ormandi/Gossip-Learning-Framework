@@ -6,7 +6,7 @@ import java.util.Random;
  * This is a random number generator which produces random numbers according to Poisson distribution.<br/>
  * It can receive parameters:
  * <ul>
- *   <li>The double valued paremeter called lambda is the parameter of the distribution (expected value os the event occurrences).
+ *   <li>The double valued parameter called lambda is the parameter of the distribution (expected value of the event occurrences).
  *   The default value of this parameter is equal to 1.0.</li>
  *   <li>The long valued is the seed</li>
  * </ul>
@@ -19,7 +19,7 @@ public class PoissonRandom {
   private final Random random;    // Underlying random generator
   
   /**
-   * Generates a generator in which the parameter lamdba is initialized to 1.0.
+   * Generates a generator in which the parameter lambda is initialized to 1.0.
    * This can be changed later using the getter and setter methods.  
    */
   public PoissonRandom() {
@@ -28,9 +28,9 @@ public class PoissonRandom {
   }
   
   /**
-   * This constructor creates a generater which is initialized with the given lambda parameter.
+   * This constructor creates a generator which is initialized with the given lambda parameter.
    * 
-   * @param l value of the lambda paremeter of the distribution
+   * @param l value of the lambda parameter of the distribution
    */
   public PoissonRandom(double l) {
     lambda = l;
@@ -38,7 +38,7 @@ public class PoissonRandom {
   }
   
   /**
-   * It initializes a parametrized random number generator. Where the parameters are the lambda parameter of
+   * It initializes a parameterized random number generator. Where the parameters are the lambda parameter of
    * the distribution and the seed.
    * 
    * @param l value of the lambda parameter of the distribution

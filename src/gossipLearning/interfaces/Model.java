@@ -19,8 +19,10 @@ public interface Model extends Serializable, Cloneable {
   
   /**
    * This method is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained by the Peersim configuration file.
    */
-  public void init();
+  public void init(String prefix);
   
   /**
    * This method updates the actual model with a training instance.

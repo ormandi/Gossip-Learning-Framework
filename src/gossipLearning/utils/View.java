@@ -10,13 +10,13 @@ import java.util.Iterator;
 /**
  * This is a type designed for the &quot;T-Man&quoty; like protocols view implementation. Basically it is 
  * an array based implementation of a bounded priority queue using generic type parameter for defining the type of
- * elements.<br/>Hovever the insert operation is O(n) the size of this collection is restricted and so this is not a
+ * elements.<br/>However the insert operation is O(n) the size of this collection is restricted and so this is not a
  * real constraint or drawback. 
  * The real advantage of this implementation is the implementation of get operator which works in O(1).  
  * 
  * @author ormandi
  *
- * @param <T> T is the type of state which has to implement Serializable (for cloning, see details at the desription of 
+ * @param <T> T is the type of state which has to implement Serializable (for cloning, see details at the description of 
  * clone method) and Comparable<? super T>. 
  * Comparable implementation defines the sorting of the elements in the view, 
  * but - it is very important - the contains and remove operations work based on the equals method! 
@@ -37,20 +37,11 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
   }
   
   /**
-   * The method creates a deep copy of the current view which can be usefull e.g. when we would like send the 
+   * The method creates a deep copy of the current view which can be useful e.g. when we would like send the 
    * view through the network in a message. Basically it applies a simple hack which uses the object serialization
-   * framework of the JDK. This is why the generic paramer T has to implement the Serializable interface. 
+   * framework of the JDK. This is why the generic parameter T has to implement the Serializable interface. 
    */
   public Object clone() {
-    /*
-    View<T> ret = new View<T>(view.length);
-    ret.c = c;
-    for (int i = 0; i < size(); i ++) {
-      //ret.view[i] = (T) ((gossipLearning.utils.Cloneable<T>)view[i]).clone(); 
-      ret.view[i] = (T) view[i].clone();
-    }
-    return ret;
-    */
     Object ret = null;
     try {
       ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
@@ -78,7 +69,7 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
   
   /**
    * I returns the <i>i</i>th element of the current view or null if the index <i>i</i> is out of the size range
-   * of the veiw.
+   * of the view.
    *  
    * @param i - index of the required element
    * @return <i>i</i>th element element or null if the index is out of the range
@@ -91,7 +82,7 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
   }
   
   /**
-   * The method delets all of the elements from the view.
+   * The method deletes all of the elements from the view.
    */
   public void clear() {
     c = 0;
@@ -101,8 +92,8 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
   }
   
   /**
-   * It inserts the element <i>a</i> to the current view considering the ordering defined by the comperable interface.
-   * It returns true iff. the insertation was successful.
+   * It inserts the element <i>a</i> to the current view considering the ordering defined by the comparable interface.
+   * It returns true if and only if the insertation was successful.
    * 
    * @param a - element that has to be inserted
    * @return - true if the insertation was successful otherwise false

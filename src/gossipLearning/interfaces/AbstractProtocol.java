@@ -30,11 +30,11 @@ import peersim.transport.Transport;
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractProtocol implements EDProtocol, Churnable, LearningProtocol {
-  // active thread delay mean and varinace, these two value have to be set by any subclass
+  // active thread delay mean and variance, these two value have to be set by any subclass
   protected double delayMean = Double.POSITIVE_INFINITY;
   protected double delayVar = 1.0;
   
-  // instance varialble
+  // instance variable
   protected InstanceHolder instances;
   
   // variables for modeling churn
@@ -46,13 +46,13 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   protected int currentProtocolID;
 
   /**
-   * This medhod performes the deep copying of the protocol.
+   * This method performers the deep copying of the protocol.
    */
   @Override
   public abstract Object clone();
   
   /**
-   * It is a heper method as well which supports sending message
+   * It is a helper method as well which supports sending message
    * to a uniform random neighbor.
    * 
    * @param message The message which will be sent. The source of the
@@ -101,18 +101,18 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
    * can recognize two type of message:
    * <ul>
    *   <li>In the case when the protocol receives message from the 
-   *   first type it indenticates that an <i>activeThread()</i> method call
-   *   has to be perfomed. Messages of the first type are the instances of
+   *   first type it indicates that an <i>activeThread()</i> method call
+   *   has to be performed. Messages of the first type are the instances of
    *   {@link gossipLearning.messages.ActiveThreadMessage} or 
    *   {@link gossipLearning.messages.OnlineSessionFollowerActiveThreadMessage}.</li>
    *   <li>In the other hand when a {@link gossipLearning.messages.ModelMessage}
-   *   is received the protocol perfom a <i>passiveThread(modelMessage)</i> call.</li>
+   *   is received the protocol perform a <i>passiveThread(modelMessage)</i> call.</li>
    * </ul>
    * Notice that the two abstract method here are the same which were specified in the
    * interface {@link gossipLearning.interfaces.LearningProtocol}.
    * 
    * @param currentNode Reference to the current node.
-   * @param currentProtocolID ID of the curent protocol.
+   * @param currentProtocolID ID of the current protocol.
    * @param messageObj The message as an Object.
    */
   @Override
@@ -177,7 +177,7 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   /**
    * It sets a new session length.
    * 
-   * @param new session lenght which overwrites the original value 
+   * @param new session length which overwrites the original value 
    */
   @Override
   public void setSessionLength(long sessionLength) {
@@ -185,7 +185,7 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   }
   
   /**
-   * Session init simple makes protocol being awake by adding an active thread event to myself
+   * Session initialization simple makes protocol being awake by adding an active thread event to myself
    * with delay 0. 
    */
   @Override

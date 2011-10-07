@@ -12,10 +12,10 @@ public interface LearningProtocol {
   public void activeThread();
   
   /**
-   * This method is responsible for handling an icomming learning
+   * This method is responsible for handling an incoming learning
    * message.
    * 
-   * @param message The content of the incomming message.
+   * @param message The content of the incoming message.
    */
   public void passiveThread(ModelMessage message);
   

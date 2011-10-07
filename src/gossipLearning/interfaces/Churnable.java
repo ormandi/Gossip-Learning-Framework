@@ -4,7 +4,7 @@ package gossipLearning.interfaces;
 /**
  * Protocols implementing this interface can model churn i.e. logging in and out of nodes.
  * 
- * @author ormandi
+ * @author Róbert Ormándi
  */
 public interface Churnable {
   /**

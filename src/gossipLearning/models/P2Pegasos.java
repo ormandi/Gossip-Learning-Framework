@@ -8,13 +8,16 @@ import gossipLearning.utils.Utils;
 import java.util.Map;
 import java.util.TreeMap;
 
+import peersim.config.Configuration;
+
 public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputable<P2Pegasos> {
   private static final long serialVersionUID = 5232458167435240109L;
   
   /**
    * The learning parameter is 0.0001 by default.
    */
-  public static final double LAMBDA = 0.0001;
+  protected static final String PAR_LAMBDA = "lambda";
+  protected double lambda = 0.0001;
   
   private Map<Integer, Double> w;
   private double age;
@@ -44,9 +47,10 @@ public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputab
    * Initialize the age=0 and the separating hyperplane=0 vector.
    */
   @Override
-  public void init() {
+  public void init(String prefix) {
     w = new TreeMap<Integer, Double>();
     age = 0.0;
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.0001);
   }
 
   /**
@@ -55,7 +59,7 @@ public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputab
   @Override
   public void update(final Map<Integer, Double> instance, final double label) {
     age ++;
-    double nu = 1.0 / (P2Pegasos.LAMBDA * age);
+    double nu = 1.0 / (lambda * age);
     boolean isSV = label * Utils.innerProduct(w, instance) < 1.0;
     int max = Utils.findMaxIdx(w, instance);
     for (int i = 0; i <= max; i ++) {

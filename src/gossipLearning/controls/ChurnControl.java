@@ -19,7 +19,7 @@ import peersim.core.Protocol;
  * This control is responsible for modeling churn behavior which is provided by the following way:
  * <ul>
  * <li>First the control decreases the online session length of each node by one.</li>
- * <li>Then it turns off each node with negative or zero session lenght.</li>
+ * <li>Then it turns off each node with negative or zero session length.</li>
  * <li>If the number of online nodes in the network is less than that is given in the <i>size</i> parameter of the control, 
  * it corrigates the number of online nodes by giving uniformly selected random offline nodes to the network with a lognormal
  * session length. Each of newly added node is initialized by calling the init method provided by the Churnable @see p2pChurn.interfaces.Churnable 

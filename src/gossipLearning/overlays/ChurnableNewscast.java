@@ -13,7 +13,7 @@ import peersim.extras.mj.ednewscast.EdNewscast;
 
 /**
  * This is a simple extension of the EDProtocol based Newscast 
- * which supports the modelling of churn.
+ * which supports the modeling of churn.
  * 
  * @author Róbert Ormándi
  *

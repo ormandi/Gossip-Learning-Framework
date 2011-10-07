@@ -1,6 +1,5 @@
 package gossipLearning.protocols;
 
-import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.AbstractProtocol;
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
@@ -10,7 +9,6 @@ import gossipLearning.modelHolders.BoundedModelHolder;
 import java.util.Map;
 
 import peersim.config.Configuration;
-import peersim.core.Node;
 
 /**
  * This is a simple LearningProtocol which handles only one modelHolder with
@@ -19,7 +17,7 @@ import peersim.core.Node;
  * The active behavior of the protocol is also as simple as possible, it simply
  * select a random node and send the latest model from its ModelHolder.<br/>
  * At the passive thread when a model is received first it will be updated
- * via <b>all</b> of the training smaples contained by the node, then it will be
+ * via <b>all</b> of the training samples contained by the node, then it will be
  * added to the ModelHolder of the node.<br/>
  * The protocol receives three parameters in its constructor from the Peersim
  * configuration file:
@@ -36,50 +34,62 @@ import peersim.core.Node;
 public class SimpleLearningProtocol extends AbstractProtocol {
   protected static final String PAR_DELAYMEAN = "delayMean";
   protected static final String PAR_DELAYVAR = "delayVar";
-  protected static final String PAR_MEMORYSIZE = "memorySize";
-  
+  protected static final String PAR_MODELHOLDERNAME = "modelHolderName";
   protected static final String PAR_MODELNAME = "modelName";
   
-  protected int memorySize = 1;
-
-  private ModelHolder models;
+  private final String modelHolderName;
   private final String modelName;
+  private final String prefix;
+  
+  private ModelHolder models;
   
   /**
-   * Constructor which parses the content of a standard Peersim config file.
+   * Constructor which parses the content of a standard Peersim configuration file.
    *  
    * @param prefix
    */
   public SimpleLearningProtocol(String prefix) {
+    this.prefix = prefix;
     delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN, Double.POSITIVE_INFINITY);
     delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
-    memorySize = Configuration.getInt(prefix + "." + PAR_MEMORYSIZE, 1);
-    models = new BoundedModelHolder(memorySize);
+    modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
+    init(prefix);
   }
   
   /**
    * Copy constructor.
    * 
+   * @param prefix
    * @param delayMean
    * @param delayVar
-   * @param instances
-   * @param sessionLength
-   * @param sessionID
-   * @param currentNode
-   * @param currentProtocolID
-   * @param models
+   * @param modelHolderName
+   * @param modelName
    */
-  private SimpleLearningProtocol(double delayMean, double delayVar, InstanceHolder instances, long sessionLength, int sessionID, Node currentNode, int currentProtocolID, ModelHolder models, String modelName) {
+  private SimpleLearningProtocol(String prefix, double delayMean, double delayVar, String modelHolderName, String modelName) {
+    this.prefix = prefix;
     this.delayMean = delayMean;
     this.delayVar = delayVar;
-    this.instances = (InstanceHolder) instances.clone();
-    this.sessionLength = sessionLength;
-    this.sessionID = sessionID;
-    this.currentNode = currentNode;
-    this.currentProtocolID = currentProtocolID;
-    this.models = (ModelHolder)models.clone();
+    this.modelHolderName = modelHolderName;
     this.modelName = modelName;
+    init(prefix);
+  }
+  
+  /**
+   * It initializes the starting modelHolder and model structure.
+   * 
+   * @param prefix
+   */
+  private void init(String prefix) {
+    try {
+      models = (ModelHolder)Class.forName(modelHolderName).newInstance();
+      models.init(prefix);
+      Model model = (Model)Class.forName(modelName).newInstance();
+      model.init(prefix);
+      models.add(model);
+    } catch (Exception e) {
+      throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": " + e);
+    }
   }
   
   /**
@@ -89,7 +99,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    */
   @Override
   public Object clone() {
-    return new SimpleLearningProtocol(delayMean, delayVar, instances, sessionLength, sessionID, currentNode, currentProtocolID, models, modelName);
+    return new SimpleLearningProtocol(prefix, delayMean, delayVar, modelHolderName, modelName);
   }
   
   /**
@@ -97,33 +107,21 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    */
   @Override
   public void activeThread() {
-    // check whether the node has at least one model, if not then probably it is a 
-    // new node and makes an initialization step
-    if (models == null) {
-      models = new BoundedModelHolder(memorySize);
+    // check whether the node has at least one model
+    if (models != null && models.size() > 0){
+      
+      // store the latest model in a new modelHolder
+      Model latestModel = models.getModel(models.size() - 1);
+      ModelHolder latestModelHolder = new BoundedModelHolder(1);
+      latestModelHolder.add(latestModel);
+      
+      // send the latest model to a random neighbor
+      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder));
     }
-    if (models.size() == 0){
-      Model model = null;
-      try {
-        model = (Model)Class.forName(modelName).newInstance();
-      } catch (Exception e) {
-        throw new RuntimeException("Exception occured in " + getClass().getCanonicalName() + ": " + e);
-      }
-      model.init();
-      models.add(model);
-    }
-    
-    // store the latest model in a new modelHolder
-    Model latestModel = models.getModel(models.size() - 1);
-    ModelHolder latestModelHolder = new BoundedModelHolder(1);
-    latestModelHolder.add(latestModel);
-    
-    // send the latest model to a random neighbor
-    sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder));
   }
   
   /**
-   * It process an incomming modelHolder by updating them with all of
+   * It process an incoming modelHolder by updating them with all of
    * stored instances and storing them.
    */
   @Override
@@ -143,7 +141,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   }
 
   /**
-   * The size is allways 0 or 1 meaning that we have only zero or one ModelHolder instance.
+   * The size is always 0 or 1 meaning that we have only zero or one ModelHolder instance.
    * 
    * @return The protocol handles only zero or one ModelHolder instance.
    */
@@ -156,7 +154,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    * It returns the only one stored ModelHolder instance if the index is 0,
    * otherwise throws an exception.
    * 
-   * @param index Index which allways has to be 0.
+   * @param index Index which always has to be 0.
    * @return The stored ModelHolder instance.
    */
   @Override
@@ -168,7 +166,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   }
   
   /**
-   * It simply replaces the stored ModelHolder intance.
+   * It simply replaces the stored ModelHolder instance.
    * 
    * @param index Index which has to be 0.
    * @param modelHolder The new model holder.
@@ -185,7 +183,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    * It overwrites the stored ModelHolder with the received one.
    * 
    *  @param New ModelHolder instance
-   *  @return true The process is allways considered success.
+   *  @return true The process is always considered success.
    */
   @Override
   public boolean add(ModelHolder modelHolder) {

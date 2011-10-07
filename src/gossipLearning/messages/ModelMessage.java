@@ -7,8 +7,8 @@ import peersim.core.Node;
 /**
  * This class represents a message which contains the models in the gossip learning framework.
  * Basically this is the information which is sent through the network.
- * It alway stores the contained data as a deep copy of the original one. This is crucial 
- * since if it would be stored as a reference, we could not be abel to model the effect
+ * It always stores the contained data as a deep copy of the original one. This is crucial 
+ * since if it would be stored as a reference, we could not be able to model the effect
  * of time!<br/>
  * This is a ModelHolder as well which means that it wrappers the underlying ModelHolder which
  * is received and copied at the constructor.
@@ -65,11 +65,11 @@ public class ModelMessage implements ModelHolder {
   }
 
   /**
-   * It reinitializes the stored ModelHolder by calling its original init method. 
+   * It reinitializes the stored ModelHolder by calling its original initialization method. 
    */
   @Override
-  public void init() {
-    models.init();
+  public void init(String prefix) {
+    models.init(prefix);
   }
   
   /**
@@ -94,7 +94,7 @@ public class ModelMessage implements ModelHolder {
   }
   
   /**
-   * It sets the <i>index</i>th model of the undelying ModelHolder to that
+   * It sets the <i>index</i>th model of the underlying ModelHolder to that
    * is presented in the model parameter.
    * 
    * @param index The position of the model.
@@ -106,10 +106,10 @@ public class ModelMessage implements ModelHolder {
   }
   
   /**
-   * It addes a new model to the underlying ModelHolder.
+   * It adds a new model to the underlying ModelHolder.
    * 
    * @param model Model which will be added to the holder.
-   * @return true If the model successfuly added to the ModelHolder.
+   * @return true If the model successfully added to the ModelHolder.
    */
   @Override
   public boolean add(Model model) {

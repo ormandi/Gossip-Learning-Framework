@@ -1,6 +1,7 @@
 package gossipLearning.controls;
 
-import peersim.core.Control;
+import gossipLearning.controls.initializers.InstanceLoader;
+
 
 /**
  * 
@@ -8,7 +9,12 @@ import peersim.core.Control;
  * @author István Hegedűs
  *
  */
-public class DynamicInstanceLoader implements Control {
+public class DynamicInstanceLoader extends InstanceLoader {
+
+  public DynamicInstanceLoader(String prefix) {
+    super(prefix);
+    // TODO Auto-generated constructor stub
+  }
 
   @Override
   public boolean execute() {

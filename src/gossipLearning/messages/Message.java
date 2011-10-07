@@ -7,7 +7,7 @@ package gossipLearning.messages;
  * There is one very important, non-syntactical requirements for the
  * implementation: each data piece contained by the message has to be a 
  * <b>deep copy</b> of the original one. Breaking this requirement
- * the simulation could not be performed realisticly!
+ * the simulation could not be performed realistically!
  * 
  * @author Róbert Ormándi
  *

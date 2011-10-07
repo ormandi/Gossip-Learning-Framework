@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 /**
  * This is an iterator View class. It does not support the remove operation since the remove modifies the
- * inner structure of the reperesentation.
+ * inner structure of the representation.
  * 
  * @author ormandi
  *

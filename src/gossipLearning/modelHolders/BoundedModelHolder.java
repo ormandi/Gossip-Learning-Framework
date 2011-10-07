@@ -5,6 +5,8 @@ import gossipLearning.interfaces.ModelHolder;
 
 import java.util.Vector;
 
+import peersim.config.Configuration;
+
 /**
  * The capacity of the container can be specified. This implementation uses Vector 
  * for container.
@@ -13,6 +15,7 @@ import java.util.Vector;
  */
 public class BoundedModelHolder implements ModelHolder {
   private static final long serialVersionUID = 5887014943941802900L;
+  private static final String PAR_CAPACITY = "capacity";
   
   /**
    * The maximal capacity is 100 by default.
@@ -53,8 +56,12 @@ public class BoundedModelHolder implements ModelHolder {
   }
   
   @Override
-  public void init() {
+  public void init(String prefix) {
     models = new Vector<Model>();
+    capacity = Configuration.getInt(prefix + "." + PAR_CAPACITY, 1);
+    if (capacity > MAX_CAPACITY) {
+      throw new RuntimeException("The capacity cannot be greater than " + MAX_CAPACITY + "!");
+    }
   }
 
   @Override

@@ -17,8 +17,10 @@ public interface ModelHolder extends Serializable, Cloneable{
   
   /**
    * This method is for initializing the member variables of the ModelHolder.
+   * 
+   * @param prefix The ID of the parameters contained by the Peersim configuration file.
    */
-  public void init();
+  public void init(String prefix);
   
   /**
    * Returns the number of stored models.
