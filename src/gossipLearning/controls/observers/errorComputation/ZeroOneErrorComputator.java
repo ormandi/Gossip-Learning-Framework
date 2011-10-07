@@ -1,30 +1,31 @@
-package gossipLearning.observers.errorComputation;
+package gossipLearning.controls.observers.errorComputation;
 
+import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.ModelHolder;
 
-import java.util.Vector;
+/**
+ * Such a kind of error computator that computes the 0-1 error of the latest model only.
+ * @author István Hegedűs
+ *
+ */
+public class ZeroOneErrorComputator extends AbstractErrorComputator {
 
-public class ZeroOneErrorComputator<I> extends AbstractErrorComputator<I> {
-
-  public ZeroOneErrorComputator(int pid, Vector<I> instances, Vector<Double> labels) {
-    super(pid, instances, labels);
+  public ZeroOneErrorComputator(int pid, InstanceHolder eval) {
+    super(pid, eval);
   }
   
-  public double[] computeError(ModelHolder<I> modelHolder, int nodeID) {
+  /**
+   * This function computes the error of the latest model only.
+   */
+  public double[] computeError(ModelHolder modelHolder, int nodeID) {
     double avgZeroOneErrorOfNodeI = 0.0;
-    for (int j = 0; j < instances.size(); j ++) {
-      I testInstance = instances.get(j);
-      //double predictedValue = (Utils.innerProduct(modelHolder.getModel(), testInstance) + modelHolder.getBias() > 0.0) ? 1.0 : -1.0;
-      double predictedValue = modelHolder.getModel().predict(testInstance);
-      double expectedValue = labels.get(j);
+    for (int j = 0; j < eval.size(); j ++) {
+      double predictedValue = modelHolder.getModel(modelHolder.size() -1).predict(eval.getInstance(j));
+      double expectedValue = eval.getLabel(j);
       avgZeroOneErrorOfNodeI += (expectedValue != predictedValue) ? 1.0 : 0.0;
     }
-    avgZeroOneErrorOfNodeI /= instances.size();
+    avgZeroOneErrorOfNodeI /= eval.size();
     return new double[]{avgZeroOneErrorOfNodeI};
   }
   
-  public int numberOfComputedErrors() {
-    return 1;
-  }
-
 }

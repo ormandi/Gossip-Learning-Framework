@@ -1,6 +1,6 @@
 package gossipLearning.controls.observers;
 
-import p2pChurn.interfaces.Churnable;
+import gossipLearning.interfaces.Churnable;
 import peersim.core.Fallible;
 import peersim.core.Node;
 import peersim.reports.GraphObserver;

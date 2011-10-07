@@ -12,8 +12,7 @@ import java.util.Map;
  *
  */
 public class EfficientVotedZeroOneErrorComputator extends AbstractErrorComputator {
-  protected int numberOfModels = -1;
-
+  
   /**
    * Constructor for voted 0-1 error computator.
    * @param pid process ID
@@ -24,7 +23,7 @@ public class EfficientVotedZeroOneErrorComputator extends AbstractErrorComputato
   }
   
   /**
-   * Computes the voted 0-1 errors.
+   * Computes the voted 0-1 errors efficiently.
    */
   public double[] computeError(ModelHolder modelHolder, int nodeID) {
     double[] errors = new double[modelHolder.size()];

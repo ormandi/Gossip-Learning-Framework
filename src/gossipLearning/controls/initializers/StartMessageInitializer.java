@@ -1,4 +1,4 @@
-package gossipLearning.initializers;
+package gossipLearning.controls.initializers;
 
 import gossipLearning.messages.ActiveThreadMessage;
 import peersim.config.Configuration;
@@ -7,6 +7,12 @@ import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 
+/**
+ * This class initializes the first wake up messages for nodes in order to
+ * the learning could start. 
+ * @author István Hegedűs
+ *
+ */
 public class StartMessageInitializer implements Control {
   private static final String PAR_PROT = "protocol";
   private final int pid;
