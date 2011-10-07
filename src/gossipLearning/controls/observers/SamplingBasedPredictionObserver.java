@@ -1,4 +1,4 @@
-package gossipLearning.observers;
+package gossipLearning.controls.observers;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -8,18 +8,21 @@ import peersim.core.CommonState;
 
 /**
  * Such a kind of prediction observer where the number of tested models can be defined. 
- * @author Istvan Hegedus
+ * @author István Hegedűs
  *
- * @param <I> - the type of the instance.
  */
-public class SamplingBasedPredictionObserver<I> extends PredictionObserver<I> {
+public class SamplingBasedPredictionObserver extends PredictionObserver {
   private static final String PAR_SS = "samples";
+  
+  /**
+   * Number of selected nodes for compute prediction
+   */
   protected final int samples;
 
   /**
    * Creates an object from this class.
-   * @param prefix - configurations.
-   * @throws Exception - from super class.
+   * @param prefix configurations.
+   * @throws Exception from super class.
    */
   public SamplingBasedPredictionObserver(String prefix) throws Exception{
     super(prefix);
@@ -27,7 +30,7 @@ public class SamplingBasedPredictionObserver<I> extends PredictionObserver<I> {
   }
   
   /**
-   * Generates a predefined sized set of node indices for testing the stored model.
+   * Generates a predefined sized set of node indices for evaluating the stored model.
    */
   protected Set<Integer> generateIndices() {
     TreeSet<Integer> indices = new TreeSet<Integer>();

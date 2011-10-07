@@ -2,9 +2,9 @@ package gossipLearning.controls.observers;
 
 import gossipLearning.InstanceHolder;
 import gossipLearning.controls.observers.errorComputation.AbstractErrorComputator;
+import gossipLearning.interfaces.LearningProtocol;
 import gossipLearning.interfaces.ModelHolder;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.TreeSet;
@@ -21,8 +21,6 @@ public class PredictionObserver extends GraphObserver {
   protected final int pid;
   private static final String PAR_FORMAT = "format";
   protected final String format;
-  //private static final String PAR_EVAL = "eval";
-  //protected final String eval;
   private static final String PAR_EC = "errorComputatorClass";
   
   protected AbstractErrorComputator errorComputator;
@@ -35,22 +33,11 @@ public class PredictionObserver extends GraphObserver {
     super(prefix);
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
     format = Configuration.getString(prefix + "." + PAR_FORMAT, "");
-    //eval = Configuration.getString(prefix + "." + PAR_EVAL);
-    
-    // read instances and convert them to inner sparse representation
-    //DatabaseReader<I> reader = DatabaseReader.createReader(new File(eval)); // FIXME: get a correct reader
-    //Database<I> db = reader.getDatabase(); 
-    //instances = db.getInstances();
-    //labels = db.getLabels();
     
     // create error computator
     String errorComputatorClassName = Configuration.getString(prefix + "." + PAR_EC);
     Class<? extends AbstractErrorComputator> errorCompuatorClass = (Class<? extends AbstractErrorComputator>) Class.forName(errorComputatorClassName);
     errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, InstanceHolder.class);
-  }
-  
-  public void setEvalSet(InstanceHolder eval) {
-    this.eval = eval;
   }
   
   protected Set<Integer> generateIndices() {
@@ -61,7 +48,6 @@ public class PredictionObserver extends GraphObserver {
     return indices;
   }
   
-  @SuppressWarnings("unchecked")
   public boolean execute() {
     try {
       errorComputator = errorComputatorConstructor.newInstance(pid, eval);
@@ -69,14 +55,17 @@ public class PredictionObserver extends GraphObserver {
       throw new RuntimeException(e);
     }
     updateGraph();
+    if (format.equals("gpt") && CommonState.getTime() == 0) {
+      System.out.println("#iter\tavgavgE\tdevavgE\tmaxAvgE\tminAvgE\t# " + errorComputator.getClass().getCanonicalName() + "[NumOfVotes]" + "\t[HolderIndex]");
+    }
     
-    double[] errorCounter = new double[errorComputator.numberOfComputedErrors()];
-    double[] avgError = new double[errorComputator.numberOfComputedErrors()];
-    double[] devError = new double[errorComputator.numberOfComputedErrors()];
-    double[] minAvgError = new double[errorComputator.numberOfComputedErrors()];
-    double[] maxAvgError = new double[errorComputator.numberOfComputedErrors()];
+    Vector<Vector<Double>> errorCounter = new Vector<Vector<Double>>();
+    Vector<Vector<Double>> avgError = new Vector<Vector<Double>>();
+    Vector<Vector<Double>> devError = new Vector<Vector<Double>>();
+    Vector<Vector<Double>> minAvgError = new Vector<Vector<Double>>();
+    Vector<Vector<Double>> maxAvgError = new Vector<Vector<Double>>();
     
-    for (int i = 0; i < errorComputator.numberOfComputedErrors(); i ++) {
+    /*for (int i = 0; i < errorComputator.numberOfComputedErrors(); i ++) {
       // printHeader
       if (format.equals("gpt") && CommonState.getTime() == 0) {
         System.out.println("#iter\tavgavgE\tdevavgE\tmaxAvgE\tminAvgE\t# " + errorComputator.getClass().getCanonicalName() + "[" + i + "]");
@@ -86,43 +75,60 @@ public class PredictionObserver extends GraphObserver {
       devError[i] = 0.0;
       minAvgError[i] = Double.POSITIVE_INFINITY;
       maxAvgError[i] = Double.NEGATIVE_INFINITY;
-    }
+    }*/
     
     Set<Integer> idxSet = generateIndices();
     
     for (int i : idxSet) {
       Protocol p = ((Node) g.getNode(i)).getProtocol(pid);
-      if (p instanceof ModelHolder) {
-        // evaluating the model of the ith node
-        ModelHolder<I> model = (ModelHolder<I>) p;
-        
-        double[] errorVecOfNodeI = errorComputator.computeError(model, i);
-        for (int j = 0; j < errorComputator.numberOfComputedErrors(); j ++) {
-          // aggregate the results of nodes in term of jth error
-          errorCounter[j] ++;
-          devError[j] += errorVecOfNodeI[j] * errorVecOfNodeI[j];
-          avgError[j] += errorVecOfNodeI[j];
-          if (errorVecOfNodeI[j] > maxAvgError[j]) {
-            maxAvgError[j] = errorVecOfNodeI[j];
+      if (p instanceof LearningProtocol) {
+        int numOfHolders = ((LearningProtocol)p).size();
+        for (int holderIndex = 0; holderIndex < numOfHolders; holderIndex++){
+          // evaluating the model of the ith node
+          if (errorCounter.size() <= holderIndex){
+            errorCounter.add(new Vector<Double>());
           }
-          if (errorVecOfNodeI[j] < minAvgError[j]) {
-            minAvgError[j] = errorVecOfNodeI[j];
+          ModelHolder modelHolder = ((LearningProtocol)p).getModelHolder(holderIndex);
+          double[] errorVecOfNodeI = errorComputator.computeError(modelHolder, i);
+          for (int j = 0; j < errorVecOfNodeI.length; j ++) {
+            // aggregate the results of nodes in term of jth error
+            if (errorCounter.get(holderIndex).size() <= j){
+              errorCounter.get(holderIndex).add(1.0);
+              avgError.get(holderIndex).add(errorVecOfNodeI[j]);
+              devError.get(holderIndex).add(errorVecOfNodeI[j] * errorVecOfNodeI[j]);
+              maxAvgError.get(holderIndex).add(errorVecOfNodeI[j]);
+              minAvgError.get(holderIndex).add(errorVecOfNodeI[j]);
+            } else {
+              errorCounter.get(holderIndex).set(j, errorCounter.get(holderIndex).get(j) + 1.0);
+              avgError.get(holderIndex).set(j, avgError.get(holderIndex).get(j) + errorVecOfNodeI[j]);
+              devError.get(holderIndex).set(j, devError.get(holderIndex).get(j) + (errorVecOfNodeI[j] * errorVecOfNodeI[j]));
+              if (maxAvgError.get(holderIndex).get(j) < errorVecOfNodeI[j]){
+                maxAvgError.get(holderIndex).set(j, errorVecOfNodeI[j]);
+              }
+              if (minAvgError.get(holderIndex).get(j) > errorVecOfNodeI[j]){
+                minAvgError.get(holderIndex).set(j, errorVecOfNodeI[j]);
+              }
+            }
           }
         }
       }
     }
-    for (int i = 0; i < errorComputator.numberOfComputedErrors(); i ++) {
-      avgError[i] = (errorCounter[i] > 0.0) ? ( avgError[i]/errorCounter[i] ) : Double.NaN;
-      double sqrt = devError[i] / errorCounter[i] - avgError[i] * avgError[i];
-      devError[i] = (errorCounter[i] > 0.0) ? ( (sqrt < 0.0) ? 0.0 : Math.sqrt(sqrt) ) : Double.NaN;
-      
-      // print info
-      if (CommonState.getTime() > 0) {
-        if (format.equals("gpt")) {
-          //System.out.println(CommonState.getTime() + "\t" + Configuration.getLong("simulation.logtime"));
-          System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + avgError[i] + "\t" + devError[i] + "\t" + maxAvgError[i] + "\t" + minAvgError[i] + "\t# " + errorComputator.getClass().getCanonicalName() + "[" + i + "]");
-        } else {
-          System.out.println(errorComputator.getClass().getCanonicalName() + "[" + i + "]" + ":\tAvgE=" + avgError[i] + "\tDevE=" + devError[i] + "\tMaxE=" + maxAvgError[i] + "\tMinE=" + minAvgError[i]);
+    for (int i = 0; i < errorCounter.size(); i ++) {
+      for (int j = 0; j < errorCounter.get(i).size(); j++){
+        // errorCounter.get(i).get(j) is never less or equal to 0
+        avgError.get(i).set(j, avgError.get(i).get(j) / errorCounter.get(i).get(j));
+        double sqrt = devError.get(i).get(j) / errorCounter.get(i).get(j) - avgError.get(i).get(j) * avgError.get(i).get(j);
+        sqrt = sqrt < 0.0 ? 0.0 : Math.sqrt(sqrt);
+        devError.get(i).set(j, sqrt);
+        
+        // print info
+        if (CommonState.getTime() > 0) {
+          if (format.equals("gpt")) {
+            //System.out.println(CommonState.getTime() + "\t" + Configuration.getLong("simulation.logtime"));
+            System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + avgError.get(i).get(j) + "\t" + devError.get(i).get(j) + "\t" + maxAvgError.get(i).get(j) + "\t" + minAvgError.get(i).get(j) + "\t# " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]");
+          } else {
+            System.out.println(errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ":\tAvgE=" + avgError.get(i).get(j) + "\tDevE=" + devError.get(i).get(j) + "\tMaxE=" + maxAvgError.get(i).get(j) + "\tMinE=" + minAvgError.get(i).get(j));
+          }
         }
       }
     }
@@ -131,36 +137,19 @@ public class PredictionObserver extends GraphObserver {
   }
 
   /**
-   * Returns the instances of the test database as a Vector.
-   * @return test instances.
+   * Returns the instances and corresponding class labels of the evaluation set.
+   * @return evaluation set.
    */
-  public Vector<I> getInstances() {
-    return instances;
+  public InstanceHolder getEvalSet() {
+    return eval;
   }
 
   /**
-   * Stores the instances as test database.
-   * @param instances - instances for testing.
+   * Stores the specified instances and corresponding labels as evaluation set.
+   * @param instances - instances for evaluation.
    */
-  public void setInstances(Vector<I> instances) {
-    this.instances = instances;
+  public void setEvalSet(InstanceHolder eval) {
+    this.eval = eval;
   }
-
-  /**
-   * Returns the labels belong to the test instances.
-   * @return labels of test instances.
-   */
-  public Vector<Double> getLabels() {
-    return labels;
-  }
-
-  /**
-   * Sets the labels for the instances of test database.
-   * @param labels - labels of test instances.
-   */
-  public void setLabels(Vector<Double> labels) {
-    this.labels = labels;
-  }
-  
 
 }
