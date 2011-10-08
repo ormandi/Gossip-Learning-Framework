@@ -123,7 +123,7 @@ public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputab
         mergedw.put(i, model.w.get(i) / 2.0);
       }
     }
-    return new P2Pegasos(mergedw, age);
+    return new P2Pegasos(mergedw, age, lambda);
   }
 
 }

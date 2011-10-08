@@ -23,6 +23,7 @@ public class PredictionObserver extends GraphObserver {
   protected final String format;
   private static final String PAR_EC = "errorComputatorClass";
   
+  
   protected AbstractErrorComputator errorComputator;
   
   private Constructor<? extends AbstractErrorComputator> errorComputatorConstructor;
