@@ -32,17 +32,18 @@ public class InstanceLoader implements Control {
   
   private final int pid;
   private final File tFile;
-  private final PredictionObserver observer;
+  private PredictionObserver observer;
   private final File eFile;
   private final int samplesPerNode;
     
   public InstanceLoader(String prefix) {
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
     tFile = new File(Configuration.getString(prefix + "." + PAR_TFILE));
-    observer = (PredictionObserver) Configuration.getInstance(prefix + "." + PAR_OBSERVER);
+    //observer = (PredictionObserver) Configuration.getInstance(prefix + "." + PAR_OBSERVER);
     eFile = new File(Configuration.getString(prefix + "." + PAR_EFILE));
     samplesPerNode = Configuration.getInt(prefix + "." + PAR_SIZE, 1);
   }
+  
   public boolean execute(){
     try {
       // read instances
@@ -75,6 +76,9 @@ public class InstanceLoader implements Control {
     
     return false;
   }
-
-
+  
+  public void setPredictionObserver(PredictionObserver observer) {
+    System.out.println("SET PREDICTION OBSERVER IS INVOKED!!!");
+    this.observer = observer;
+  }
 }

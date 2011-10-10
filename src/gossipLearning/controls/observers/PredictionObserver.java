@@ -77,6 +77,7 @@ public class PredictionObserver extends GraphObserver {
       maxAvgError[i] = Double.NEGATIVE_INFINITY;
     }*/
     
+    /*
     Set<Integer> idxSet = generateIndices();
     
     for (int i : idxSet) {
@@ -132,7 +133,7 @@ public class PredictionObserver extends GraphObserver {
         }
       }
     }
-    
+    */
     return false;
   }
 
@@ -149,6 +150,7 @@ public class PredictionObserver extends GraphObserver {
    * @param instances - instances for evaluation.
    */
   public void setEvalSet(InstanceHolder eval) {
+    System.out.println("NEW EVAL SET WAS SET!!!");
     this.eval = eval;
   }
 

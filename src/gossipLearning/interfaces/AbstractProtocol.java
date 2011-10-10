@@ -136,8 +136,6 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
     } else if (messageObj instanceof ModelMessage) {
       // The received message is a model message => calling the passive thread handler
       passiveThread((ModelMessage)messageObj);
-    } else {
-      throw new RuntimeException("Unrecognized message was received from class " + messageObj.getClass().getCanonicalName() + "!");
     }
   }
   
@@ -189,9 +187,9 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
    * with delay 0. 
    */
   @Override
-  public void initSession() {
+  public void initSession(Node node, int protocol) {
     sessionID ++;
-    EDSimulator.add(0, new OnlineSessionFollowerActiveThreadMessage(sessionID), currentNode, currentProtocolID);
+    EDSimulator.add(0, new OnlineSessionFollowerActiveThreadMessage(sessionID), node, protocol);
   }
 
 }

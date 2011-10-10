@@ -43,18 +43,18 @@ public class ChurnableNewscast extends EdNewscast implements Churnable {
     this.sessionLength = sessionLength;
   }
 
-  public void initSession() {
+  public void initSession(Node node, int protocol) {
     deleteNeighbors();
     while (degree() < cacheSize) {
       int onlineNeighbor = CommonState.r.nextInt(Network.size());
       if ( Network.get(onlineNeighbor).getFailState() != Fallible.DOWN
           && Network.get(onlineNeighbor).getFailState() != Fallible.DEAD
-          && Network.get(onlineNeighbor).getID() != currentNode.getID()) {
+          && Network.get(onlineNeighbor).getID() != node.getID()) {
         //System.out.println(currentNode.getID() + " addNeighbor who is UP=" + onlineNeighbor + ", state=" + ((Network.get(onlineNeighbor).getFailState() == Fallible.OK) ? "UP" : "DOWN"));
         addNeighbor(Network.get(onlineNeighbor));
       }
     }
-    EDSimulator.add(0, CycleMessage.inst, currentNode, currentProtocolID);
+    EDSimulator.add(0, CycleMessage.inst, node, protocol);
   }
   
   @Override
