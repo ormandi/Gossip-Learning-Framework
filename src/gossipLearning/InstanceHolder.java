@@ -61,7 +61,7 @@ public class InstanceHolder implements Serializable{
   
   /**
    * Returns the number of stored instances.
-   * @return - The number of stored instances.
+   * @return The number of stored instances.
    */
   public int size(){
     return size;
@@ -70,7 +70,7 @@ public class InstanceHolder implements Serializable{
   /**
    * Returns the stored instances as a Vector<Map<Integer, Double>>. 
    * If there are no stored instances returns an empty container.
-   * @return - the Vector of the stored instances.
+   * @return the Vector of the stored instances.
    */
   protected Vector<Map<Integer, Double>> getInstances(){
     return instances;
@@ -79,7 +79,7 @@ public class InstanceHolder implements Serializable{
   /**
    * Returns the labels that corresponds to the stored instances as a Vector<Double>.
    * If there are no stored instances returns an empty container.
-   * @return - the Vector of labels correspond to the stored instances.
+   * @return the Vector of labels correspond to the stored instances.
    */
   protected Vector<Double> getLabels(){
     return labels;
@@ -87,8 +87,8 @@ public class InstanceHolder implements Serializable{
   
   /**
    * Returns a stored instance at the specified position.
-   * @param index - index of the instance to return
-   * @return - instance at the specified position
+   * @param index index of the instance to return
+   * @return instance at the specified position
    */
   public Map<Integer, Double> getInstance(int index){
     return instances.get(index);
@@ -96,8 +96,8 @@ public class InstanceHolder implements Serializable{
   
   /**
    * Replaces the instance in the container at the specified position with the specified instance.
-   * @param index - index of the instance to replace
-   * @param instance - instance to be stored at the specified position
+   * @param index index of the instance to replace
+   * @param instance instance to be stored at the specified position
    */
   public void setInstance(int index, Map<Integer, Double> instance){
     instances.set(index, instance);
@@ -105,8 +105,8 @@ public class InstanceHolder implements Serializable{
   
   /**
    * Returns the label of a stored instance at the specified position.
-   * @param index - index of the label to return
-   * @return - label at the specified position
+   * @param index index of the label to return
+   * @return label at the specified position
    */
   public double getLabel(int index){
     return labels.get(index);
@@ -114,8 +114,8 @@ public class InstanceHolder implements Serializable{
   
   /**
    * Replaces the label of the instance in the container at the specified position with the specified label.
-   * @param index - index of the label to replace
-   * @param label - label to be stored at the specified position
+   * @param index index of the label to replace
+   * @param label label to be stored at the specified position
    */
   public void setLabel(int index, double label){
     labels.set(index, label);
@@ -123,8 +123,8 @@ public class InstanceHolder implements Serializable{
   
   /**
    * Adds the specified instance and corresponding label to the container.
-   * @param instance - instances to be added
-   * @param label - label to be added
+   * @param instance instances to be added
+   * @param label label to be added
    * @return true if the specified instance and label were added <br/> false otherwise
    */
   public boolean add(Map<Integer, Double> instance, double label){
@@ -140,7 +140,7 @@ public class InstanceHolder implements Serializable{
   
   /**
    * Removes the instance and corresponding label at the specified position in the container.
-   * @param index - index of the instance and the corresponding label to be removed
+   * @param index index of the instance and the corresponding label to be removed
    */
   public void remove(int index){
     instances.remove(index);
@@ -155,6 +155,24 @@ public class InstanceHolder implements Serializable{
     instances.clear();
     labels.clear();
     size = 0;
+  }
+  
+  /**
+   * Returns the string representation of this object in Jochaim's format.
+   */
+  public String toString(){
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < instances.size(); i++){
+      sb.append(labels.get(i));
+      for (int key : instances.get(i).keySet()){
+        sb.append(' ');
+        sb.append(key);
+        sb.append(':');
+        sb.append(instances.get(i).get(key));
+      }
+      sb.append('\n');
+    }
+    return sb.toString();
   }
   
 }

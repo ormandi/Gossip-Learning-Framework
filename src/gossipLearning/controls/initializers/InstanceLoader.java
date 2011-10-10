@@ -26,7 +26,6 @@ import peersim.core.Protocol;
 public class InstanceLoader implements Control {
   public static final String PAR_PROT = "protocol";
   public static final String PAR_TFILE = "trainingFile";
-  public static final String PAR_OBSERVER = "observer";
   public static final String PAR_EFILE = "evaluationFile";
   public static final String PAR_SIZE = "samplesPerNode";
   
@@ -39,7 +38,6 @@ public class InstanceLoader implements Control {
   public InstanceLoader(String prefix) {
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
     tFile = new File(Configuration.getString(prefix + "." + PAR_TFILE));
-    //observer = (PredictionObserver) Configuration.getInstance(prefix + "." + PAR_OBSERVER);
     eFile = new File(Configuration.getString(prefix + "." + PAR_EFILE));
     samplesPerNode = Configuration.getInt(prefix + "." + PAR_SIZE, 1);
   }
@@ -61,7 +59,7 @@ public class InstanceLoader implements Control {
           LearningProtocol learningProtocol = (LearningProtocol) protocol;
           InstanceHolder instances = new InstanceHolder();
           for (int j = 0; j < samplesPerNode; j++){
-            instances.add(reader.getTrainingSet().getInstance((i * numOfSamples + j) % numOfSamples), reader.getTrainingSet().getLabel((i * numOfSamples + j) % numOfSamples));
+            instances.add(reader.getTrainingSet().getInstance((i * samplesPerNode + j) % numOfSamples), reader.getTrainingSet().getLabel((i * samplesPerNode + j) % numOfSamples));
           }
           
           // set the instances for current node
@@ -78,7 +76,6 @@ public class InstanceLoader implements Control {
   }
   
   public void setPredictionObserver(PredictionObserver observer) {
-    System.out.println("SET PREDICTION OBSERVER IS INVOKED!!!");
     this.observer = observer;
   }
 }

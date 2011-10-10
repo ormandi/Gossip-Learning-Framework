@@ -101,22 +101,10 @@ public class DataBaseReader {
    */
   public String toString() {
     StringBuffer sb = new StringBuffer();
-    sb.append("#train: " + DataBaseReader.tFile + "\n");
-    for (int i = 0; i < trainingSet.size(); i++) {
-      sb.append(trainingSet.getLabel(i));
-      for (int index : trainingSet.getInstance(i).keySet()) {
-        sb.append(" " + index + ":" + trainingSet.getInstance(i).get(index));
-      }
-      sb.append("\n");
-    }
-    sb.append("#eval: " + DataBaseReader.eFile + "\n");
-    for (int i = 0; i < evalSet.size(); i++) {
-      sb.append(evalSet.getLabel(i));
-      for (int index : evalSet.getInstance(i).keySet()) {
-        sb.append(" " + index + ":" + evalSet.getInstance(i).get(index));
-      }
-      sb.append("\n");
-    }
+    sb.append("#training_set: " + DataBaseReader.tFile + "\n");
+    sb.append(trainingSet.toString());
+    sb.append("#evaluation_set: " + DataBaseReader.eFile + "\n");
+    sb.append(evalSet.toString());
     return sb.toString();
   }
   

@@ -18,12 +18,20 @@ import peersim.reports.GraphObserver;
 
 public class PredictionObserver extends GraphObserver {
   private static final String PAR_PROT = "protocol";
+  /**
+   * The protocol ID.
+   */
   protected final int pid;
   private static final String PAR_FORMAT = "format";
+  /**
+   * The type of print format.
+   */
   protected final String format;
   private static final String PAR_EC = "errorComputatorClass";
   
-  
+  /**
+   * The used error computator class.
+   */
   protected AbstractErrorComputator errorComputator;
   
   private Constructor<? extends AbstractErrorComputator> errorComputatorConstructor;
@@ -41,6 +49,10 @@ public class PredictionObserver extends GraphObserver {
     errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, InstanceHolder.class);
   }
   
+  /**
+   * Returns the set of the node indices in the graph.
+   * @return set of node indices
+   */
   protected Set<Integer> generateIndices() {
     TreeSet<Integer> indices = new TreeSet<Integer>();
     for (int i = 0; i < g.size(); i ++) {
@@ -66,28 +78,21 @@ public class PredictionObserver extends GraphObserver {
     Vector<Vector<Double>> minAvgError = new Vector<Vector<Double>>();
     Vector<Vector<Double>> maxAvgError = new Vector<Vector<Double>>();
     
-    /*for (int i = 0; i < errorComputator.numberOfComputedErrors(); i ++) {
-      // printHeader
-      if (format.equals("gpt") && CommonState.getTime() == 0) {
-        System.out.println("#iter\tavgavgE\tdevavgE\tmaxAvgE\tminAvgE\t# " + errorComputator.getClass().getCanonicalName() + "[" + i + "]");
-      }
-      errorCounter[i] = 0.0;
-      avgError[i] = 0.0;
-      devError[i] = 0.0;
-      minAvgError[i] = Double.POSITIVE_INFINITY;
-      maxAvgError[i] = Double.NEGATIVE_INFINITY;
-    }*/
-    
     Set<Integer> idxSet = generateIndices();
     
     for (int i : idxSet) {
       Protocol p = ((Node) g.getNode(i)).getProtocol(pid);
       if (p instanceof LearningProtocol) {
+        // evaluating the model(s) of the ith node
         int numOfHolders = ((LearningProtocol)p).size();
         for (int holderIndex = 0; holderIndex < numOfHolders; holderIndex++){
-          // evaluating the model of the ith node
+          // initializing the statistics container
           if (errorCounter.size() <= holderIndex){
             errorCounter.add(new Vector<Double>());
+            avgError.add(new Vector<Double>());
+            devError.add(new Vector<Double>());
+            maxAvgError.add(new Vector<Double>());
+            minAvgError.add(new Vector<Double>());
           }
           ModelHolder modelHolder = ((LearningProtocol)p).getModelHolder(holderIndex);
           double[] errorVecOfNodeI = errorComputator.computeError(modelHolder, i);
@@ -146,10 +151,9 @@ public class PredictionObserver extends GraphObserver {
 
   /**
    * Stores the specified instances and corresponding labels as evaluation set.
-   * @param instances - instances for evaluation.
+   * @param instances instances for evaluation.
    */
   public void setEvalSet(InstanceHolder eval) {
-    System.out.println("NEW EVAL SET WAS SET!!!");
     this.eval = eval;
   }
 
