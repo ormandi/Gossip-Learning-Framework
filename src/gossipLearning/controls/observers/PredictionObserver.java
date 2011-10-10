@@ -77,7 +77,6 @@ public class PredictionObserver extends GraphObserver {
       maxAvgError[i] = Double.NEGATIVE_INFINITY;
     }*/
     
-    /*
     Set<Integer> idxSet = generateIndices();
     
     for (int i : idxSet) {
@@ -133,7 +132,6 @@ public class PredictionObserver extends GraphObserver {
         }
       }
     }
-    */
     return false;
   }
 
