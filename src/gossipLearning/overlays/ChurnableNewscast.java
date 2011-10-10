@@ -22,8 +22,6 @@ public class ChurnableNewscast extends EdNewscast implements Churnable {
   protected int cacheSize;
   private long sessionLength = ChurnControl.INIT_SESSION_LENGTH;
   private final String prefix;
-  private Node currentNode;
-  private int currentProtocolID;
   
   public ChurnableNewscast(String prefix) {
     super(prefix);
@@ -55,12 +53,5 @@ public class ChurnableNewscast extends EdNewscast implements Churnable {
       }
     }
     EDSimulator.add(0, CycleMessage.inst, node, protocol);
-  }
-  
-  @Override
-  public void processEvent(Node currentNode, int currentProtocolID, Object messageObject) {
-    this.currentNode = currentNode;
-    this.currentProtocolID = currentProtocolID;
-    super.processEvent(currentNode, currentProtocolID, messageObject);
   }
 }
