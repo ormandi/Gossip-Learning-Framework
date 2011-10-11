@@ -22,6 +22,7 @@ public class BoundedModelHolder implements ModelHolder {
    */
   public static final int MAX_CAPACITY = 100;
   
+  /** @hidden */
   private Vector<Model> models;
   private int capacity;
   

@@ -9,8 +9,7 @@ package gossipLearning.messages;
  * 
  * @author Róbert Ormándi
  */
-@Message
-public class OnlineSessionFollowerActiveThreadMessage {
+public class OnlineSessionFollowerActiveThreadMessage implements Message {
   public final int sessionID;
   public OnlineSessionFollowerActiveThreadMessage(int sessionID) {
     this.sessionID = sessionID;

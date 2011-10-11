@@ -32,15 +32,19 @@ import peersim.config.Configuration;
  *
  */
 public class SimpleLearningProtocol extends AbstractProtocol {
-  protected static final String PAR_DELAYMEAN = "delayMean";
-  protected static final String PAR_DELAYVAR = "delayVar";
-  protected static final String PAR_MODELHOLDERNAME = "modelHolderName";
-  protected static final String PAR_MODELNAME = "modelName";
+  private static final String PAR_DELAYMEAN = "delayMean";
+  private static final String PAR_DELAYVAR = "delayVar";
+  private static final String PAR_MODELHOLDERNAME = "modelHolderName";
+  private static final String PAR_MODELNAME = "modelName";
   
+  /** @hidden */
   private final String modelHolderName;
+  /** @hidden */
   private final String modelName;
+  /** @hidden */
   private final String prefix;
   
+  /** @hidden */
   private ModelHolder models;
   
   /**

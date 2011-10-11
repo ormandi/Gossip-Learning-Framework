@@ -6,6 +6,7 @@ import java.io.Serializable;
  * This interface is a description of a container that stores models.
  * @author Istvan Hegedus
  *
+ * @has 1 "" n Model
  */
 public interface ModelHolder extends Serializable, Cloneable{
   

@@ -21,6 +21,7 @@ import peersim.extras.mj.ednewscast.EdNewscast;
 public class ChurnableNewscast extends EdNewscast implements Churnable {
   protected int cacheSize;
   private long sessionLength = ChurnControl.INIT_SESSION_LENGTH;
+  /** @hidden */
   private final String prefix;
   
   public ChurnableNewscast(String prefix) {

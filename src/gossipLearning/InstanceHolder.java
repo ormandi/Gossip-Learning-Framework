@@ -21,7 +21,9 @@ public class InstanceHolder implements Serializable{
   public static final double NO_LABEL = Double.NaN;
   
   private int size;
+  /** @hidden */
   private Vector<Map<Integer, Double>> instances;
+  /** @hidden */
   private Vector<Double> labels;
   
   /**

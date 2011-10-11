@@ -12,5 +12,5 @@ package gossipLearning.messages;
  * @author Róbert Ormándi
  *
  */
-public @interface Message {
+public interface Message {
 }

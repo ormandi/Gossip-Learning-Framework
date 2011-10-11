@@ -27,7 +27,7 @@ import peersim.core.Protocol;
  * </ul>
  * 
  * @author Róbert Ormándi
- *
+ * @navassoc - - - Churnable
  */
 public class ChurnControl implements Control {
   private static final String PAR_PID = "protocol";

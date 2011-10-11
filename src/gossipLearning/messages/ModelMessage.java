@@ -16,10 +16,11 @@ import peersim.core.Node;
  * @author Róbert Ormándi
  *
  */
-@Message
-public class ModelMessage implements ModelHolder {
+public class ModelMessage implements ModelHolder, Message {
   private static final long serialVersionUID = -6677125165043513324L;
+  /** @hidden */
   private Node src;
+  /** @hidden */
   private final ModelHolder models;
   
   /**

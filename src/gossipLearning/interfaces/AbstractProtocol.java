@@ -35,6 +35,7 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   protected double delayVar = 1.0;
   
   // instance variable
+  /** @hidden */
   protected InstanceHolder instances;
   
   // variables for modeling churn
@@ -42,7 +43,9 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   protected int sessionID = 0;
   
   // state variables
+  /** @hidden */
   protected Node currentNode;
+  /** @hidden */
   protected int currentProtocolID;
 
   /**

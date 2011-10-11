@@ -22,16 +22,20 @@ import peersim.core.Protocol;
  * value is 1.
  * @author Róbert Ormándi
  *
+ * @navassoc - - - LearningProtocol
  */
 public class InstanceLoader implements Control {
-  public static final String PAR_PROT = "protocol";
-  public static final String PAR_TFILE = "trainingFile";
-  public static final String PAR_EFILE = "evaluationFile";
-  public static final String PAR_SIZE = "samplesPerNode";
+  private static final String PAR_PROT = "protocol";
+  private static final String PAR_TFILE = "trainingFile";
+  private static final String PAR_EFILE = "evaluationFile";
+  private static final String PAR_SIZE = "samplesPerNode";
   
   private final int pid;
+  /** @hidden */
   private final File tFile;
   private PredictionObserver observer;
+  private DataBaseReader reader;
+  /** @hidden */
   private final File eFile;
   private final int samplesPerNode;
     
@@ -45,7 +49,7 @@ public class InstanceLoader implements Control {
   public boolean execute(){
     try {
       // read instances
-      DataBaseReader reader = DataBaseReader.createDataBaseReader(tFile, eFile);
+      reader = DataBaseReader.createDataBaseReader(tFile, eFile);
       
       // InstanceLoader initializes the evaluation set of prediction observer
       observer.setEvalSet(reader.getEvalSet());
@@ -75,6 +79,10 @@ public class InstanceLoader implements Control {
     return false;
   }
   
+  /**
+   * Sets the specified prediction observer.
+   * @param observer prediction observer
+   */
   public void setPredictionObserver(PredictionObserver observer) {
     this.observer = observer;
   }

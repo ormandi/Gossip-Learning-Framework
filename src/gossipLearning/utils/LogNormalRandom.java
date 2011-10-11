@@ -1,9 +1,11 @@
 package gossipLearning.utils;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class LogNormalRandom {
-  private static final long serialVersionUID = -6219774338891757855L;
+public class LogNormalRandom implements Serializable{
+  private static final long serialVersionUID = -4939915314829563458L;
+  /** @hidden */
   private final Random rand;
   private final double mu;
   private final double sigma;

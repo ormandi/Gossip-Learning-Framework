@@ -16,6 +16,12 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
 
+/**
+ * 
+ * @author Istvan
+ * @has 1 "" 1 InstanceHolder
+ * 
+ */
 public class PredictionObserver extends GraphObserver {
   private static final String PAR_PROT = "protocol";
   /**
@@ -25,16 +31,20 @@ public class PredictionObserver extends GraphObserver {
   private static final String PAR_FORMAT = "format";
   /**
    * The type of print format.
+   * @hidden
    */
   protected final String format;
   private static final String PAR_EC = "errorComputatorClass";
   
   /**
    * The used error computator class.
+   * @hidden
    */
   protected AbstractErrorComputator errorComputator;
   
+  /** @hidden */
   private Constructor<? extends AbstractErrorComputator> errorComputatorConstructor;
+  /** @hidden */
   private InstanceHolder eval;
     
   @SuppressWarnings("unchecked")

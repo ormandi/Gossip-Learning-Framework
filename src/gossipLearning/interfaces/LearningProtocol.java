@@ -4,6 +4,13 @@ import gossipLearning.InstanceHolder;
 import gossipLearning.messages.ModelMessage;
 
 
+/**
+ * 
+ * @author Istvan
+ * @has 1 "" n ModelHolder
+ * @has 1 "" 1 InstanceHolder
+ * @navassoc - - - ModelMessage
+ */
 public interface LearningProtocol {  
   /**
    * This is where the active processing happens i.e. sending 

@@ -1,5 +1,6 @@
 package gossipLearning.utils;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
@@ -14,8 +15,10 @@ import java.util.Random;
  * @author ormandi
  *
  */
-public class PoissonRandom {
+public class PoissonRandom implements Serializable {
+  private static final long serialVersionUID = 3842367873625083266L;
   private double lambda;          // Parameter of the distribution
+  /** @hidden */
   private final Random random;    // Underlying random generator
   
   /**

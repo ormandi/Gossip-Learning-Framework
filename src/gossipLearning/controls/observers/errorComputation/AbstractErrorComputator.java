@@ -16,6 +16,7 @@ public abstract class AbstractErrorComputator {
   protected final int pid;
   /**
    * Evaluation set
+   * @hidden
    */
   protected final InstanceHolder eval;
   

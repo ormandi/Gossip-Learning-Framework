@@ -17,7 +17,9 @@ import java.util.TreeMap;
  */
 public class DataBaseReader {
   
+  /** @hidden */
   private InstanceHolder trainingSet;
+  /** @hidden */
   private InstanceHolder evalSet;
   
   private DataBaseReader(final File tFile, final File eFile) throws IOException{

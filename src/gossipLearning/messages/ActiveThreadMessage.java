@@ -7,8 +7,7 @@ package gossipLearning.messages;
  * 
  * @author Róbert Ormándi
  */
-@Message
-public class ActiveThreadMessage {
+public class ActiveThreadMessage implements Message {
   private static final ActiveThreadMessage instance = new ActiveThreadMessage();
   
   private ActiveThreadMessage() {

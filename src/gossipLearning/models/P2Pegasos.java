@@ -19,6 +19,7 @@ public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputab
   protected static final String PAR_LAMBDA = "lambda";
   protected double lambda = 0.0001;
   
+  /** @hidden */
   private Map<Integer, Double> w;
   private double age;
   
