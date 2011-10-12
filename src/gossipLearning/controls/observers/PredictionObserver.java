@@ -2,6 +2,7 @@ package gossipLearning.controls.observers;
 
 import gossipLearning.InstanceHolder;
 import gossipLearning.controls.observers.errorComputation.AbstractErrorComputator;
+import gossipLearning.controls.observers.errorComputation.ErrorFunction;
 import gossipLearning.interfaces.LearningProtocol;
 import gossipLearning.interfaces.ModelHolder;
 
@@ -17,8 +18,10 @@ import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
 
 /**
- * 
- * @author Istvan
+ * This class computes the prediction error of the nodes in the network 
+ * based on the specified type of error computator and error function. The 
+ * computer prediction error will be written on the output channel.
+ * @author István Hegedűs
  * @has 1 "" 1 InstanceHolder
  * 
  */
@@ -35,12 +38,19 @@ public class PredictionObserver extends GraphObserver {
    */
   protected final String format;
   private static final String PAR_EC = "errorComputatorClass";
+  private static final String PAR_EF = "errorFunctionClass";
   
   /**
    * The used error computator class.
    * @hidden
    */
   protected AbstractErrorComputator errorComputator;
+  
+  /**
+   * The used error function
+   * @hidden
+   */
+  protected ErrorFunction errorFunction;
   
   /** @hidden */
   private Constructor<? extends AbstractErrorComputator> errorComputatorConstructor;
@@ -56,7 +66,9 @@ public class PredictionObserver extends GraphObserver {
     // create error computator
     String errorComputatorClassName = Configuration.getString(prefix + "." + PAR_EC);
     Class<? extends AbstractErrorComputator> errorCompuatorClass = (Class<? extends AbstractErrorComputator>) Class.forName(errorComputatorClassName);
-    errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, InstanceHolder.class);
+    errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, InstanceHolder.class, ErrorFunction.class);
+    String errorFunctionClassName = Configuration.getString(prefix + "." + PAR_EF);
+    errorFunction = (ErrorFunction) Class.forName(errorFunctionClassName).newInstance();
   }
   
   /**
@@ -73,7 +85,7 @@ public class PredictionObserver extends GraphObserver {
   
   public boolean execute() {
     try {
-      errorComputator = errorComputatorConstructor.newInstance(pid, eval);
+      errorComputator = errorComputatorConstructor.newInstance(pid, eval, errorFunction);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

@@ -7,27 +7,27 @@ import gossipLearning.interfaces.ModelHolder;
 import java.util.Map;
 
 /**
- * This class is for computing the voted 0-1 error incrementally.
+ * This class computes the voted error using the specified error function.
  * @author István Hegedűs
  *
  */
-public class EfficientVotedZeroOneErrorComputator extends AbstractErrorComputator {
+public class VotedErrorComputator extends AbstractErrorComputator {
   
   /**
-   * Constructor for voted 0-1 error computator.
+   * Constructor for voted error computator.
    * @param pid process ID
    * @param eval evaluation set
    */
-  public EfficientVotedZeroOneErrorComputator(int pid, InstanceHolder eval) {
-    super(pid, eval);
+  public VotedErrorComputator(int pid, InstanceHolder eval, ErrorFunction errorFunction) {
+    super(pid, eval, errorFunction);
   }
   
   /**
-   * Computes the voted 0-1 errors efficiently.
+   * Computes the voted errors incrementally.
    */
   public double[] computeError(ModelHolder modelHolder, int nodeID) {
     double[] errors = new double[modelHolder.size()];
-    int[] numOfPosPreds = new int[eval.size()];
+    double[] meanOfPredictions = new double[eval.size()];
     
     // compute errors
     for (int modelIdx = modelHolder.size() - 1, errorIdx = 0; errorIdx < errors.length; modelIdx --, errorIdx ++) {
@@ -38,12 +38,15 @@ public class EfficientVotedZeroOneErrorComputator extends AbstractErrorComputato
         for (int testIdx = 0; testIdx < eval.size(); testIdx ++) {
           Map<Integer, Double> testInstance = eval.getInstance(testIdx);
           double p = model.predict(testInstance);
-          numOfPosPreds[testIdx] += (p == 1.0) ? 1 : 0;
-          double pRatio = (double)numOfPosPreds[testIdx] / (errorIdx + 1);
+          if (errorIdx > 0) {
+            meanOfPredictions[testIdx] += (p - meanOfPredictions[testIdx]) / (errorIdx + 1);
+          } else {
+            meanOfPredictions[testIdx] = p;
+          }
           
-          double predictedValue = (pRatio >= 0.5) ? 1.0 : -1.0;
+          double predictedValue = meanOfPredictions[testIdx];
           double expectedValue = eval.getLabel(testIdx);
-          error += (expectedValue != predictedValue) ? 1.0 : 0.0;
+          error += errorFunction.computeError(expectedValue, predictedValue);
           
           // DEBUG
           //if (nodeID == 1) {
@@ -51,12 +54,11 @@ public class EfficientVotedZeroOneErrorComputator extends AbstractErrorComputato
           //}
         }
         error /= eval.size();
-        errors[errorIdx] = error;
+        errors[errorIdx] = errorFunction.postProcess(error);
       } else if (errorIdx > 0) {
         errors[errorIdx] = errors[errorIdx - 1];
       }
     }
-    
     return errors;
   }
   

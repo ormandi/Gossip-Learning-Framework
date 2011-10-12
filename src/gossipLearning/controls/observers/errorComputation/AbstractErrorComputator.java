@@ -19,15 +19,22 @@ public abstract class AbstractErrorComputator {
    * @hidden
    */
   protected final InstanceHolder eval;
+  /**
+   * Type of computable error
+   * @hidden
+   */
+  protected final ErrorFunction errorFunction;
   
   /**
    * Constructor for error computator that stores the specified parameters.
    * @param pid process ID
    * @param eval evaluation set
+   * @param errorFunction type of computable error
    */
-  public AbstractErrorComputator(int pid, InstanceHolder eval) {
+  public AbstractErrorComputator(int pid, InstanceHolder eval, ErrorFunction errorFunction) {
     this.pid = pid;
     this.eval = eval;
+    this.errorFunction = errorFunction;
   }
   
   /**
