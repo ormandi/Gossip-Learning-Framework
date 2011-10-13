@@ -7,7 +7,7 @@ package gossipLearning.interfaces;
  *
  * @param <T> the type of the model that can be merged.
  */
-public interface Mergable<T extends Model> {
+public interface Mergeable<T extends Model> {
   
   /**
    * Returns the merged or the combined model of the actual and the specified models.

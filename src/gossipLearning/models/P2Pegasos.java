@@ -1,6 +1,5 @@
 package gossipLearning.models;
 
-import gossipLearning.interfaces.Mergable;
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.SimilarityComputable;
 import gossipLearning.utils.Utils;
@@ -10,7 +9,7 @@ import java.util.TreeMap;
 
 import peersim.config.Configuration;
 
-public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputable<P2Pegasos> {
+public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   private static final long serialVersionUID = 5232458167435240109L;
   
   /**
@@ -20,8 +19,8 @@ public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputab
   protected double lambda = 0.0001;
   
   /** @hidden */
-  private Map<Integer, Double> w;
-  private double age;
+  protected Map<Integer, Double> w;
+  protected double age;
   
   /**
    * Creates a default model with age=0 and the separating hyperplane is the 0 vector.
@@ -31,7 +30,14 @@ public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputab
     age = 0.0;
   }
   
-  private P2Pegasos(Map<Integer, Double> w, double age, double lambda){
+  /**
+   * Returns a new P2Pegasos object that initializes its variable with 
+   * the deep copy of the specified parameters.
+   * @param w hyperplane
+   * @param age model age
+   * @param lambda learning parameter
+   */
+  protected P2Pegasos(Map<Integer, Double> w, double age, double lambda){
     this.w = new TreeMap<Integer, Double>();
     for (int k : w.keySet()){
       this.w.put(k, (double)w.get(k));
@@ -103,28 +109,5 @@ public class P2Pegasos implements Model, Mergable<P2Pegasos>, SimilarityComputab
     return Utils.computeSimilarity(w, model.w);
   }
 
-  /**
-   * In linear case the merge is the meaning of the vectors.
-   */
-  @Override
-  public P2Pegasos merge(final P2Pegasos model) {
-    Map<Integer, Double> mergedw = new TreeMap<Integer, Double>();
-    double age = Math.round((this.age + model.age) / 2.0);
-    double value;
-    for (int i : w.keySet()){
-      value = w.get(i);
-      if (model.w.containsKey(i)){
-        value += model.w.get(i);
-      }
-      value /= 2.0;
-      mergedw.put(i, value);
-    }
-    for (int i : model.w.keySet()){
-      if (!w.containsKey(i)){
-        mergedw.put(i, model.w.get(i) / 2.0);
-      }
-    }
-    return new P2Pegasos(mergedw, age, lambda);
-  }
-
+  
 }
