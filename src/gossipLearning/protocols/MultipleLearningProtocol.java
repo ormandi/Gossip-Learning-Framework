@@ -148,8 +148,8 @@ public class MultipleLearningProtocol extends AbstractProtocol {
         model.update(x, y);
       }
       // stores the updated model
-      modelHolders[i].add((Model) model.clone());
-      //modelHolders[i].add(model);
+      //modelHolders[i].add((Model) model.clone());
+      modelHolders[i].add(model);
     }
   }
 

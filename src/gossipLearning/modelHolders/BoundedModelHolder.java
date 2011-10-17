@@ -50,10 +50,13 @@ public class BoundedModelHolder implements ModelHolder {
     this.models = models;
     this.capacity = capacity;
   }
-
-  @SuppressWarnings("unchecked")
+  
   public Object clone(){
-    return new BoundedModelHolder((Vector<Model>)models.clone(), capacity);
+    Vector<Model> clonedModels = new Vector<Model>();
+    for (int i = 0; i < models.size(); i ++) {
+      clonedModels.add((Model)models.get(i).clone());
+    }
+    return new BoundedModelHolder(clonedModels, capacity);
   }
   
   @Override
