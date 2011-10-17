@@ -137,7 +137,7 @@ public class MultipleLearningProtocol extends AbstractProtocol {
       // if it is a mergeable model, them merge them
       if (model instanceof Mergeable){
         Model lastSeen = lastSeenMergeableModels.getModel(i);
-        lastSeenMergeableModels.setModel(i, model);
+        lastSeenMergeableModels.setModel(i, (Model) model.clone());
         model = ((Mergeable) model).merge(lastSeen);
       }
       // updating the model with the local training samples
@@ -148,7 +148,8 @@ public class MultipleLearningProtocol extends AbstractProtocol {
         model.update(x, y);
       }
       // stores the updated model
-      modelHolders[i].add(model);
+      modelHolders[i].add((Model) model.clone());
+      //modelHolders[i].add(model);
     }
   }
 

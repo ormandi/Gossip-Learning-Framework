@@ -28,6 +28,10 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
     super(w, age, lambda);
   }
   
+  public Object clone(){
+    return new MergeablePegasos(w, age, lambda);
+  }
+  
   /**
    * In linear case the merge is the meaning of the vectors.
    */

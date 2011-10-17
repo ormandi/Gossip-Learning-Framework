@@ -23,6 +23,10 @@ public class MergeableLogisticRegression extends LogisticRegression implements M
     super(w, age, lambda);
   }
   
+  public Object clone(){
+    return new MergeableLogisticRegression(w, age, lambda);
+  }
+  
   @Override
   public MergeableLogisticRegression merge(final MergeableLogisticRegression model) {
     Map<Integer, Double> mergedw = new TreeMap<Integer, Double>();
