@@ -108,6 +108,15 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   public double computeSimilarity(final P2Pegasos model) {
     return Utils.computeSimilarity(w, model.w);
   }
+  
+  /**
+   * It returns the string representation of the hyperplane.
+   * 
+   * @return String representation
+   */
+  public String toString() {
+    return w.toString() + ", age: " + age;
+  }
 
   
 }
