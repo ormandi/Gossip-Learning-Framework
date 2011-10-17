@@ -46,17 +46,16 @@ public class BoundedModelHolder implements ModelHolder {
     this.capacity = capacity;
   }
   
-  private BoundedModelHolder(Vector<Model> models, int capacity) {
-    this.models = models;
+  private BoundedModelHolder(Vector<Model> m, int capacity) {
+    models = new Vector<Model>();
+    for (int i = 0; m != null && i < m.size(); i ++) {
+      models.add((Model)m.get(i).clone());
+    }
     this.capacity = capacity;
   }
   
   public Object clone(){
-    Vector<Model> clonedModels = new Vector<Model>();
-    for (int i = 0; i < models.size(); i ++) {
-      clonedModels.add((Model)models.get(i).clone());
-    }
-    return new BoundedModelHolder(clonedModels, capacity);
+    return new BoundedModelHolder(models, capacity);
   }
   
   @Override
