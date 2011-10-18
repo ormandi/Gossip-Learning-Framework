@@ -33,6 +33,9 @@ public class SamplingBasedPredictionObserver extends PredictionObserver {
    * Generates a predefined sized set of node indices for evaluating the stored model.
    */
   protected Set<Integer> generateIndices() {
+    if (samples > g.size() || samples < 1) {
+      return super.generateIndices();
+    }
     TreeSet<Integer> indices = new TreeSet<Integer>();
     while (indices.size() < samples) {
       indices.add(CommonState.r.nextInt(g.size()));
