@@ -30,6 +30,7 @@ Citation
 ========
 
 If you use GoLF in your scientific work or just you want to refer to GoLF somewhere, please cite the following [paper](http://dx.doi.org/10.1007/978-3-642-23400-2_49). The full citation is 
+
 	@inproceedings{ormandi2011asynchronP2PDM,
 	author = {R{\'o}bert Orm{\'a}ndi and Istv{\'a}n Heged\H{u}s and M{\'a}rk Jelasity},
 	title = {Asynchronous Peer-to-Peer Data Mining with Stochastic Gradient Descent},
