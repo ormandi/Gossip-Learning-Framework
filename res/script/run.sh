@@ -9,6 +9,8 @@ export classPath=`ls ../lib/*\.jar | awk '{printf("../%s:",$0)}END{printf("../..
 
 mkdir -p results
 cd ../res/config && java -Xmx${memory} -cp ${classPath} peersim.Simulator ${config} >../../bin/results/${result} && cd ../../bin
-cat results/${result} | awk 'BEGIN{print "#iter\tmodelSim\terrorSimpe\terrorLocalVoted";}{if ($0 ~ /^[0-9]+/ && length($0) > 0) {if ($0 ~ /ModelObserver$/) {c = $1; m=$2;} else if ($0 ~ /\[0\]/) {e0=$2;} else if ($0 ~ /\[9\]/) {print c "\t" m "\t" e0 "\t" $2;}}}' > results/${restricted_result};
-../res/script/plot.sh results/${restricted_result} results/${picture};
+if [ -e results/${result} ]; then
+  cat results/${result} | awk 'BEGIN{print "#iter\tP2Pegasos\tPegasosMU\tLogReg\tLogRegMU";}{if (NF > 1 && $(NF - 1) ~ /\[0\]$/) {if ($NF ~ /\[0\]/) {printf("%s\t%s", $1, $2);} else {printf("\t%s",$2);} if ($NF ~ /\[3\]/) {print "";}}}' > results/${restricted_result};
+  ../res/script/plot.sh results/${restricted_result} results/${picture};
+fi
 

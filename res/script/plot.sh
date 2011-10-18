@@ -12,7 +12,7 @@ set style line 2 lt 1 lw 1 pt 3 lc rgb "blue"
 set style line 3 lt 3 lw 1 pt 3 lc rgb "green"
 set style line 4 lt 3 lw 1 pt 3 lc rgb "orange"
 
-#set logscale
+set logscale x
 set xrange [*:*]
 set yrange [*:*]
 
@@ -23,11 +23,11 @@ set title "${fName}"
 set ylabel "Avg. 0-1 Error"
 set xlabel "Cycles"
 
-
 plot \
-	"$fName" u 1:2 w l ls 2 t "ModelSimilarity", \
-	"$fName" u 1:3 w l ls 1 t "Prediction", \
-	"$fName" u 1:4 w l ls 3 t "LocalVotedPrediction";
+	"$fName" u 1:2 w l t "P2Pegasos", \
+	"$fName" u 1:3 w l t "PegasosMU", \
+	"$fName" u 1:4 w l t "LogReg", \
+	"$fName" u 1:5 w l t "LogRegMU";
 gptend
 
 
