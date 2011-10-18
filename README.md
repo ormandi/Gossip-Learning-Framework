@@ -11,7 +11,7 @@ Getting Started
 
 This framework includes some predefined learning scenarios based on the prototype implementation of the machine learning algorithms and the well-known [Iris learning database](http://archive.ics.uci.edu/ml/datasets/Iris). To play with them you have to perform the following steps:
 
-* __getting the source__: First you have to download the source code of the framework. Probably the easiest way to do that is cloning the this git repository by typing `git clone git://github.com/RobertOrmandi/Gossip-Learning-Framework.git`.
+* __getting the source__: First you have to download the source code of the framework. Probably the easiest way to do that is cloning this git repository by typing `git clone git://github.com/RobertOrmandi/Gossip-Learning-Framework.git`.
 
 * __building it__: The building process is supported with *ant*. Since to create a jar you have to type `ant` at the root directory of the project. This will produce the *gossipLearning.jar* at the *bin* directory of the project. (All of the libraries which are necessary for building or running the project are included at the *lib* directory of the project.)
 
