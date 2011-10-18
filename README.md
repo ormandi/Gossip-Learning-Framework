@@ -11,6 +11,8 @@ Getting Started
 
 This framework includes some predefined learning scenarios based on the prototype implementation of the machine learning algorithms and the well-known [Iris learning database](http://archive.ics.uci.edu/ml/datasets/Iris). To play with them you have to perform the following steps:
 
+* __get the source__: First you have to download the source code of the framework. Probably the easiest way to that is cloning the this git repository by typing `git clone git://github.com/RobertOrmandi/Gossip-Learning-Framework.git`.
+
 
 
 This is just the tip of the iceberg since the framework provides an *API* which makes it extensible i.e. you can implement new learning algorithms or protocols. Or you can define other network scenarios using the configuration mechanism of [Peersim](http://peersim.sourceforge.net/). 
