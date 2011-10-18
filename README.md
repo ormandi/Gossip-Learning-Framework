@@ -32,16 +32,16 @@ Citation
 If you use GoLF in your scientific work or just you want to refer to GoLF somewhere, please cite the following [paper](http://dx.doi.org/10.1007/978-3-642-23400-2_49). The full citation is 
 
 	@inproceedings{ormandi2011asynchronP2PDM,
-	author = {R{\'o}bert Orm{\'a}ndi and Istv{\'a}n Heged\H{u}s and M{\'a}rk Jelasity},
-	title = {Asynchronous Peer-to-Peer Data Mining with Stochastic Gradient Descent},
-	booktitle = {17th International European Conference on Parallel and Distributed Computing (Euro-Par 2011)},
-	year = {2011},
-	pages = {528-540},
-	series = {Lecture Notes in Computer Science},
-	volume = {6852},
-	publisher = {Springer-Verlag},
-	ee = {http://dx.doi.org/10.1007/978-3-642-23400-2_49},
-	bibsource = {DBLP, http://dblp.uni-trier.de}
+	  author = {R{\'o}bert Orm{\'a}ndi and Istv{\'a}n Heged\H{u}s and M{\'a}rk Jelasity},
+	  title = {Asynchronous Peer-to-Peer Data Mining with Stochastic Gradient Descent},
+	  booktitle = {17th International European Conference on Parallel and Distributed Computing (Euro-Par 2011)},
+	  year = {2011},
+	  pages = {528-540},
+	  series = {Lecture Notes in Computer Science},
+	  volume = {6852},
+	  publisher = {Springer-Verlag},
+	  ee = {http://dx.doi.org/10.1007/978-3-642-23400-2_49},
+	  bibsource = {http://www.inf.u-szeged.hu/~ormandi/papers/ormandi2011asynchronP2PDM.bib}
 	}
 
 
