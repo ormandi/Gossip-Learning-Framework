@@ -13,18 +13,18 @@ This framework includes some predefined learning scenarios based on the prototyp
 
 
 
-This is just the tip of the iceberg since the framework provides an *API* which makes it extensible i.e. you can implement new learning algorithm or protocol. Or you can define other network scenarios using the configuration mechanism of [Peersim](http://peersim.sourceforge.net/). 
+This is just the tip of the iceberg since the framework provides an *API* which makes it extensible i.e. you can implement new learning algorithms or protocols. Or you can define other network scenarios using the configuration mechanism of [Peersim](http://peersim.sourceforge.net/). 
 
 Further Reading
 ===============
 
-Since the GoLF is built on the top of [Peersim](http://peersim.sourceforge.net/) for a deeper understanding of the underlying mechanism you should be familiar with [this](http://peersim.sourceforge.net/tutorial1/tutorial1.pdf) and [this](http://peersim.sourceforge.net/tutorial2/tutorial2.pdf). This is also necessary for understanding the configuration files.
+Since the GoLF is built on the top of [Peersim](http://peersim.sourceforge.net/) *for the deeper understanding of the underlying mechanism* you should be __familiar with Peersim__. You should understand [this](http://peersim.sourceforge.net/tutorial1/tutorial1.pdf) and [this](http://peersim.sourceforge.net/tutorial2/tutorial2.pdf) tutorials. This is also necessary for understanding the configuration files of GoLF.
 
-To develop a new algorithm you have to know the details of the Gossip Learning Framework. This was described in [this paper](http://arxiv.org/abs/1109.1396) and a slightly simplified version can be found in the wiki of the project.
+*To develop a new algorithm or protocol* you have to know the __details of the Gossip Learning Framework__. This was described in [this paper](http://arxiv.org/abs/1109.1396) and a slightly simplified version can be found in the wiki of the project.
 
-You are almost done. But before you start development be sure you understand the inner design concepts of GoLF. You can read about it here. 
+You are almost done. But before *you start development* be sure you understand __the inner design concepts of the implementation of GoLF__. You can read about this part of the project wiki where a class diagram is also shown.
 
-To set up your development environment you can find a step-by-step guide here.
+*To set up your development environment* you should __read our step-by-step guide__ which can be found here specifically for Eclipse IDE.
 
 Citation
 ========
