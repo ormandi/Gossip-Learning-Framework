@@ -33,7 +33,7 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
   }
   
   /**
-   * In linear case the merge is the meaning of the vectors.
+   * In linear case the merge is the averaging of the vectors.
    */
   @Override
   public MergeablePegasos merge(final MergeablePegasos model) {

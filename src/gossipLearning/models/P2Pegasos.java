@@ -61,7 +61,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   }
 
   /**
-   * The official pegasos update with the specified instances and corresponding label.
+   * The official Pegasos update with the specified instances and corresponding label.
    */
   @Override
   public void update(final Map<Integer, Double> instance, final double label) {
@@ -92,7 +92,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
 
   /**
    * Computes the inner product of the hyperplane and the specified instance. 
-   * If it is greater than 0 the label is positive (1.0), otherwise the labels is
+   * If it is greater than 0 then the label is positive (1.0), otherwise the label is
    * negative (-1.0).
    */
   @Override

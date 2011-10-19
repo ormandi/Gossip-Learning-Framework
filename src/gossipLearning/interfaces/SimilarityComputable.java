@@ -2,7 +2,7 @@ package gossipLearning.interfaces;
 
 /**
  * This interface describes the models that have an extra property, 
- * namely in these case a model can computes the similarity between 
+ * namely in this case a model can compute the similarity between 
  * itself and an other model.
  * @author Istvan
  *
@@ -12,7 +12,7 @@ public interface SimilarityComputable<T extends Model> {
   
   /**
    * Returns the similarity between the actual and the specified models.
-   * @param model - model for computing the similarity
+   * @param model model for computing the similarity
    * @return similarity
    */
   public double computeSimilarity(final T model);

@@ -12,11 +12,11 @@ import peersim.config.Configuration;
 
 /**
  * This is a simple LearningProtocol which handles only one modelHolder with
- * a fixed size (memory). This modelHolder works like a LIFO i.e. 
- * when it is full and new models arrive the oldest one is removed.<br/>
+ * a fixed size (memory). This modelHolder works like a LIFO i.e.
+ * when it is full and new models arrive, the oldest one is removed.<br/>
  * The active behavior of the protocol is also as simple as possible, it simply
- * select a random node and send the latest model from its ModelHolder.<br/>
- * At the passive thread when a model is received first it will be updated
+ * selects a random node and sends the latest model from its ModelHolder.<br/>
+ * At the passive thread when a model is received, first it will be updated
  * via <b>all</b> of the training samples contained by the node, then it will be
  * added to the ModelHolder of the node.<br/>
  * The protocol receives three parameters in its constructor from the Peersim
@@ -48,7 +48,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   private ModelHolder models;
   
   /**
-   * Constructor which parses the content of a standard Peersim configuration file.
+   * Constructor which parses the contents of a standard Peersim configuration file.
    *  
    * @param prefix
    */
@@ -80,7 +80,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   }
   
   /**
-   * It initializes the starting modelHolder and model structure.
+   * Initializes the starting modelHolder and model structure.
    * 
    * @param prefix
    */
@@ -97,7 +97,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   }
   
   /**
-   * It produces a deep copy of the protocol.
+   * Produces a deep copy of the protocol.
    * 
    * @return Clone of the protocol instance.
    */
@@ -107,7 +107,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   }
   
   /**
-   * It sends the latest model to a uniformly selected random neighbor.
+   * Sends the latest model to a uniformly selected random neighbor.
    */
   @Override
   public void activeThread() {
@@ -125,7 +125,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   }
   
   /**
-   * It process an incoming modelHolder by updating them with all of
+   * Processes an incoming modelHolder by updating it with all of the
    * stored instances and storing them.
    */
   @Override
@@ -187,7 +187,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    * It overwrites the stored ModelHolder with the received one.
    * 
    *  @param New ModelHolder instance
-   *  @return true The process is always considered success.
+   *  @return true The process is always considered successful.
    */
   @Override
   public boolean add(ModelHolder modelHolder) {
@@ -197,7 +197,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
 
   /**
    * It returns the stored ModelHolder and sets the current one to <i>null</i>.
-   * 
+   *
    * @param It has to be 0.
    * @return ModelHolder instance which was stored by the node.
    */

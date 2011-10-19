@@ -104,4 +104,4 @@ control.prediction.format gpt
 control_communication.i2p desc
 control_communication.i2p.on init.instanceLoader
 control_communication.i2p.method setPredictionObserver
-control_communication.i2p.param control.prediction 
+control_communication.i2p.param control.prediction

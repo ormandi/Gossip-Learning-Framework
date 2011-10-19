@@ -117,8 +117,8 @@ public class MultipleLearningProtocol extends AbstractProtocol {
   }
 
   /**
-   * It process an incoming modelHolder by updating them with all of
-   * stored instances and storing them.
+   * It processes an incoming modelHolder by updating and storing them with all of the
+   * stored instances.
    */
   @Override
   public void passiveThread(ModelMessage message) {
@@ -165,7 +165,7 @@ public class MultipleLearningProtocol extends AbstractProtocol {
 
   /**
    * It returns the model holder at the specified index, if there is no model at 
-   * index then throws an exception.
+   * index then it throws an exception.
    * 
    * @param index index of model holder to return
    * @return model holder at index

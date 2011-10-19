@@ -8,8 +8,8 @@ import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 
 /**
- * This class initializes the first wake up messages for nodes in order to
- * the learning could start. 
+ * This class initializes the first wake-up messages for nodes in order to
+ * the learning could start.
  * @author István Hegedűs
  *
  */

@@ -8,26 +8,26 @@ import java.io.Serializable;
 import java.util.Iterator;
 
 /**
- * This is a type designed for the &quot;T-Man&quoty; like protocols view implementation. Basically it is 
- * an array based implementation of a bounded priority queue using generic type parameter for defining the type of
- * elements.<br/>However the insert operation is O(n) the size of this collection is restricted and so this is not a
- * real constraint or drawback. 
- * The real advantage of this implementation is the implementation of get operator which works in O(1).  
+ * This is a type designed for the &quot;T-Man&quoty; like protocols' view implementation. Basically it is
+ * an array-based implementation of a bounded priority queue using generic type parameter for defining the type of the
+ * elements.<br/>However the insert operation is O(n) in the size of this collection is restricted to and so this is not a
+ * real constraint or drawback.
+ * The real advantage of this implementation is the implementation of get operator which works in O(1).
  * 
  * @author ormandi
  *
- * @param <T> T is the type of state which has to implement Serializable (for cloning, see details at the description of 
+ * @param <T> T is the type of state which has to implement Serializable (for cloning, see details at the description of
  * clone method) and Comparable<? super T>. 
- * Comparable implementation defines the sorting of the elements in the view, 
- * but - it is very important - the contains and remove operations work based on the equals method! 
+ * Comparable implementation defines the sorting of the elements in the view,
+ * but -- it is very important that -- the contains and remove operations work based on the equals method!
  */
 public class View <T extends Serializable & Comparable<? super T>> implements Serializable, Cloneable, Iterable<T> {
   private static final long serialVersionUID = 6829986719707246937L;
   private final T[] view;
   private int c = 0;
-  
+
   /**
-   * This is the only one constructor of the class. It creates an empty view with bound size length.
+   * This is the only constructor of the class. It creates an empty view with bound size length.
    * @param length
    */
   @SuppressWarnings("unchecked")
@@ -35,11 +35,11 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
     Serializable[] tmp = new Serializable[length];
     this.view = (T[]) tmp;
   }
-  
+
   /**
-   * The method creates a deep copy of the current view which can be useful e.g. when we would like send the 
+   * The method creates a deep copy of the current view which can be useful e.g. when we would like to send the
    * view through the network in a message. Basically it applies a simple hack which uses the object serialization
-   * framework of the JDK. This is why the generic parameter T has to implement the Serializable interface. 
+   * framework of the JDK. This is why the generic parameter T has to implement the Serializable interface.
    */
   public Object clone() {
     Object ret = null;
@@ -57,21 +57,21 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
     }
     return ret;
   }
-  
+
   /**
-   * This method simply returns the size of the view.
-   * 
-   * @return - the number of the element in the view
+   * Simply returns the size of the view.
+   *
+   * @return the number of the element in the view
    */
   public int size() {
     return Math.min(c, view.length);
   }
-  
+
   /**
-   * I returns the <i>i</i>th element of the current view or null if the index <i>i</i> is out of the size range
+   * Returns the <i>i</i>th element of the current view or null if the index <i>i</i> is out of the size range
    * of the view.
-   *  
-   * @param i - index of the required element
+   *
+   * @param i index of the required element
    * @return <i>i</i>th element element or null if the index is out of the range
    */
   public T get(int i) {
@@ -80,9 +80,9 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
     }
     return null;
   }
-  
+
   /**
-   * The method deletes all of the elements from the view.
+   * Deletes all of the elements from the view.
    */
   public void clear() {
     c = 0;
@@ -92,11 +92,11 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
   }
   
   /**
-   * It inserts the element <i>a</i> to the current view considering the ordering defined by the comparable interface.
-   * It returns true if and only if the insertation was successful.
-   * 
-   * @param a - element that has to be inserted
-   * @return - true if the insertation was successful otherwise false
+   * Inserts the element <i>a</i> to the current view considering the ordering defined by the comparable interface.
+   * Returns true if and only if the insertation was successful.
+   *
+   * @param a element that has to be inserted
+   * @return true if the insertation was successful, false otherwise
    */
   public boolean insert(T a) {
     //System.out.println("Inserting " + a + " to view: [" + this.toString() + "]");
@@ -124,12 +124,12 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
     //System.out.println("After insertation, view: [" + this.toString() + "]");
     return needRepair;
   }
-  
+
   /**
-   * It determines whether the element <i>a</i> is already in the view defined by the equal operation of the element.
+   * Determines whether the element <i>a</i> is already in the view defined by the equal operation of the element.
    * 
-   * @param a - searched element
-   * @return true if the element is in the view otherwise false
+   * @param a searched element
+   * @return true if the element is in the view, false otherwise
    */
   public boolean contains(T a) {
     for (int i = 0; i < c && i < view.length; i ++) {
@@ -139,9 +139,9 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
     }
     return false;
   }
-  
+
   /**
-   * It removes the element <i>a</i> from the view based on the equal operator of the element.
+   * Removes the element <i>a</i> from the view based on the equal operator of the element.
    * 
    * @param a - element which has to be removed from the view
    */
@@ -149,15 +149,15 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
     for (int i = 0; i < c && i < view.length; i ++) {
       //System.err.println("view["+i+"]="+view[i] + ", a="+a+ ", (view["+i+"]!=null)=" + (view[i] != null) + ", (a.equals(view["+i+"]))=" + (a.equals(view[i])));
       if (view[i] != null && a.equals(view[i])) {
-        view[i] = null;        
+        view[i] = null;
       }
     }
     clearNulls();
   }
-  
+
   /**
-   * The method simply checks that two views are equal or not. Here the equation means that they contains equal number of elements
-   * which are all pairwised equals
+   * The method simply checks if two views are equal or not. Here the equation means that they contain equal number of elements
+   * which are all pairwise equal.
    */
   @SuppressWarnings("unchecked")
   public boolean equals(Object otherViewObject) {
@@ -174,9 +174,9 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
     }
     return false;
   }
-  
+
   /**
-   * The method produces a string representation of the view using the toString methods of the elements.
+   * Produces a string representation of the view using the toString method of the elements.
    */
   public String toString() {
     StringBuffer buff = new StringBuffer();
@@ -188,14 +188,14 @@ public class View <T extends Serializable & Comparable<? super T>> implements Se
     }
     return buff.toString();
   }
-  
+
   /**
-   * It produce an iterator which does not support the remove!
+   * Produces an iterator which does not support the remove operation!
    */
   public Iterator<T> iterator() {
     return new ViewIterator<T>(this);
   }
-  
+
   private void clearNulls() {
     for (int i = 0; i < c && i < view.length; i ++) {
       if (view[i] == null) {

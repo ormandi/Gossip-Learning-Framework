@@ -71,7 +71,7 @@ public class InstanceHolder implements Serializable{
   
   /**
    * Returns the stored instances as a Vector<Map<Integer, Double>>. 
-   * If there are no stored instances returns an empty container.
+   * If there are no stored instances, returns an empty container.
    * @return the Vector of the stored instances.
    */
   protected Vector<Map<Integer, Double>> getInstances(){
@@ -79,8 +79,8 @@ public class InstanceHolder implements Serializable{
   }
   
   /**
-   * Returns the labels that corresponds to the stored instances as a Vector<Double>.
-   * If there are no stored instances returns an empty container.
+   * Returns the labels that correspond to the stored instances as a Vector<Double>.
+   * If there are no stored instances, returns an empty container.
    * @return the Vector of labels correspond to the stored instances.
    */
   protected Vector<Double> getLabels(){
@@ -160,7 +160,7 @@ public class InstanceHolder implements Serializable{
   }
   
   /**
-   * Returns the string representation of this object in Jochaim's format.
+   * Returns the string representation of this object in Joachims' format.
    */
   public String toString(){
     StringBuffer sb = new StringBuffer();

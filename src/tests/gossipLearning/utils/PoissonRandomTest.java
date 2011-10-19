@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 public class PoissonRandomTest extends TestCase {
   /**
-   * It initializes the test variable
+   * Initializes the test variable.
    */
   private static final Map<Integer, Integer> f1 = new TreeMap<Integer, Integer>();
   private static final double n = 1000.0;
@@ -28,9 +28,9 @@ public class PoissonRandomTest extends TestCase {
       System.out.println(k + "\t" + f1.get(k) / n);
     }
   }
-  
+
   /**
-   * It tests the generation
+   * Tests the generation.
    */
   public void testGeneration0() {
     assertEquals(0.367, f1.get(0) / n, eps);

@@ -23,7 +23,7 @@ public interface Churnable {
    */
   public long getSessionLength();
   /**
-   * This method is called by control ChurnControl each time when a node logs in to the neighbor.
+   * This method is called by control ChurnControl each time when a node logs in to its neighbor.
    * 
    * @param node Reference to the current node
    * @param protocol Protocol ID

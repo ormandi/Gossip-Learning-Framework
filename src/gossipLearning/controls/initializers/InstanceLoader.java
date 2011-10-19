@@ -14,11 +14,11 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 
 /**
- * This control reads the training and evaluation sets from files and stores them. 
- * The format of the files should be the Jochaims's file format. <br/>
- * Moreover this control loads the training instances to the nodes, and specifies the
+ * This control reads the training and evaluation sets from files and stores them.
+ * The format of the files should be the Joachims' file format. <br/>
+ * Moreover, this control loads the training instances onto the nodes, and specifies the
  * evaluation set for the error observer. <br/>
- * The number of training instances per node can be parameterized, the default 
+ * The number of training instances per node can be parameterized, the default
  * value is 1.
  * @author Róbert Ormándi
  *

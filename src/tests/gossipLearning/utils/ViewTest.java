@@ -16,17 +16,16 @@ public class ViewTest extends TestCase implements Serializable {
   private static final long serialVersionUID = 8155283223775025419L;
 
   /**
-   * Sample content for the testcases. It simpley stores an integer.
-   *
+   * Sample content for the testcases. It simply stores an integer.
    */
   class SampleContent implements Serializable, Comparable<SampleContent> {
     private static final long serialVersionUID = -2560671308181906799L;
     private int c = 0;
-    
+
     public SampleContent(int c) {
       this.c = c;
     }
-    
+
     @Override
     public boolean equals(Object o) {
       return o != null && o instanceof SampleContent && c == ((SampleContent)o).c;
@@ -42,19 +41,19 @@ public class ViewTest extends TestCase implements Serializable {
       }
       return 0;
     }
-    
+
     @Override
     public String toString() {
       return "" + c;
     }
   }
-  
+
   private View<SampleContent> testView = null;
   private View<SampleContent> cloneView = null;
   private static final int VIEW_SIZE = 6;
-  
+
   /**
-   * It initializes the test variable
+   * Initializes the test variable.
    */
   @SuppressWarnings("unchecked")
   @Override
@@ -68,18 +67,18 @@ public class ViewTest extends TestCase implements Serializable {
     testView.insert(new SampleContent(4));
     cloneView = (View<SampleContent>) testView.clone();
   }
-  
+
   /**
-   * It tests constructor of class View
+   * Tests constructor of class View.
    */
   public void testCreate() {
     testView = null;
     testView = new View<SampleContent>(VIEW_SIZE);
     assertNotNull(testView);
   }
-  
+
   /**
-   * It tests clone method of class View by String comparation, since equals testing will be later
+   * Tests clone method of class View by String comparation, since equals testing will be later.
    */
   @SuppressWarnings("unchecked")
   public void testClone() {
@@ -87,9 +86,9 @@ public class ViewTest extends TestCase implements Serializable {
     cloneView = (View<SampleContent>) testView.clone();
     assertNotNull(testView.toString(), cloneView.toString());
   }
-  
+
   /**
-   * It tests the deep copy property of clone method.
+   * Tests the deep copy property of clone method.
    */
   @SuppressWarnings("unchecked")
   public void testCloneSecondCase() {
@@ -98,16 +97,16 @@ public class ViewTest extends TestCase implements Serializable {
     testView.clear();
     assertEquals(cloneView.size(), VIEW_SIZE);
   }
-  
+
   /**
-   * It tests the size method of class View
+   * Tests the size method of class View.
    */
   public void testSize() {
     assertEquals(testView.size(), VIEW_SIZE);
   }
-  
+
   /**
-   * It tests the size method of class View (case 2)
+   * Tests the size method of class View (case 2).
    */
   public void testSizeSecondCase() {
     testView = null;
@@ -116,42 +115,42 @@ public class ViewTest extends TestCase implements Serializable {
     testView.insert(new SampleContent(2));
     assertEquals(testView.size(), 2);
   }
-  
+
   /**
-   * It tests the getter of class View
+   * Tests the getter of class View.
    */
   public void testGet() {
     assertEquals(testView.get(0), new SampleContent(5));
   }
-  
+
   /**
-   * It tests the clear method of class View
+   * Tests the clear method of class View.
    */
   public void testClear() {
     testView.clear();
     cloneView = new View<SampleContent>(VIEW_SIZE);
     assertEquals(testView.toString(), cloneView.toString());
   }
-  
+
   /**
-   * It tests insert (and so sorting property) of class View
+   * Tests insert (and so sorting property) of class View.
    */
-  public void testInsert() { 
+  public void testInsert() {
     final String tExpected = "5, 4, 3, 2, 1, 0";
     assertEquals(tExpected, testView.toString());
   }
-  
+
   /**
-   * It tests insert (and so sorting property) of class View (case 2)
+   * Tests insert (and so sorting property) of class View (case 2).
    */
   public void testInsertSecondCase() {
     testView.insert(new SampleContent(4));
     final String tExpected = "5, 4, 4, 3, 2, 1";
     assertEquals(tExpected, testView.toString());
   }
-  
+
   /**
-   * It tests insert (and so sorting property) of class View (case 3)
+   * Tests insert (and so sorting property) of class View (case 3).
    */
   public void testInsertThirdCase() {
     testView.insert(new SampleContent(11));

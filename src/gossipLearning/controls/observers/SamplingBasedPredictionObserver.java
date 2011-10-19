@@ -15,7 +15,7 @@ public class SamplingBasedPredictionObserver extends PredictionObserver {
   private static final String PAR_SS = "samples";
   
   /**
-   * Number of selected nodes for compute prediction
+   * Number of selected nodes to compute for prediction
    */
   protected final int samples;
 

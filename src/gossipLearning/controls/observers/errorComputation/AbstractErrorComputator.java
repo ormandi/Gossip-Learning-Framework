@@ -4,7 +4,7 @@ import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.ModelHolder;
 
 /**
- * This abstract class describes the skeleton of error computators that 
+ * This abstract class describes the skeleton of error computators that
  * can be used in our learning framework.
  * @author István Hegedűs
  *
@@ -38,7 +38,7 @@ public abstract class AbstractErrorComputator {
   }
   
   /**
-   * Computes the voted error on the specified node as nodeID based on the specified modelHolder 
+   * Computes the voted error on the specified node as nodeID based on the specified modelHolder.
    * @param modelHolder
    * @param nodeID
    * @return the array where the index represents the number of votes
