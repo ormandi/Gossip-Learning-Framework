@@ -80,7 +80,9 @@ public class Utils {
   public static double getNorm(final Map<Integer, Double> vector){
     double norm = 0.0;
     for (int i : vector.keySet()){
-      norm += vector.get(i) * vector.get(i);
+      Double valueD = vector.get(i);
+      double value = valueD == null ? Double.NaN : valueD.doubleValue();
+      norm += value * value;
     }
     norm = Math.sqrt(norm);
     return norm;

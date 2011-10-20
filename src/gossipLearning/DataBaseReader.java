@@ -32,8 +32,6 @@ public class DataBaseReader {
   /**
    * This method parses the given file into collections of instances and corresponding class labels.
    * @param file the file that has to be parsed
-   * @param instances the collection for the result instances
-   * @param labels the collection for the result labels
    * @throws IOException if file reading error occurs.
    */
   private static InstanceHolder parseFile(final File file) throws IOException{
