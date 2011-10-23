@@ -58,12 +58,12 @@ public class ChurnControl implements Control {
         throw new RuntimeException("Protocol with PID=" + pid + " does not support modeling churn!!!");
       }
     }
-    
-    corrigateNumerOfOnlineSessionsTo(size);
-    
+
+    adjustNumberOfOnlineSessions(size);
+
     return false;
   }
-  
+
   public static long getOnlineSessionLength() {
     long len = Math.round(rand.nextDouble());
     while (len == 0) {
@@ -76,7 +76,7 @@ public class ChurnControl implements Control {
   private static Map<Long, Integer> id2idx = new TreeMap<Long, Integer>();
   private static Vector<Node> downNodes = new Vector<Node>();
   private static Map<Long,Long> offlineToOnline = new TreeMap<Long,Long>();
-  public static void corrigateNumerOfOnlineSessionsTo(int size) {
+  public static void adjustNumberOfOnlineSessions(int size) {
     id2idx.clear();
     downNodes.clear();
     int onlineNodes = 0;
@@ -112,7 +112,7 @@ public class ChurnControl implements Control {
         }
       }
     }
-    
+
   }
 
 }
