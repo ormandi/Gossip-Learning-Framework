@@ -59,7 +59,7 @@ protocol.learningProtocol.delayMean DELAY_MEAN
 protocol.learningProtocol.delayVar DELAY_VAR
 protocol.learningProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.learningProtocol.capacity CAPACITY
-protocol.learningProtocol.modelNames gossipLearning.models.P2Pegasos,gossipLearning.models.MergeablePegasos,gossipLearning.models.LogisticRegression,gossipLearning.models.MergeableLogisticRegression
+protocol.learningProtocol.modelNames gossipLearning.models.P2Pegasos,gossipLearning.models.MergeablePegasos,gossipLearning.models.LogisticRegression,gossipLearning.models.MergeableLogisticRegression,gossipLearning.models.AdalinePerceptron
 protocol.learningProtocol.lambda LAMBDA
 
 
