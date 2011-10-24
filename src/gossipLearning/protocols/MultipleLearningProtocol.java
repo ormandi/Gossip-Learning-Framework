@@ -19,8 +19,6 @@ import peersim.config.Configuration;
  *
  */
 public class MultipleLearningProtocol extends AbstractProtocol {
-  private static final String PAR_DELAYMEAN = "delayMean";
-  private static final String PAR_DELAYVAR = "delayVar";
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_MODELNAMES = "modelNames";
   
@@ -28,8 +26,6 @@ public class MultipleLearningProtocol extends AbstractProtocol {
   private final String modelHolderName;
   /** @hidden */
   private final String[] modelNames;
-  /** @hidden */
-  private final String prefix;
   /** @hidden */
   private ModelHolder[] modelHolders;
   /** @hidden */
@@ -41,9 +37,6 @@ public class MultipleLearningProtocol extends AbstractProtocol {
    * @param prefix
    */
   public MultipleLearningProtocol(String prefix) {
-    this.prefix = prefix;
-    delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN, Double.POSITIVE_INFINITY);
-    delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     modelNames = Configuration.getString(prefix + "." + PAR_MODELNAMES).split(",");
     init(prefix);
@@ -72,8 +65,9 @@ public class MultipleLearningProtocol extends AbstractProtocol {
    * 
    * @param prefix
    */
-  private void init(String prefix) {
+  protected void init(String prefix) {
     try {
+      super.init(prefix);
       // holder for storing the last seen mergeable models for correct merge
       lastSeenMergeableModels = new BoundedModelHolder(modelNames.length);
       modelHolders = new ModelHolder[modelNames.length];

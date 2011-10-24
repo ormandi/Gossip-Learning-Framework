@@ -32,8 +32,6 @@ import peersim.config.Configuration;
  *
  */
 public class SimpleLearningProtocol extends AbstractProtocol {
-  private static final String PAR_DELAYMEAN = "delayMean";
-  private static final String PAR_DELAYVAR = "delayVar";
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_MODELNAME = "modelName";
   
@@ -41,8 +39,6 @@ public class SimpleLearningProtocol extends AbstractProtocol {
   private final String modelHolderName;
   /** @hidden */
   private final String modelName;
-  /** @hidden */
-  private final String prefix;
   
   /** @hidden */
   private ModelHolder models;
@@ -53,9 +49,6 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    * @param prefix
    */
   public SimpleLearningProtocol(String prefix) {
-    this.prefix = prefix;
-    delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN, Double.POSITIVE_INFINITY);
-    delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
     init(prefix);
@@ -84,8 +77,9 @@ public class SimpleLearningProtocol extends AbstractProtocol {
    * 
    * @param prefix
    */
-  private void init(String prefix) {
+  protected void init(String prefix) {
     try {
+      super.init(prefix);
       models = (ModelHolder)Class.forName(modelHolderName).newInstance();
       models.init(prefix);
       Model model = (Model)Class.forName(modelName).newInstance();
