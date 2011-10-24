@@ -15,11 +15,6 @@ import java.util.Vector;
 public class InstanceHolder implements Serializable{
   private static final long serialVersionUID = 7677759922507815758L;
 
-  /**
-   * Defines the label of the unlabeled data.
-   */
-  public static final double NO_LABEL = Double.NaN;
-  
   private int size;
   /** @hidden */
   private Vector<Map<Integer, Double>> instances;
