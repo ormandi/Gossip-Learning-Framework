@@ -1,5 +1,4 @@
-27-07-2011
-	* adding git support for ant building script
-	* code review and adding JUnit tests
-	* refactoring based on Istvan's proposal
+19-10-2011
 	* code commenting
+	* adding JUnit tests
+	* adding git support for ant building script
