@@ -75,11 +75,11 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
     age ++;
     double nu = 1.0 / (lambda * age);
     int max = Utils.findMaxIdx(w, instance);
-    for (int i = 0; i <= max; i ++) {
+    for (int i = -1; i <= max; i ++) {
       Double wOldCompD = w.get(i);
       Double xCompD = instance.get(i);
       // using w0 as bias
-      if (i == 0) {
+      if (i == -1) {
         xCompD = 1.0;
       }
       if (wOldCompD != null || xCompD != null) {
@@ -114,8 +114,8 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
   @Override
   public double predict(Map<Integer, Double> instance) {
     double b = 0.0;
-    if (w.containsKey(0)){
-      b = w.get(0);
+    if (w.containsKey(-1)){
+      b = w.get(-1);
     }
     double predict = Utils.innerProduct(w, instance) + b;
     return 0 <= predict ? 0.0 : 1.0;
