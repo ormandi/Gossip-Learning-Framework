@@ -73,9 +73,12 @@ init.overlayStart.protocolID overlay
 
 init.instanceLoader gossipLearning.controls.initializers.InstanceLoader
 init.instanceLoader.protocol learningProtocol
-init.instanceLoader.trainingFile ../db/iris_setosa_virginica_train.dat
-init.instanceLoader.evaluationFile ../db/iris_setosa_virginica_eval.dat
+init.instanceLoader.trainingFile ../res/db/iris_setosa_virginica_train.dat
+init.instanceLoader.evaluationFile ../res/db/iris_setosa_virginica_eval.dat
 init.instanceLoader.samplesPerNode 1
+
+init.setNumberOfClassesForModels gossipLearning.controls.initializers.SetNumberOfClassesForModels
+init.setNumberOfClassesForModels.protocol learningProtocol
 
 init.learningProtocolStart gossipLearning.controls.initializers.StartMessageInitializer
 init.learningProtocolStart.protocol learningProtocol

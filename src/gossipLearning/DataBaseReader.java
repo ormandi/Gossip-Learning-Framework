@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.Vector;
 
 /**
  * This class reads and stores the training and the evaluation sets for training machine learning algorithms 
@@ -27,6 +30,15 @@ public class DataBaseReader {
     trainingSet = parseFile(tFile);
     // reading evaluation file
     evalSet = parseFile(eFile);
+    
+    // some basic database checks
+    if ((trainingSet.getNumberOfClasses() == Integer.MAX_VALUE && evalSet.getNumberOfClasses() != Integer.MAX_VALUE) ||
+        (trainingSet.getNumberOfClasses() != Integer.MAX_VALUE && evalSet.getNumberOfClasses() == Integer.MAX_VALUE) ||
+        (trainingSet.getNumberOfClasses() < evalSet.getNumberOfClasses()) ||
+        (trainingSet.getNumberOfClasses() == 0 && evalSet.getNumberOfClasses() != 0) ||
+        (trainingSet.getNumberOfClasses() != 0 && evalSet.getNumberOfClasses() == 0)) {
+      throw new RuntimeException("Trainig and evaluation databas mismatch. Possible cases: regression <-> non-regression, custering<->non-clustering, unknown label in the eval set.");
+    }
   }
   
   /**
@@ -39,8 +51,12 @@ public class DataBaseReader {
     if (file == null || !file.exists()){
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
     }
-    InstanceHolder holder = new InstanceHolder();
+    //InstanceHolder holder = new InstanceHolder();
+    Vector<Map<Integer,Double>> instances = new Vector<Map<Integer,Double>>();
+    Vector<Double> labels = new Vector<Double>();
     BufferedReader br = new BufferedReader(new FileReader(file));
+    int numberOfClasses = -1;
+    Set<Double> classes = new TreeSet<Double>();
     String line;
     String[] split;
     int c = 0;
@@ -50,6 +66,11 @@ public class DataBaseReader {
     Map<Integer, Double> instance;
     while ((line = br.readLine()) != null){
       c++;
+      // checking whether it is a regression problem or not
+      if (c == 1 && line.matches("#\\s([Rr]egression|REGRESSION)")) {
+        numberOfClasses = Integer.MAX_VALUE;
+        continue;
+      }
       // eliminating empty and comment lines
       if (line.length() == 0 || line.startsWith("#")){
         continue;
@@ -64,20 +85,37 @@ public class DataBaseReader {
         throw new RuntimeException("The file \"" + file.toString() + "\" has invalid structure at line " + c);
       }
       label = Double.parseDouble(split[0]);
+      if (numberOfClasses != Integer.MAX_VALUE && (label < 0.0 || label != (int)label)) {
+        // not a regression problem => the label has to be an integer which is greater or equal than 0 
+        throw new RuntimeException("The class label has to be integer and greater or equal than 0, line " + c);
+      }
       instance = new TreeMap<Integer, Double>();
       for (int i = 1; i < split.length; i += 2){
-        key = Integer.parseInt(split[i]);
-        if (key <= 0){
-          throw new RuntimeException("The index of the features must be positive integer, line " + c);
+        key = Integer.parseInt(split[i]) - 1; // index from 0
+        if (key < 0){
+          throw new RuntimeException("The index of the features must be non-negative integer, line " + c);
         }
         value = Double.parseDouble(split[i + 1]);
         instance.put(key, value);
       }
       // storing parsed instance
-      holder.add(instance, label);
+      //holder.add(instance, label);
+      instances.add(instance);
+      labels.add(label);
+      
+      // calculating the number of classes if it is not a regression
+      if (numberOfClasses != Integer.MAX_VALUE) {
+        classes.add(label);
+      }
     }
     br.close();
-    return holder;
+    
+    // sets the correct value of number of classes
+    if (numberOfClasses != Integer.MAX_VALUE) {
+      numberOfClasses = classes.size();
+    }
+    
+    return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses); // 1-> indicating clustering
   }
   
   /**

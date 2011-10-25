@@ -5,6 +5,7 @@ import gossipLearning.controls.ChurnControl;
 import gossipLearning.messages.ActiveThreadMessage;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.messages.OnlineSessionFollowerActiveThreadMessage;
+import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
@@ -30,8 +31,12 @@ import peersim.transport.Transport;
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractProtocol implements EDProtocol, Churnable, LearningProtocol {
-  // active thread delay mean and variance, these two value have to be set by any subclass
+  //active thread delay mean and variance
+  /** @hidden */
+  protected static final String PAR_DELAYMEAN = "delayMean";
   protected double delayMean = Double.POSITIVE_INFINITY;
+  /** @hidden */
+  protected static final String PAR_DELAYVAR = "delayVar";
   protected double delayVar = 1.0;
   
   // instance variable
@@ -47,12 +52,20 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   protected Node currentNode;
   /** @hidden */
   protected int currentProtocolID;
-
+  /** @hidden */
+  protected String prefix;
+  
   /**
    * This method performers the deep copying of the protocol.
    */
   @Override
   public abstract Object clone();
+  
+  protected void init(String prefix) {
+    this.prefix = prefix;
+    delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN, Double.POSITIVE_INFINITY);
+    delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
+  }
   
   /**
    * It is a helper method as well which supports sending message

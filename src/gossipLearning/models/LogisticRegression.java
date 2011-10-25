@@ -28,6 +28,7 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
   /** @hidden */
   protected Map<Integer, Double> w;
   protected double age;
+  protected int numberOfClasses = 2;
   
   /**
    * Initializes the hyperplane as 0 vector.
@@ -70,18 +71,15 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
   @Override
   public void update(Map<Integer, Double> instance, double label) {
     double prob = getPositiveProbability(instance);
-    if (label == -1.0) {
-      label = 0.0;
-    }
     double err = label - prob;
     age ++;
     double nu = 1.0 / (lambda * age);
     int max = Utils.findMaxIdx(w, instance);
-    for (int i = 0; i <= max; i ++) {
+    for (int i = -1; i <= max; i ++) {
       Double wOldCompD = w.get(i);
       Double xCompD = instance.get(i);
       // using w0 as bias
-      if (i == 0) {
+      if (i == -1) {
         xCompD = 1.0;
       }
       if (wOldCompD != null || xCompD != null) {
@@ -116,16 +114,31 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
   @Override
   public double predict(Map<Integer, Double> instance) {
     double b = 0.0;
-    if (w.containsKey(0)){
-      b = w.get(0);
+    if (w.containsKey(-1)){
+      b = w.get(-1);
     }
     double predict = Utils.innerProduct(w, instance) + b;
-    return 0 <= predict ? -1.0 : 1.0;
+    return 0 <= predict ? 0.0 : 1.0;
   }
   
   @Override
   public double computeSimilarity(LogisticRegression model) {
     return Utils.computeSimilarity(w, model.w);
   }
+
+  @Override
+  public int getNumberOfClasses() {
+    return numberOfClasses;
+  }
+
+  @Override
+  public void setNumberOfClasses(int numberOfClasses) {
+    if (numberOfClasses != 2) {
+      throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
+    }
+    this.numberOfClasses = numberOfClasses;
+  }
+  
+  
 
 }

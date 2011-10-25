@@ -21,6 +21,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   /** @hidden */
   protected Map<Integer, Double> w;
   protected double age;
+  protected int numberOfClasses = 2;
   
   /**
    * Creates a default model with age=0 and the separating hyperplane is the 0 vector.
@@ -64,7 +65,8 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    * The official Pegasos update with the specified instances and corresponding label.
    */
   @Override
-  public void update(final Map<Integer, Double> instance, final double label) {
+  public void update(final Map<Integer, Double> instance, double label) {
+    label = (label == 0.0) ? -1.0 : label;
     age ++;
     double nu = 1.0 / (lambda * age);
     boolean isSV = label * Utils.innerProduct(w, instance) < 1.0;
@@ -98,7 +100,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   @Override
   public double predict(final Map<Integer, Double> instance) {
     double innerProd = Utils.innerProduct(w, instance);
-    return innerProd > 0.0 ? 1.0 : -1.0;
+    return innerProd > 0.0 ? 1.0 : 0.0;
   }
 
   /**
@@ -117,6 +119,17 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   public String toString() {
     return w.toString() + ", age: " + age;
   }
-
   
+  @Override
+  public int getNumberOfClasses() {
+    return numberOfClasses;
+  }
+
+  @Override
+  public void setNumberOfClasses(int numberOfClasses) {
+    if (numberOfClasses != 2) {
+      throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
+    }
+    this.numberOfClasses = numberOfClasses;
+  }
 }

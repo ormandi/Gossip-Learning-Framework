@@ -71,6 +71,24 @@ public class Utils {
     }
     return normalized;
   }
+  
+  /**
+   * Returns the normalized vector of the specified vector.
+   * @param vector vector to be normalized
+   * @return normalized vector
+   */
+  public static double[] normalize(final double[] vector){
+    double norm = 0.0;
+    for (int i = 0; i < vector.length; i++){
+      norm += vector[i] * vector[i];
+    }
+    norm = Math.sqrt(norm);
+    double[] normalized = new double[vector.length];
+    for (int i = 0; i < vector.length; i++){
+      normalized[i] = vector[i] / norm;
+    }
+    return normalized;
+  }
 
   /**
    * Returns the squared norm of the specified vector.
