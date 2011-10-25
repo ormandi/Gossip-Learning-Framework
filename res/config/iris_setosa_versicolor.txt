@@ -73,9 +73,12 @@ init.overlayStart.protocolID overlay
 
 init.instanceLoader gossipLearning.controls.initializers.InstanceLoader
 init.instanceLoader.protocol learningProtocol
-init.instanceLoader.trainingFile ../db/iris_setosa_versicolor_train.dat
-init.instanceLoader.evaluationFile ../db/iris_setosa_versicolor_eval.dat
+init.instanceLoader.trainingFile ../res/db/iris_setosa_versicolor_train.dat
+init.instanceLoader.evaluationFile ../res/db/iris_setosa_versicolor_eval.dat
 init.instanceLoader.samplesPerNode 1
+
+init.setNumberOfClassesForModels gossipLearning.controls.initializers.SetNumberOfClassesForModels
+init.setNumberOfClassesForModels.protocol learningProtocol
 
 init.learningProtocolStart gossipLearning.controls.initializers.StartMessageInitializer
 init.learningProtocolStart.protocol learningProtocol
@@ -83,7 +86,7 @@ init.learningProtocolStart.delay 0
 
 
 #-------------------- Define Init Sequence --------------------
-include.init overlayInit overlayStart instanceLoader learningProtocolStart
+include.init overlayInit overlayStart instanceLoader setNumberOfClassesForModels learningProtocolStart
 
 
 #-------------------- Observers --------------------
