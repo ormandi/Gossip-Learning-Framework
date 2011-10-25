@@ -71,9 +71,6 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
   @Override
   public void update(Map<Integer, Double> instance, double label) {
     double prob = getPositiveProbability(instance);
-    if (label == -1.0) {
-      label = 0.0;
-    }
     double err = label - prob;
     age ++;
     double nu = 1.0 / (lambda * age);
@@ -121,7 +118,7 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
       b = w.get(0);
     }
     double predict = Utils.innerProduct(w, instance) + b;
-    return 0 <= predict ? -1.0 : 1.0;
+    return 0 <= predict ? 0.0 : 1.0;
   }
   
   @Override

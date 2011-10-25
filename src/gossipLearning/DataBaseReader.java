@@ -30,6 +30,15 @@ public class DataBaseReader {
     trainingSet = parseFile(tFile);
     // reading evaluation file
     evalSet = parseFile(eFile);
+    
+    // some basic database checks
+    if ((trainingSet.getNumberOfClasses() == Integer.MAX_VALUE && evalSet.getNumberOfClasses() != Integer.MAX_VALUE) ||
+        (trainingSet.getNumberOfClasses() != Integer.MAX_VALUE && evalSet.getNumberOfClasses() == Integer.MAX_VALUE) ||
+        (trainingSet.getNumberOfClasses() < evalSet.getNumberOfClasses()) ||
+        (trainingSet.getNumberOfClasses() == 0 && evalSet.getNumberOfClasses() != 0) ||
+        (trainingSet.getNumberOfClasses() != 0 && evalSet.getNumberOfClasses() == 0)) {
+      throw new RuntimeException("Trainig and evaluation databas mismatch. Possible cases: regression <-> non-regression, custering<->non-clustering, unknown label in the eval set.");
+    }
   }
   
   /**
@@ -76,11 +85,15 @@ public class DataBaseReader {
         throw new RuntimeException("The file \"" + file.toString() + "\" has invalid structure at line " + c);
       }
       label = Double.parseDouble(split[0]);
+      if (numberOfClasses != Integer.MAX_VALUE && (label < 0.0 || label != (int)label)) {
+        // not a regression problem => the label has to be an integer which is greater or equal than 0 
+        throw new RuntimeException("The class label has to be integer and greater or equal than 0, line " + c);
+      }
       instance = new TreeMap<Integer, Double>();
       for (int i = 1; i < split.length; i += 2){
-        key = Integer.parseInt(split[i]);
-        if (key <= 0){
-          throw new RuntimeException("The index of the features must be positive integer, line " + c);
+        key = Integer.parseInt(split[i]) - 1; // index from 0
+        if (key < 0){
+          throw new RuntimeException("The index of the features must be non-negative integer, line " + c);
         }
         value = Double.parseDouble(split[i + 1]);
         instance.put(key, value);
@@ -102,7 +115,7 @@ public class DataBaseReader {
       numberOfClasses = classes.size();
     }
     
-    return new InstanceHolder(instances, labels, numberOfClasses);
+    return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses); // 1-> indicating clustering
   }
   
   /**

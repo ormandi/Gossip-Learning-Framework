@@ -65,7 +65,8 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    * The official Pegasos update with the specified instances and corresponding label.
    */
   @Override
-  public void update(final Map<Integer, Double> instance, final double label) {
+  public void update(final Map<Integer, Double> instance, double label) {
+    label = (label == 0.0) ? -1.0 : label;
     age ++;
     double nu = 1.0 / (lambda * age);
     boolean isSV = label * Utils.innerProduct(w, instance) < 1.0;
@@ -99,7 +100,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   @Override
   public double predict(final Map<Integer, Double> instance) {
     double innerProd = Utils.innerProduct(w, instance);
-    return innerProd > 0.0 ? 1.0 : -1.0;
+    return innerProd > 0.0 ? 1.0 : 0.0;
   }
 
   /**
