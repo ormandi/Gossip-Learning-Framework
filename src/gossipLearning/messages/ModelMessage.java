@@ -7,10 +7,10 @@ import peersim.core.Node;
 /**
  * This class represents a message which contains the models in the gossip learning framework.
  * Basically this is the information which is sent through the network.
- * It always stores the contained data as a deep copy of the original one. This is crucial 
+ * It always stores the contained data as a deep copy of the original one. This is crucial
  * since if it would be stored as a reference, we could not be able to model the effect
  * of time!<br/>
- * This is a ModelHolder as well which means that it wrappers the underlying ModelHolder which
+ * This is a ModelHolder as well which means that it wraps the underlying ModelHolder which
  * is received and copied at the constructor.
  * 
  * @author Róbert Ormándi
@@ -22,39 +22,39 @@ public class ModelMessage implements ModelHolder, Message {
   private Node src;
   /** @hidden */
   private final ModelHolder models;
-  
+
   /**
    * Constructor which creates a deep copy of the models.
-   * 
-   * @param src It points to the sender node of this message. 
+   *
+   * @param src It points to the sender node of this message.
    * @param models The data part of the message.
    */
   public ModelMessage(Node src, ModelHolder models) {
     this.src = src;
     this.models = (ModelHolder)models.clone();
   }
-  
+
   /**
-   * It simply returns a reference to the sender node. This is 
-   * used just for identify the sender!
-   *  
+   * It simply returns a reference to the sender node. This is
+   * used just to identify the sender!
+   *
    * @return Reference to the sender node.
    */
   public Node getSource() {
     return src;
   }
-  
+
   /**
-   * It changes the sender of the message. It is useful when we want to 
+   * It changes the sender of the message. It is useful when we want to
    * forward the same message. This case it is enough to change the address
    * of sender and we can send easily.
-   * 
+   *
    * @param src
    */
   public void setSource(Node src) {
     this.src = src;
   }
-  
+
   /**
    * It creates a clone of the original message. The models will be deep copied!
    * 
@@ -66,13 +66,13 @@ public class ModelMessage implements ModelHolder, Message {
   }
 
   /**
-   * It reinitializes the stored ModelHolder by calling its original initialization method. 
+   * It reinitializes the stored ModelHolder by calling its original initialization method.
    */
   @Override
   public void init(String prefix) {
     models.init(prefix);
   }
-  
+
   /**
    * It returns the size of the underlying ModelHolder.
    * 
@@ -82,22 +82,22 @@ public class ModelMessage implements ModelHolder, Message {
   public int size() {
     return models.size();
   }
-  
+
   /**
-   * It returns the <i>index</i>th model of the wrappered ModelHolder.
-   * 
+   * It returns the <i>index</i>th model of the wrapped ModelHolder.
+   *
    * @param index The index of the requested model.
-   * @return Th model which can be found in the <i>index</i>th position of the current holder.
+   * @return The model which can be found in the <i>index</i>th position of the current holder.
    */
   @Override
   public Model getModel(int index) {
     return models.getModel(index);
   }
-  
+
   /**
    * It sets the <i>index</i>th model of the underlying ModelHolder to that
    * is presented in the model parameter.
-   * 
+   *
    * @param index The position of the model.
    * @param model The new Model which will be set to the <i>index</i>th position of the current holder.
    */
@@ -105,10 +105,10 @@ public class ModelMessage implements ModelHolder, Message {
   public void setModel(int index, Model model) {
     models.setModel(index, model);
   }
-  
+
   /**
    * It adds a new model to the underlying ModelHolder.
-   * 
+   *
    * @param model Model which will be added to the holder.
    * @return true If the model successfully added to the ModelHolder.
    */
@@ -116,10 +116,10 @@ public class ModelMessage implements ModelHolder, Message {
   public boolean add(Model model) {
     return models.add(model);
   }
-  
+
   /**
    * It simply removes the <i>index</i>th model from the current holder.
-   * 
+   *
    * @param index The index of the model which should be removed.
    * @return The removed model.
    */
@@ -127,9 +127,9 @@ public class ModelMessage implements ModelHolder, Message {
   public Model remove(int index) {
     return models.remove(index);
   }
-  
+
   /**
-   * It calls the clear of the underlying ModelHolder.
+   * It calls the clear() method of the underlying ModelHolder.
    */
   @Override
   public void clear() {

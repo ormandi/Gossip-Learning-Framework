@@ -10,7 +10,7 @@ import java.util.TreeMap;
 /**
  * This class reads and stores the training and the evaluation sets for training machine learning algorithms 
  * and is represented as a singleton. The required files are the training and the evaluation file names with paths. <br/>
- * The files should have Jochaims's SVMLight format.
+ * The files should have Joachims' SVMLight format.
  * 
  * @author István Hegedűs
  *
@@ -31,9 +31,7 @@ public class DataBaseReader {
   
   /**
    * This method parses the given file into collections of instances and corresponding class labels.
-   * @param file the file that have to be parsed
-   * @param instances the collection for the result instances
-   * @param labels the collection for the result labels
+   * @param file the file that has to be parsed
    * @throws IOException if file reading error occurs.
    */
   private static InstanceHolder parseFile(final File file) throws IOException{

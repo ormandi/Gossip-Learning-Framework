@@ -5,7 +5,7 @@ package gossipLearning.messages;
  * of the {@link gossipLearning.messages.ActiveThreadMessage}.
  * It can be used when churn modeling is performed. It can
  * identify that the active thread alarm is set in the 
- * current session or not.   
+ * current session or not.
  * 
  * @author Róbert Ormándi
  */

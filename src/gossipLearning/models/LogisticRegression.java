@@ -93,7 +93,8 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
   }
   
   /**
-   * Computes the probability that the specified instance belongs to the positive class.
+   * Computes the probability that the specified instance belongs to the positive class i.e. 
+   * P(Y=1 | X=x, w) = 1 / (1 + e^(w'x + b)).
    * @param instance instance to compute the probability
    * @return positive label probability of the instance
    */
@@ -109,8 +110,8 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
 
   /**
    * The label is negative when the inner product of the hyperplane and the 
-   * specified instance plus the bias is greater then 0 <br/>
-   * and positive in any other case
+   * specified instance plus the bias is greater than 0 <br/>
+   * and positive otherwise, i.e. 1 < P(Y=0 | X=x) / P(Y=1 | X=x).
    */
   @Override
   public double predict(Map<Integer, Double> instance) {

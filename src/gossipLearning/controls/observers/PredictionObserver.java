@@ -18,8 +18,8 @@ import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
 
 /**
- * This class computes the prediction error of the nodes in the network 
- * based on the specified type of error computator and error function. The 
+ * This class computes the prediction error of the nodes in the network
+ * based on the specified type of error computator and error function. The
  * computer prediction error will be written on the output channel.
  * @author István Hegedűs
  * @has 1 "" 1 InstanceHolder
@@ -41,13 +41,13 @@ public class PredictionObserver extends GraphObserver {
   private static final String PAR_EF = "errorFunctionClass";
   
   /**
-   * The used error computator class.
+   * The error computator class used.
    * @hidden
    */
   protected AbstractErrorComputator errorComputator;
   
   /**
-   * The used error function
+   * The error function used.
    * @hidden
    */
   protected ErrorFunction errorFunction;

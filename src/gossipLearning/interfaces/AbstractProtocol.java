@@ -5,6 +5,7 @@ import gossipLearning.controls.ChurnControl;
 import gossipLearning.messages.ActiveThreadMessage;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.messages.OnlineSessionFollowerActiveThreadMessage;
+import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
 import peersim.core.Linkable;
@@ -15,23 +16,27 @@ import peersim.transport.Transport;
 
 /**
  * This abstract base class (ABC) is situated between the Peersim protocol interface
- * and our concrete learning protocol implementations (in the inheritance tree). 
+ * and our concrete learning protocol implementations (in the inheritance tree).
  * Basically it implements and hides the irrelevant details
- * from the viewpoint of learning protocols. 
- * So in the concrete protocols we have to take care of only the learning dependent 
+ * from the viewpoint of learning protocols.
+ * So in the concrete protocols we have to take care of only the learning dependent
  * code pieces.<br/>
- * Make sure you initialize well the delayMean and delayVar fields which defines the 
- * length of active thread delay. These fields are used here but not initialized!<br/> 
- * This implementation also adds some useful method like getTransport, getOverlay and 
- * getCurrentProtocol. 
- * 
+ * Make sure you initialize well the delayMean and delayVar fields which defines the
+ * length of active thread delay. These fields are used here but not initialized!<br/>
+ * This implementation also adds some useful methods like getTransport, getOverlay and
+ * getCurrentProtocol.
+ *
  * @author Róbert Ormándi
  *
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractProtocol implements EDProtocol, Churnable, LearningProtocol {
-  // active thread delay mean and variance, these two value have to be set by any subclass
+  //active thread delay mean and variance
+  /** @hidden */
+  protected static final String PAR_DELAYMEAN = "delayMean";
   protected double delayMean = Double.POSITIVE_INFINITY;
+  /** @hidden */
+  protected static final String PAR_DELAYVAR = "delayVar";
   protected double delayVar = 1.0;
   
   // instance variable
@@ -47,12 +52,20 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   protected Node currentNode;
   /** @hidden */
   protected int currentProtocolID;
-
+  /** @hidden */
+  protected String prefix;
+  
   /**
    * This method performers the deep copying of the protocol.
    */
   @Override
   public abstract Object clone();
+  
+  protected void init(String prefix) {
+    this.prefix = prefix;
+    delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN, Double.POSITIVE_INFINITY);
+    delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
+  }
   
   /**
    * It is a helper method as well which supports sending message
@@ -101,9 +114,9 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   
   /**
    * This is the most basic implementation of processEvent which 
-   * can recognize two type of message:
+   * can recognize two types of messages:
    * <ul>
-   *   <li>In the case when the protocol receives message from the 
+   *   <li>In the case when the protocol receives message from the
    *   first type it indicates that an <i>activeThread()</i> method call
    *   has to be performed. Messages of the first type are the instances of
    *   {@link gossipLearning.messages.ActiveThreadMessage} or 
@@ -111,7 +124,7 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
    *   <li>In the other hand when a {@link gossipLearning.messages.ModelMessage}
    *   is received the protocol perform a <i>passiveThread(modelMessage)</i> call.</li>
    * </ul>
-   * Notice that the two abstract method here are the same which were specified in the
+   * Notice that the two abstract methods here are the same as those specified in the
    * interface {@link gossipLearning.interfaces.LearningProtocol}.
    * 
    * @param currentNode Reference to the current node.
@@ -184,10 +197,10 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   public void setSessionLength(long sessionLength) {
     this.sessionLength = sessionLength;
   }
-  
+
   /**
-   * Session initialization simple makes protocol being awake by adding an active thread event to myself
-   * with delay 0. 
+   * Session initialization simply awakes the protocol by adding an active thread event to itself
+   * with delay 0.
    */
   @Override
   public void initSession(Node node, int protocol) {

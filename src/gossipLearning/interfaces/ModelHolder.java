@@ -25,35 +25,35 @@ public interface ModelHolder extends Serializable, Cloneable{
   
   /**
    * Returns the number of stored models.
-   * @return - the number of stored models
+   * @return the number of stored models
    */
   public int size();
   
   /**
    * Returns a stored model at the specified position. 
-   * @param index - index of the model to return
-   * @return - model at the specified position
+   * @param index index of the model to return
+   * @return model at the specified position
    */
   public Model getModel(final int index);
   
   /**
    * Replaces the model in the container at the specified position with the specified model.
-   * @param index - index of the model to replace
-   * @param model - model to be stored at the specified position
+   * @param index index of the model to replace
+   * @param model model to be stored at the specified position
    */
   public void setModel(final int index, final Model model);
   
   /**
    * Adds the specified model to the container.
-   * @param model - model to be added
+   * @param model model to be added
    * @param return true if the specified model was added <br/> false otherwise
    */
   public boolean add(final Model model);
   
   /**
    * Removes and returns the model at the specified position in the container.
-   * @param index - the index of the model to be removed
-   * @return - model that was removed
+   * @param index the index of the model to be removed
+   * @return model that was removed
    */
   public Model remove(final int index);
   
