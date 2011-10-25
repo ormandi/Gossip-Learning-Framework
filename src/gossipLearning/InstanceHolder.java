@@ -20,14 +20,31 @@ public class InstanceHolder implements Serializable{
   private Vector<Map<Integer, Double>> instances;
   /** @hidden */
   private Vector<Double> labels;
+  private final int numberOfClasses;
   
   /**
    * Constructs and initializes a new InstanceHolder object.
    */
-  public InstanceHolder(){
+  public InstanceHolder(int numberOfClasses){
+    this.numberOfClasses = numberOfClasses;
     size = 0;
     instances = new Vector<Map<Integer,Double>>();
     labels = new Vector<Double>();
+  }
+  
+  /**
+   * This method creates an instance holder based on existing containers which hold the data. The constructor does not
+   * copy the data and does not perform any checking on the data!
+   * 
+   * @param instances instances
+   * @param labels class labels
+   * @param numberOfClasses number of classes (0 - clustering, N - classification, Integer.MAX_VALUE - regression)
+   */
+  public InstanceHolder(Vector<Map<Integer,Double>> instances, Vector<Double> labels, int numberOfClasses) {
+    this.instances = instances;
+    this.labels = labels;
+    this.numberOfClasses = numberOfClasses;
+    this.size = instances.size();
   }
   
   /**
@@ -36,8 +53,9 @@ public class InstanceHolder implements Serializable{
    * @param instances
    * @param labels
    */
-  private InstanceHolder(int size, Vector<Map<Integer, Double>> instances, Vector<Double> labels){
+  private InstanceHolder(int size, Vector<Map<Integer, Double>> instances, Vector<Double> labels, int numberOfClasses){
     this.size = size;
+    this.numberOfClasses = numberOfClasses;
     this.instances = new Vector<Map<Integer,Double>>();
     this.labels = new Vector<Double>();
     for (int i = 0; i < instances.size(); i++){
@@ -53,7 +71,16 @@ public class InstanceHolder implements Serializable{
   }
   
   public Object clone(){
-    return new InstanceHolder(size, instances, labels);
+    return new InstanceHolder(size, instances, labels, numberOfClasses);
+  }
+  
+  /**
+   * Return the number of classes set by the constructor.
+   * 
+   * @return number of classes
+   */
+  public int getNumberOfClasses() {
+    return numberOfClasses;
   }
   
   /**

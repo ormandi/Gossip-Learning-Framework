@@ -28,6 +28,7 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
   /** @hidden */
   protected Map<Integer, Double> w;
   protected double age;
+  protected int numberOfClasses = 2;
   
   /**
    * Initializes the hyperplane as 0 vector.
@@ -127,5 +128,20 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
   public double computeSimilarity(LogisticRegression model) {
     return Utils.computeSimilarity(w, model.w);
   }
+
+  @Override
+  public int getNumberOfClasses() {
+    return numberOfClasses;
+  }
+
+  @Override
+  public void setNumberOfClasses(int numberOfClasses) {
+    if (numberOfClasses != 2) {
+      throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
+    }
+    this.numberOfClasses = numberOfClasses;
+  }
+  
+  
 
 }

@@ -30,14 +30,14 @@ public class InstanceLoader implements Control {
   private static final String PAR_EFILE = "evaluationFile";
   private static final String PAR_SIZE = "samplesPerNode";
   
-  private final int pid;
+  protected final int pid;
   /** @hidden */
-  private final File tFile;
-  private PredictionObserver observer;
-  private DataBaseReader reader;
+  protected final File tFile;
+  protected PredictionObserver observer;
+  protected DataBaseReader reader;
   /** @hidden */
-  private final File eFile;
-  private final int samplesPerNode;
+  protected final File eFile;
+  protected final int samplesPerNode;
     
   public InstanceLoader(String prefix) {
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
@@ -61,7 +61,7 @@ public class InstanceLoader implements Control {
         Protocol protocol = node.getProtocol(pid);
         if (protocol instanceof LearningProtocol) {
           LearningProtocol learningProtocol = (LearningProtocol) protocol;
-          InstanceHolder instances = new InstanceHolder();
+          InstanceHolder instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses());
           for (int j = 0; j < samplesPerNode; j++){
             instances.add(reader.getTrainingSet().getInstance((i * samplesPerNode + j) % numOfSamples), reader.getTrainingSet().getLabel((i * samplesPerNode + j) % numOfSamples));
           }

@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.Vector;
 
 /**
  * This class reads and stores the training and the evaluation sets for training machine learning algorithms 
@@ -39,8 +42,12 @@ public class DataBaseReader {
     if (file == null || !file.exists()){
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
     }
-    InstanceHolder holder = new InstanceHolder();
+    //InstanceHolder holder = new InstanceHolder();
+    Vector<Map<Integer,Double>> instances = new Vector<Map<Integer,Double>>();
+    Vector<Double> labels = new Vector<Double>();
     BufferedReader br = new BufferedReader(new FileReader(file));
+    int numberOfClasses = -1;
+    Set<Double> classes = new TreeSet<Double>();
     String line;
     String[] split;
     int c = 0;
@@ -50,6 +57,11 @@ public class DataBaseReader {
     Map<Integer, Double> instance;
     while ((line = br.readLine()) != null){
       c++;
+      // checking whether it is a regression problem or not
+      if (c == 1 && line.matches("#\\s([Rr]egression|REGRESSION)")) {
+        numberOfClasses = Integer.MAX_VALUE;
+        continue;
+      }
       // eliminating empty and comment lines
       if (line.length() == 0 || line.startsWith("#")){
         continue;
@@ -74,10 +86,23 @@ public class DataBaseReader {
         instance.put(key, value);
       }
       // storing parsed instance
-      holder.add(instance, label);
+      //holder.add(instance, label);
+      instances.add(instance);
+      labels.add(label);
+      
+      // calculating the number of classes if it is not a regression
+      if (numberOfClasses != Integer.MAX_VALUE) {
+        classes.add(label);
+      }
     }
     br.close();
-    return holder;
+    
+    // sets the correct value of number of classes
+    if (numberOfClasses != Integer.MAX_VALUE) {
+      numberOfClasses = classes.size();
+    }
+    
+    return new InstanceHolder(instances, labels, numberOfClasses);
   }
   
   /**
