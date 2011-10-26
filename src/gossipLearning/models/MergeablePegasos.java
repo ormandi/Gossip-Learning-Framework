@@ -24,12 +24,12 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
    * @param age model age
    * @param lambda learning parameter
    */
-  protected MergeablePegasos(Map<Integer, Double> w, double age, double lambda){
-    super(w, age, lambda);
+  protected MergeablePegasos(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
+    super(w, age, lambda, numberOfClasses);
   }
   
   public Object clone(){
-    return new MergeablePegasos(w, age, lambda);
+    return new MergeablePegasos(w, age, lambda, numberOfClasses);
   }
   
   /**
@@ -56,7 +56,7 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
       }
     }
     //System.out.println("\t" + mergedw);
-    return new MergeablePegasos(mergedw, age, lambda);
+    return new MergeablePegasos(mergedw, age, lambda, numberOfClasses);
   }
 
 }

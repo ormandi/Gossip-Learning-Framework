@@ -38,17 +38,18 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    * @param age model age
    * @param lambda learning parameter
    */
-  protected P2Pegasos(Map<Integer, Double> w, double age, double lambda){
+  protected P2Pegasos(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
     this.w = new TreeMap<Integer, Double>();
     for (int k : w.keySet()){
       this.w.put(k, (double)w.get(k));
     }
     this.age = age;
     this.lambda = lambda;
+    this.numberOfClasses = numberOfClasses;
   }
   
   public Object clone(){
-    return new P2Pegasos(w, age, lambda);
+    return new P2Pegasos(w, age, lambda, numberOfClasses);
   }
 
   /**

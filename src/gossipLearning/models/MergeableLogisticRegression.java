@@ -19,12 +19,12 @@ public class MergeableLogisticRegression extends LogisticRegression implements M
    * @param age model age
    * @param lambda learning parameter
    */
-  protected MergeableLogisticRegression(Map<Integer, Double> w, double age, double lambda){
-    super(w, age, lambda);
+  protected MergeableLogisticRegression(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
+    super(w, age, lambda, numberOfClasses);
   }
   
   public Object clone(){
-    return new MergeableLogisticRegression(w, age, lambda);
+    return new MergeableLogisticRegression(w, age, lambda, numberOfClasses);
   }
   
   @Override
@@ -45,6 +45,6 @@ public class MergeableLogisticRegression extends LogisticRegression implements M
         mergedw.put(i, model.w.get(i) / 2.0);
       }
     }
-    return new MergeableLogisticRegression(mergedw, age, lambda);
+    return new MergeableLogisticRegression(mergedw, age, lambda, numberOfClasses);
   }
 }

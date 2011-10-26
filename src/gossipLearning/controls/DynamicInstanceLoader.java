@@ -1,5 +1,8 @@
 package gossipLearning.controls;
 
+import java.io.IOException;
+
+import gossipLearning.DataBaseReader;
 import gossipLearning.InstanceHolder;
 import gossipLearning.controls.initializers.InstanceLoader;
 import gossipLearning.interfaces.LearningProtocol;
@@ -45,6 +48,16 @@ public class DynamicInstanceLoader extends InstanceLoader {
     
     driftLength = (double)(CommonState.getEndTime() - 1) / (double)numOfEvals / driftsPerEval;
     driftLength1 = asyncRate * driftLength;
+    
+    try {
+      reader = DataBaseReader.createDataBaseReader(tFile, eFile);
+    } catch (IOException e) {
+      throw new RuntimeException("Exception in " + getClass().getCanonicalName(), e);
+    }
+    if (reader.getTrainingSet().getNumberOfClasses() == Integer.MAX_VALUE 
+        || reader.getEvalSet().getNumberOfClasses() == Integer.MAX_VALUE) {
+      throw new RuntimeException("This class cannot handle regression task! " + getClass().getCanonicalName());
+    }
   }
 
   /**

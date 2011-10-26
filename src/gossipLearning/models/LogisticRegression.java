@@ -45,20 +45,21 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
    * @param age model age
    * @param lambda learning parameter
    */
-  protected LogisticRegression(Map<Integer, Double> w, double age, double lambda){
+  protected LogisticRegression(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
     this.w = new TreeMap<Integer, Double>();
     for (int k : w.keySet()){
       this.w.put(k, (double)w.get(k));
     }
     this.age = age;
     this.lambda = lambda;
+    this.numberOfClasses = numberOfClasses;
   }
   
   /**
    * Clones the object.
    */
   public Object clone(){
-    return new LogisticRegression(w, age, lambda);
+    return new LogisticRegression(w, age, lambda, numberOfClasses);
   }
 
   @Override
