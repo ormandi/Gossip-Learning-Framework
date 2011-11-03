@@ -17,6 +17,7 @@ public class AdalinePerceptron implements Model {
 	/** @hidden */
 	protected Map<Integer, Double> w;
 	protected double age;
+	protected int numberOfClasses = 2;
 
 	/**
 	 * Returns a clone of this object.
@@ -51,7 +52,10 @@ public class AdalinePerceptron implements Model {
 	 * Performs the update: w_{i+1} = w_i + eta_i * (y - w' * x) * x. 
 	 */
 	public void update(Map<Integer, Double> instance, double label) {
-		// Update age.
+	  // convert label
+	  double l = (label == 0.0) ? -1.0 : label;
+    
+	  // Update age.
 		age++;
 		double rate = 1.0 / age;
 		
@@ -73,7 +77,7 @@ public class AdalinePerceptron implements Model {
 		        if(wi == null){
 		        	wi = 0.0;
 		        }
-	        	w.put(i, wi + rate * (label - s) * xi);
+	        	w.put(i, wi + rate * (l - s) * xi);
 	        }
 	    }
 	}
@@ -93,8 +97,21 @@ public class AdalinePerceptron implements Model {
 	        	s += xi * wi;	        	
 	        }
 	    }
-	    return s >= 0 ? 1.0 : -1.0; 
+	    return s >= 0 ? 1.0 : 0.0; 
 	}
+
+	@Override
+  public int getNumberOfClasses() {
+    return numberOfClasses;
+  }
+
+  @Override
+  public void setNumberOfClasses(int numberOfClasses) {
+    if (numberOfClasses != 2) {
+      throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
+    }
+    this.numberOfClasses = numberOfClasses;
+  }
 
 }
 
