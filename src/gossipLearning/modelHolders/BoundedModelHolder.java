@@ -18,9 +18,9 @@ public class BoundedModelHolder implements ModelHolder {
   private static final String PAR_CAPACITY = "capacity";
   
   /**
-   * The maximal capacity is 100 by default.
+   * The maximal capacity is Integer.MAX_VALUE by default.
    */
-  public static final int MAX_CAPACITY = 100;
+  public static final int MAX_CAPACITY = Integer.MAX_VALUE;
   
   /** @hidden */
   private Vector<Model> models;
