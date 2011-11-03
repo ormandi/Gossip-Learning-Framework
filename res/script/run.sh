@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export config=`basename $1`;
-export memory="1G";
+export memory="10G";
 export result=`basename ${config} .txt`"_base_result.txt";
 export restricted_result=`basename ${config} .txt`"_result.txt";
 export picture=`basename ${config} .txt`".png";
