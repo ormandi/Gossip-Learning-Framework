@@ -138,11 +138,11 @@ public class FilterBoost extends ProbabilityModel {
    * @return alpha
    */
   private double computeAlpha(WeakLearner weakLearner, Map<Integer, Double> instance, double label, double[] weights){
-    double prediction = weakLearner.predict(instance);
+    double[] predictions = weakLearner.distributionForInstance(instance);
     for (int i = 0; i < numberOfClasses; i++) {
       double yl = (label == i) ? 1.0 : -1.0;
-      double pl = (prediction == i) ? 1.0 : -1.0;
-      actualEdge += weights[i] * pl * yl;
+      double pl = (predictions[i] >= 0.0) ? 1.0 : -1.0;
+      actualEdge += (pl == yl) ? weights[i] : -weights[i];
       sumWeights += weights[i];
     }
     double rate = (sumWeights == 0.0) ? 0.0 : actualEdge/sumWeights;
