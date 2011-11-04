@@ -1,6 +1,6 @@
 package gossipLearning.models;
 
-import gossipLearning.interfaces.Model;
+import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.SimilarityComputable;
 import gossipLearning.utils.Utils;
 
@@ -16,7 +16,7 @@ import peersim.config.Configuration;
  * @author István Hegedűs
  *
  */
-public class LogisticRegression implements Model, SimilarityComputable<LogisticRegression> {
+public class LogisticRegression extends ProbabilityModel implements SimilarityComputable<LogisticRegression> {
   private static final long serialVersionUID = -6445114719685631031L;
   
   /**
@@ -99,29 +99,21 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
    */
   private double getPositiveProbability(Map<Integer, Double> instance){
     double b = 0.0;
-    if (w.containsKey(0)){
-      b = w.get(0);
-    }
-    double predict = Utils.innerProduct(Utils.normalize(w), instance) + b;
-    predict = Math.exp(predict) + 1.0;
-    return 1.0 / predict;
-  }
-
-  /**
-   * The label is negative when the inner product of the hyperplane and the 
-   * specified instance plus the bias is greater than 0 <br/>
-   * and positive otherwise, i.e. 1 < P(Y=0 | X=x) / P(Y=1 | X=x).
-   */
-  @Override
-  public double predict(Map<Integer, Double> instance) {
-    double b = 0.0;
     if (w.containsKey(-1)){
       b = w.get(-1);
     }
-    double predict = Utils.innerProduct(w, instance) + b;
-    return 0 <= predict ? 0.0 : 1.0;
+    double predict = Utils.innerProduct(w, Utils.normalize(instance)) + b;
+    predict = Math.exp(predict) + 1.0;
+    return 1.0 / predict;
   }
   
+  public double[] distributionForInstance(Map<Integer, Double> instance) {
+    double[] distribution = new double[numberOfClasses];
+    distribution[1] = getPositiveProbability(instance);
+    distribution[0] = 1.0 - distribution[1];
+    return distribution;
+  }
+
   @Override
   public double computeSimilarity(LogisticRegression model) {
     return Utils.computeSimilarity(w, model.w);
