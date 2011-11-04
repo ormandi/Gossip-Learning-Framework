@@ -107,7 +107,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   public void update(final Map<Integer, Double> instance, final double label, final double[] weigths) {
     age ++;
     // compute nu
-    double nu = 1.0 / (double) (age * lambda);
+    double nu = 1.0 / (double) (age * lambda); // regularized
     
     for (int j : instance.keySet()){
       // getting sparse values
@@ -126,13 +126,15 @@ public class SigmoidStumpLearner extends WeakLearner {
       Double edgejD = edges.get(j);
       double edgej = (edgejD == null) ? 0.0 : edgejD.doubleValue();
       bestIndex = j;
-      double prediction = predict(instance);
+      double[] predictions = distributionForInstance(instance);
+      
       // update jth edge
       double edgeDelta = 0.0;
       for (int l = 0; l < numberOfClasses; l++){
-        edgeDelta += (prediction == label) ? weigths[l] : -weigths[l];
+        double yl = (label == l) ? 1.0 : -1.0;
+        double pl = (predictions[l] >= 0.0) ? 1.0 : -1.0;
+        edgeDelta += (pl == yl) ? weigths[l] : -weigths[l];
       }
-      // TODO: edge is a quasi weighted precision -> (tp + tn - fp - fn)/n, we do not normalize
       edges.put(j, edgej + edgeDelta);
     
       // computing sigmoid value and partial derivation of sigmoid
@@ -150,13 +152,13 @@ public class SigmoidStumpLearner extends WeakLearner {
         // summing up d
         graddj -= expLoss * weigths[l] * vsArray[l] * yl * 2.0 * partialSigmoid;
         // update v_jl
-        vsArray[l] = (1.0 - 1.0 / age) * vsArray[l] + nu * expLoss * weigths[l] * scaledSigmoid * yl;
+        vsArray[l] = (1.0 - 1.0 / age) * vsArray[l] + nu * expLoss * weigths[l] * scaledSigmoid * yl; // regularized
       }
       
       // update c and d
-      cj = (1.0 - 1.0 / age) * cj - nu * gradcj;
+      cj = (1.0 - 1.0 / age) * cj - nu * gradcj; // regularized
       cs.put(j, cj);
-      dj = (1.0 - 1.0 / age) * dj - nu * graddj;
+      dj = (1.0 - 1.0 / age) * dj - nu * graddj; // regularized
       ds.put(j, dj);
       vs.put(j, Utils.normalize(vsArray));
     }
