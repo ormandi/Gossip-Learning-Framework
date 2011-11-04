@@ -240,6 +240,36 @@ public class Matrix implements Serializable {
   }
   
   /**
+   * Returns a new matrix object that is the current matrix multiplied pointwise 
+   * by the specified matrix. 
+   * @param matrix matrix to multiply
+   * @return result of the pointwise multiplication as a new matrix object
+   * @throws RuntimeException if the matrices cannot be multiplied pointwise
+   */
+  public Matrix pointMul(Matrix matrix) {
+    if (numberOfRows != matrix.numberOfRows || numberOfColumns != matrix.numberOfColumns) {
+      throw new RuntimeException("Matrix with dimensions " + numberOfRows + "x" + 
+          numberOfColumns + " cannot be multiplied pointwise by a matrix with dimensions " + 
+          matrix.numberOfRows + "x" + matrix.numberOfColumns);
+    }
+    Matrix result = new Matrix(numberOfRows, numberOfColumns);
+    for (int i = 0; i < numberOfRows; i++) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        if (isTransposed && matrix.isTransposed) {
+          result.matrix[i][j] = this.matrix[j][i] * matrix.matrix[j][i];
+        } else if (isTransposed && !matrix.isTransposed) {
+          result.matrix[i][j] = this.matrix[j][i] * matrix.matrix[i][j];
+        } else if (!isTransposed && matrix.isTransposed) {
+          result.matrix[i][j] = this.matrix[i][j] * matrix.matrix[j][i];
+        } else {
+          result.matrix[i][j] = this.matrix[i][j] * matrix.matrix[i][j];
+        }
+      }
+    }
+    return result;
+  }
+  
+  /**
    * Returns the sum of the current and the specified matrices.
    * @param matrix matrix to add
    * @return sum of matrices as a new matrix
