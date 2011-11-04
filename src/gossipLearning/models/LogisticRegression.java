@@ -102,7 +102,7 @@ public class LogisticRegression implements Model, SimilarityComputable<LogisticR
     if (w.containsKey(0)){
       b = w.get(0);
     }
-    double predict = Utils.innerProduct(w, instance) + b;
+    double predict = Utils.innerProduct(Utils.normalize(w), instance) + b;
     predict = Math.exp(predict) + 1.0;
     return 1.0 / predict;
   }

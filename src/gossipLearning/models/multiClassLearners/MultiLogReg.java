@@ -1,13 +1,12 @@
 package gossipLearning.models.multiClassLearners;
 
+import gossipLearning.interfaces.ProbabilityModel;
+import gossipLearning.utils.Utils;
+
 import java.util.Map;
 import java.util.TreeMap;
 
 import peersim.config.Configuration;
-
-import gossipLearning.interfaces.Model;
-import gossipLearning.interfaces.ProbabilityModel;
-import gossipLearning.utils.Utils;
 
 /**
  * This class represents the multi-class logistic regression classifier. 
@@ -80,13 +79,12 @@ public class MultiLogReg extends ProbabilityModel {
     double[] distribution = new double[numberOfClasses];
     double sum = 0.0;
     for (int i = 0; i < numberOfClasses -1; i++) {
-      /*double bias = 0.0;
+      double bias = 0.0;
       if (w[i].containsKey(-1)) {
         bias = w[i].get(-1);
       }
       distribution[i] = Math.exp(bias + Utils.innerProduct(Utils.normalize(w[i]), instance));
-      */
-      distribution[i] = Math.exp(Utils.innerProduct(Utils.normalize(w[i]), instance));
+      //distribution[i] = Math.exp(Utils.innerProduct(Utils.normalize(w[i]), instance));
       sum += distribution[i];
     }
     distribution[numberOfClasses - 1] = 1.0;
@@ -116,17 +114,21 @@ public class MultiLogReg extends ProbabilityModel {
       double cDelta = (label == j) ? 1.0 : 0.0;
       double err = cDelta - distribution[j];
       
-      for (int i = 0; i <= max; i ++) {
+      for (int i = -1; i <= max; i ++) {
         Double wOldCompD = w[j].get(i);
         Double xCompD = instance.get(i);
         // using w0 as bias
-        /*if (i == -1) {
+        if (i == -1) {
           xCompD = 1.0;
-        }*/
+        }
         if (wOldCompD != null || xCompD != null) {
           double wOldComp = (wOldCompD == null) ? 0.0 : wOldCompD.doubleValue();
           double xComp = (xCompD == null) ? 0.0 : xCompD.doubleValue();
-          w[j].put(i, (1.0 - nu * lambda) * wOldComp + nu * err * xComp);
+          if (i == -1) {
+            w[j].put(i, wOldComp + nu * err * xComp);
+          } else {
+            w[j].put(i, (1.0 - nu * lambda) * wOldComp + nu * err * xComp);
+          }
         }
       }
     }
