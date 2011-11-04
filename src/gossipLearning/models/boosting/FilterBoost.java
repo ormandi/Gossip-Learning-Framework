@@ -1,6 +1,5 @@
 package gossipLearning.models.boosting;
 
-import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.WeakLearner;
@@ -23,7 +22,7 @@ import peersim.config.Configuration;
  * @author István Hegedűs
  *
  */
-public class FilterBoost implements Model, ProbabilityModel {
+public class FilterBoost extends ProbabilityModel {
   private static final long serialVersionUID = 1654351368769565L;
   
   private static final String PAR_T = "T";
@@ -185,21 +184,6 @@ public class FilterBoost implements Model, ProbabilityModel {
       }
     }
     return Utils.normalize(distribution);
-  }
-
-  @Override
-  public double predict(Map<Integer, Double> instance) {
-    double maxValue = Double.NEGATIVE_INFINITY;
-    double maxIndex = 0;
-    double[] distribution = distributionForInstance(instance);
-    // the prediction is the index of the class that has the maximal probability
-    for (int i = 0; i < distribution.length; i++) {
-      if (distribution[i] > maxValue) {
-        maxValue = distribution[i];
-        maxIndex = i;
-      }
-    }
-    return maxIndex;
   }
   
   /**

@@ -8,7 +8,11 @@ import java.util.Map;
  * @author István Hegedűs
  *
  */
-public interface ProbabilityModel {
+public abstract class ProbabilityModel implements Model {
+  private static final long serialVersionUID = -7154362879969974691L;
+
+  public abstract Object clone();
+  
   /**
    * Returns the distribution of the class labels for the specified instance.<br/><br/>
    * <b>NOTE:</b> We do not expect the real distribution here. The only requirement is 
@@ -16,5 +20,22 @@ public interface ProbabilityModel {
    * @param instance instance for computing distribution
    * @return array of distribution
    */
-  public double[] distributionForInstance(Map<Integer, Double> instance);
+  public abstract double[] distributionForInstance(Map<Integer, Double> instance);
+  
+  /**
+   * The default implementation of predict is simply based on finding the most likely class.
+   */
+  @Override
+  public final double predict(Map<Integer, Double> instance) {
+    int maxLabelIndex = -1;
+    double maxValue = Double.NEGATIVE_INFINITY;
+    double[] distribution = distributionForInstance(instance);
+    for (int i = 0; i < getNumberOfClasses(); i++){
+      if (distribution[i] > maxValue){
+        maxValue = distribution[i];
+        maxLabelIndex = i;
+      }
+    }
+    return maxLabelIndex;
+  }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
  * @author István Hegedűs
  *
  */
-public abstract class WeakLearner implements Model, ProbabilityModel{
+public abstract class WeakLearner extends ProbabilityModel{
   private static final long serialVersionUID = 1349841351687L;
   /**
    * Represents the weight of the current weak learner.

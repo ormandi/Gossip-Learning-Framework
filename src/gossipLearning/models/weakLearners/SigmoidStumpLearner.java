@@ -201,20 +201,6 @@ public class SigmoidStumpLearner extends WeakLearner {
     }
     return Utils.normalize(distribution);
   }
-
-  @Override
-  public double predict(Map<Integer, Double> instance) {
-    int maxLabelIndex = -1;
-    double maxValue = Double.NEGATIVE_INFINITY;
-    double[] distribution = distributionForInstance(instance);
-    for (int i = 0; i < numberOfClasses; i++){
-      if (distribution[i] > maxValue){
-        maxValue = distribution[i];
-        maxLabelIndex = i;
-      }
-    }
-    return maxLabelIndex;
-  }
   
   /**
    * Initializes a number of class labels sized vector uniform randomly from {-1.0,1.0} 
