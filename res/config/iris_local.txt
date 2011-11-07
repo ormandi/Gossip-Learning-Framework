@@ -1,0 +1,9 @@
+ITER 300
+SEED 1234567890
+LAMBDA 0.005
+
+learner gossipLearning.models.weakLearners.SigmoidStumpLearner
+learner.lambda LAMBDA
+
+trainingFile ../res/db/iris_setosa_versicolor_train.dat
+evaluationFile ../res/db/iris_setosa_versicolor_eval.dat
