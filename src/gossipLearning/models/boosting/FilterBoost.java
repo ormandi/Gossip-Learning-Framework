@@ -5,7 +5,6 @@ import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.modelHolders.BoundedModelHolder;
 import gossipLearning.models.weakLearners.ConstantLearner;
-import gossipLearning.utils.Utils;
 
 import java.util.Map;
 
@@ -189,9 +188,11 @@ public class FilterBoost extends ProbabilityModel {
    */
   private double[] getWeights(Map<Integer, Double> instance, double label) {
     double[] weights = new double[numberOfClasses];
+    double[] distribution = distributionForInstance(instance);
     for (int i = 0; i < weights.length; i++) {
       double cLabel = ((label == i) ? 1.0 : -1.0);
-      weights[i] = 1.0 / (1.0 + Math.exp(predict(instance) * cLabel));
+      // TODO: F(x) - margin
+      weights[i] = 1.0 / (1.0 + Math.exp(distribution[i] * cLabel));
     }
     return weights;
   }
@@ -208,7 +209,8 @@ public class FilterBoost extends ProbabilityModel {
         distribution[j] += alpha * tmpDist[j];
       }
     }
-    return Utils.normalize(distribution);
+    // TODO: not normalized
+    return distribution;
   }
   
   /**
@@ -239,6 +241,14 @@ public class FilterBoost extends ProbabilityModel {
       }
     }
     return sb.toString();
+  }
+  
+  public double getAlpha(int index) {
+    return ((WeakLearner)strongLearner.getModel(index)).getAlpha();
+  }
+  
+  public int getC() {
+    return c;
   }
 
 }
