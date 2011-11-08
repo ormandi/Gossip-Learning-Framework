@@ -2,6 +2,7 @@ package gossipLearning.utils;
 
 import java.io.Serializable;
 import java.util.Random;
+import java.util.Vector;
 
 /**
  * This class represents a matrix. It stores the values in a arrays of doubles and 
@@ -67,6 +68,31 @@ public class Matrix implements Serializable {
         this.matrix[i][j] = matrix[i][j];
       }
     }
+  }
+  
+  /**
+   * Constructs a matrix based on the specified vector (wrapping).
+   * @param matrix to wrap
+   * @throws RuntimeException if the parameter matrix has different length of rows
+   */
+  public Matrix(Vector<Vector<Double>> mx) {
+    numberOfRows = mx.size();
+    isTransposed = false;
+    this.matrix = new double[numberOfRows][];
+    int prevColSize = (mx.size() > 0) ? mx.get(0).size() : 0;
+    int colSize = 0;
+    for (int i = 0; i < mx.size(); i ++) {
+      colSize = mx.get(i).size();
+      if (prevColSize != colSize) {
+        throw new RuntimeException("Matrix initialization error, colSize is different!");
+      }
+      prevColSize = colSize;
+      this.matrix[i] = new double[prevColSize];
+      for (int j = 0; j < mx.get(i).size(); j ++) {
+        this.matrix[i][j] = mx.get(i).get(j);
+      }
+    }
+    this.numberOfColumns = colSize;
   }
   
   /**
@@ -433,6 +459,33 @@ public class Matrix implements Serializable {
     } else {
       return matrix[i][j];
     }
+  }
+  
+  /**
+   * Check whether the current and the parameter matrices are equal or not.
+   * @param o parameter matrix as Object
+   * @return true if and only if the the current and the parameter matrices are equal which means that they have the 
+   * same dimensions and each elements are equal
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Matrix) {
+      Matrix m = (Matrix) o;
+      if (getNumberOfRows() == m.getNumberOfRows() && getNumberOfColumns() == m.getNumberOfColumns()) {
+        for (int i = 0; i < getNumberOfRows(); i ++) {
+          for (int j = 0; j < getNumberOfColumns(); j ++) {
+            if (getValue(i, j) != m.getValue(i, j)) {
+              return false;
+            }
+          }
+        }
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+    return true;
   }
   
   /**

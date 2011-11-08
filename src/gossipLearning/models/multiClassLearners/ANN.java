@@ -91,7 +91,7 @@ public class ANN extends ProbabilityModel {
     int hidden = -1;
     for (int i = 0; i < numOfHiddenNeuronsStr.length; i ++) {
       hidden = Integer.parseInt(numOfHiddenNeuronsStr[i]);
-      thetas[0] = new Matrix(hidden, prevDim + 1);
+      thetas[i] = new Matrix(hidden, prevDim + 1);
       prevDim = hidden;
     }
     thetas[numOfHiddenNeuronsStr.length] = new Matrix(getNumberOfClasses(), prevDim + 1);
@@ -131,7 +131,7 @@ public class ANN extends ProbabilityModel {
    * @return random theta value
    */
   private double randomTheta() {
-    return CommonState.r.nextDouble();
+    return (CommonState.r.nextDouble() - 0.5) / 10.0;
   }
   
   /**
@@ -220,7 +220,6 @@ public class ANN extends ProbabilityModel {
         a[0].setValue(matrixDim, 0, x.get(inputDim));
       }
     }
-    
     // perform propagation
     for (int l = 1; l < a.length; l ++) {
       // compute a[l] activations using a[l-1] activation vector and thetas[l-1]
@@ -231,7 +230,12 @@ public class ANN extends ProbabilityModel {
         a[l].setValue(i, 0, al.getValue(i-1, 0));
       }
     }
-    
+    // remove the bias term from the output layer
+    Matrix aOut = new Matrix(a[a.length - 1].getNumberOfRows() - 1, 1);
+    for (int i = 1; i < a[a.length - 1].getNumberOfRows(); i ++) {
+      aOut.setValue(i - 1, 0, a[a.length - 1].getValue(i, 0));
+    }
+    a[a.length - 1] = aOut;
     return a;
   }
   
@@ -243,37 +247,40 @@ public class ANN extends ProbabilityModel {
    */
   private void updateThetas(Matrix[] a, Matrix y, double nu) {
     // compute delta[l+1]
-    Matrix delta = new Matrix(getNumberOfClasses()+1, 1);
-    for (int i = 0; i < getNumberOfClasses(); i ++) {
-      delta.setValue(i+1, 0, a[thetas.length].getValue(i+1, 0) - y.getValue(i, 0));
+    Matrix delta = new Matrix(getNumberOfClasses()+1, 1, 0.0);
+    for (int i = 1; i <= getNumberOfClasses(); i ++) {
+      delta.setValue(i, 0, a[thetas.length].getValue(i-1, 0) - y.getValue(i-1, 0));
     }
     
     // perform backpropagation of error
     for (int l = thetas.length - 1; l >= 0; l --) {
       // create a temporary variable
-      Matrix gammaOneMinusActivation = new Matrix(a[l].getNumberOfRows(), a[l].getNumberOfColumns(), 1.0);
-      gammaOneMinusActivation = gammaOneMinusActivation.subtract(a[l]).mul(gammas[l]);
+      Matrix gammaActivationOneMinusActivation = new Matrix(a[l].getNumberOfRows(), 1, 1.0);
+      gammaActivationOneMinusActivation = gammaActivationOneMinusActivation.subtract(a[l]).mul(gammas[l]).pointMul(a[l]);
       
       // remove bias term
-      Matrix tmp = new Matrix(delta.getNumberOfRows() - 1, delta.getNumberOfColumns());
+      Matrix tmpDelta = new Matrix(delta.getNumberOfRows() - 1, 1, 0.0);
       for (int i = 1; i < delta.getNumberOfRows(); i ++) {
-        tmp.setValue(i-1, 0, delta.getValue(i, 0));
+        tmpDelta.setValue(i-1, 0, delta.getValue(i, 0));
       }
-      delta = tmp;
+      delta = tmpDelta;
       
       // compute delta[l] from delta[l+1], a[l] and thetas[l]
       Matrix prevDelta = thetas[l].transpose().mul(delta);
       thetas[l].transpose();
-      prevDelta = prevDelta.pointMul(a[l]).pointMul(gammaOneMinusActivation);
+      prevDelta = prevDelta.pointMul(gammaActivationOneMinusActivation);
       
-      // update thetas[l]
-      for (int i = 0; i < thetas[l].getNumberOfRows(); i ++) {
-        for (int j = 0; j < thetas[l].getNumberOfColumns(); j ++) {
-          double dij = delta.getValue(i, 0) * a[l].getValue(j, 0);
-          double grad_lij = (j == 0) ? dij : dij + lambda * thetas[l].getValue(i,j);
-          thetas[l].setValue(i, j, thetas[l].getValue(i, j) - nu * grad_lij);
-        }
+      // compute gradient_l
+      Matrix tmpTheta = new Matrix(thetas[l]);
+      for (int i = 0; i < tmpTheta.getNumberOfRows(); i ++) {
+        tmpTheta.setValue(i, 0, 0.0);
       }
+      Matrix lambdaTheta = tmpTheta.mul(lambda);
+      Matrix grad_l = delta.mul(a[l].transpose()).add(lambdaTheta);
+      a[l].transpose();
+      
+      // update theta_l
+      thetas[l] = thetas[l].subtract(grad_l.mul(nu));
       
       // update delta
       delta = prevDelta;
@@ -321,5 +328,14 @@ public class ANN extends ProbabilityModel {
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
     this.numberOfClasses = numberOfClasses;
+  }
+  
+  @Override
+  public String toString() {
+    StringBuffer out = new StringBuffer();
+    for (int l = 0; l < thetas.length; l ++) {
+      out.append("Theta[" + l + "]:\n").append(thetas[l]);
+    }
+    return out.toString();
   }
 }
