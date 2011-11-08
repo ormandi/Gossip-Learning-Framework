@@ -247,8 +247,12 @@ public class FilterBoost extends ProbabilityModel {
     return ((WeakLearner)strongLearner.getModel(index)).getAlpha();
   }
   
-  public int getC() {
+  public int getSmallC() {
     return c;
+  }
+  
+  public int getSmallT() {
+    return t;
   }
 
 }

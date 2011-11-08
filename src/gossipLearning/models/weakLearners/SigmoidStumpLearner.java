@@ -244,18 +244,19 @@ public class SigmoidStumpLearner extends WeakLearner {
   
   public String toString() {
     StringBuffer sb = new StringBuffer();
-    sb.append("Alpha: " + alpha);
-    sb.append("\tEdge: " + edges.get(bestIndex));
-    sb.append("\tAge: " + age);
-    sb.append("\tIndex: " + bestIndex);
-    sb.append("\tc: " + cs.get(bestIndex));
-    sb.append("\td: " + ds.get(bestIndex) + "\tv:");
+    sb.append("SigmoidL[Alpha=" + alpha);
+    sb.append("\tEdge=" + edges.get(bestIndex));
+    sb.append("\tAge=" + age);
+    sb.append("\tIndex=" + bestIndex);
+    sb.append("\tc=" + cs.get(bestIndex));
+    sb.append("\td=" + ds.get(bestIndex) + "\tv=");
     double[] v = vs.get(bestIndex);
     if (v != null) {
       for (int i = 0; i < v.length; i++) {
         sb.append(" " + v[i]);
       }
     }
+    sb.append("]");
     return sb.toString();
   }
   
