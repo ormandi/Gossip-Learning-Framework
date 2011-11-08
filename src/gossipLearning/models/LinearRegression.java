@@ -28,6 +28,8 @@ public class LinearRegression implements Model, Mergeable<LinearRegression>, Sim
   private Map<Integer, Double> w;
   private double age;
   
+  private int numberOfClasses;
+  
   /**
    * Creates a default model with age=0 and the regression hyperplane is the 0 vector.
    */
@@ -36,17 +38,18 @@ public class LinearRegression implements Model, Mergeable<LinearRegression>, Sim
     age = 0.0;
   }
   
-  private LinearRegression(Map<Integer, Double> w, double age, double lambda){
+  private LinearRegression(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
     this.w = new TreeMap<Integer, Double>();
     for (int k : w.keySet()){
       this.w.put(k, (double)w.get(k));
     }
     this.age = age;
     this.lambda = lambda;
+    this.numberOfClasses = numberOfClasses;
   }
   
   public Object clone(){
-    return new LinearRegression(w, age, lambda);
+    return new LinearRegression(w, age, lambda, numberOfClasses);
   }
 
   /**
@@ -65,11 +68,11 @@ public class LinearRegression implements Model, Mergeable<LinearRegression>, Sim
     age ++;
     double nu = 1.0 / (lambda * age);
     int max = Utils.findMaxIdx(w, instance);
-    for (int i = 0; i <= max; i ++) {
+    for (int i = -1; i <= max; i ++) {
       Double wOldCompD = w.get(i);
       Double xCompD = instance.get(i);
       // using w0 as bias
-      if (i == 0) {
+      if (i == -1) {
         xCompD = 1.0;
       }
       if (wOldCompD != null || xCompD != null) {
@@ -86,8 +89,8 @@ public class LinearRegression implements Model, Mergeable<LinearRegression>, Sim
   @Override
   public double predict(Map<Integer, Double> instance) {
     double b = 0.0;
-    if (w.containsKey(0)) {
-      b = w.get(0);
+    if (w.containsKey(-1)) {
+      b = w.get(-1);
     }
     return Utils.innerProduct(w, instance) + b;
   }
@@ -115,19 +118,17 @@ public class LinearRegression implements Model, Mergeable<LinearRegression>, Sim
         mergedw.put(i, model.w.get(i) / 2.0);
       }
     }
-    return new LinearRegression(mergedw, age, lambda);
+    return new LinearRegression(mergedw, age, lambda, numberOfClasses);
   }
 
   @Override
   public int getNumberOfClasses() {
-    // TODO Auto-generated method stub
-    return 0;
+    return numberOfClasses;
   }
 
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
-    // TODO Auto-generated method stub
-    
+    this.numberOfClasses = numberOfClasses;
   }
 
 }
