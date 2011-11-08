@@ -4,6 +4,7 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.modelHolders.BoundedModelHolder;
+import gossipLearning.models.weakLearners.ConstantLearner;
 import gossipLearning.utils.Utils;
 
 import java.util.Map;
@@ -31,6 +32,7 @@ public class FilterBoost extends ProbabilityModel {
   
   private String weakLearnerClassName;
   private WeakLearner actualWeakLearner;
+  private WeakLearner constantWeakLearner;
   private ModelHolder strongLearner;
   
   private String prefix;
@@ -41,8 +43,10 @@ public class FilterBoost extends ProbabilityModel {
   
   private int t = 1;
   private int c = 1;
-  private double actualEdge;
-  private double sumWeights;
+  private double weakEdge;
+  private double weakWeights;
+  private double constantEdge;
+  private double constantWeights;
   private int ct;
   
   /**
@@ -69,8 +73,13 @@ public class FilterBoost extends ProbabilityModel {
     if (a.actualWeakLearner != null) {
       this.actualWeakLearner = (WeakLearner)a.actualWeakLearner.clone();
     }
-    this.actualEdge = a.actualEdge;
-    this.sumWeights = a.sumWeights;
+    if (a.constantWeakLearner != null) {
+      this.constantWeakLearner = (WeakLearner)a.constantWeakLearner.clone();
+    }
+    this.weakEdge = a.weakEdge;
+    this.weakWeights = a.weakWeights;
+    this.constantEdge = a.constantEdge;
+    this.constantWeights = a.constantWeights;
     this.strongLearner = (ModelHolder)a.strongLearner.clone();
   }
   
@@ -99,12 +108,17 @@ public class FilterBoost extends ProbabilityModel {
     if (c == 1){
       // initializing a new weak learner
       ct = (int)(C * Math.log(t + 2));
-      actualEdge = 0.0;
-      sumWeights = 0.0;
+      weakEdge = 0.0;
+      constantEdge = 0.0;
+      weakWeights = 0.0;
+      constantWeights = 0.0;
       try {
         actualWeakLearner = (WeakLearner)Class.forName(weakLearnerClassName).newInstance();
         actualWeakLearner.init(prefix);
         actualWeakLearner.setNumberOfClasses(numberOfClasses);
+        constantWeakLearner = new ConstantLearner();
+        constantWeakLearner.init(prefix);
+        constantWeakLearner.setNumberOfClasses(numberOfClasses);
       } catch (Exception e) {
         e.printStackTrace();
         throw new RuntimeException("Exception in FilterBoost at new week learner construction", e);
@@ -114,14 +128,25 @@ public class FilterBoost extends ProbabilityModel {
       // training weak learner
       double[] weights = getWeights(instance, label);
       actualWeakLearner.update(instance, label, weights);
+      constantWeakLearner.update(instance, label, weights);
     } else if (c < (2 * ct)) {
       // compute edge
       double[] weights = getWeights(instance, label);
-      double alpha = computeAlpha(actualWeakLearner, instance, label, weights);
-      actualWeakLearner.setAlpha(alpha);
+      double[] computed = computeAlpha(actualWeakLearner, weakEdge, weakWeights, instance, label, weights);
+      actualWeakLearner.setAlpha(computed[0]);
+      weakEdge = computed[1];
+      weakWeights = computed[2];
+      computed = computeAlpha(constantWeakLearner, constantEdge, constantWeights, instance, label, weights);
+      constantWeakLearner.setAlpha(computed[0]);
+      constantEdge = computed[1];
+      constantWeights = computed[2];
     } else {
       // store weak learner
-      storeWeekLearner(actualWeakLearner);
+      if (actualWeakLearner.getAlpha() > constantWeakLearner.getAlpha()) {
+        storeWeekLearner(actualWeakLearner);
+      } else {
+        storeWeekLearner(constantWeakLearner);
+      }
       c = 0;
       t ++;
     }
@@ -129,30 +154,30 @@ public class FilterBoost extends ProbabilityModel {
   }
   
   /**
-   * Returns the weight (alpha) of the specified weak learner respect to the parameters. 
+   * Returns the array of [alpha, edge, sumWeigth] of the specified weak learner respect to the parameters. 
    * The computation works iteratively.
    * @param weakLearner to compute for
    * @param instance to compute on
    * @param label label of instance
    * @param weights weights of labels
-   * @return alpha
+   * @return array of [alpha, edge, sumWeigth]
    */
-  private double computeAlpha(WeakLearner weakLearner, Map<Integer, Double> instance, double label, double[] weights){
+  private static double[] computeAlpha(WeakLearner weakLearner, double weakEdge, double weakWeigth, Map<Integer, Double> instance, double label, double[] weights){
     double[] predictions = weakLearner.distributionForInstance(instance);
-    for (int i = 0; i < numberOfClasses; i++) {
+    for (int i = 0; i < weights.length; i++) {
       double yl = (label == i) ? 1.0 : -1.0;
       double pl = (predictions[i] >= 0.0) ? 1.0 : -1.0;
-      actualEdge += (pl == yl) ? weights[i] : -weights[i];
-      sumWeights += weights[i];
+      weakEdge += (pl == yl) ? weights[i] : -weights[i];
+      weakWeigth += weights[i];
     }
-    double rate = (sumWeights == 0.0) ? 0.0 : actualEdge/sumWeights;
+    double rate = (weakWeigth == 0.0) ? 0.0 : weakEdge/weakWeigth;
     if (rate >= 1.0) {
       rate = 1.0 - 0.0000001;
     }
     if (rate <= -1.0) {
       rate = -1.0 + 0.0000001;
     }
-    return Math.log((1.0 + (rate)) / (1.0 - (rate))) / 2.0;
+    return new double[]{Math.log((1.0 + (rate)) / (1.0 - (rate))) / 2.0, weakEdge, weakWeigth};
   }
   
   /**
@@ -202,6 +227,18 @@ public class FilterBoost extends ProbabilityModel {
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
     this.numberOfClasses = numberOfClasses;
+  }
+  
+  public String toString() {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < strongLearner.size(); i++) {
+      if (i > 0) {
+        sb.append("\t" + strongLearner.getModel(i));
+      } else {
+        sb.append(strongLearner.getModel(i));
+      }
+    }
+    return sb.toString();
   }
 
 }

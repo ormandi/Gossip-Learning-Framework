@@ -245,6 +245,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append("Alpha: " + alpha);
+    sb.append("\tEdge: " + edges.get(bestIndex));
     sb.append("\tAge: " + age);
     sb.append("\tIndex: " + bestIndex);
     sb.append("\tc: " + cs.get(bestIndex));
