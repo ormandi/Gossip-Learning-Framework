@@ -76,23 +76,24 @@ public class MultiLogReg extends ProbabilityModel {
 
   @Override
   public double[] distributionForInstance(Map<Integer, Double> instance) {
-    double[] distribution = new double[numberOfClasses];
+    double[] v = new double[numberOfClasses];
     double sum = 0.0;
     for (int i = 0; i < numberOfClasses -1; i++) {
       double bias = 0.0;
       if (w[i].containsKey(-1)) {
         bias = w[i].get(-1);
       }
-      distribution[i] = Math.exp(bias + Utils.innerProduct(Utils.normalize(w[i]), instance));
-      //distribution[i] = Math.exp(Utils.innerProduct(Utils.normalize(w[i]), instance));
-      sum += distribution[i];
+      v[i] = bias + Utils.innerProduct(w[i], instance);
     }
-    distribution[numberOfClasses - 1] = 1.0;
+    v[numberOfClasses - 1] = 0.0;
+    
+    double[] distribution = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
-      distribution[i] /= 1.0 + sum;
-      if (Double.isNaN(distribution[i])) {
-        System.out.println(w[i] + "\n" + instance + "\t" + sum);
+      sum = 0.0;
+      for (int j = 0; j < numberOfClasses -1; j++) {
+        sum += Math.exp(v[j] - v[i]);
       }
+      distribution[i] = 1.0 / (sum + Math.exp(-v[i]));
     }
     return distribution;
   }
