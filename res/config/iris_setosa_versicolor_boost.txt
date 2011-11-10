@@ -100,10 +100,12 @@ include.init overlayInit overlayStart instanceLoader setNumberOfClassesForModels
 #control.churn.mu CHURN_MU
 #control.churn.sigma CHURN_SIGMA
 
-control.prediction gossipLearning.controls.observers.PredictionObserver
+control.prediction gossipLearning.controls.observers.BoostPredictionObserver
 control.prediction.errorComputatorClass gossipLearning.controls.observers.errorComputation.VotedErrorComputator
 control.prediction.errorFunctionClass gossipLearning.controls.observers.errorComputation.ZeroOneError
 control.prediction.step LOGTIME
+control.prediction.samples 90
+control.prediction.C 50
 control.prediction.protocol learningProtocol
 control.prediction.format gpt
 
