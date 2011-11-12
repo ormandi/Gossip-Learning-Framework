@@ -5,8 +5,10 @@ import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.modelHolders.BoundedModelHolder;
 import gossipLearning.models.weakLearners.ConstantLearner;
+import gossipLearning.utils.MapComparator;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 import peersim.config.Configuration;
 
@@ -47,6 +49,8 @@ public class FilterBoost extends ProbabilityModel {
   private double constantEdge;
   private double constantWeights;
   private int ct;
+  
+  private static Map<Map<Integer, Double>, double[]> cacheDist = new TreeMap<Map<Integer,Double>, double[]>(new MapComparator<Map<Integer,Double>>());
   
   /**
    * Constructs an initial model.<br/>
@@ -199,6 +203,9 @@ public class FilterBoost extends ProbabilityModel {
   
   @Override
   public double[] distributionForInstance(Map<Integer, Double> instance) {
+    if (cacheDist.containsKey(instance)) {
+      return cacheDist.get(instance);
+    }
     double[] distribution = new double[numberOfClasses];
     // iterating through the week learners and aggregating the distributions
     for (int i = 0; i < strongLearner.size(); i++) {
@@ -209,6 +216,7 @@ public class FilterBoost extends ProbabilityModel {
         distribution[j] += alpha * tmpDist[j];
       }
     }
+    cacheDist.put(instance, distribution);
     // TODO: not normalized
     return distribution;
   }
@@ -219,6 +227,15 @@ public class FilterBoost extends ProbabilityModel {
    */
   private void storeWeekLearner(WeakLearner model){
     strongLearner.add((WeakLearner)model);
+    double[] distribution;
+    double[] cachedDistribution;
+    for (Map<Integer, Double> instance : cacheDist.keySet()) {
+      distribution = model.distributionForInstance(instance);
+      cachedDistribution = cacheDist.get(instance);
+      for (int i = 0; i < distribution.length; i++) {
+        cachedDistribution[i] += model.getAlpha() * distribution[i];
+      }
+    }
   }
 
   @Override

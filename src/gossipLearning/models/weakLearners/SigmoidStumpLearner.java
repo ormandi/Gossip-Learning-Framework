@@ -156,9 +156,11 @@ public class SigmoidStumpLearner extends WeakLearner {
       }
       
       // update c and d
-      cj = (1.0 - 1.0 / age) * cj - nu * gradcj; // regularized
+      //cj = (1.0 - 1.0 / age) * cj - nu * gradcj; // regularized
+      cj -= (1.0 / age) * gradcj;
       cs.put(j, cj);
-      dj = (1.0 - 1.0 / age) * dj - nu * graddj; // regularized
+      //dj = (1.0 - 1.0 / age) * dj - nu * graddj; // regularized
+      dj -= (1.0 / age) * graddj;
       ds.put(j, dj);
       vs.put(j, Utils.normalize(vsArray));
     }
@@ -225,7 +227,7 @@ public class SigmoidStumpLearner extends WeakLearner {
    * @param d offset
    * @return sigmoid value
    */
-  private double sigmoid(double value, double c, double d){
+  private double sigmoid(double value, double c, double d) {
     return 1.0 / (1.0 + Math.exp(-c*value - d));
   }
   
