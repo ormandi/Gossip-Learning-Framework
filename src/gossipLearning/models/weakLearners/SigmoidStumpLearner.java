@@ -201,7 +201,8 @@ public class SigmoidStumpLearner extends WeakLearner {
     double sigmoid = 2.0 * sigmoid(xj, cj, dj) - 1.0;
     double[] distribution = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++){
-      distribution[i] = vj[i] * sigmoid;
+      //distribution[i] = vj[i] * sigmoid;
+      distribution[i] = (vj[i] < 0 ? -1.0 : 1.0) * sigmoid;
     }
     return Utils.normalize(distribution);
   }
