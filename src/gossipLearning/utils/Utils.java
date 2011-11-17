@@ -84,6 +84,9 @@ public class Utils {
     }
     norm = Math.sqrt(norm);
     double[] normalized = new double[vector.length];
+    if (norm == 0.0) {
+      return normalized;
+    }
     for (int i = 0; i < vector.length; i++){
       normalized[i] = vector[i] / norm;
     }
