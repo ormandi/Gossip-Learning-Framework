@@ -116,7 +116,7 @@ public class AdaLineLearner extends WeakLearner {
     double[] distribution = new double[numberOfClasses];
     double innerProd = Utils.innerProduct(w, instance);
     for (int i = 0; i < numberOfClasses; i++) {
-      distribution[i] = (v[i] < 0.0 ? -1.0 : 1.0) * innerProd;
+      distribution[i] = v[i] * innerProd;
     }
     return Utils.normalize(distribution);
   }
