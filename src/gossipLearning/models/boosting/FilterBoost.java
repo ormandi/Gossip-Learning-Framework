@@ -195,7 +195,6 @@ public class FilterBoost extends ProbabilityModel {
     double[] distribution = distributionForInstance(instance);
     for (int i = 0; i < weights.length; i++) {
       double cLabel = ((label == i) ? 1.0 : -1.0);
-      // TODO: F(x) - margin
       weights[i] = 1.0 / (1.0 + Math.exp(distribution[i] * cLabel));
     }
     return weights;
@@ -213,11 +212,11 @@ public class FilterBoost extends ProbabilityModel {
       double alpha = ((WeakLearner)strongLearner.getModel(i)).getAlpha();
       for (int j = 0; j < distribution.length; j++){
         // updating the distribution
-        distribution[j] += alpha * tmpDist[j];
+        //distribution[j] += alpha * tmpDist[j];
+        distribution[j] += alpha * (tmpDist[j] < 0.0 ? -1.0 : 1.0);
       }
     }
     cacheDist.put(instance, distribution);
-    // TODO: not normalized
     return distribution;
   }
   
