@@ -21,6 +21,7 @@ public class ANN extends ProbabilityModel {
   protected static final String PAR_HIDDEN = "ann.hiddenLayers";
   protected static final String PAR_GAMMA = "ann.gammas";
   protected static final String PAR_LAMBDA = "ann.lambda";
+  protected static final String PAR_LR = "ann.learningRate";
   
   private Matrix[] thetas = null;
   private double[] gammas = null;
@@ -28,6 +29,7 @@ public class ANN extends ProbabilityModel {
   private int numberOfClasses = 2;
   private double lambda = 0.001;
   private double age = 0;
+  private double learningRate = 0.001;
   
   public ANN() {
     sparseDimMap = new TreeMap<Integer,Integer>();
@@ -62,6 +64,9 @@ public class ANN extends ProbabilityModel {
     
     // copy age
     age = a.age;
+    
+    // copy learning rate
+    learningRate = a.learningRate;
   }
 
   @Override
@@ -83,8 +88,8 @@ public class ANN extends ProbabilityModel {
   @Override
   public void init(String prefix) {
     // read number of hidden neurons
-    String hiddenLayers = Configuration.getString(prefix + "." + PAR_HIDDEN, "100");
-    String[] numOfHiddenNeuronsStr = hiddenLayers.split("\\s*,\\s*");
+    String hiddenLayers = Configuration.getString(prefix + "." + PAR_HIDDEN, "");
+    String[] numOfHiddenNeuronsStr = (hiddenLayers != null && !hiddenLayers.equals("")) ? hiddenLayers.split("\\s*,\\s*") : new String[0] ;
     thetas = new Matrix[numOfHiddenNeuronsStr.length + 1];
     // we assume that the input space at least one dimensional later it can be increased
     int prevDim = 0;
@@ -123,6 +128,9 @@ public class ANN extends ProbabilityModel {
     
     // parse lambda
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.001);
+    
+    // parse learning rate
+    learningRate = Configuration.getDouble(prefix + "." + PAR_LR, 0.001); 
   }
   
   /**
@@ -162,7 +170,10 @@ public class ANN extends ProbabilityModel {
    */
   private void adjustInputLayer(Map<Integer,Double> x) {
     // insert a new column into the first theta matrix for each previously unseen dimension
+    
+    // FIXME: After debug replace it with sparse version
     for (int inputDim : x.keySet()) {
+    //for (int inputDim = 0; inputDim < 400; inputDim ++) {
       if (!sparseDimMap.containsKey(inputDim)) {
         int matrixDim = thetas[0].getNumberOfColumns();
         sparseDimMap.put(inputDim, matrixDim);
@@ -220,10 +231,12 @@ public class ANN extends ProbabilityModel {
         a[0].setValue(matrixDim, 0, x.get(inputDim));
       }
     }
+    
     // perform propagation
     for (int l = 1; l < a.length; l ++) {
       // compute a[l] activations using a[l-1] activation vector and thetas[l-1]
       Matrix al = sigmoid(thetas[l-1].mul(a[l-1]), gammas[l-1]);
+      
       // adding bias term
       a[l] = new Matrix(al.getNumberOfRows() + 1, 1, 1.0);
       for (int i = 1; i < a[l].getNumberOfRows(); i++) {
@@ -279,6 +292,8 @@ public class ANN extends ProbabilityModel {
       Matrix grad_l = delta.mul(a[l].transpose()).add(lambdaTheta);
       a[l].transpose();
       
+      //System.out.println("grad_" + l + "=\n" + grad_l);
+      
       // update theta_l
       thetas[l] = thetas[l].subtract(grad_l.mul(nu));
       
@@ -287,7 +302,7 @@ public class ANN extends ProbabilityModel {
     }
     
   }
-
+  
   @Override
   public void update(Map<Integer, Double> instance, double label) {
     // increase age
@@ -306,7 +321,7 @@ public class ANN extends ProbabilityModel {
     Matrix[] a = computeActivations(instance);
     
     // perform update
-    double nu = 1.0 / (double)age;
+    double nu = learningRate / (double)age;
     updateThetas(a, y, nu);
   }
   
@@ -318,6 +333,40 @@ public class ANN extends ProbabilityModel {
     Matrix[] a = computeActivations(instance);
     // returns the output of last layer
     return a[a.length-1].getColumn(0);  // TODO: normalization
+  }
+  
+  public double computeCostFunction(Map<Integer, Double> x, double label) {
+    return computeCostFunction(x, label, lambda);
+  }
+  
+  public double computeCostFunction(Map<Integer, Double> x, double label, double lv) {
+    // create y
+    Matrix y = new Matrix(getNumberOfClasses(), 1);
+    y.setValue((int) label, 0, 1.0);
+    
+    // predict y
+    Matrix h = new Matrix(distributionForInstance(x), false);
+    
+    // compute cost
+    double cost = 0.0;
+    for (int i = 0; i < getNumberOfClasses(); i ++) {
+      cost += - y.getValue(i, 0) * ((h.getValue(i, 0) > 1.0E-6) ? Math.log(h.getValue(i, 0)) : 0.0) - (1.0 - y.getValue(i, 0)) * ((1.0 - h.getValue(i, 0) > 1.0E-6) ?  Math.log(1.0 - h.getValue(i, 0)) : 0.0);
+    }
+    
+    // adding regularization term
+    double reg = 0.0;
+    for (int l = 0; l < thetas.length; l ++) {
+      for (int i = 0; i < thetas[l].getNumberOfRows(); i ++) {
+        for (int j = 1; j < thetas[l].getNumberOfColumns(); j ++) {
+          reg += thetas[l].getValue(i, j) * thetas[l].getValue(i, j);
+        }
+      }
+    }
+    reg *= (lv / 2.0);
+    cost += reg;
+    
+    // return cost
+    return cost;
   }
   
   @Override

@@ -129,14 +129,14 @@ public class Matrix implements Serializable {
       numberOfColumns = vector.length;
       matrix = new double[numberOfRows][numberOfColumns];
       for (int i = 0; i < numberOfColumns; i++) {
-        matrix[numberOfRows][i] = vector[i];
+        matrix[0][i] = vector[i];
       }
     } else {
       numberOfRows = vector.length;
       numberOfColumns = 1;
       matrix = new double[numberOfRows][numberOfColumns];
       for (int i = 0; i < numberOfRows; i++) {
-        matrix[i][numberOfColumns] = vector[i];
+        matrix[i][0] = vector[i];
       }
     }
   }
