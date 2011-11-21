@@ -232,7 +232,7 @@ public class FilterBoost extends ProbabilityModel {
       distribution = model.distributionForInstance(instance);
       cachedDistribution = cacheDist.get(instance);
       for (int i = 0; i < distribution.length; i++) {
-        cachedDistribution[i] += model.getAlpha() * distribution[i];
+        cachedDistribution[i] += model.getAlpha() * (distribution[i] < 0.0 ? -1.0 : 1.0);
       }
     }
   }
