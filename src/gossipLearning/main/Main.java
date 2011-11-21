@@ -1,6 +1,7 @@
 package gossipLearning.main;
 
 import gossipLearning.DataBaseReader;
+import gossipLearning.interfaces.Model;
 import gossipLearning.models.boosting.FilterBoost;
 
 import java.io.File;
@@ -22,8 +23,8 @@ public class Main {
     int numIters = Configuration.getInt("ITER");
     
     DataBaseReader reader = DataBaseReader.createDataBaseReader(tFile, eFile);
-    //Model model = (Model)Class.forName(Configuration.getString("learner")).newInstance();
-    FilterBoost model = (FilterBoost)Class.forName(modelName).newInstance();
+    Model model = (Model)Class.forName(Configuration.getString("learner")).newInstance();
+    //FilterBoost model = (FilterBoost)Class.forName(modelName).newInstance();
     model.init("learner");
     model.setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
     
@@ -39,7 +40,8 @@ public class Main {
       label = reader.getTrainingSet().getLabel(instanceIndex);
       model.update(instance, label);
       
-      if (model.getSmallT() != prevt) {
+      if (!(model instanceof FilterBoost) || 
+          ((model instanceof FilterBoost) && ((FilterBoost)model).getSmallT() != prevt)) {
         // evaluation
         double err = 0.0;
         for (int i = 0; i < reader.getEvalSet().size(); i++) {
@@ -51,7 +53,11 @@ public class Main {
           }
         }
         err /= reader.getEvalSet().size();
-        prevt = model.getSmallT();
+        if (model instanceof FilterBoost) {
+          prevt = ((FilterBoost)model).getSmallT();
+        } else {
+          prevt ++;
+        }
         System.out.println(prevt + "\t" + err);
       }
     }
