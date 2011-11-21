@@ -3,14 +3,10 @@ package tests.gossipLearning.models.multiClassLearners;
 import gossipLearning.DataBaseReader;
 import gossipLearning.InstanceHolder;
 import gossipLearning.models.multiClassLearners.ANN;
-import gossipLearning.utils.Matrix;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.Serializable;
-import java.io.StringReader;
 import java.util.Map;
-import java.util.Vector;
 
 import junit.framework.TestCase;
 import peersim.config.Configuration;
@@ -41,8 +37,8 @@ public class ANNTest  extends TestCase implements Serializable {
    */
   public void testLearning() {
     try {
-      File tFile = new File("../res/db/training.txt");
-      File eFile = new File("../res/db/evaluation.txt");
+      File tFile = new File("../res/db/mnist_mlclass_training.txt");
+      File eFile = new File("../res/db/mnist_mlclass_evaluation.txt");
       
       DataBaseReader r = DataBaseReader.createDataBaseReader(tFile, eFile);
       InstanceHolder training = r.getTrainingSet();
@@ -114,6 +110,7 @@ public class ANNTest  extends TestCase implements Serializable {
    * @param ann ANN
    * @return state
    */
+  /*
   private Vector<Matrix> thetas(ANN ann) {
     try {
       Vector<Matrix> thetas = new Vector<Matrix>();
@@ -147,5 +144,6 @@ public class ANNTest  extends TestCase implements Serializable {
       throw new RuntimeException("Error while parsing thetas! ", ex);
     }
   }
+  */
 
 }

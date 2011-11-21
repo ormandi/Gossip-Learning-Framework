@@ -321,7 +321,9 @@ public class ANN extends ProbabilityModel {
     Matrix[] a = computeActivations(instance);
     
     // perform update
-    double nu = learningRate / (double)age;
+    //double nu = learningRate / (double)age;
+    double nu = learningRate;
+    //double nu = -1.0/(1.0+Math.pow(Math.E, -0.0001*age-2))+1.0;
     updateThetas(a, y, nu);
   }
   

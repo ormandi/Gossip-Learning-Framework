@@ -61,7 +61,7 @@ protocol.learningProtocol.modelHolderName gossipLearning.modelHolders.BoundedMod
 protocol.learningProtocol.capacity CAPACITY
 protocol.learningProtocol.modelNames gossipLearning.models.multiClassLearners.ANN
 protocol.learningProtocol.ann.lambda LAMBDA
-protocol.learningProtocol.ann.learningRate 200.0
+protocol.learningProtocol.ann.learningRate LAMBDA
 protocol.learningProtocol.ann.hiddenLayers 25
 
 
