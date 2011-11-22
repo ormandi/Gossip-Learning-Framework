@@ -10,6 +10,7 @@ import java.util.Random;
 
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
+import peersim.core.CommonState;
 
 
 public class Main {
@@ -19,8 +20,10 @@ public class Main {
     File tFile = new File(Configuration.getString("trainingFile"));
     File eFile = new File(Configuration.getString("evaluationFile"));
     String modelName = Configuration.getString("learner");
-    Random r = new Random(Configuration.getLong("SEED"));
+    long seed = Configuration.getLong("SEED");
+    Random r = new Random(seed);
     int numIters = Configuration.getInt("ITER");
+    CommonState.r.setSeed(seed);
     
     DataBaseReader reader = DataBaseReader.createDataBaseReader(tFile, eFile);
     Model model = (Model)Class.forName(Configuration.getString("learner")).newInstance();
