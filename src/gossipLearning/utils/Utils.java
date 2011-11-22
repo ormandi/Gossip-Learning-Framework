@@ -129,5 +129,32 @@ public class Utils {
     }
     return max;
   }
+  
+  /**
+   * Returns the value of Gauss error function or the cumulative distribution 
+   * function (cdf) respect to the parameter z. Uses Taylor series for approximation. 
+   * @param z is (x-mu)/(sqrt(2)*sigma), where mu and sigma are the parameters of the
+   * Gauss distribution function
+   * @param components the number of the Taylor components
+   * @return value of the cdf
+   */
+  public static double erf(double z, int components) {
+    double ret = z;
+    double delimiter = 1.0;
+    double factorial = 1.0;
+    double sign = 1.0;
+    double cumZ = z;
+    double z2 = z*z;
+    for (int i = 1; i < components; i++) {
+      sign *= -1.0;
+      factorial *= i;
+      delimiter += 2.0;
+      cumZ *= z2;
+      ret += sign * (cumZ / (delimiter * factorial));
+    }
+    ret /= Math.sqrt(Math.PI);
+    ret += 0.5;
+    return ret;
+  }
 
 }
