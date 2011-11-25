@@ -107,7 +107,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   public void update(final Map<Integer, Double> instance, final double label, final double[] weigths) {
     age ++;
     // compute nu
-    double nu = 1.0 / (double) (age * lambda); // regularized
+    //double nu = 1.0 / (double) (age * lambda); // regularized
     
     for (int j : instance.keySet()){
       // getting sparse values
@@ -152,7 +152,8 @@ public class SigmoidStumpLearner extends WeakLearner {
         // summing up d
         graddj -= expLoss * weigths[l] * vsArray[l] * yl * 2.0 * partialSigmoid;
         // update v_jl
-        vsArray[l] = (1.0 - 1.0 / age) * vsArray[l] + nu * expLoss * weigths[l] * scaledSigmoid * yl; // regularized
+        //vsArray[l] = (1.0 - 1.0 / age) * vsArray[l] + nu * expLoss * weigths[l] * scaledSigmoid * yl; // regularized
+        vsArray[l] += (1.0 / age) * expLoss * weigths[l] * scaledSigmoid * yl;
       }
       
       // update c and d
