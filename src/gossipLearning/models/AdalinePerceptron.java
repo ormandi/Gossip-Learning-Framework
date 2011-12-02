@@ -54,32 +54,27 @@ public class AdalinePerceptron implements Model {
 	public void update(Map<Integer, Double> instance, double label) {
 	  // convert label
 	  double l = (label == 0.0) ? -1.0 : label;
-    
+	      
 	  // Update age.
 		age++;
 		double rate = 1.0 / age;
 		
 		// Calculate w' * x.
+		double s = Utils.innerProduct(w, instance);
+		
+	  // Calculate the update.
 		int max = Utils.findMaxIdx(w, instance);
-		double s = 0.0;
-	    for (int i = 0; i <= max; i++) {
-	        Double wi = w.get(i);
-	        Double xi = instance.get(i);
-	        if(wi != null && xi != null){
-	        	s += xi * wi;
-	        }
-	    }
-	    // Calculate the update.
-	    for (int i = 0; i <= max; i++) {
-	        Double wi = w.get(i);
-	        Double xi = instance.get(i);
-	        if(xi != null){ // No change if this component is 0.
-		        if(wi == null){
-		        	wi = 0.0;
-		        }
-	        	w.put(i, wi + rate * (l - s) * xi);
-	        }
-	    }
+	  for (int i = 0; i <= max; i++) {
+      Double wi = w.get(i);
+      Double xi = instance.get(i);
+      if(xi != null){ // No change if this component is 0.
+	      if(wi == null){
+	        wi = 0.0;
+	      }
+      	w.put(i, wi + rate * (l - s) * xi);
+      }
+    }
+    
 	}
 
 	@Override
@@ -88,16 +83,8 @@ public class AdalinePerceptron implements Model {
 	 */
 	public double predict(Map<Integer, Double> instance) {
 		// Calculate w' * x.
-		int max = Utils.findMaxIdx(w, instance);
-		double s = 0.0;
-	    for (int i = 0; i <= max; i ++) {
-	        Double wi = w.get(i);
-	        Double xi = instance.get(i);
-	        if(wi != null && xi != null){
-	        	s += xi * wi;	        	
-	        }
-	    }
-	    return s >= 0 ? 1.0 : 0.0; 
+		double s = Utils.innerProduct(w, instance);
+	  return s >= 0 ? 1.0 : 0.0; 
 	}
 
 	@Override
