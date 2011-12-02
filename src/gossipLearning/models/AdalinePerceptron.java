@@ -18,7 +18,7 @@ public class AdalinePerceptron implements Model {
 	protected Map<Integer, Double> w;
 	protected double age;
 	protected int numberOfClasses = 2;
-	protected int lambda = 3;
+	protected double lambda = 3;
 
 	/**
 	 * Returns a clone of this object.
@@ -67,15 +67,11 @@ public class AdalinePerceptron implements Model {
 		int max = Utils.findMaxIdx(w, instance);
 	  for (int i = 0; i <= max; i++) {
       Double wi = w.get(i);
+      double wid = wi == null ? 0.0 : wi.doubleValue();
       Double xi = instance.get(i);
-      if(xi != null){ // No change if this component is 0.
-	      if(wi == null){
-	        wi = 0.0;
-	      }
-      	w.put(i, (1 - rate) * wi + rate / lambda * (l - s) * xi);
+      double xid = xi == null ? 0.0 : xi.doubleValue();
+      w.put(i, (1 - rate) * wid + rate / lambda * (l - s) * xid);
       }
-    }
-    
 	}
 
 	@Override
