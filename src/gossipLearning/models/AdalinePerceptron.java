@@ -18,6 +18,7 @@ public class AdalinePerceptron implements Model {
 	protected Map<Integer, Double> w;
 	protected double age;
 	protected int numberOfClasses = 2;
+	protected int lambda = 3;
 
 	/**
 	 * Returns a clone of this object.
@@ -71,7 +72,7 @@ public class AdalinePerceptron implements Model {
 	      if(wi == null){
 	        wi = 0.0;
 	      }
-      	w.put(i, wi + rate * (l - s) * xi);
+      	w.put(i, (1 - rate) * wi + rate / lambda * (l - s) * xi);
       }
     }
     
