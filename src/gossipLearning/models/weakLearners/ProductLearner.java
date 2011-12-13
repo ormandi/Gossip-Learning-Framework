@@ -70,7 +70,38 @@ public class ProductLearner extends WeakLearner {
 
   @Override
   public void update(Map<Integer, Double> instance, double label, double[] weight) {
+    double[] dist;
+    double[] distribution = new double[numberOfClasses];
+    Arrays.fill(distribution, 1.0);
     
+    // get distributions
+    for (int i = 0; i < numberOfLearners; i++) {
+      dist = baseLearners[i].distributionForInstance(instance);
+      for (int j = 0; j < numberOfClasses; j++) {
+        distribution[j] *= dist[j];
+      }
+    }
+    
+    // update learners
+    double[] labels = new double[numberOfClasses];
+    for (int i = 0; i < numberOfClasses; i++) {
+      if (i == label) {
+        labels[i] = 1.0;
+      } else {
+        labels[i] = -1.0;
+      }
+    }
+    for (int i = 0; i < numberOfLearners; i++) {
+      dist = baseLearners[i].distributionForInstance(instance);
+      for (int l = 0; l < numberOfClasses; l++) {
+        double val = labels[l] * distribution[l] * dist[l];
+        if (val < 0.0) {
+          weight[l] *= -1.0;
+          labels[l] *= -1.0;
+        }
+      }
+      baseLearners[i].update(instance, label, weight);
+    }
   }
 
   @Override
