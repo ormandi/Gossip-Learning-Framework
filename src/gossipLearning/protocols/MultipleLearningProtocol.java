@@ -27,9 +27,9 @@ public class MultipleLearningProtocol extends AbstractProtocol {
   /** @hidden */
   private final String[] modelNames;
   /** @hidden */
-  private ModelHolder[] modelHolders;
+  protected ModelHolder[] modelHolders;
   /** @hidden */
-  private ModelHolder lastSeenMergeableModels;
+  protected ModelHolder lastSeenMergeableModels;
   
   /**
    * Constructor which parses the content of a standard Peersim configuration file.
