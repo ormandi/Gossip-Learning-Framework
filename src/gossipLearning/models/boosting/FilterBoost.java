@@ -50,7 +50,7 @@ public class FilterBoost extends ProbabilityModel {
   private double constantWeights;
   private int ct;
   
-  private static Map<Map<Integer, Double>, double[]> cacheDist = new TreeMap<Map<Integer,Double>, double[]>(new MapComparator<Map<Integer,Double>>());
+  private Map<Map<Integer, Double>, double[]> cacheDist;
   
   /**
    * Constructs an initial model.<br/>
@@ -58,6 +58,7 @@ public class FilterBoost extends ProbabilityModel {
    */
   public FilterBoost() {
     numberOfClasses = 2;
+    cacheDist = new TreeMap<Map<Integer,Double>, double[]>(new MapComparator<Map<Integer,Double>>());
   }
   
   /**
@@ -65,6 +66,7 @@ public class FilterBoost extends ProbabilityModel {
    * @param a to copy
    */
   private FilterBoost(FilterBoost a) {
+    this();
     this.T = a.T;
     this.C = a.C;
     this.t = a.t;
@@ -84,6 +86,14 @@ public class FilterBoost extends ProbabilityModel {
     this.constantEdge = a.constantEdge;
     this.constantWeights = a.constantWeights;
     this.strongLearner = (ModelHolder)a.strongLearner.clone();
+    for (Map<Integer, Double> map : a.cacheDist.keySet()) {
+      double[] value = a.cacheDist.get(map).clone();
+      Map<Integer, Double> key = new TreeMap<Integer, Double>();
+      for (int k : map.keySet()) {
+        key.put(k, map.get(k).doubleValue());
+      }
+      cacheDist.put(key, value);
+    }
   }
   
   /**
