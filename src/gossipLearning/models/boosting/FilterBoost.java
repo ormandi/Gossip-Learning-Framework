@@ -34,7 +34,7 @@ public class FilterBoost extends ProbabilityModel {
   private String weakLearnerClassName;
   private WeakLearner actualWeakLearner;
   private WeakLearner constantWeakLearner;
-  private ModelHolder strongLearner;
+  protected ModelHolder strongLearner;
   
   private String prefix;
   private int numberOfClasses;
@@ -50,7 +50,7 @@ public class FilterBoost extends ProbabilityModel {
   private double constantWeights;
   private int ct;
   
-  private Map<Map<Integer, Double>, double[]> cacheDist;
+  protected Map<Map<Integer, Double>, double[]> cacheDist;
   
   /**
    * Constructs an initial model.<br/>
@@ -234,7 +234,7 @@ public class FilterBoost extends ProbabilityModel {
    * Stores the specified model in a container.
    * @param model to store
    */
-  private void storeWeekLearner(WeakLearner model){
+  protected void storeWeekLearner(WeakLearner model) {
     strongLearner.add((WeakLearner)model);
     double[] distribution;
     double[] cachedDistribution;
@@ -243,6 +243,19 @@ public class FilterBoost extends ProbabilityModel {
       cachedDistribution = cacheDist.get(instance);
       for (int i = 0; i < distribution.length; i++) {
         cachedDistribution[i] += model.getAlpha() * (distribution[i] < 0.0 ? -1.0 : 1.0);
+      }
+    }
+  }
+  
+  protected void removeWeekLearner(int index) {
+    WeakLearner model = (WeakLearner)strongLearner.remove(index);
+    double[] distribution;
+    double[] cachedDistribution;
+    for (Map<Integer, Double> instance : cacheDist.keySet()) {
+      distribution = model.distributionForInstance(instance);
+      cachedDistribution = cacheDist.get(instance);
+      for (int i = 0; i < distribution.length; i++) {
+        cachedDistribution[i] -= model.getAlpha() * (distribution[i] < 0.0 ? -1.0 : 1.0);
       }
     }
   }
@@ -280,5 +293,5 @@ public class FilterBoost extends ProbabilityModel {
   public int getSmallT() {
     return t;
   }
-
+  
 }
