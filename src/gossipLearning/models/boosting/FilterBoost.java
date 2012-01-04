@@ -202,7 +202,7 @@ public class FilterBoost extends ProbabilityModel {
    */
   private double[] getWeights(Map<Integer, Double> instance, double label) {
     double[] weights = new double[numberOfClasses];
-    double[] distribution = distributionForInstance(instance);
+    double[] distribution = cacheDistributionForInstance(instance);
     for (int i = 0; i < weights.length; i++) {
       double cLabel = ((label == i) ? 1.0 : -1.0);
       weights[i] = 1.0 / (1.0 + Math.exp(distribution[i] * cLabel));
@@ -210,11 +210,24 @@ public class FilterBoost extends ProbabilityModel {
     return weights;
   }
   
-  @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  /**
+   * Returns the class distribution for the specified instance. Gets the distribution from 
+   * cache if it is already computed or calls the distributionForInstance function to compute 
+   * it and stores them in the cache.
+   * @param instance compute the distribution for
+   * @return computed distribution
+   */
+  private double[] cacheDistributionForInstance(Map<Integer, Double> instance) {
     if (cacheDist.containsKey(instance)) {
       return cacheDist.get(instance);
     }
+    double[] distribution = distributionForInstance(instance);
+    cacheDist.put(instance, distribution);
+    return distribution;
+  }
+  
+  @Override
+  public double[] distributionForInstance(Map<Integer, Double> instance) {
     double[] distribution = new double[numberOfClasses];
     // iterating through the week learners and aggregating the distributions
     for (int i = 0; i < strongLearner.size(); i++) {
@@ -226,7 +239,6 @@ public class FilterBoost extends ProbabilityModel {
         distribution[j] += alpha * (tmpDist[j] < 0.0 ? -1.0 : 1.0);
       }
     }
-    cacheDist.put(instance, distribution);
     return distribution;
   }
   
@@ -247,6 +259,10 @@ public class FilterBoost extends ProbabilityModel {
     }
   }
   
+  /**
+   * Removes the weak learner from the strong learner at the specified index.
+   * @param index index of model to remove
+   */
   protected void removeWeekLearner(int index) {
     WeakLearner model = (WeakLearner)strongLearner.remove(index);
     double[] distribution;
@@ -270,6 +286,9 @@ public class FilterBoost extends ProbabilityModel {
     this.numberOfClasses = numberOfClasses;
   }
   
+  /**
+   * String representation of the current object.
+   */
   public String toString() {
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < strongLearner.size(); i++) {
@@ -282,6 +301,11 @@ public class FilterBoost extends ProbabilityModel {
     return sb.toString();
   }
   
+  /**
+   * Returns the coefficient of the weak learner at the specified index.
+   * @param index index of model to get coefficient
+   * @return coefficient (alpha)
+   */
   public double getAlpha(int index) {
     return ((WeakLearner)strongLearner.getModel(index)).getAlpha();
   }
