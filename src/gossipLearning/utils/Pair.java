@@ -42,5 +42,9 @@ public class Pair<K extends Comparable<K>, V extends Comparable<V>> implements C
     }
     return c;
   }
+  
+  public String toString() {
+    return "<" + key.toString() + ":" + value.toString() + ">";
+  }
 
 }
