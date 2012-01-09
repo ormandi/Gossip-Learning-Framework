@@ -65,7 +65,7 @@ public class FilterBoost extends ProbabilityModel {
    * Deep copy constructor.
    * @param a to copy
    */
-  private FilterBoost(FilterBoost a) {
+  protected FilterBoost(FilterBoost a) {
     this();
     this.T = a.T;
     this.C = a.C;
@@ -224,6 +224,7 @@ public class FilterBoost extends ProbabilityModel {
     double[] distribution = distributionForInstance(instance);
     cacheDist.put(instance, distribution);
     return distribution;
+    //return distributionForInstance(instance);
   }
   
   @Override

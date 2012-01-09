@@ -18,6 +18,16 @@ import java.util.Set;
 public abstract class MergeableFilterBoost extends FilterBoost implements Mergeable<MergeableFilterBoost>{
   private static final long serialVersionUID = 182809337461967290L;
 
+  public MergeableFilterBoost() {
+    super();
+  }
+  
+  protected MergeableFilterBoost(MergeableFilterBoost a) {
+    super(a);
+  }
+  
+  public abstract Object clone();
+  
   /**
    * Returns the array of sets of indices that will be kept.<br/>
    * <ul>
@@ -50,7 +60,7 @@ public abstract class MergeableFilterBoost extends FilterBoost implements Mergea
       // add the models that indices are in the set
       for (int index = 0; index < model.strongLearner.size(); index++) {
         if (indices[1].contains(index)) {
-          this.storeWeekLearner((WeakLearner)model.strongLearner.getModel(index).clone());
+          storeWeekLearner((WeakLearner)model.strongLearner.getModel(index).clone());
         }
       }
     }

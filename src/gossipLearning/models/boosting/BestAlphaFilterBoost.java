@@ -15,7 +15,19 @@ import java.util.TreeSet;
  */
 public class BestAlphaFilterBoost extends MergeableFilterBoost {
   private static final long serialVersionUID = -1109535774923270458L;
-
+  
+  public BestAlphaFilterBoost() {
+    super();
+  }
+  
+  protected BestAlphaFilterBoost(BestAlphaFilterBoost a) {
+    super(a);
+  }
+  
+  public Object clone() {
+    return new BestAlphaFilterBoost(this);
+  }
+  
   /**
    * Let n be the number of models in the first model holder. This function returns the 
    * indices of the first n models that have the maximal alpha values.
