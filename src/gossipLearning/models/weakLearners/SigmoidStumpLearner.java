@@ -4,10 +4,10 @@ import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.utils.Utils;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 
 /**
  * This class represents a sigmoid based stump learner for solving the problem 
@@ -29,6 +29,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   private double age;
   private int bestIndex;
   private double lambda;
+  private Random r;
   
   private Map<Integer, double[]> vs; // sparse for null
   private Map<Integer, Double> cs; // sparse for 0.1
@@ -49,6 +50,8 @@ public class SigmoidStumpLearner extends WeakLearner {
     cs = new TreeMap<Integer, Double>();
     ds = new TreeMap<Integer, Double>();
     edges = new TreeMap<Integer, Double>();
+    long seed = Configuration.getLong("random.seed");
+    r = new Random(seed);
   }
   
   /**
@@ -216,7 +219,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   private double[] initVJ(){
     double[] vj = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++){
-      vj[i] = CommonState.r.nextBoolean() ? 1.0 : -1.0;
+      vj[i] = r.nextBoolean() ? 1.0 : -1.0;
     }
     return Utils.normalize(vj);
   }

@@ -4,10 +4,10 @@ import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.utils.Utils;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 
 public class AdaLineLearner extends WeakLearner {
   private static final long serialVersionUID = -1540156152482197419L;
@@ -19,10 +19,13 @@ public class AdaLineLearner extends WeakLearner {
   private int numberOfClasses;
   private double age;
   private double lambda;
+  private Random r;
 
   public AdaLineLearner() {
     w = new TreeMap<Integer, Double>();
     age = 0.0;
+    long seed = Configuration.getLong("random.seed");
+    r = new Random(seed);
   }
   
   public AdaLineLearner(AdaLineLearner a) {
@@ -58,7 +61,7 @@ public class AdaLineLearner extends WeakLearner {
     this.numberOfClasses = numberOfClasses;
     v = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
-      v[i] = CommonState.r.nextBoolean() ? 1.0 : -1.0;
+      v[i] = r.nextBoolean() ? 1.0 : -1.0;
     }
   }
 
