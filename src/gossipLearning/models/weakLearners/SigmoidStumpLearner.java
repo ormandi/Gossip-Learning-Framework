@@ -64,6 +64,8 @@ public class SigmoidStumpLearner extends WeakLearner {
     this.numberOfClasses = a.numberOfClasses;
     this.bestIndex = a.bestIndex;
     this.alpha = a.alpha;
+    long seed = Configuration.getLong("random.seed");
+    r = new Random(seed);
     this.vs = new TreeMap<Integer, double[]>();
     this.cs = new TreeMap<Integer, Double>();
     this.ds = new TreeMap<Integer, Double>();

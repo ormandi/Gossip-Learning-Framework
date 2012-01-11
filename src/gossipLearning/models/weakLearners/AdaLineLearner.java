@@ -32,6 +32,8 @@ public class AdaLineLearner extends WeakLearner {
     numberOfClasses = a.numberOfClasses;
     age = a.age;
     lambda = a.lambda;
+    long seed = Configuration.getLong("random.seed");
+    r = new Random(seed);
     w = new TreeMap<Integer, Double>();
     if (a.w != null) {
       for (int key : a.w.keySet()) {
