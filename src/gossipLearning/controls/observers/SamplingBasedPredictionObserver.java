@@ -1,10 +1,13 @@
 package gossipLearning.controls.observers;
 
+import gossipLearning.utils.Utils;
+
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 
 import peersim.config.Configuration;
+import peersim.core.Network;
 
 /**
  * Such a kind of prediction observer where the number of tested models can be defined. 
@@ -19,6 +22,7 @@ public class SamplingBasedPredictionObserver extends PredictionObserver {
    */
   protected final int samples;
   protected final Random r;
+  protected int[] indices; 
 
   /**
    * Creates an object from this class.
@@ -30,19 +34,21 @@ public class SamplingBasedPredictionObserver extends PredictionObserver {
     samples = Configuration.getInt(prefix + "." + PAR_SS);
     long seed = Configuration.getLong("random.seed");
     r = new Random(seed);
+    indices = new int[Network.size()];
   }
   
   /**
    * Generates a predefined sized set of node indices for evaluating the stored model.
    */
   protected Set<Integer> generateIndices() {
-    if (samples > g.size() || samples < 1) {
+    if (samples >= g.size() || samples < 1) {
       return super.generateIndices();
     }
-    TreeSet<Integer> indices = new TreeSet<Integer>();
-    while (indices.size() < samples) {
-      indices.add(r.nextInt(g.size()));
+    TreeSet<Integer> result = new TreeSet<Integer>();
+    Utils.arraySuffle(r, indices);
+    for (int i = 0; i < samples; i++) {
+      result.add(indices[i]);
     }
-    return indices;
+    return result;
   }
 }

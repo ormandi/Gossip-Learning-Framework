@@ -1,7 +1,13 @@
 package gossipLearning.main;
 
 import gossipLearning.DataBaseReader;
+import gossipLearning.controls.observers.errorComputation.AbstractErrorComputator;
+import gossipLearning.controls.observers.errorComputation.ErrorComputator;
+import gossipLearning.controls.observers.errorComputation.ErrorFunction;
+import gossipLearning.controls.observers.errorComputation.ZeroOneError;
 import gossipLearning.interfaces.Model;
+import gossipLearning.interfaces.ModelHolder;
+import gossipLearning.modelHolders.BoundedModelHolder;
 import gossipLearning.models.boosting.FilterBoost;
 
 import java.io.File;
@@ -30,6 +36,11 @@ public class Main {
     //FilterBoost model = (FilterBoost)Class.forName(modelName).newInstance();
     model.init("learner");
     model.setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
+    ModelHolder modelHolder = new BoundedModelHolder(1);
+    modelHolder.add(model);
+    
+    ErrorFunction errorFunction = new ZeroOneError();
+    AbstractErrorComputator errorComputator = new ErrorComputator(reader.getEvalSet(), errorFunction);
     
     Map<Integer, Double> instance;
     double label;
@@ -46,7 +57,10 @@ public class Main {
       if (!(model instanceof FilterBoost) || 
           ((model instanceof FilterBoost) && ((FilterBoost)model).getSmallT() != prevt)) {
         // evaluation
-        double err = 0.0;
+        double err = errorComputator.computeError(modelHolder)[0];
+        
+        // evaluation
+        /*double err = 0.0;
         for (int i = 0; i < reader.getEvalSet().size(); i++) {
           instance = reader.getEvalSet().getInstance(i);
           label = reader.getEvalSet().getLabel(i);
@@ -55,7 +69,7 @@ public class Main {
             err ++;
           }
         }
-        err /= reader.getEvalSet().size();
+        err /= reader.getEvalSet().size();*/
         if (model instanceof FilterBoost) {
           prevt = ((FilterBoost)model).getSmallT();
         } else {

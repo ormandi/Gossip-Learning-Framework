@@ -20,19 +20,18 @@ public class AdaLineLearner extends WeakLearner {
   private double age;
   private double lambda;
   private Random r;
+  private long seed;
 
   public AdaLineLearner() {
     w = new TreeMap<Integer, Double>();
     age = 0.0;
-    long seed = Configuration.getLong("random.seed");
-    r = new Random(seed);
   }
   
   public AdaLineLearner(AdaLineLearner a) {
     numberOfClasses = a.numberOfClasses;
     age = a.age;
     lambda = a.lambda;
-    long seed = Configuration.getLong("random.seed");
+    this.seed = a.seed;
     r = new Random(seed);
     w = new TreeMap<Integer, Double>();
     if (a.w != null) {
@@ -51,6 +50,8 @@ public class AdaLineLearner extends WeakLearner {
   @Override
   public void init(String prefix) {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    seed = Configuration.getLong("random.seed");
+    r = new Random(seed);
   }
 
   @Override

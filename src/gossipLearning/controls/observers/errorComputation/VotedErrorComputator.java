@@ -18,14 +18,14 @@ public class VotedErrorComputator extends AbstractErrorComputator {
    * @param pid process ID
    * @param eval evaluation set
    */
-  public VotedErrorComputator(int pid, InstanceHolder eval, ErrorFunction errorFunction) {
-    super(pid, eval, errorFunction);
+  public VotedErrorComputator(InstanceHolder eval, ErrorFunction errorFunction) {
+    super(eval, errorFunction);
   }
   
   /**
    * Computes the voted errors incrementally.
    */
-  public double[] computeError(ModelHolder modelHolder, int nodeID) {
+  public double[] computeError(ModelHolder modelHolder) {
     double[] errors = new double[modelHolder.size()];
     double[] meanOfPredictions = new double[eval.size()];
     

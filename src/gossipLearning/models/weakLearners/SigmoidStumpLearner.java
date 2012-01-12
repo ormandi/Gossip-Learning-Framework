@@ -3,9 +3,9 @@ package gossipLearning.models.weakLearners;
 import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.utils.Utils;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 import peersim.config.Configuration;
 
@@ -37,6 +37,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   private Map<Integer, Double> edges; // sparse for 0.0
   
   private int numberOfClasses;
+  private long seed;
   
   /**
    * Constructs an initially learner.
@@ -46,12 +47,10 @@ public class SigmoidStumpLearner extends WeakLearner {
     bestIndex = 0;
     lambda = 0.001;
     numberOfClasses = 2;
-    vs = new TreeMap<Integer, double[]>();
-    cs = new TreeMap<Integer, Double>();
-    ds = new TreeMap<Integer, Double>();
-    edges = new TreeMap<Integer, Double>();
-    long seed = Configuration.getLong("random.seed");
-    r = new Random(seed);
+    vs = new HashMap<Integer, double[]>();
+    cs = new HashMap<Integer, Double>();
+    ds = new HashMap<Integer, Double>();
+    edges = new HashMap<Integer, Double>();
   }
   
   /**
@@ -64,12 +63,12 @@ public class SigmoidStumpLearner extends WeakLearner {
     this.numberOfClasses = a.numberOfClasses;
     this.bestIndex = a.bestIndex;
     this.alpha = a.alpha;
-    long seed = Configuration.getLong("random.seed");
+    this.seed = a.seed;
     r = new Random(seed);
-    this.vs = new TreeMap<Integer, double[]>();
-    this.cs = new TreeMap<Integer, Double>();
-    this.ds = new TreeMap<Integer, Double>();
-    this.edges = new TreeMap<Integer, Double>();
+    this.vs = new HashMap<Integer, double[]>();
+    this.cs = new HashMap<Integer, Double>();
+    this.ds = new HashMap<Integer, Double>();
+    this.edges = new HashMap<Integer, Double>();
     for (int i : a.vs.keySet()) {
       double[] array = a.vs.get(i);
       if (array != null) {
@@ -103,6 +102,8 @@ public class SigmoidStumpLearner extends WeakLearner {
   @Override
   public void init(String prefix) {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    seed = Configuration.getLong("random.seed");
+    r = new Random(seed);
   }
   
   /**
@@ -185,27 +186,24 @@ public class SigmoidStumpLearner extends WeakLearner {
   /**
    * This method normalizes the length of the result array to one.
    */
+  private double[] distribution;
   @Override
   public double[] distributionForInstance(Map<Integer, Double> instance) {
-    double xj = 0.0;
-    if (instance.containsKey(bestIndex)){
-      xj = instance.get(bestIndex);
-    }
-    double cj = 0.1;
-    if (cs.containsKey(bestIndex)){
-      cj = cs.get(bestIndex);
-    }
-    double dj = 0.0;
-    if (ds.containsKey(bestIndex)){
-      dj = ds.get(bestIndex);
-    }
+    Double xjd = instance.get(bestIndex);
+    double xj = (xjd == null) ? 0.0 : xjd.doubleValue();
+    Double cjd = cs.get(bestIndex);
+    double cj = (cjd == null) ? 0.1 : cjd.doubleValue();
+    Double djd = ds.get(bestIndex);
+    double dj = (djd == null) ? 0.0 : cjd.doubleValue();
     double[] vj = vs.get(bestIndex);
     if (vj == null){
       vj = initVJ();
     }
     
     double sigmoid = 2.0 * sigmoid(xj, cj, dj) - 1.0;
-    double[] distribution = new double[numberOfClasses];
+    if (distribution == null) {
+      distribution = new double[numberOfClasses];
+    }
     for (int i = 0; i < numberOfClasses; i++){
       //distribution[i] = vj[i] * sigmoid;
       distribution[i] = (vj[i] < 0 ? -1.0 : 1.0) * sigmoid;

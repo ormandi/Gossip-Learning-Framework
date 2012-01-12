@@ -11,10 +11,6 @@ import gossipLearning.interfaces.ModelHolder;
  */
 public abstract class AbstractErrorComputator {
   /**
-   * Protocol identifier
-   */
-  protected final int pid;
-  /**
    * Evaluation set
    * @hidden
    */
@@ -31,8 +27,7 @@ public abstract class AbstractErrorComputator {
    * @param eval evaluation set
    * @param errorFunction type of computable error
    */
-  public AbstractErrorComputator(int pid, InstanceHolder eval, ErrorFunction errorFunction) {
-    this.pid = pid;
+  public AbstractErrorComputator(InstanceHolder eval, ErrorFunction errorFunction) {
     this.eval = eval;
     this.errorFunction = errorFunction;
   }
@@ -40,9 +35,8 @@ public abstract class AbstractErrorComputator {
   /**
    * Computes the voted error on the specified node as nodeID based on the specified modelHolder.
    * @param modelHolder
-   * @param nodeID
    * @return the array where the index represents the number of votes
    */
-  public abstract double[] computeError(ModelHolder modelHolder, int nodeID);
+  public abstract double[] computeError(ModelHolder modelHolder);
 
 }

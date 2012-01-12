@@ -66,7 +66,7 @@ public class PredictionObserver extends GraphObserver {
     // create error computator
     String errorComputatorClassName = Configuration.getString(prefix + "." + PAR_EC);
     Class<? extends AbstractErrorComputator> errorCompuatorClass = (Class<? extends AbstractErrorComputator>) Class.forName(errorComputatorClassName);
-    errorComputatorConstructor = errorCompuatorClass.getConstructor(int.class, InstanceHolder.class, ErrorFunction.class);
+    errorComputatorConstructor = errorCompuatorClass.getConstructor(InstanceHolder.class, ErrorFunction.class);
     String errorFunctionClassName = Configuration.getString(prefix + "." + PAR_EF);
     errorFunction = (ErrorFunction) Class.forName(errorFunctionClassName).newInstance();
   }
@@ -85,7 +85,7 @@ public class PredictionObserver extends GraphObserver {
   
   public boolean execute() {
     try {
-      errorComputator = errorComputatorConstructor.newInstance(pid, eval, errorFunction);
+      errorComputator = errorComputatorConstructor.newInstance(eval, errorFunction);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -117,7 +117,7 @@ public class PredictionObserver extends GraphObserver {
             minAvgError.add(new Vector<Double>());
           }
           ModelHolder modelHolder = ((LearningProtocol)p).getModelHolder(holderIndex);
-          double[] errorVecOfNodeI = errorComputator.computeError(modelHolder, i);
+          double[] errorVecOfNodeI = errorComputator.computeError(modelHolder);
           for (int j = 0; j < errorVecOfNodeI.length; j ++) {
             // aggregate the results of nodes in term of jth error
             if (errorCounter.get(holderIndex).size() <= j){

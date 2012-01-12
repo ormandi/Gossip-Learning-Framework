@@ -1,6 +1,7 @@
 package gossipLearning.utils;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 public class Utils {
@@ -155,6 +156,15 @@ public class Utils {
     ret /= Math.sqrt(Math.PI);
     ret += 0.5;
     return ret;
+  }
+  
+  public static void arraySuffle(Random r, int[] array) {
+    for (int i=0; i<array.length; i++) {
+      int randomPosition = r.nextInt(array.length);
+      int temp = array[i];
+      array[i] = array[randomPosition];
+      array[randomPosition] = temp;
+    }
   }
 
 }
