@@ -29,6 +29,7 @@ public class MainBoost {
     long seed = Configuration.getLong("SEED");
     Random r = new Random(seed);
     int numIters = Configuration.getInt("ITER");
+    int numOfModelsPower = Configuration.getInt("numOfModelsPower");
     
     DataBaseReader reader = DataBaseReader.createDataBaseReader(tFile, eFile);
     
@@ -38,7 +39,7 @@ public class MainBoost {
     ModelHolder modelHolder = new BoundedModelHolder(1);
     
     // number of models
-    int numOfModels = 1 << 13;
+    int numOfModels = 1 << numOfModelsPower;
     
     Model[] models= new Model[numOfModels];
     Model model = (Model)Class.forName(modelName).newInstance();
