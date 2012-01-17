@@ -5,6 +5,10 @@ import peersim.core.CommonState;
 
 /**
  * Measures the error or performance of the boosting algorithms.
+ * 
+ * Basically it runs approximately in each boosting iteration and after a certain
+ * number of samples (exponential step size).
+ * 
  * @author István Hegedűs
  *
  */
@@ -15,6 +19,8 @@ public class BoostPredictionObserver extends SamplingBasedPredictionObserver {
   
   private long t, c_down, c_up, c_middle;
   private boolean evaluate = true;
+  
+  private long sampleRun = 1;
   
   public BoostPredictionObserver(String prefix) throws Exception {
     super(prefix);
@@ -29,6 +35,12 @@ public class BoostPredictionObserver extends SamplingBasedPredictionObserver {
     long iter = CommonState.getTime()/Configuration.getLong("simulation.logtime");
     if (evaluate && iter > c_middle) {
       evaluate = false;
+      setPrintSuffix("boosting iteration");
+      return super.execute();
+    }
+    if (iter == sampleRun) {
+      setPrintSuffix(sampleRun + "th samples");
+      sampleRun *= 10;
       return super.execute();
     }
     if (!evaluate && iter > c_up) {

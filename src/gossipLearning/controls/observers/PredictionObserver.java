@@ -56,6 +56,8 @@ public class PredictionObserver extends GraphObserver {
   private Constructor<? extends AbstractErrorComputator> errorComputatorConstructor;
   /** @hidden */
   private InstanceHolder eval;
+  /** @hidden */
+  private String printSuffix = "";
     
   @SuppressWarnings("unchecked")
   public PredictionObserver(String prefix) throws Exception {
@@ -153,9 +155,9 @@ public class PredictionObserver extends GraphObserver {
         if (CommonState.getTime() > 0) {
           if (format.equals("gpt")) {
             //System.out.println(CommonState.getTime() + "\t" + Configuration.getLong("simulation.logtime"));
-            System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + avgError.get(i).get(j) + "\t" + devError.get(i).get(j) + "\t" + maxAvgError.get(i).get(j) + "\t" + minAvgError.get(i).get(j) + "\t# " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]");
+            System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + avgError.get(i).get(j) + "\t" + devError.get(i).get(j) + "\t" + maxAvgError.get(i).get(j) + "\t" + minAvgError.get(i).get(j) + "\t# " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ((printSuffix.length() > 0) ? "\t# " + printSuffix : ""));
           } else {
-            System.out.println(errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ":\tAvgE=" + avgError.get(i).get(j) + "\tDevE=" + devError.get(i).get(j) + "\tMaxE=" + maxAvgError.get(i).get(j) + "\tMinE=" + minAvgError.get(i).get(j));
+            System.out.println(errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ":\tAvgE=" + avgError.get(i).get(j) + "\tDevE=" + devError.get(i).get(j) + "\tMaxE=" + maxAvgError.get(i).get(j) + "\tMinE=" + minAvgError.get(i).get(j) + ((printSuffix.length() > 0) ? "\t# " + printSuffix : "") );
           }
         }
       }
@@ -179,4 +181,20 @@ public class PredictionObserver extends GraphObserver {
     this.eval = eval;
   }
 
+  /**
+   * Returns the current value of print suffix which is appended to each result line.
+   * By default it is an empty string
+   * @return print suffix
+   */
+  public String getPrintSuffix() {
+    return printSuffix;
+  }
+  
+  /**
+   * Sets the value of print suffix. This will be appended to each result line (after a '#').
+   * @param printSuffix new value of result line suffix
+   */
+  public void setPrintSuffix(String printSuffix) {
+    this.printSuffix = printSuffix;
+  }
 }
