@@ -39,6 +39,8 @@ public class SigmoidStumpLearner extends WeakLearner {
   private int numberOfClasses;
   private long seed;
   
+  private static long c;
+  
   /**
    * Constructs an initially learner.
    */
@@ -64,7 +66,7 @@ public class SigmoidStumpLearner extends WeakLearner {
     this.bestIndex = a.bestIndex;
     this.alpha = a.alpha;
     this.seed = a.seed;
-    r = new Random(seed);
+    r = new Random(seed | c++);
     this.vs = new HashMap<Integer, double[]>();
     this.cs = new HashMap<Integer, Double>();
     this.ds = new HashMap<Integer, Double>();
@@ -103,7 +105,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   public void init(String prefix) {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     seed = Configuration.getLong("random.seed");
-    r = new Random(seed);
+    r = new Random(seed | c++);
   }
   
   /**
@@ -194,7 +196,7 @@ public class SigmoidStumpLearner extends WeakLearner {
     Double cjd = cs.get(bestIndex);
     double cj = (cjd == null) ? 0.1 : cjd.doubleValue();
     Double djd = ds.get(bestIndex);
-    double dj = (djd == null) ? 0.0 : cjd.doubleValue();
+    double dj = (djd == null) ? 0.0 : djd.doubleValue();
     double[] vj = vs.get(bestIndex);
     if (vj == null){
       vj = initVJ();
@@ -219,6 +221,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   private double[] initVJ(){
     double[] vj = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++){
+      //vj[i] = CommonState.r.nextBoolean() ? 1.0 : -1.0;
       vj[i] = r.nextBoolean() ? 1.0 : -1.0;
     }
     return Utils.normalize(vj);

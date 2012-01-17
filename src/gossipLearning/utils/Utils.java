@@ -159,8 +159,12 @@ public class Utils {
   }
   
   public static void arraySuffle(Random r, int[] array) {
-    for (int i=0; i<array.length; i++) {
-      int randomPosition = r.nextInt(array.length);
+    arraySuffle(r, array, 0, array.length);
+  }
+  
+  public static void arraySuffle(Random r, int[] array, int from, int to) {
+    for (int i=from; i<to; i++) {
+      int randomPosition = r.nextInt(to - from);
       int temp = array[i];
       array[i] = array[randomPosition];
       array[randomPosition] = temp;

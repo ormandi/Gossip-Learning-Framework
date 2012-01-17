@@ -60,16 +60,6 @@ public class Main {
         double err = errorComputator.computeError(modelHolder)[0];
         
         // evaluation
-        /*double err = 0.0;
-        for (int i = 0; i < reader.getEvalSet().size(); i++) {
-          instance = reader.getEvalSet().getInstance(i);
-          label = reader.getEvalSet().getLabel(i);
-          double prediction = model.predict(instance);
-          if (prediction != label) {
-            err ++;
-          }
-        }
-        err /= reader.getEvalSet().size();*/
         if (model instanceof FilterBoost) {
           prevt = ((FilterBoost)model).getSmallT();
         } else {
