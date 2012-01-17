@@ -43,7 +43,7 @@ public class FilterBoost extends ProbabilityModel {
   protected int T = 1;
   private int C = 1;
   
-  protected int t = 1;
+  protected int t = 0;
   private int c = 1;
   private double weakEdge;
   private double weakWeights;
@@ -88,6 +88,9 @@ public class FilterBoost extends ProbabilityModel {
     this.constantEdge = a.constantEdge;
     this.constantWeights = a.constantWeights;
     this.strongLearner = (ModelHolder)a.strongLearner.clone();
+    if (a.losses != null) {
+      this.losses = a.losses.clone();
+    }
     /*for (Map<Integer, Double> map : a.cacheDist.keySet()) {
       double[] value = a.cacheDist.get(map).clone();
       Map<Integer, Double> key = new TreeMap<Integer, Double>();
@@ -114,12 +117,13 @@ public class FilterBoost extends ProbabilityModel {
     strongLearner = new BoundedModelHolder(T);
   }
 
+  private double[] losses;
   @Override
   public void update(Map<Integer, Double> instance, double label) {
-    if (t >= T) {
+    /*if (t >= T) {
       // after iteration T do nothing
       return;
-    }
+    }*/
     if (c == 1){
       // initializing a new weak learner
       ct = (int)(C * Math.log(t + 2));
@@ -145,23 +149,61 @@ public class FilterBoost extends ProbabilityModel {
       actualWeakLearner.update(instance, label, weights);
       constantWeakLearner.update(instance, label, weights);
     } else if (c < (2 * ct)) {
+      double[] distribution = distributionForInstance(instance);
+      double[] weights = getWeights(distribution, label);
+      
       // compute edge
-      double[] weights = getWeights(instance, label);
-      double[] computed = computeAlpha(actualWeakLearner, weakEdge, weakWeights, instance, label, weights);
-      actualWeakLearner.setAlpha(computed[0]);
-      weakEdge = computed[1];
-      weakWeights = computed[2];
-      computed = computeAlpha(constantWeakLearner, constantEdge, constantWeights, instance, label, weights);
+      double[] weakDist = constantWeakLearner.distributionForInstance(instance);
+      double[] computed = computeAlpha(weakDist, constantEdge, constantWeights, instance, label, weights);
       constantWeakLearner.setAlpha(computed[0]);
       constantEdge = computed[1];
       constantWeights = computed[2];
+      weakDist = actualWeakLearner.distributionForInstance(instance);
+      computed = computeAlpha(weakDist, weakEdge, weakWeights, instance, label, weights);
+      actualWeakLearner.setAlpha(computed[0]);
+      weakEdge = computed[1];
+      weakWeights = computed[2];
+      
+      // update the losses for the weak learners
+      if (t >= T) {
+        if (losses == null) {
+          losses = new double[T];
+        }
+        for (int i = 0; i < T; i++) {
+          double[] dist = ((WeakLearner)strongLearner.getModel(i)).distributionForInstance(instance);
+          double alpha = ((WeakLearner)strongLearner.getModel(i)).getAlpha();
+          for(int l = 0; l < distribution.length; l++) {
+            double cLabel = label == l ? 1.0 : -1.0;
+            double pLabel = dist[l] < 0.0 ? -1.0 : 1.0;
+            double distDiff = distribution[l] - (alpha * pLabel);
+            losses[i] += (1.0 / (1.0 + Math.exp(distDiff * cLabel))) * Math.exp(-cLabel * (weakDist[l] < 0.0 ? -1.0 : 1.0));
+          }
+        }
+      }
     } else {
+      
+      // remove the worst weak learner and fill the losses with 0.0
+      if (t >= T) {
+        int idx = losses.length -1;
+        double max = losses[idx];
+        losses[idx] = 0.0;
+        for (int i = losses.length -2; i >= 0; i--) {
+          if (losses[i] > max) {
+            max = losses[i];
+            idx = i;
+          }
+          losses[i] = 0.0;
+        }
+        removeWeekLearner(idx);
+      }
+      
       // store weak learner
       if (actualWeakLearner.getAlpha() > constantWeakLearner.getAlpha()) {
         storeWeekLearner(actualWeakLearner);
       } else {
         storeWeekLearner(constantWeakLearner);
       }
+      
       c = 0;
       t ++;
     }
@@ -171,17 +213,16 @@ public class FilterBoost extends ProbabilityModel {
   /**
    * Returns the array of [alpha, edge, sumWeigth] of the specified weak learner respect to the parameters. 
    * The computation works iteratively.
-   * @param weakLearner to compute for
+   * @param class distribution of weakLearner to compute for
    * @param instance to compute on
    * @param label label of instance
    * @param weights weights of labels
    * @return array of [alpha, edge, sumWeigth]
    */
-  private static double[] computeAlpha(WeakLearner weakLearner, double weakEdge, double weakWeigth, Map<Integer, Double> instance, double label, double[] weights){
-    double[] predictions = weakLearner.distributionForInstance(instance);
+  private static double[] computeAlpha(double[] distribution, double weakEdge, double weakWeigth, Map<Integer, Double> instance, double label, double[] weights){
     for (int i = 0; i < weights.length; i++) {
       double yl = (label == i) ? 1.0 : -1.0;
-      double pl = (predictions[i] >= 0.0) ? 1.0 : -1.0;
+      double pl = (distribution[i] < 0.0) ? -1.0 : 1.0;
       weakEdge += (pl == yl) ? weights[i] : -weights[i];
       weakWeigth += weights[i];
     }
@@ -196,6 +237,22 @@ public class FilterBoost extends ProbabilityModel {
   }
   
   /**
+   * Returns the vector of weights that correspond to the class distribution of the 
+   * specified instance label pairs, based on prediction of the strong learner.
+   * @param distribution distribution
+   * @param label label index
+   * @return weight vector
+   */
+  private double[] getWeights(double[] distribution, double label) {
+    double[] weights = new double[distribution.length];
+    for (int i = 0; i < weights.length; i++) {
+      double cLabel = label == i ? 1.0 : -1.0;
+      weights[i] = 1.0 / (1.0 + Math.exp(distribution[i] * cLabel));
+    }
+    return weights;
+  }
+  
+  /**
    * Returns the vector of weights that correspond to the specified instance label pairs, 
    * based on prediction of the strong learner.
    * @param instance instance
@@ -203,15 +260,10 @@ public class FilterBoost extends ProbabilityModel {
    * @return weight vector
    */
   private double[] getWeights(Map<Integer, Double> instance, double label) {
-    double[] weights = new double[numberOfClasses];
     //double[] distribution = cacheDistributionForInstance(instance);
     //double[] distribution = computeDistributionForInstance(instance);
     double[] distribution = distributionForInstance(instance);
-    for (int i = 0; i < weights.length; i++) {
-      double cLabel = ((label == i) ? 1.0 : -1.0);
-      weights[i] = 1.0 / (1.0 + Math.exp(distribution[i] * cLabel));
-    }
-    return weights;
+    return getWeights(distribution, label);
   }
   
   /**
