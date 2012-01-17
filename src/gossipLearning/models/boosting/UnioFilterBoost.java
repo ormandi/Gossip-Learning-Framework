@@ -51,9 +51,12 @@ public class UnioFilterBoost extends MergeableFilterBoost {
       result[pair.getValue().getKey()].add(pair.getValue().getValue());
       size++;
     }
-    //this.t = size;
-    this.t = Math.min(a1.size(), a2.size());
+    setSmallT(size, a1.size(), a2.size());
     return result;
+  }
+  
+  protected void setSmallT(int size, int a1Size, int a2Size) {
+    this.t = size;
   }
 
 }
