@@ -35,6 +35,9 @@ public class SamplingBasedPredictionObserver extends PredictionObserver {
     long seed = Configuration.getLong("random.seed");
     r = new Random(seed);
     indices = new int[Network.size()];
+    for (int i = 0; i < Network.size(); i ++) {
+      indices[i] = i;
+    }
   }
   
   /**
@@ -49,6 +52,6 @@ public class SamplingBasedPredictionObserver extends PredictionObserver {
     for (int i = 0; i < samples; i++) {
       result.add(indices[i]);
     }
-    return result;
+    return result; 
   }
 }
