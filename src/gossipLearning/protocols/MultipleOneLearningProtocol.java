@@ -29,13 +29,22 @@ public class MultipleOneLearningProtocol extends MultipleLearningProtocol {
   }
   
   /**
+   * Copy constructor, makes a copy of the specified protocol using the copy constructor of 
+   * the super class.
+   * @param a protocol to copy
+   */
+  protected MultipleOneLearningProtocol(MultipleOneLearningProtocol a) {
+    super(a.prefix, a.delayMean, a.delayVar, a.modelHolderName, a.modelNames);
+  }
+  
+  /**
    * It produces a deep copy of the protocol.
    * 
    * @return Clone of the protocol instance.
    */
   @Override
   public Object clone() {
-    return super.clone();
+    return new MultipleOneLearningProtocol(this);
   }
   
   /**
