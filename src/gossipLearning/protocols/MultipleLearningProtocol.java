@@ -23,9 +23,9 @@ public class MultipleLearningProtocol extends AbstractProtocol {
   private static final String PAR_MODELNAMES = "modelNames";
   
   /** @hidden */
-  private final String modelHolderName;
+  protected final String modelHolderName;
   /** @hidden */
-  private final String[] modelNames;
+  protected final String[] modelNames;
   /** @hidden */
   protected ModelHolder[] modelHolders;
   /** @hidden */
@@ -51,7 +51,7 @@ public class MultipleLearningProtocol extends AbstractProtocol {
    * @param modelHolderName
    * @param modelName
    */
-  private MultipleLearningProtocol(String prefix, double delayMean, double delayVar, String modelHolderName, String[] modelNames) {
+  protected MultipleLearningProtocol(String prefix, double delayMean, double delayVar, String modelHolderName, String[] modelNames) {
     this.prefix = prefix;
     this.delayMean = delayMean;
     this.delayVar = delayVar;
