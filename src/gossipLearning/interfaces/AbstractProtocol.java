@@ -133,12 +133,13 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
    */
   @Override
   public void processEvent(Node currentNode, int currentProtocolID, Object messageObj) {
+    // the current node and protocol fields are updated
+    this.currentNode = currentNode;
+    this.currentProtocolID = currentProtocolID;
+    
     if ( messageObj instanceof ActiveThreadMessage || 
           (messageObj instanceof OnlineSessionFollowerActiveThreadMessage && 
           ((OnlineSessionFollowerActiveThreadMessage)messageObj).sessionID == sessionID) ) {
-      // the current node and protocol fields are updated
-      this.currentNode = currentNode;
-      this.currentProtocolID = currentProtocolID;
       
       // The received message is a valid active thread alarm => performing active thread call
       activeThread();
