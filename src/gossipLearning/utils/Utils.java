@@ -164,7 +164,7 @@ public class Utils {
   
   public static void arraySuffle(Random r, int[] array, int from, int to) {
     for (int i=from; i<to; i++) {
-      int randomPosition = r.nextInt(to - from);
+      int randomPosition = from + r.nextInt(to - from);
       int temp = array[i];
       array[i] = array[randomPosition];
       array[randomPosition] = temp;
