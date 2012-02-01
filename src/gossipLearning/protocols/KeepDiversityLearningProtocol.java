@@ -8,7 +8,9 @@ import gossipLearning.modelHolders.BoundedModelHolder;
 /**
  * This class is such a kind of MultipleOneLearningProtovol that sends all of models, 
  * were received in the last active cycle, to randomly selected neighbors, in order to 
- * keep the diversity of models.
+ * keep the diversity of models. <br/>
+ * If there is no received model at a node in the last cycle, then sends the last 
+ * received model.
  * @author István Hegedűs
  *
  */
@@ -30,6 +32,9 @@ public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
   }
   
   public void activeThread() {
+    if (numberOfIncomingModels == 0) {
+      numberOfIncomingModels = 1;
+    }
     // send the models were received in the previous active cycle
     while(numberOfIncomingModels > 0) {
       boolean isSend = true;
