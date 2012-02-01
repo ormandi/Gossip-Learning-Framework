@@ -40,7 +40,8 @@ public class Main {
     modelHolder.add(model);
     
     ErrorFunction errorFunction = new ZeroOneError();
-    AbstractErrorComputator errorComputator = new ErrorComputator(reader.getEvalSet(), errorFunction);
+    AbstractErrorComputator testErrorComputator = new ErrorComputator(reader.getEvalSet(), errorFunction);
+    AbstractErrorComputator trainErrorComputator = new ErrorComputator(reader.getTrainingSet(), errorFunction);
     
     Map<Integer, Double> instance;
     double label;
@@ -57,15 +58,16 @@ public class Main {
       if (!(model instanceof FilterBoost) || 
           ((model instanceof FilterBoost) && ((FilterBoost)model).getSmallT() != prevt)) {
         // evaluation
-        double err = errorComputator.computeError(modelHolder)[0];
+        double trainErr = trainErrorComputator.computeError(modelHolder)[0];
+        double expTrainErr = 0.0;
+        double testErr = testErrorComputator.computeError(modelHolder)[0];
         
         // evaluation
         if (model instanceof FilterBoost) {
           prevt = ((FilterBoost)model).getSmallT();
-        } else {
-          prevt ++;
+          expTrainErr = ((FilterBoost)model).getComulativeErr();
         }
-        System.out.println(prevt + "\t" + err);
+        System.out.println(iter + "\t" + trainErr + "\t" + expTrainErr + "\t" + testErr);
       }
     }
   }
