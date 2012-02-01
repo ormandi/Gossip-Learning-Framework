@@ -91,6 +91,9 @@ public class FilterBoost extends ProbabilityModel {
     if (a.losses != null) {
       this.losses = a.losses.clone();
     }
+    if (a.sWeigths != null) {
+      this.sWeigths = a.sWeigths.clone();
+    }
     /*for (Map<Integer, Double> map : a.cacheDist.keySet()) {
       double[] value = a.cacheDist.get(map).clone();
       Map<Integer, Double> key = new TreeMap<Integer, Double>();
@@ -118,6 +121,8 @@ public class FilterBoost extends ProbabilityModel {
   }
 
   private double[] losses;
+  protected double[] sWeigths;
+  protected double counter = 0.0;
   @Override
   public void update(Map<Integer, Double> instance, double label) {
     /*if (t >= T) {
@@ -125,6 +130,10 @@ public class FilterBoost extends ProbabilityModel {
       return;
     }*/
     if (c == 1){
+      // fill strong learner weights with 0
+      Arrays.fill(sWeigths, 0.0);
+      counter = 0.0;
+      
       // initializing a new weak learner
       ct = (int)(C * Math.log(t + 2));
       weakEdge = 0.0;
@@ -151,6 +160,10 @@ public class FilterBoost extends ProbabilityModel {
     } else if (c < (2 * ct)) {
       double[] distribution = distributionForInstance(instance);
       double[] weights = getWeights(distribution, label);
+      counter++;
+      for (int i = 0; i < weights.length; i++) {
+        sWeigths[i] = (1.0 - 1.0/counter) * sWeigths[i] + (1.0/counter) * weights[i];
+      }
       
       // compute edge
       double[] weakDist = constantWeakLearner.distributionForInstance(instance);
@@ -165,7 +178,8 @@ public class FilterBoost extends ProbabilityModel {
       weakWeights = computed[2];
       
       // update the losses for the weak learners
-      if (t >= T) {
+      //if (t >= T) {
+      if (strongLearner.size() >= T) {
         if (losses == null) {
           losses = new double[T];
         }
@@ -183,13 +197,14 @@ public class FilterBoost extends ProbabilityModel {
     } else {
       
       // remove the worst weak learner and fill the losses with 0.0
-      if (t >= T) {
+      //if (t >= T) {
+      if (strongLearner.size() >= T) {
         int idx = losses.length -1;
-        double max = losses[idx];
+        double min = losses[idx];
         losses[idx] = 0.0;
         for (int i = losses.length -2; i >= 0; i--) {
-          if (losses[i] > max) {
-            max = losses[i];
+          if (losses[i] < min) {
+            min = losses[i];
             idx = i;
           }
           losses[i] = 0.0;
@@ -357,6 +372,9 @@ public class FilterBoost extends ProbabilityModel {
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
     this.numberOfClasses = numberOfClasses;
+    if (sWeigths == null) {
+      sWeigths = new double[numberOfClasses];
+    }
   }
   
   /**
@@ -364,6 +382,7 @@ public class FilterBoost extends ProbabilityModel {
    */
   public String toString() {
     StringBuffer sb = new StringBuffer();
+    sb.append("c=" + c + "\tct=" + ct + "\tt=" + t + "\tT=" + T + "\t");
     for (int i = 0; i < strongLearner.size(); i++) {
       if (i > 0) {
         sb.append("\t" + strongLearner.getModel(i));
@@ -371,6 +390,7 @@ public class FilterBoost extends ProbabilityModel {
         sb.append(strongLearner.getModel(i));
       }
     }
+    sb.append("\tact:" + actualWeakLearner);
     return sb.toString();
   }
   
@@ -393,6 +413,17 @@ public class FilterBoost extends ProbabilityModel {
   
   public int getT() {
     return T;
+  }
+  
+  public double getComulativeErr() {
+    double ret = 0.0;
+    for (int i = 0; i < sWeigths.length; i++) {
+      ret += sWeigths[i];
+    }
+    if (counter == 0) {
+      return 1.0;
+    }
+    return ret/sWeigths.length;
   }
   
   
