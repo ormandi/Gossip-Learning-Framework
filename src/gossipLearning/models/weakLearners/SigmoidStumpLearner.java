@@ -26,15 +26,15 @@ public class SigmoidStumpLearner extends WeakLearner {
   
   private static final String PAR_LAMBDA = "lambda";
   
-  private double age;
-  private int bestIndex;
+  protected double age;
+  protected int bestIndex;
   private double lambda;
   private Random r;
   
-  private Map<Integer, double[]> vs; // sparse for null
-  private Map<Integer, Double> cs; // sparse for 0.1
-  private Map<Integer, Double> ds; // sparse for 0.0
-  private Map<Integer, Double> edges; // sparse for 0.0
+  protected Map<Integer, double[]> vs; // sparse for null
+  protected Map<Integer, Double> cs; // sparse for 0.1
+  protected Map<Integer, Double> ds; // sparse for 0.0
+  protected Map<Integer, Double> edges; // sparse for 0.0
   
   private int numberOfClasses;
   private long seed;
@@ -218,7 +218,7 @@ public class SigmoidStumpLearner extends WeakLearner {
    * set and normalizes the length to one.
    * @return
    */
-  private double[] initVJ(){
+  protected double[] initVJ(){
     double[] vj = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++){
       //vj[i] = CommonState.r.nextBoolean() ? 1.0 : -1.0;
