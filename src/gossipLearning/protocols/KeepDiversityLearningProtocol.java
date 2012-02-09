@@ -19,12 +19,12 @@ public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
   protected int numberOfIncomingModels;
   public KeepDiversityLearningProtocol (String prefix) {
     super(prefix);
-    numberOfIncomingModels = 1;
+    numberOfIncomingModels = 0;
   }
   
   protected KeepDiversityLearningProtocol (KeepDiversityLearningProtocol a) {
     super(a);
-    numberOfIncomingModels = 1;
+    numberOfIncomingModels = 0;
   }
   
   public Object clone() {
@@ -32,8 +32,13 @@ public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
   }
   
   public void activeThread() {
+    // if no incoming model, send the latest one. Else remove the latest one from the queue.
     if (numberOfIncomingModels == 0) {
       numberOfIncomingModels = 1;
+    } else {
+      for (int i = 0; i < modelHolders.length; i++) {
+        modelHolders[i].remove(0);
+      }
     }
     // send the models were received in the previous active cycle
     while(numberOfIncomingModels > 0) {
@@ -43,10 +48,15 @@ public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
         // if there is not enough model then not send
         if (numberOfIncomingModels > modelHolders[i].size()) {
           isSend = false;
-          break;
+          continue;
         }
-        // store the latest models in a new modelHolder
-        Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - numberOfIncomingModels);
+        // store the latest models in a new modelHolder, and remove all but the latest
+        Model latestModel;
+        if (modelHolders[i].size() > 1) {
+          latestModel = modelHolders[i].remove(modelHolders[i].size() - numberOfIncomingModels);
+        } else {
+          latestModel = modelHolders[i].getModel(modelHolders[i].size() - numberOfIncomingModels);
+        }
         latestModelHolder.add(latestModel);
       }
       
