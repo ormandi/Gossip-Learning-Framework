@@ -6,6 +6,7 @@ import gossipLearning.controls.observers.PredictionObserver;
 import gossipLearning.interfaces.LearningProtocol;
 
 import java.io.File;
+import java.util.Vector;
 
 import peersim.config.Configuration;
 import peersim.core.Control;
@@ -33,7 +34,7 @@ public class InstanceLoader implements Control {
   protected final int pid;
   /** @hidden */
   protected final File tFile;
-  protected PredictionObserver observer;
+  protected Vector<PredictionObserver> observers;
   protected DataBaseReader reader;
   /** @hidden */
   protected final File eFile;
@@ -44,6 +45,7 @@ public class InstanceLoader implements Control {
     tFile = new File(Configuration.getString(prefix + "." + PAR_TFILE));
     eFile = new File(Configuration.getString(prefix + "." + PAR_EFILE));
     samplesPerNode = Configuration.getInt(prefix + "." + PAR_SIZE, 1);
+    observers = new Vector<PredictionObserver>();
   }
   
   public boolean execute(){
@@ -52,7 +54,9 @@ public class InstanceLoader implements Control {
       reader = DataBaseReader.createDataBaseReader(tFile, eFile);
       
       // InstanceLoader initializes the evaluation set of prediction observer
-      observer.setEvalSet(reader.getEvalSet());
+      for (PredictionObserver observer : observers) {
+        observer.setEvalSet(reader.getEvalSet());
+      }
       
       // init the nodes by adding the instances read before
       int numOfSamples = reader.getTrainingSet().size();
@@ -84,6 +88,6 @@ public class InstanceLoader implements Control {
    * @param observer prediction observer
    */
   public void setPredictionObserver(PredictionObserver observer) {
-    this.observer = observer;
+    observers.add(observer);
   }
 }

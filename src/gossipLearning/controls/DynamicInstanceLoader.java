@@ -1,11 +1,13 @@
 package gossipLearning.controls;
 
-import java.io.IOException;
-
 import gossipLearning.DataBaseReader;
 import gossipLearning.InstanceHolder;
 import gossipLearning.controls.initializers.InstanceLoader;
+import gossipLearning.controls.observers.PredictionObserver;
 import gossipLearning.interfaces.LearningProtocol;
+
+import java.io.IOException;
+
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
@@ -78,7 +80,9 @@ public class DynamicInstanceLoader extends InstanceLoader {
    * Evaluates the models using the specified observer.
    */
   private void eval(){
-    observer.execute();
+    for (PredictionObserver observer : observers) {
+      observer.execute();
+    }
   }
   
   /**
@@ -91,7 +95,9 @@ public class DynamicInstanceLoader extends InstanceLoader {
     for (int i = 0; i < reader.getEvalSet().size(); i++){
       reader.getEvalSet().setLabel(i, ((int)reader.getTrainingSet().getLabel(i) + 1) % reader.getTrainingSet().getNumberOfClasses());
     }
-    observer.setEvalSet(reader.getEvalSet());
+    for (PredictionObserver observer : observers) {
+      observer.setEvalSet(reader.getEvalSet());
+    }
     //System.out.println("DRIFT ");
   }
   
