@@ -27,7 +27,6 @@ public class MinTrainingErrorBasedObserver extends BoostPredictionObserver {
     double approximatedError = Double.MAX_VALUE;
     for (int i = 0; i < g.size(); i ++) {
       Protocol p = ((Node) g.getNode(i)).getProtocol(pid);
-      
       if (p instanceof LearningProtocol) {
         // evaluating the model(s) of the ith node
         int numOfHolders = ((LearningProtocol)p).size();
