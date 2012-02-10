@@ -155,9 +155,9 @@ public class PredictionObserver extends GraphObserver {
         if (CommonState.getTime() > 0) {
           if (format.equals("gpt")) {
             //System.out.println(CommonState.getTime() + "\t" + Configuration.getLong("simulation.logtime"));
-            System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + avgError.get(i).get(j) + "\t" + devError.get(i).get(j) + "\t" + maxAvgError.get(i).get(j) + "\t" + minAvgError.get(i).get(j) + "\t# " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ((printSuffix.length() > 0) ? "\t# " + printSuffix : ""));
+            System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + avgError.get(i).get(j) + "\t" + devError.get(i).get(j) + "\t" + maxAvgError.get(i).get(j) + "\t" + minAvgError.get(i).get(j) + "\t# " + getClass().getCanonicalName() +  " - " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ((printSuffix.length() > 0) ? "\t# " + printSuffix : ""));
           } else {
-            System.out.println(errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ":\tAvgE=" + avgError.get(i).get(j) + "\tDevE=" + devError.get(i).get(j) + "\tMaxE=" + maxAvgError.get(i).get(j) + "\tMinE=" + minAvgError.get(i).get(j) + ((printSuffix.length() > 0) ? "\t# " + printSuffix : "") );
+            System.out.println(getClass().getCanonicalName() + " - " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ":\tAvgE=" + avgError.get(i).get(j) + "\tDevE=" + devError.get(i).get(j) + "\tMaxE=" + maxAvgError.get(i).get(j) + "\tMinE=" + minAvgError.get(i).get(j) + ((printSuffix.length() > 0) ? "\t# " + printSuffix : "") );
           }
         }
       }
