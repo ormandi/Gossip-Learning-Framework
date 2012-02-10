@@ -94,6 +94,8 @@ public class FilterBoost extends ProbabilityModel {
     if (a.sWeigths != null) {
       this.sWeigths = a.sWeigths.clone();
     }
+    this.counter = a.counter;
+    this.cumulativeError = a.cumulativeError;
     /*for (Map<Integer, Double> map : a.cacheDist.keySet()) {
       double[] value = a.cacheDist.get(map).clone();
       Map<Integer, Double> key = new TreeMap<Integer, Double>();
@@ -123,6 +125,7 @@ public class FilterBoost extends ProbabilityModel {
   private double[] losses;
   protected double[] sWeigths;
   protected double counter = 0.0;
+  protected double cumulativeError = 1.0;
   @Override
   public void update(Map<Integer, Double> instance, double label) {
     /*if (t >= T) {
@@ -130,8 +133,17 @@ public class FilterBoost extends ProbabilityModel {
       return;
     }*/
     if (c == 1){
-      // fill strong learner weights with 0
-      Arrays.fill(sWeigths, 0.0);
+      // compute the cumulative error and fill strong learner weights with 0
+      if (counter == 0) {
+        cumulativeError = 1.0;
+      } else {
+        cumulativeError = 0.0;
+        for (int i = 0; i < sWeigths.length; i++) {
+          cumulativeError += sWeigths[i];
+          sWeigths[i] = 0.0;
+        }
+        cumulativeError /= sWeigths.length;
+      }
       counter = 0.0;
       
       // initializing a new weak learner
@@ -416,14 +428,7 @@ public class FilterBoost extends ProbabilityModel {
   }
   
   public double getComulativeErr() {
-    double ret = 0.0;
-    for (int i = 0; i < sWeigths.length; i++) {
-      ret += sWeigths[i];
-    }
-    if (counter == 0) {
-      return 1.0;
-    }
-    return ret/sWeigths.length;
+    return cumulativeError;
   }
   
   
