@@ -44,9 +44,9 @@ public class BoostPredictionObserver extends SamplingBasedPredictionObserver {
       return super.execute();
     }
     if (!evaluate && iter > c_up) {
-      c_down += c_up + (long)(C * Math.log(t));
+      c_down = c_up;
       c_up += (long)(2 * C * Math.log(t));
-      c_middle = c_down + ((c_up - c_down) / 2);
+      c_middle = c_down + ((c_up - c_down) / 10);
       evaluate = true;
       t ++;
     }
