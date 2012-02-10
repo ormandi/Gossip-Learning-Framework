@@ -4,6 +4,7 @@ import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.modelHolders.BoundedModelHolder;
+import peersim.config.Configuration;
 
 /**
  * This class is such a kind of MultipleOneLearningProtovol that sends all of models, 
@@ -16,7 +17,10 @@ import gossipLearning.modelHolders.BoundedModelHolder;
  */
 public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
   
-  protected int numberOfIncomingModels;
+  public static final String PAR_WAIT = "numOfWaitingPeriods";
+  protected long numOfWaitingPeriods;
+  
+  protected int numberOfIncomingModels = 0;
   public KeepDiversityLearningProtocol (String prefix) {
     super(prefix);
     numberOfIncomingModels = 0;
@@ -24,21 +28,40 @@ public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
   
   protected KeepDiversityLearningProtocol (KeepDiversityLearningProtocol a) {
     super(a);
-    numberOfIncomingModels = 0;
+    numberOfIncomingModels = a.numberOfIncomingModels;
+    isFirstActiveThread = a.isFirstActiveThread;
+    clocal = a.clocal;
+    numOfWaitingPeriods = a.numOfWaitingPeriods;
+  }
+  
+  protected void init(String prefix) {
+    super.init(prefix);
+    numOfWaitingPeriods = Configuration.getLong(prefix + "." + PAR_WAIT);
   }
   
   public Object clone() {
     return new KeepDiversityLearningProtocol(this);
   }
   
+  private boolean isFirstActiveThread = true;
+  private long clocal=0;
   public void activeThread() {
     // if no incoming model, send the latest one. Else remove the latest one from the queue.
     if (numberOfIncomingModels == 0) {
-      numberOfIncomingModels = 1;
+      if (isFirstActiveThread) {
+        numberOfIncomingModels = 1;
+      } else {
+        clocal++;
+      }
     } else {
       for (int i = 0; i < modelHolders.length; i++) {
         modelHolders[i].remove(0);
       }
+      clocal = 0;
+    }
+    if (clocal == numOfWaitingPeriods) {
+      numberOfIncomingModels = 1;
+      clocal = 0;
     }
     // send the models were received in the previous active cycle
     while(numberOfIncomingModels > 0) {
@@ -66,6 +89,7 @@ public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
       }
       numberOfIncomingModels--;
     }
+    isFirstActiveThread = false;
   }
   
   public void passiveThread(ModelMessage message) {
