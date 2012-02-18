@@ -75,7 +75,6 @@ public class FilterBoost extends ProbabilityModel {
     this.ct = a.ct;
     this.prefix = a.prefix;
     this.numberOfClasses = a.numberOfClasses;
-    //this.weakLearnerClassName = Configuration.getString(prefix + "." + PAR_WEAKLEARNERNAME);
     this.weakLearnerClassName = a.weakLearnerClassName;
     if (a.actualWeakLearner != null) {
       this.actualWeakLearner = (WeakLearner)a.actualWeakLearner.clone();
@@ -96,14 +95,6 @@ public class FilterBoost extends ProbabilityModel {
     }
     this.counter = a.counter;
     this.cumulativeError = a.cumulativeError;
-    /*for (Map<Integer, Double> map : a.cacheDist.keySet()) {
-      double[] value = a.cacheDist.get(map).clone();
-      Map<Integer, Double> key = new TreeMap<Integer, Double>();
-      for (int k : map.keySet()) {
-        key.put(k, map.get(k).doubleValue());
-      }
-      cacheDist.put(key, value);
-    }*/
   }
   
   /**
@@ -128,10 +119,6 @@ public class FilterBoost extends ProbabilityModel {
   protected double cumulativeError = 1.0;
   @Override
   public void update(Map<Integer, Double> instance, double label) {
-    /*if (t >= T) {
-      // after iteration T do nothing
-      return;
-    }*/
     if (c == 1){
       // compute the cumulative error and fill strong learner weights with 0
       if (counter == 0) {
@@ -190,7 +177,6 @@ public class FilterBoost extends ProbabilityModel {
       weakWeights = computed[2];
       
       // update the losses for the weak learners
-      //if (t >= T) {
       if (strongLearner.size() >= T) {
         if (losses == null) {
           losses = new double[T];
@@ -209,7 +195,6 @@ public class FilterBoost extends ProbabilityModel {
     } else {
       
       // remove the worst weak learner and fill the losses with 0.0
-      //if (t >= T) {
       if (strongLearner.size() >= T) {
         int idx = losses.length -1;
         double min = losses[idx];
@@ -287,8 +272,6 @@ public class FilterBoost extends ProbabilityModel {
    * @return weight vector
    */
   private double[] getWeights(Map<Integer, Double> instance, double label) {
-    //double[] distribution = cacheDistributionForInstance(instance);
-    //double[] distribution = computeDistributionForInstance(instance);
     double[] distribution = distributionForInstance(instance);
     return getWeights(distribution, label);
   }
@@ -415,18 +398,38 @@ public class FilterBoost extends ProbabilityModel {
     return ((WeakLearner)strongLearner.getModel(index)).getAlpha();
   }
   
+  /**
+   * Returns the value that represents the state of the learning phase of the
+   * algorithm
+   * @return learning phase indicator
+   */
   public int getSmallC() {
     return c;
   }
   
+  /**
+   * Returns the number of boosting iterations, the number of stored weak 
+   * learners that were stored
+   * @return number of boosting iteration
+   */
   public int getSmallT() {
     return t;
   }
   
+  /**
+   * Returns the number of maximal boosting iteration, the maximal number 
+   * of weak learners
+   * @return
+   */
   public int getT() {
     return T;
   }
   
+  /**
+   * Returns the error rate of the algorithm, that was approximated on the 
+   * training set
+   * @return approximated error rate
+   */
   public double getComulativeErr() {
     return cumulativeError;
   }
