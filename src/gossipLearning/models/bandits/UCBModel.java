@@ -1,13 +1,11 @@
 package gossipLearning.models.bandits;
 
-import gossipLearning.interfaces.Model;
-
 import java.util.Arrays;
 import java.util.Map;
 
 import peersim.config.Configuration;
 
-public class UCBModel implements Model {
+public class UCBModel implements BanditModel {
 private static final long serialVersionUID = 5232458167435240109L;
 
   protected static final String PAR_ARMS = "arms";
@@ -16,6 +14,7 @@ private static final long serialVersionUID = 5232458167435240109L;
   /** @hidden */
   protected double[] sums;
   protected int[] n;
+  protected long sumN;
   
   protected int age;
   
@@ -25,17 +24,20 @@ private static final long serialVersionUID = 5232458167435240109L;
     age = 0;
   }
   
-  protected UCBModel(int arms, int age, double[] sums, int[] n){
+  protected UCBModel(int arms, int age, double[] sums, int[] n, long sumN){
     this.arms = arms;
     this.age = age;
     this.sums = new double[arms];
     this.n = new int[arms];
     for (int i = 0; i < sums.length; i ++) {
+      this.sums[i] = sums[i];
+      this.n[i] = n[i];
     }
+    this.sumN = sumN;
   }
   
   public Object clone(){
-    return new UCBModel(arms, age, sums, n);
+    return new UCBModel(arms, age, sums, n, sumN);
   }
   
   @Override
@@ -48,6 +50,7 @@ private static final long serialVersionUID = 5232458167435240109L;
     n = new int[arms];
     
     // play each machine ones
+    sumN = n.length;
     Arrays.fill(n, 1);
     for (int i = 0; i < sums.length; i ++) {
       sums[i] = GlobalArmModel.playMachine(i);
@@ -56,26 +59,49 @@ private static final long serialVersionUID = 5232458167435240109L;
 
   @Override
   public void update(Map<Integer, Double> instance, double label) {
-    // TODO Auto-generated method stub
-
+    // find best arm
+    
+    // play best arm
   }
 
   @Override
   public double predict(Map<Integer, Double> instance) {
-    // TODO Auto-generated method stub
-    return 0;
+    if (instance != null && instance.size() == 1) {
+      Integer armIdxO = instance.keySet().iterator().next();
+      int armIdx = (armIdxO != null) ? armIdxO.intValue() : -1 ;
+      return predict(armIdx);
+    }
+    return Double.NaN;
+  }
+  
+  @Override
+  public double predict(int armIdx) {
+    if (0 <= armIdx && armIdx < sums.length) {
+      return sums[armIdx]/(double)n[armIdx];
+    }
+    return Double.NaN;
+  }
+  
+  @Override
+  public int numberOfPlayes(int armIdx) {
+    if (0 <= armIdx && armIdx < sums.length) {
+      return n[armIdx];
+    }
+    return -1;
+  }
+  
+  @Override
+  public long numberOfAllPlayes() {
+    return sumN;
   }
 
   @Override
   public int getNumberOfClasses() {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
-    // TODO Auto-generated method stub
-
   }
 
 }
