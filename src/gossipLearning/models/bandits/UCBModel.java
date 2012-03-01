@@ -3,14 +3,9 @@ package gossipLearning.models.bandits;
 import java.util.Arrays;
 import java.util.Map;
 
-import peersim.config.Configuration;
-
 public class UCBModel implements BanditModel {
 private static final long serialVersionUID = 5232458167435240109L;
 
-  protected static final String PAR_ARMS = "arms";
-  protected int arms = 1;
-  
   /** @hidden */
   protected double[] sums;
   protected int[] n;
@@ -24,11 +19,10 @@ private static final long serialVersionUID = 5232458167435240109L;
     age = 0;
   }
   
-  protected UCBModel(int arms, int age, double[] sums, int[] n, long sumN){
-    this.arms = arms;
+  protected UCBModel(int age, double[] sums, int[] n, long sumN){
     this.age = age;
-    this.sums = new double[arms];
-    this.n = new int[arms];
+    this.sums = (sums == null) ? null : new double[sums.length];
+    this.n = (n == null) ? null : new int[n.length];
     for (int i = 0; i < sums.length; i ++) {
       this.sums[i] = sums[i];
       this.n[i] = n[i];
@@ -37,7 +31,7 @@ private static final long serialVersionUID = 5232458167435240109L;
   }
   
   public Object clone(){
-    return new UCBModel(arms, age, sums, n, sumN);
+    return new UCBModel(age, sums, n, sumN);
   }
   
   @Override
@@ -45,9 +39,8 @@ private static final long serialVersionUID = 5232458167435240109L;
     // initialize global arm model
     GlobalArmModel.initialize(prefix);
     
-    arms = Configuration.getInt(prefix + "." + PAR_ARMS, 1);
-    sums = new double[arms];
-    n = new int[arms];
+    sums = new double[GlobalArmModel.numberOfArms()];
+    n = new int[GlobalArmModel.numberOfArms()];
     
     // play each machine ones
     sumN = n.length;
