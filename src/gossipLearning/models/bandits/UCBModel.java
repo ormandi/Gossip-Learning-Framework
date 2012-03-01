@@ -60,8 +60,21 @@ private static final long serialVersionUID = 5232458167435240109L;
   @Override
   public void update(Map<Integer, Double> instance, double label) {
     // find best arm
+    double ln = Math.sqrt(2.0*Math.log(sumN));
+    int max = -1;
+    double maxV = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < sums.length; i ++) {
+      double p = sums[i]/(double)n[i] + ln/Math.sqrt((double)n[i]);
+      if (p > maxV) {
+        max = i;
+        maxV = p;
+      }
+    }
     
     // play best arm
+    sums[max] += GlobalArmModel.playMachine(max);
+    n[max] ++;
+    sumN ++;
   }
 
   @Override
