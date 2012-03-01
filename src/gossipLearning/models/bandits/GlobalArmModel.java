@@ -7,7 +7,7 @@ public class GlobalArmModel {
   private static double[] armParams;
   
   public static void initialize(String prefix) {
-    if (rand == null) {
+    if (rand == null || armParams == null) {
       // TODO: fill from configuration
       rand = new Random(125689014);
       armParams = new double[]{0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8};

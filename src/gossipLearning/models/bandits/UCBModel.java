@@ -26,7 +26,12 @@ private static final long serialVersionUID = 5232458167435240109L;
   }
   
   protected UCBModel(int arms, int age, double[] sums, int[] n){
-    
+    this.arms = arms;
+    this.age = age;
+    this.sums = new double[arms];
+    this.n = new int[arms];
+    for (int i = 0; i < sums.length; i ++) {
+    }
   }
   
   public Object clone(){
@@ -35,7 +40,7 @@ private static final long serialVersionUID = 5232458167435240109L;
   
   @Override
   public void init(String prefix) {
-    // init global arm model
+    // initialize global arm model
     GlobalArmModel.initialize(prefix);
     
     arms = Configuration.getInt(prefix + "." + PAR_ARMS, 1);
