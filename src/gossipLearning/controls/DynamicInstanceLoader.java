@@ -29,7 +29,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
   private static final String PAR_SAMPLESPEREVAL = "samplesPerEval";
   private static final String PAR_ASYNCRATE = "asyncRate";
   
-  private final int numOfEvals;
+  private final long numOfEvals;
   private final double driftsPerEval;
   private final double samplesPerEval;
   private final double asyncRate;
@@ -40,7 +40,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
   public DynamicInstanceLoader(String prefix) {
     super(prefix);
     
-    numOfEvals = Configuration.getInt(prefix + "." + PAR_NUMOFEVALS);
+    numOfEvals = Configuration.getLong(prefix + "." + PAR_NUMOFEVALS);
     driftsPerEval = Configuration.getDouble(prefix + "." + PAR_DRIFTSPEREVAL);
     samplesPerEval = Configuration.getDouble(prefix + "." + PAR_SAMPLESPEREVAL);
     asyncRate = Configuration.getDouble(prefix + "." + PAR_ASYNCRATE);
@@ -80,6 +80,16 @@ public class DynamicInstanceLoader extends InstanceLoader {
    * Evaluates the models using the specified observer.
    */
   private void eval(){
+    /*double nNew = 0.0;
+    int c = 0;
+    for (int i = 0; i < Network.size(); i++) {
+      LearningProtocol model = (LearningProtocol)((Node) Network.get(i)).getProtocol(pid);
+      for (int mId = 0; mId < model.getModelHolder(0).size(); mId++) {
+        nNew += Double.parseDouble(model.getModelHolder(0).getModel(mId).toString());
+        c++;
+      }
+    }
+    System.out.println("#" + (nNew/c));*/
     for (PredictionObserver observer : observers) {
       observer.execute();
     }
@@ -89,11 +99,17 @@ public class DynamicInstanceLoader extends InstanceLoader {
    * Changes the labels on the training and evaluation sets.
    */
   private void changeLabels(){
+    double label;
+    int nc;
     for (int i = 0; i < reader.getTrainingSet().size(); i++){
-      reader.getTrainingSet().setLabel(i, ((int)reader.getTrainingSet().getLabel(i) + 1) % reader.getTrainingSet().getNumberOfClasses());
+      label = reader.getTrainingSet().getLabel(i);
+      nc = reader.getTrainingSet().getNumberOfClasses();
+      reader.getTrainingSet().setLabel(i, ((int)label + 1.0)%nc);
     }
     for (int i = 0; i < reader.getEvalSet().size(); i++){
-      reader.getEvalSet().setLabel(i, ((int)reader.getTrainingSet().getLabel(i) + 1) % reader.getTrainingSet().getNumberOfClasses());
+      label = reader.getEvalSet().getLabel(i);
+      nc = reader.getTrainingSet().getNumberOfClasses();
+      reader.getEvalSet().setLabel(i, ((int)label + 1.0)%nc);
     }
     for (PredictionObserver observer : observers) {
       observer.setEvalSet(reader.getEvalSet());
@@ -104,6 +120,14 @@ public class DynamicInstanceLoader extends InstanceLoader {
   private boolean isChangeLabels = false;
   @Override
   public boolean execute() {
+    long i = CommonState.getTime();
+    if (i == 0){
+      super.execute();
+      // at the first time set an instance for nodes and evaluate them
+      changeInstances();
+      eval();
+    }
+    
     // checks the time for changing labels and handles the assynchronity of drift lengths
     double relativeTime = CommonState.getTime() % (long) driftLength;
     if (!isChangeLabels && relativeTime > (long)driftLength1){
@@ -115,13 +139,6 @@ public class DynamicInstanceLoader extends InstanceLoader {
       // second part of drift
       isChangeLabels = false;
       changeLabels();
-    }
-    
-    long i = CommonState.getTime();
-    if (i == 0){
-      // at the first time set an instance for nodes and evaluate them
-      changeInstances();
-      eval();
     }
     
     double evalsPerTick = (double)numOfEvals / (double)CommonState.getEndTime();
