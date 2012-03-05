@@ -9,8 +9,9 @@ public class GlobalArmModel {
   public static void initialize(String prefix) {
     if (rand == null || armParams == null) {
       // TODO: fill from configuration
-      rand = new Random(125689014);
-      armParams = new double[]{0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8};
+      //rand = new Random(125689014);
+      rand = new Random(System.currentTimeMillis());
+      armParams = new double[]{0.8, 0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8};
     }   
   }
   

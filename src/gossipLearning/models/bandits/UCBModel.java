@@ -7,31 +7,31 @@ public class UCBModel implements BanditModel {
 private static final long serialVersionUID = 5232458167435240109L;
 
   /** @hidden */
-  protected double[] sums;
-  protected int[] n;
+  protected double[] avgs;
+  protected long[] n;
   protected long sumN;
   
   protected int age;
   
   public UCBModel(){
-    sums = null;
+    avgs = null;
     n = null;
     age = 0;
   }
   
-  protected UCBModel(int age, double[] sums, int[] n, long sumN){
+  protected UCBModel(int age, double[] avgs, long[] n, long sumN){
     this.age = age;
-    this.sums = (sums == null) ? null : new double[sums.length];
-    this.n = (n == null) ? null : new int[n.length];
-    for (int i = 0; i < sums.length; i ++) {
-      this.sums[i] = sums[i];
+    this.avgs = (avgs == null) ? null : new double[avgs.length];
+    this.n = (n == null) ? null : new long[n.length];
+    for (int i = 0; i < avgs.length; i ++) {
+      this.avgs[i] = avgs[i];
       this.n[i] = n[i];
     }
     this.sumN = sumN;
   }
   
   public Object clone(){
-    return new UCBModel(age, sums, n, sumN);
+    return new UCBModel(age, avgs, n, sumN);
   }
   
   @Override
@@ -39,25 +39,28 @@ private static final long serialVersionUID = 5232458167435240109L;
     // initialize global arm model
     GlobalArmModel.initialize(prefix);
     
-    sums = new double[GlobalArmModel.numberOfArms()];
-    n = new int[GlobalArmModel.numberOfArms()];
+    avgs = new double[GlobalArmModel.numberOfArms()];
+    n = new long[GlobalArmModel.numberOfArms()];
     
     // play each machine ones
     sumN = n.length;
     Arrays.fill(n, 1);
-    for (int i = 0; i < sums.length; i ++) {
-      sums[i] = GlobalArmModel.playMachine(i);
+    for (int i = 0; i < avgs.length; i ++) {
+      avgs[i] = GlobalArmModel.playMachine(i);
     }
   }
 
   @Override
   public void update(Map<Integer, Double> instance, double label) {
+    if (sumN >= Double.MAX_VALUE) {
+      throw new RuntimeException("Cannot convert to double, since " + sumN + " is greater than " + Double.MAX_VALUE);
+    }
     // find best arm
     double ln = Math.sqrt(2.0*Math.log(sumN));
     int max = -1;
     double maxV = Double.NEGATIVE_INFINITY;
-    for (int i = 0; i < sums.length; i ++) {
-      double p = sums[i]/(double)n[i] + ln/Math.sqrt((double)n[i]);
+    for (int i = 0; i < avgs.length; i ++) {
+      double p = avgs[i] + ln/Math.sqrt((double)n[i]);
       if (p > maxV) {
         max = i;
         maxV = p;
@@ -65,7 +68,8 @@ private static final long serialVersionUID = 5232458167435240109L;
     }
     
     // play best arm
-    sums[max] += GlobalArmModel.playMachine(max);
+    double nu = 1.0 / (1.0 + n[max]);
+    avgs[max] = (1.0 - nu) * avgs[max] + nu * GlobalArmModel.playMachine(max);
     n[max] ++;
     sumN ++;
   }
@@ -82,15 +86,15 @@ private static final long serialVersionUID = 5232458167435240109L;
   
   @Override
   public double predict(int armIdx) {
-    if (0 <= armIdx && armIdx < sums.length) {
-      return sums[armIdx]/(double)n[armIdx];
+    if (0 <= armIdx && armIdx < avgs.length) {
+      return avgs[armIdx];
     }
     return Double.NaN;
   }
   
   @Override
-  public int numberOfPlayes(int armIdx) {
-    if (0 <= armIdx && armIdx < sums.length) {
+  public long numberOfPlayes(int armIdx) {
+    if (0 <= armIdx && armIdx < n.length) {
       return n[armIdx];
     }
     return -1;

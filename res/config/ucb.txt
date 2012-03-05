@@ -1,6 +1,6 @@
-ONLINESIZE 1000
-NETWORKSIZE 1000
-C 100000
+ONLINESIZE 100
+NETWORKSIZE 100
+C 2000
 
 CYCLE C*ONLINESIZE+1
 LOGTIME ONLINESIZE
@@ -21,7 +21,7 @@ NEWSCAST_CACHESIZE 5
 NEWSCAST_FREQ ONLINESIZE/10.0
 
 # Learner parameters
-CAPACITY 1
+CAPACITY 10
 DELAY_MEAN ONLINESIZE
 DELAY_VAR ONLINESIZE/10.0
 
@@ -51,14 +51,17 @@ protocol.overlay.baseFreq NEWSCAST_FREQ
 
 
 #-------------------- Learning layer(s) --------------------
-protocol.learningProtocol gossipLearning.protocols.MultipleLearningProtocol
+protocol.learningProtocol gossipLearning.protocols.KeepDiversityLearningProtocol
+#protocol.learningProtocol gossipLearning.protocols.MultipleLearningProtocol
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport dropTransport
 protocol.learningProtocol.delayMean DELAY_MEAN
 protocol.learningProtocol.delayVar DELAY_VAR
+protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.learningProtocol.capacity CAPACITY
-protocol.learningProtocol.modelNames gossipLearning.models.bandits.UCBModel
+protocol.learningProtocol.modelNames gossipLearning.models.bandits.UCBModel,gossipLearning.models.bandits.UCBMergeModel
+protocol.learningProtocol.arms 10
 
 
 #-------------------- Initializers --------------------
@@ -102,7 +105,14 @@ control.prediction.step LOGTIME
 control.prediction.protocol learningProtocol
 control.prediction.format gpt
 
+control.prediction2 gossipLearning.controls.observers.PredictionObserver
+control.prediction2.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditPercComputator
+control.prediction2.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction2.step LOGTIME
+control.prediction2.protocol learningProtocol
+control.prediction2.format gpt
+
 control_communication.i2p desc
 control_communication.i2p.on init.instanceLoader
 control_communication.i2p.method setPredictionObserver
-control_communication.i2p.param control.prediction
+control_communication.i2p.param control.prediction2
