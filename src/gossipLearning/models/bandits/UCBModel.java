@@ -8,8 +8,8 @@ private static final long serialVersionUID = 5232458167435240109L;
 
   /** @hidden */
   protected double[] avgs;
-  protected long[] n;
-  protected long sumN;
+  protected double[] n;
+  protected double sumN;
   
   protected int age;
   
@@ -19,10 +19,10 @@ private static final long serialVersionUID = 5232458167435240109L;
     age = 0;
   }
   
-  protected UCBModel(int age, double[] avgs, long[] n, long sumN){
+  protected UCBModel(int age, double[] avgs, double[] n, double sumN){
     this.age = age;
     this.avgs = (avgs == null) ? null : new double[avgs.length];
-    this.n = (n == null) ? null : new long[n.length];
+    this.n = (n == null) ? null : new double[n.length];
     for (int i = 0; i < avgs.length; i ++) {
       this.avgs[i] = avgs[i];
       this.n[i] = n[i];
@@ -40,7 +40,7 @@ private static final long serialVersionUID = 5232458167435240109L;
     GlobalArmModel.initialize(prefix);
     
     avgs = new double[GlobalArmModel.numberOfArms()];
-    n = new long[GlobalArmModel.numberOfArms()];
+    n = new double[GlobalArmModel.numberOfArms()];
     
     // play each machine ones
     sumN = n.length;
@@ -52,15 +52,12 @@ private static final long serialVersionUID = 5232458167435240109L;
 
   @Override
   public void update(Map<Integer, Double> instance, double label) {
-    if (sumN >= Double.MAX_VALUE) {
-      throw new RuntimeException("Cannot convert to double, since " + sumN + " is greater than " + Double.MAX_VALUE);
-    }
     // find best arm
     double ln = Math.sqrt(2.0*Math.log(sumN));
     int max = -1;
     double maxV = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < avgs.length; i ++) {
-      double p = avgs[i] + ln/Math.sqrt((double)n[i]);
+      double p = avgs[i] + ln/Math.sqrt(n[i]);
       if (p > maxV) {
         max = i;
         maxV = p;
@@ -93,7 +90,7 @@ private static final long serialVersionUID = 5232458167435240109L;
   }
   
   @Override
-  public long numberOfPlayes(int armIdx) {
+  public double numberOfPlayes(int armIdx) {
     if (0 <= armIdx && armIdx < n.length) {
       return n[armIdx];
     }
@@ -101,7 +98,7 @@ private static final long serialVersionUID = 5232458167435240109L;
   }
   
   @Override
-  public long numberOfAllPlayes() {
+  public double numberOfAllPlayes() {
     return sumN;
   }
 

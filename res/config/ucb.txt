@@ -1,6 +1,6 @@
-ONLINESIZE 100
-NETWORKSIZE 100
-C 2000
+ONLINESIZE 10
+NETWORKSIZE 10
+C 10000
 
 CYCLE C*ONLINESIZE+1
 LOGTIME ONLINESIZE
@@ -18,10 +18,10 @@ CHURN_SIGMA 1
 
 # Overlay parameters
 NEWSCAST_CACHESIZE 5
-NEWSCAST_FREQ ONLINESIZE/10.0
+NEWSCAST_FREQ 1#ONLINESIZE/10.0
 
 # Learner parameters
-CAPACITY 10
+CAPACITY 20
 DELAY_MEAN ONLINESIZE
 DELAY_VAR ONLINESIZE/10.0
 
@@ -51,17 +51,17 @@ protocol.overlay.baseFreq NEWSCAST_FREQ
 
 
 #-------------------- Learning layer(s) --------------------
-protocol.learningProtocol gossipLearning.protocols.KeepDiversityLearningProtocol
+protocol.learningProtocol gossipLearning.protocols.BanditProtocol
+#protocol.learningProtocol gossipLearning.protocols.KeepDiversityLearningProtocol
 #protocol.learningProtocol gossipLearning.protocols.MultipleLearningProtocol
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport dropTransport
 protocol.learningProtocol.delayMean DELAY_MEAN
 protocol.learningProtocol.delayVar DELAY_VAR
-protocol.learningProtocol.numOfWaitingPeriods 10
+protocol.learningProtocol.numOfWaitingPeriods 50
 protocol.learningProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.learningProtocol.capacity CAPACITY
-protocol.learningProtocol.modelNames gossipLearning.models.bandits.UCBModel,gossipLearning.models.bandits.UCBMergeModel
-protocol.learningProtocol.arms 10
+protocol.learningProtocol.modelNames gossipLearning.models.bandits.UCBModel,gossipLearning.models.bandits.UCBSZBModel
 
 
 #-------------------- Initializers --------------------
