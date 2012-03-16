@@ -45,7 +45,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
     samplesPerEval = Configuration.getDouble(prefix + "." + PAR_SAMPLESPEREVAL);
     asyncRate = Configuration.getDouble(prefix + "." + PAR_ASYNCRATE);
     if (asyncRate <= 0.0 || asyncRate >= 1.0){
-      throw new RuntimeException("Async rate should be between 0 and 1");
+      throw new RuntimeException("Async rate should be between 0 and 1.");
     }
     
     driftLength = (double)(CommonState.getEndTime() - 1) / (double)numOfEvals / driftsPerEval;
@@ -58,7 +58,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
     }
     if (reader.getTrainingSet().getNumberOfClasses() == Integer.MAX_VALUE 
         || reader.getEvalSet().getNumberOfClasses() == Integer.MAX_VALUE) {
-      throw new RuntimeException("This class cannot handle regression task! " + getClass().getCanonicalName());
+      throw new RuntimeException("This class cannot handle regression tasks! " + getClass().getCanonicalName());
     }
   }
 

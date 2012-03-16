@@ -32,7 +32,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   }
   
   /**
-   * Returns a new P2Pegasos object that initializes its variable with 
+   * Returns a new P2Pegasos object that initializes its variables with 
    * the deep copy of the specified parameters.
    * @param w hyperplane
    * @param age model age
@@ -96,7 +96,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   /**
    * Computes the inner product of the hyperplane and the specified instance. 
    * If it is greater than 0 then the label is positive (1.0), otherwise the label is
-   * negative (-1.0).
+   * negative (0.0).
    */
   @Override
   public double predict(final Map<Integer, Double> instance) {

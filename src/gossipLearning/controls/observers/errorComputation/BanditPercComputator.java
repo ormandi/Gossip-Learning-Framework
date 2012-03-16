@@ -15,7 +15,7 @@ public class BanditPercComputator extends BanditErrorComputator {
     double meanErrorOfNodeI = 0.0;
     BanditModel model = (BanditModel)modelHolder.getModel(modelHolder.size() -1);
     
-    double max = -Double.MAX_VALUE;
+    double max = Double.MIN_VALUE;
     int maxIdx = -1;
     for (int j = 0; j < GlobalArmModel.numberOfArms(); j ++) {
       if (GlobalArmModel.getHiddenParameter(j) > max) {

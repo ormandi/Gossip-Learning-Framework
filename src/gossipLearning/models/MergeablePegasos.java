@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * A mergeable version of the pegasos algorithm.
+ * A mergeable version of the Pegasos algorithm.
  * @author István Hegedűs
  *
  */

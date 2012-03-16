@@ -117,7 +117,7 @@ public class Utils {
    * @return maximal index
    */
   public static int findMaxIdx(final Map<Integer, Double> a, final Map<Integer, Double> b) {
-    int max = - Integer.MAX_VALUE;
+    int max = Integer.MIN_VALUE;
     for (int d : a.keySet()) {
       if (d > max) {
         max = d;
