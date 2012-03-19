@@ -162,8 +162,11 @@ public class BanditProtocol extends MultipleLearningProtocol {
   }
   
   protected void sendToRandomNeighbor(ModelMessage message) {
-    message.setSource(currentNode);
-    Node randomNode = Network.get(((int)currentNode.getID() + 1)%Network.size());
-    getTransport().send(currentNode, randomNode, message, currentProtocolID);
+    // send to random neighbor
+    super.sendToRandomNeighbor(message);
+    // perform a circle
+    //message.setSource(currentNode);
+    //Node randomNode = Network.get(((int)currentNode.getID() + 1)%Network.size());
+    //getTransport().send(currentNode, randomNode, message, currentProtocolID);
   }
 }
