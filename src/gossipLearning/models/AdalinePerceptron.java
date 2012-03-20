@@ -12,7 +12,7 @@ import gossipLearning.utils.Utils;
 /**
  * @author csko
  * A Model for the Adaline Perceptron.
- * @note This implementation provides teaching reasons. Another version of the Adaline 
+ * @note This implementation is provided for educational purposes. Another version of the Adaline
  * perceptron can be found in the weakLearners package.
  */
 public class AdalinePerceptron implements Model {
