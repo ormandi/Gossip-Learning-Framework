@@ -65,14 +65,16 @@ public class DynamicInstanceLoader extends InstanceLoader {
   /**
    * Sets a new instance for nodes as the training set.
    */
-  private void changeInstances(){
+  private void changeInstances(int n){
     InstanceHolder instanceHolder;
     int sampleIndex;
     for (int nId = 0; nId < Network.size(); nId++){
       instanceHolder = ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).getInstanceHolder();
       instanceHolder.clear();
-      sampleIndex = CommonState.r.nextInt(reader.getTrainingSet().size());
-      instanceHolder.add(reader.getTrainingSet().getInstance(sampleIndex), reader.getTrainingSet().getLabel(sampleIndex));
+      for (int i = 0; i < n ; i++) {
+        sampleIndex = CommonState.r.nextInt(reader.getTrainingSet().size());
+        instanceHolder.add(reader.getTrainingSet().getInstance(sampleIndex), reader.getTrainingSet().getLabel(sampleIndex));
+      }
     }
   }
   
@@ -124,7 +126,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
     if (i == 0){
       super.execute();
       // at the first time set an instance for nodes and evaluate them
-      changeInstances();
+      changeInstances(1);
       eval();
     }
     
@@ -150,10 +152,11 @@ public class DynamicInstanceLoader extends InstanceLoader {
     double prevSampleTime = evalsPerTick * samplesPerEval * i;
     double actualSampleTime = evalsPerTick * samplesPerEval * (i + 1);
     boolean isIncomingSample = Math.floor(actualSampleTime) - Math.floor(prevSampleTime) > 0.0;
+    double numOfIncomingSamples = Math.floor(actualSampleTime) - Math.floor(prevSampleTime);
     
     if (isIncomingSample){
       // change samples on nodes
-      changeInstances();
+      changeInstances((int)numOfIncomingSamples);
       //System.out.println("NEW INSATNCE");
     }
     if (isEval){
