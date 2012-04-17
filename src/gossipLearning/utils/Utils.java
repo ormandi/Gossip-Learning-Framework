@@ -1,5 +1,6 @@
 package gossipLearning.utils;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
@@ -170,5 +171,78 @@ public class Utils {
       array[randomPosition] = temp;
     }
   }
-
+  
+  public static double[] autoCorrelate(double[] array) {
+    double[] result = new double[array.length];
+    Arrays.fill(result, 0.0);
+    for (int i = 0; i < array.length; i++) {
+      for (int j = 0; i + j < array.length; j++) {
+        result[j] += array[i] * array[i + j];
+      }
+    }
+    for (int i = array.length -1; i >= 0; i--) {
+      result[i] /= result[0];
+    }
+    return result;
+  }
+  
+  public static double[] autoCorrelate2(double[] array) {
+    double[] result = new double[array.length];
+    Arrays.fill(result, 0.0);
+    for (int i = 0; i < array.length; i++) {
+      for (int j = 0; j < array.length; j++) {
+        result[j] += array[i] * array[(i + j)%array.length];
+      }
+    }
+    for (int i = array.length -1; i >= 0; i--) {
+      result[i] /= result[0];
+    }
+    return result;
+  }
+  
+  public static double[] autoCorrelate(BoundedQueue<Double> array) {
+    double[] result = new double[array.size()];
+    Arrays.fill(result, 0.0);
+    for (int i = 0; i < array.size(); i++) {
+      for (int j = 0; i + j < array.size(); j++) {
+        result[j] += array.get(i) * array.get(i + j);
+      }
+    }
+    for (int i = array.size() -1; i >= 0; i--) {
+      result[i] /= result[0];
+    }
+    return result;
+  }
+  
+  public static double[] autoCorrelate2(BoundedQueue<Double> array) {
+    double[] result = new double[array.size()];
+    Arrays.fill(result, 0.0);
+    for (int i = 0; i < array.size(); i++) {
+      for (int j = 0; j < array.size(); j++) {
+        result[j] += array.get(i) * array.get((i + j)%array.size());
+      }
+    }
+    for (int i = array.size() -1; i >= 0; i--) {
+      result[i] /= result[0];
+    }
+    return result;
+  }
+  
+  public static double computeSimilarity(double[] a, double[] b) {
+    if (a.length != b.length) {
+      throw new RuntimeException("Parameters have different sizes:" + a.length + " and " + b.length);
+    }
+    double mul = 0.0;
+    double nA = 0.0;
+    double nB = 0.0;
+    for (int i = 0; i < a.length; i++) {
+      mul += a[i] * b[i];
+      nA += a[i] * a[i];
+      nB += b[i] * b[i];
+    }
+    if (nA == 0.0 || nB == 0.0) {
+      return 0.0;
+    }
+    return mul / Math.sqrt(nA * nB);
+  }
 }
