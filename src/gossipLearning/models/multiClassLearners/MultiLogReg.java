@@ -74,14 +74,15 @@ public class MultiLogReg extends ProbabilityModel {
     return new MultiLogReg(this);
   }
 
+  
   @Override
   public double[] distributionForInstance(Map<Integer, Double> instance) {
     double[] v = new double[numberOfClasses];
     double sum = 0.0;
     for (int i = 0; i < numberOfClasses -1; i++) {
-      double bias = 0.0;
-      if (w[i].containsKey(-1)) {
-        bias = w[i].get(-1);
+      Double bias = w[i].get(-1);
+      if (bias == null) {
+        bias = 0.0;
       }
       v[i] = bias + Utils.innerProduct(w[i], instance);
     }

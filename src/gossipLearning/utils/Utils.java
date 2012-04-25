@@ -14,13 +14,23 @@ public class Utils {
    * @return innerProduct
    */
   public static double innerProduct(final Map<Integer, Double> x, final Map<Integer, Double> y) {
-    if (x == null || y == null || x.size() == 0 || y.size() == 0) {
+    /*if (x == null || y == null || x.size() == 0 || y.size() == 0) {
       return 0.0;
+    }*/
+    Map<Integer, Double> x2, y2;
+    if (y.size() < x.size()) {
+      x2 = y;
+      y2 = x;
+    } else {
+      x2 = x;
+      y2 = y;
     }
     double ret = 0.0;
-    for (int id : x.keySet()) {
-      if (y.containsKey(id)) {
-        ret += x.get(id) * y.get(id);
+    Double yval;
+    for (Map.Entry<Integer, Double> e : x2.entrySet()) {
+      yval = y2.get(e.getKey());
+      if (yval != null) {
+        ret += e.getValue() * yval;
       }
     }
     return ret;
@@ -118,6 +128,9 @@ public class Utils {
    * @return maximal index
    */
   public static int findMaxIdx(final Map<Integer, Double> a, final Map<Integer, Double> b) {
+    if (a.size() > 0 && b.size() > 0) {
+      return Math.max(((TreeMap<Integer, Double>) a).lastKey(), ((TreeMap<Integer, Double>) b).lastKey());
+    }
     int max = Integer.MIN_VALUE;
     for (int d : a.keySet()) {
       if (d > max) {

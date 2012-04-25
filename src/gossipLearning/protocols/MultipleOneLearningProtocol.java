@@ -63,7 +63,7 @@ public class MultipleOneLearningProtocol extends MultipleLearningProtocol {
         model = ((Mergeable) model).merge(lastSeen);
       }
       // updating the model with only one randomly selected local training sample
-      if (instances != null) {
+      if (instances != null && instances.size() > 0) {
         int sampleID = CommonState.r.nextInt(instances.size());
         Map<Integer, Double> x = instances.getInstance(sampleID);
         double y = instances.getLabel(sampleID);
