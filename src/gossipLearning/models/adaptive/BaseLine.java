@@ -4,6 +4,7 @@ import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.Model;
 import gossipLearning.utils.SparseVector;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -34,6 +35,7 @@ public class BaseLine {
   protected InstanceHolder evaluation;
   private final Random r;
   
+  private boolean[] isClear;
   private Model[] classifiers;
   private Model globalClassifier;
   private Model[] cacheClassifiers;
@@ -71,6 +73,8 @@ public class BaseLine {
     training = new InstanceHolder(2);
     evaluation = new InstanceHolder(2);
     
+    isClear = new boolean[numOfLearners];
+    Arrays.fill(isClear, false);
     classifiers = new Model[numOfLearners];
     globalClassifier = (Model)Class.forName(modelName).newInstance();
     globalClassifier.setNumberOfClasses(2);
@@ -199,18 +203,16 @@ public class BaseLine {
     double label;
     int numSamples = (int)Math.floor(n);
     int inc = 0;
-    globalTrainSet.clear();
     for (int i = 0; i < numOfLearners; i++){
       if (r.nextDouble() < n - numSamples) {
         inc = 1;
       } else {
         inc = 0;
       }
-      if (numSamples + inc > 0) {
-        localTrainSets[i].clear();
-      } else {
-        for (int qqq = 0; qqq < localTrainSets[i].size(); qqq ++) {
-          globalTrainSet.add(localTrainSets[i].getInstance(qqq), localTrainSets[i].getLabel(qqq));
+      if (isClear[i]) {
+        if (numSamples + inc > 0) {
+          localTrainSets[i].clear();
+          isClear[i] = false;
         }
       }
       for (int j = 0; j < numSamples + inc; j++) {
@@ -222,15 +224,14 @@ public class BaseLine {
         if (cacheTrainSets[i].size() > cacheLearnerCacheSize){
           cacheTrainSets[i].remove(0);
         }
-        instance = (SparseVector)instance.clone();
-        localTrainSets[i].add(instance, label);
-        globalTrainSet.add(instance, label);
+        localTrainSets[i].add((SparseVector)instance.clone(), label);
+        //globalTrainSet.add((SparseVector)instance.clone(), label);
       }
     }
   }
   
   private void trainModel(Model model, InstanceHolder samples) {
-    double numOfIters = 100 * samples.size();
+    double numOfIters = 10 * samples.size();
     SparseVector instance;
     double label;
     for (int iter = 0; iter < numOfIters; iter++){
@@ -253,6 +254,9 @@ public class BaseLine {
         if (localModelCache[nodeId].size() > numOfLearners){
           localModelCache[nodeId].remove(0);
         }
+        for (int iid = 0; iid < localTrainSets[i].size(); iid++) {
+          globalTrainSet.add(localTrainSets[i].getInstance(iid), localTrainSets[i].getLabel(iid));
+        }
       }
       // reset cache learner i
       if (isNewCacheSample){
@@ -274,6 +278,7 @@ public class BaseLine {
       globalClassifier.setNumberOfClasses(2);
       // train global model
       trainModel(globalClassifier, globalTrainSet);
+      globalTrainSet.clear();
     }
     isNewCacheSample = false;
     
@@ -421,6 +426,7 @@ public class BaseLine {
         // evaluates the models on nodes
         train();
         evaluate(i/numOfLearners, alpha);
+        Arrays.fill(isClear, true);
         //clear();
       }
       //if (isIncomingSample){
