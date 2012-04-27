@@ -1,8 +1,7 @@
 package gossipLearning.models.weakLearners;
 
-import java.util.Map;
-
 import gossipLearning.interfaces.WeakLearner;
+import gossipLearning.utils.SparseVector;
 
 /**
  * This class represents a learner that predicts the most frequented class label.
@@ -49,7 +48,7 @@ public class ConstantLearner extends WeakLearner {
   }
 
   @Override
-  public void update(Map<Integer, Double> instance, double label, double[] weight) {
+  public void update(SparseVector instance, double label, double[] weight) {
     age ++;
     for (int i = 0; i < numberOfClasses; i++) {
       if (i == label) {
@@ -61,7 +60,7 @@ public class ConstantLearner extends WeakLearner {
   }
 
   @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     return distribution;
   }
 

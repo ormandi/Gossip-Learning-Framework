@@ -5,9 +5,7 @@ import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.modelHolders.BoundedModelHolder;
-
-import java.util.Map;
-
+import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
 /**
@@ -129,7 +127,7 @@ public class SimpleLearningProtocol extends AbstractProtocol {
       Model model = message.getModel(incommingModelID);
       for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
         // we use each samples for updating the currently processed model
-        Map<Integer, Double> x = instances.getInstance(sampleID);
+        SparseVector x = instances.getInstance(sampleID);
         double y = instances.getLabel(sampleID);
         model.update(x, y);
       }

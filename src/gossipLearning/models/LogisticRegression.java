@@ -2,11 +2,7 @@ package gossipLearning.models;
 
 import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.SimilarityComputable;
-import gossipLearning.utils.Utils;
-
-import java.util.Map;
-import java.util.TreeMap;
-
+import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
 /**
@@ -26,7 +22,8 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   protected double lambda = 0.0001;
   
   /** @hidden */
-  protected Map<Integer, Double> w;
+  protected SparseVector w;
+  protected double bias;
   protected double age;
   protected int numberOfClasses = 2;
   
@@ -34,8 +31,9 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * Initializes the hyperplane as 0 vector.
    */
   public LogisticRegression(){
-    this.w = new TreeMap<Integer, Double>();
+    this.w = new SparseVector();
     this.age = 0.0;
+    bias = 0.0;
   }
   
   /**
@@ -45,50 +43,39 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param age model age
    * @param lambda learning parameter
    */
-  protected LogisticRegression(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
-    this.w = new TreeMap<Integer, Double>();
-    for (int k : w.keySet()){
-      this.w.put(k, (double)w.get(k));
-    }
+  protected LogisticRegression(SparseVector w, double age, double lambda, int numberOfClasses, double bias){
+    this.w = (SparseVector)w.clone();
     this.age = age;
     this.lambda = lambda;
     this.numberOfClasses = numberOfClasses;
+    this.bias = bias;
   }
   
   /**
    * Clones the object.
    */
   public Object clone(){
-    return new LogisticRegression(w, age, lambda, numberOfClasses);
+    return new LogisticRegression(w, age, lambda, numberOfClasses, bias);
   }
 
   @Override
   public void init(String prefix) {
-    w = new TreeMap<Integer, Double>();
+    w = new SparseVector();
     age = 0.0;
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.0001);
   }
 
   @Override
-  public void update(Map<Integer, Double> instance, double label) {
+  public void update(SparseVector instance, double label) {
     double prob = getPositiveProbability(instance);
     double err = label - prob;
     age ++;
     double nu = 1.0 / (lambda * age);
-    int max = Utils.findMaxIdx(w, instance);
-    for (int i = -1; i <= max; i ++) {
-      Double wOldCompD = w.get(i);
-      Double xCompD = instance.get(i);
-      // using w0 as bias
-      if (i == -1) {
-        xCompD = 1.0;
-      }
-      if (wOldCompD != null || xCompD != null) {
-        double wOldComp = (wOldCompD == null) ? 0.0 : wOldCompD.doubleValue();
-        double xComp = (xCompD == null) ? 0.0 : xCompD.doubleValue();
-        w.put(i, (1.0 - nu * lambda) * wOldComp - nu * err * xComp);
-      }
-    }
+    
+    w.mul(1.0 - nu * lambda);
+    w.add(instance, - nu * err);
+    bias -= nu * err;
+    
   }
   
   /**
@@ -97,17 +84,14 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param instance instance to compute the probability
    * @return positive label probability of the instance
    */
-  private double getPositiveProbability(Map<Integer, Double> instance){
-    double b = 0.0;
-    if (w.containsKey(-1)){
-      b = w.get(-1);
-    }
-    double predict = Utils.innerProduct(w, Utils.normalize(instance)) + b;
+  private double getPositiveProbability(SparseVector instance){
+    SparseVector ins = (SparseVector)instance.clone();
+    double predict = w.mul(ins.normalize()) + bias;
     predict = Math.exp(predict) + 1.0;
     return 1.0 / predict;
   }
   
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     double[] distribution = new double[numberOfClasses];
     distribution[1] = getPositiveProbability(instance);
     distribution[0] = 1.0 - distribution[1];
@@ -116,7 +100,7 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
 
   @Override
   public double computeSimilarity(LogisticRegression model) {
-    return Utils.computeSimilarity(w, model.w);
+    return w.cosSim(model.w);
   }
 
   @Override

@@ -3,10 +3,10 @@ package tests.gossipLearning.models.multiClassLearners;
 import gossipLearning.DataBaseReader;
 import gossipLearning.InstanceHolder;
 import gossipLearning.models.multiClassLearners.ANN;
+import gossipLearning.utils.SparseVector;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Map;
 
 import junit.framework.TestCase;
 import peersim.config.Configuration;
@@ -53,7 +53,7 @@ public class ANNTest  extends TestCase implements Serializable {
       // training
       for (int i = 0; i < 5000000; i ++) {
         int idx = CommonState.r.nextInt(training.size());
-        Map<Integer, Double> x = training.getInstance(idx);
+        SparseVector x = training.getInstance(idx);
         double y = training.getLabel(idx);
         
         // update
@@ -64,7 +64,7 @@ public class ANNTest  extends TestCase implements Serializable {
           double evalCost = 0.0;
           double evalError = 0.0;
           for (int j = 0; j < eval.size(); j ++) {
-            Map<Integer,Double> xEval = eval.getInstance(j);
+            SparseVector xEval = eval.getInstance(j);
             double yEval = eval.getLabel(j);
             evalCost += ann.computeCostFunction(xEval, yEval, 0.0);
             double yPred = ann.predict(xEval);
@@ -77,7 +77,7 @@ public class ANNTest  extends TestCase implements Serializable {
           double trainingCost = 0.0;
           double trainingError = 0.0;
           for (int j = 0; j < training.size(); j ++) {
-            Map<Integer,Double> xTraining = training.getInstance(j);
+            SparseVector xTraining = training.getInstance(j);
             double yTraining = training.getLabel(j);
             trainingCost += ann.computeCostFunction(xTraining, yTraining, 0.0);
             double yPred = ann.predict(xTraining);

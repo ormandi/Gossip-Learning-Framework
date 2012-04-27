@@ -1,11 +1,7 @@
 package gossipLearning.models.multiClassLearners;
 
 import gossipLearning.interfaces.ProbabilityModel;
-import gossipLearning.utils.Utils;
-
-import java.util.Map;
-import java.util.TreeMap;
-
+import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
 /**
@@ -30,7 +26,8 @@ public class MultiLogReg extends ProbabilityModel {
   private static final String PAR_LAMBDA = "MLR.lambda";
   private double lambda = 0.0001;
   
-  private Map<Integer, Double>[] w;
+  private SparseVector[] w;
+  private double[] bias;
   private double age;
   private int numberOfClasses = 2;
 
@@ -49,21 +46,19 @@ public class MultiLogReg extends ProbabilityModel {
    * specified object.
    * @param a to copy
    */
-  @SuppressWarnings("unchecked")
   public MultiLogReg(MultiLogReg a) {
     lambda = a.lambda;
     age = a.age;
     numberOfClasses = a.numberOfClasses;
     if (a.w == null) {
       w = null;
+      bias = null;
     } else {
-      w = new Map[numberOfClasses];
+      w = new SparseVector[numberOfClasses];
       for (int i = 0; i < numberOfClasses; i++) {
-        w[i] = new TreeMap<Integer, Double>();
-        for (int key : a.w[i].keySet()) {
-          w[i].put(key, a.w[i].get(key).doubleValue());
-        }
+        w[i] = (SparseVector)a.w[i].clone();
       }
+      bias = a.bias.clone();
     }
   }
   
@@ -76,15 +71,11 @@ public class MultiLogReg extends ProbabilityModel {
 
   
   @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     double[] v = new double[numberOfClasses];
     double sum = 0.0;
     for (int i = 0; i < numberOfClasses -1; i++) {
-      Double bias = w[i].get(-1);
-      if (bias == null) {
-        bias = 0.0;
-      }
-      v[i] = bias + Utils.innerProduct(w[i], instance);
+      v[i] = bias[i] + w[i].mul(instance);
     }
     v[numberOfClasses - 1] = 0.0;
     
@@ -105,34 +96,19 @@ public class MultiLogReg extends ProbabilityModel {
   }
 
   @Override
-  public void update(Map<Integer, Double> instance, double label) {
+  public void update(SparseVector instance, double label) {
     age ++;
     double nu = 1.0 / (lambda * age);
     double[] distribution = distributionForInstance(instance);
     
     // update for each classes
     for (int j = 0; j < numberOfClasses; j++) {
-      int max = Utils.findMaxIdx(w[j], instance);
       double cDelta = (label == j) ? 1.0 : 0.0;
       double err = cDelta - distribution[j];
       
-      for (int i = -1; i <= max; i ++) {
-        Double wOldCompD = w[j].get(i);
-        Double xCompD = instance.get(i);
-        // using w0 as bias
-        if (i == -1) {
-          xCompD = 1.0;
-        }
-        if (wOldCompD != null || xCompD != null) {
-          double wOldComp = (wOldCompD == null) ? 0.0 : wOldCompD.doubleValue();
-          double xComp = (xCompD == null) ? 0.0 : xCompD.doubleValue();
-          if (i == -1) {
-            w[j].put(i, wOldComp + nu * err * xComp);
-          } else {
-            w[j].put(i, (1.0 - nu * lambda) * wOldComp + nu * err * xComp);
-          }
-        }
-      }
+      w[j].mul(1.0 - nu * lambda);
+      w[j].add(instance, nu * err);
+      bias[j] += nu * err;
     }
   }
 
@@ -141,16 +117,16 @@ public class MultiLogReg extends ProbabilityModel {
     return numberOfClasses;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
     if (numberOfClasses < 2) {
       throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
     }
     this.numberOfClasses = numberOfClasses;
-    w = new Map[numberOfClasses];
+    w = new SparseVector[numberOfClasses];
+    bias = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
-      w[i] = new TreeMap<Integer, Double>();
+      w[i] = new SparseVector();
     }
   }
 

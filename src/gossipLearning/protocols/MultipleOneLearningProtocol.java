@@ -3,9 +3,7 @@ package gossipLearning.protocols;
 import gossipLearning.interfaces.Mergeable;
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
-
-import java.util.Map;
-
+import gossipLearning.utils.SparseVector;
 import peersim.core.CommonState;
 
 /**
@@ -65,7 +63,7 @@ public class MultipleOneLearningProtocol extends MultipleLearningProtocol {
       // updating the model with only one randomly selected local training sample
       if (instances != null && instances.size() > 0) {
         int sampleID = CommonState.r.nextInt(instances.size());
-        Map<Integer, Double> x = instances.getInstance(sampleID);
+        SparseVector x = instances.getInstance(sampleID);
         double y = instances.getLabel(sampleID);
         model.update(x, y);
       }

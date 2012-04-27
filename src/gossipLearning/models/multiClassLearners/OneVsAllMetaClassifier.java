@@ -1,13 +1,11 @@
 package gossipLearning.models.multiClassLearners;
 
-import java.util.Map;
-
-import peersim.config.Configuration;
-
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.modelHolders.BoundedModelHolder;
+import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
+import peersim.config.Configuration;
 
 /**
  * This class represents a one-vs-all meta-classifier. It trains class size number of 
@@ -65,14 +63,14 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
   }
 
   @Override
-  public void update(Map<Integer, Double> instance, double label) {
+  public void update(SparseVector instance, double label) {
     for (int i = 0; i < numberOfClasses; i++) {
       classifiers.getModel(i).update(instance, (label == i) ? 1.0 : 0.0);
     }
   }
 
   @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     double[] distribution = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
       double[] baseDistribution = ((ProbabilityModel)classifiers.getModel(i)).distributionForInstance(instance);

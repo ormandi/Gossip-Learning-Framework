@@ -1,12 +1,12 @@
 package gossipLearning.models.weakLearners;
 
+import gossipLearning.interfaces.WeakLearner;
+import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
+
 import java.util.Arrays;
-import java.util.Map;
 
 import peersim.config.Configuration;
-
-import gossipLearning.interfaces.WeakLearner;
-import gossipLearning.utils.Utils;
 
 public class ProductLearner extends WeakLearner {
   private static final long serialVersionUID = 6400546153303842520L;
@@ -69,7 +69,7 @@ public class ProductLearner extends WeakLearner {
   }
 
   @Override
-  public void update(Map<Integer, Double> instance, double label, double[] weight) {
+  public void update(SparseVector instance, double label, double[] weight) {
     double[] dist;
     double[] distribution = new double[numberOfClasses];
     Arrays.fill(distribution, 1.0);
@@ -105,7 +105,7 @@ public class ProductLearner extends WeakLearner {
   }
 
   @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     double[] distribution = new double[numberOfClasses];
     Arrays.fill(distribution, 1.0);
     double[] dist;

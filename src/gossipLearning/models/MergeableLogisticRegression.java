@@ -1,9 +1,7 @@
 package gossipLearning.models;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import gossipLearning.interfaces.Mergeable;
+import gossipLearning.utils.SparseVector;
 
 public class MergeableLogisticRegression extends LogisticRegression implements Mergeable<MergeableLogisticRegression>{
   private static final long serialVersionUID = -4465428750554412761L;
@@ -19,32 +17,22 @@ public class MergeableLogisticRegression extends LogisticRegression implements M
    * @param age model age
    * @param lambda learning parameter
    */
-  protected MergeableLogisticRegression(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
-    super(w, age, lambda, numberOfClasses);
+  protected MergeableLogisticRegression(SparseVector w, double age, double lambda, int numberOfClasses, double bias){
+    super(w, age, lambda, numberOfClasses, bias);
   }
   
   public Object clone(){
-    return new MergeableLogisticRegression(w, age, lambda, numberOfClasses);
+    return new MergeableLogisticRegression(w, age, lambda, numberOfClasses, bias);
   }
   
   @Override
   public MergeableLogisticRegression merge(final MergeableLogisticRegression model) {
-    Map<Integer, Double> mergedw = new TreeMap<Integer, Double>();
+    SparseVector mergedw = new SparseVector(w);
     double age = Math.round((this.age + model.age) / 2.0);
-    double value;
-    for (int i : w.keySet()){
-      value = w.get(i);
-      if (model.w.containsKey(i)){
-        value += model.w.get(i);
-      }
-      value /= 2.0;
-      mergedw.put(i, value);
-    }
-    for (int i : model.w.keySet()){
-      if (!w.containsKey(i)){
-        mergedw.put(i, model.w.get(i) / 2.0);
-      }
-    }
-    return new MergeableLogisticRegression(mergedw, age, lambda, numberOfClasses);
+    double bias = (this.bias + model.bias) / 2.0;
+    mergedw.mul(0.5);
+    mergedw.add(model.w, 0.5);
+    
+    return new MergeableLogisticRegression(mergedw, age, lambda, numberOfClasses, bias);
   }
 }

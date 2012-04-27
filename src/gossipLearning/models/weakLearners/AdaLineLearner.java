@@ -1,11 +1,10 @@
 package gossipLearning.models.weakLearners;
 
 import gossipLearning.interfaces.WeakLearner;
+import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
-import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 import peersim.config.Configuration;
 
@@ -14,7 +13,7 @@ public class AdaLineLearner extends WeakLearner {
   
   private static final String PAR_LAMBDA = "lambda";
   
-  private Map<Integer, Double> w;
+  private SparseVector w;
   private double[] v;
   private int numberOfClasses;
   private double age;
@@ -25,7 +24,7 @@ public class AdaLineLearner extends WeakLearner {
   private static long c;
 
   public AdaLineLearner() {
-    w = new TreeMap<Integer, Double>();
+    w = new SparseVector();
     age = 0.0;
   }
   
@@ -35,12 +34,7 @@ public class AdaLineLearner extends WeakLearner {
     lambda = a.lambda;
     this.seed = a.seed;
     r = new Random(seed | c++);
-    w = new TreeMap<Integer, Double>();
-    if (a.w != null) {
-      for (int key : a.w.keySet()) {
-        w.put(key, a.w.get(key).doubleValue());
-      }
-    }
+    w = (SparseVector)a.w.clone();
     v = new double[numberOfClasses];
     if (a.v != null) {
       for (int i = 0; i < numberOfClasses; i++) {
@@ -76,40 +70,23 @@ public class AdaLineLearner extends WeakLearner {
   }
 
   @Override
-  public void update(Map<Integer, Double> instance, double label, double[] weight) {
+  public void update(SparseVector instance, double label, double[] weight) {
     age ++;
     double nu = 1.0 / (double) (age * lambda); // regularized
-    double innerProd = Utils.innerProduct(w, instance);
+    double innerProd = w.mul(instance);
     double[] distribution = distributionForInstance(instance);
     double yl;
     double exp;
     
     // update w
-    for (int key : w.keySet()) {
-      if (instance.containsKey(key)) {
-        double value = w.get(key).doubleValue();
-        double x = instance.get(key).doubleValue();
-        double sum = 0;
-        for (int l = 0; l < numberOfClasses; l++) {
-          yl = (label == l) ? 1.0 : -1.0;
-          exp = Math.exp(-yl * distribution[l]);
-          sum -= weight[l] * exp * yl * v[l] * x;
-        }
-        w.put(key, (1.0 - 1.0/age) * value - nu * sum);
-      }
+    w.mul(1.0 - 1.0 / age);
+    SparseVector grad = new SparseVector(instance.size());
+    for (int l = 0; l < numberOfClasses; l++) {
+      yl = (label == l) ? 1.0 : -1.0;
+      exp = Math.exp(-yl * distribution[l]);
+      grad.add(instance, -weight[l] * exp * yl * v[l]);
     }
-    for (int key : instance.keySet()) {
-      if (!w.containsKey(key)) {
-        double x = instance.get(key).doubleValue();
-        double sum = 0;
-        for (int l = 0; l < numberOfClasses; l++) {
-          yl = (label == l) ? 1.0 : -1.0;
-          exp = Math.exp(-yl * distribution[l]);
-          sum -= weight[l] * exp * yl * v[l] * x;
-        }
-        w.put(key, - nu * sum);
-      }
-    }
+    w.add(grad, -nu);
     
     // update v
     for (int l = 0; l < numberOfClasses; l++) {
@@ -120,9 +97,9 @@ public class AdaLineLearner extends WeakLearner {
   }
 
   @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     double[] distribution = new double[numberOfClasses];
-    double innerProd = Utils.innerProduct(w, instance);
+    double innerProd = w.mul(instance);
     for (int i = 0; i < numberOfClasses; i++) {
       distribution[i] = v[i] * innerProd;
     }

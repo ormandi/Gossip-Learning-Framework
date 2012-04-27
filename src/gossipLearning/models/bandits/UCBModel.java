@@ -1,7 +1,8 @@
 package gossipLearning.models.bandits;
 
+import gossipLearning.utils.SparseVector;
+
 import java.util.Arrays;
-import java.util.Map;
 
 public class UCBModel implements BanditModel {
 private static final long serialVersionUID = 5232458167435240109L;
@@ -51,7 +52,7 @@ private static final long serialVersionUID = 5232458167435240109L;
   }
 
   @Override
-  public void update(Map<Integer, Double> instance, double label) {
+  public void update(SparseVector instance, double label) {
     // find best arm
     double ln = Math.sqrt(2.0*Math.log(sumN));
     int max = -1;
@@ -72,9 +73,9 @@ private static final long serialVersionUID = 5232458167435240109L;
   }
 
   @Override
-  public double predict(Map<Integer, Double> instance) {
+  public double predict(SparseVector instance) {
     if (instance != null && instance.size() == 1) {
-      Integer armIdxO = instance.keySet().iterator().next();
+      Integer armIdxO = instance.iterator().next().index;
       int armIdx = (armIdxO != null) ? armIdxO.intValue() : -1 ;
       return predict(armIdx);
     }

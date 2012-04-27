@@ -1,6 +1,8 @@
 package gossipLearning.interfaces;
 
-import java.util.Map;
+import gossipLearning.utils.SparseVector;
+
+
 
 /**
  * Such a kind of model that can return the distribution of the class labels 
@@ -20,13 +22,13 @@ public abstract class ProbabilityModel implements Model {
    * @param instance instance for computing distribution
    * @return array of distribution
    */
-  public abstract double[] distributionForInstance(Map<Integer, Double> instance);
+  public abstract double[] distributionForInstance(SparseVector instance);
   
   /**
    * The default implementation of predict is simply based on finding the most likely class.
    */
   @Override
-  public final double predict(Map<Integer, Double> instance) {
+  public final double predict(SparseVector instance) {
     int maxLabelIndex = -1;
     double maxValue = Double.NEGATIVE_INFINITY;
     double[] distribution = distributionForInstance(instance);

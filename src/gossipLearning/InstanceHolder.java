@@ -1,13 +1,14 @@
 package gossipLearning;
 
+import gossipLearning.interfaces.VectorEntry;
+import gossipLearning.utils.SparseVector;
+
 import java.io.Serializable;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.Vector;
 
 /**
  * This class stores instances and the corresponding class labels in Vector containers. 
- * An instance is represented as a Map<Integer, Double> and the class label is as a double value. 
+ * An instance is represented as a SparseVector and the class label is as a double value. 
  * 
  * @author István Hegedűs
  *
@@ -17,7 +18,7 @@ public class InstanceHolder implements Serializable{
 
   private int size;
   /** @hidden */
-  private Vector<Map<Integer, Double>> instances;
+  private Vector<SparseVector> instances;
   /** @hidden */
   private Vector<Double> labels;
   private final int numberOfClasses;
@@ -28,7 +29,7 @@ public class InstanceHolder implements Serializable{
   public InstanceHolder(int numberOfClasses){
     this.numberOfClasses = numberOfClasses;
     size = 0;
-    instances = new Vector<Map<Integer,Double>>();
+    instances = new Vector<SparseVector>();
     labels = new Vector<Double>();
   }
   
@@ -40,7 +41,7 @@ public class InstanceHolder implements Serializable{
    * @param labels class labels
    * @param numberOfClasses number of classes (0 - clustering, N - classification, Integer.MAX_VALUE - regression)
    */
-  public InstanceHolder(Vector<Map<Integer,Double>> instances, Vector<Double> labels, int numberOfClasses) {
+  public InstanceHolder(Vector<SparseVector> instances, Vector<Double> labels, int numberOfClasses) {
     this.instances = instances;
     this.labels = labels;
     this.numberOfClasses = numberOfClasses;
@@ -53,17 +54,13 @@ public class InstanceHolder implements Serializable{
    * @param instances
    * @param labels
    */
-  private InstanceHolder(int size, Vector<Map<Integer, Double>> instances, Vector<Double> labels, int numberOfClasses){
+  private InstanceHolder(int size, Vector<SparseVector> instances, Vector<Double> labels, int numberOfClasses){
     this.size = size;
     this.numberOfClasses = numberOfClasses;
-    this.instances = new Vector<Map<Integer,Double>>();
+    this.instances = new Vector<SparseVector>();
     this.labels = new Vector<Double>();
     for (int i = 0; i < instances.size(); i++){
-      Map<Integer, Double> tmp = new TreeMap<Integer, Double>();
-      for (int key : instances.get(i).keySet()){
-        tmp.put(key, (double)instances.get(i).get(key));
-      }
-      this.instances.add(tmp);
+      this.instances.add((SparseVector)instances.get(i).clone());
     }
     for (int i = 0; i < labels.size(); i++){
       this.labels.add((double)labels.get(i));
@@ -96,7 +93,7 @@ public class InstanceHolder implements Serializable{
    * If there are no stored instances, returns an empty container.
    * @return the Vector of the stored instances.
    */
-  protected Vector<Map<Integer, Double>> getInstances(){
+  protected Vector<SparseVector> getInstances(){
     return instances;
   }
   
@@ -114,7 +111,7 @@ public class InstanceHolder implements Serializable{
    * @param index index of the instance to return
    * @return instance at the specified position
    */
-  public Map<Integer, Double> getInstance(int index){
+  public SparseVector getInstance(int index){
     return instances.get(index);
   }
   
@@ -123,7 +120,7 @@ public class InstanceHolder implements Serializable{
    * @param index index of the instance to replace
    * @param instance instance to be stored at the specified position
    */
-  public void setInstance(int index, Map<Integer, Double> instance){
+  public void setInstance(int index, SparseVector instance){
     instances.set(index, instance);
   }
   
@@ -151,7 +148,7 @@ public class InstanceHolder implements Serializable{
    * @param label label to be added
    * @return true if the specified instance and label were added <br/> false otherwise
    */
-  public boolean add(Map<Integer, Double> instance, double label){
+  public boolean add(SparseVector instance, double label){
     if (instances.add(instance)) {
       if (labels.add(label)) {
         size ++;
@@ -188,11 +185,11 @@ public class InstanceHolder implements Serializable{
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < instances.size(); i++){
       sb.append(labels.get(i));
-      for (int key : instances.get(i).keySet()){
+      for (VectorEntry e : instances.get(i)){
         sb.append(' ');
-        sb.append(key);
+        sb.append(e.index);
         sb.append(':');
-        sb.append(instances.get(i).get(key));
+        sb.append(e.value);
       }
       sb.append('\n');
     }

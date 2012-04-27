@@ -3,11 +3,8 @@
  */
 package gossipLearning.models;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import gossipLearning.interfaces.Model;
-import gossipLearning.utils.Utils;
+import gossipLearning.utils.SparseVector;
 
 /**
  * @author csko
@@ -17,7 +14,7 @@ import gossipLearning.utils.Utils;
  */
 public class AdalinePerceptron implements Model {
 	/** @hidden */
-	protected Map<Integer, Double> w;
+	protected SparseVector w;
 	protected double age;
 	protected int numberOfClasses = 2;
 	protected double lambda = 3;
@@ -29,10 +26,7 @@ public class AdalinePerceptron implements Model {
 	 */
 	public Object clone() {
 		AdalinePerceptron tmp = new AdalinePerceptron();
-		tmp.w = new TreeMap<Integer, Double>();
-		for (int k : w.keySet()) {
-			tmp.w.put(k, (double) w.get(k));
-		}
+		tmp.w = (SparseVector)w.clone();
 		tmp.age = age;
 		return tmp;
 	}
@@ -40,7 +34,7 @@ public class AdalinePerceptron implements Model {
 	private static final long serialVersionUID = 6040117517300790150L;
 
 	public AdalinePerceptron() {
-		w = new TreeMap<Integer, Double>();
+		w = new SparseVector();
 		age = 0.0;
 	}
 
@@ -54,7 +48,7 @@ public class AdalinePerceptron implements Model {
 	/**
 	 * Performs the update: w_{i+1} = w_i + eta_i * (y - w' * x) * x. 
 	 */
-	public void update(Map<Integer, Double> instance, double label) {
+	public void update(SparseVector instance, double label) {
 	  // convert label
 	  double l = (label == 0.0) ? -1.0 : label;
 	      
@@ -63,26 +57,20 @@ public class AdalinePerceptron implements Model {
 		double rate = 1.0 / age;
 		
 		// Calculate w' * x.
-		double s = Utils.innerProduct(w, instance);
+		double s = w.mul(instance);
 		
 	  // Calculate the update.
-		int max = Utils.findMaxIdx(w, instance);
-	  for (int i = 0; i <= max; i++) {
-      Double wi = w.get(i);
-      double wid = wi == null ? 0.0 : wi.doubleValue();
-      Double xi = instance.get(i);
-      double xid = xi == null ? 0.0 : xi.doubleValue();
-      w.put(i, (1 - rate) * wid + rate / lambda * (l - s) * xid);
-      }
+		w.mul(1 - rate);
+		w.add(instance, rate / lambda * (l - s));
 	}
 
 	@Override
 	/**
 	 * Returns the prediction; signum(w' * x).
 	 */
-	public double predict(Map<Integer, Double> instance) {
+	public double predict(SparseVector instance) {
 		// Calculate w' * x.
-		double s = Utils.innerProduct(w, instance);
+		double s = w.mul(instance);
 	  return s >= 0 ? 1.0 : 0.0; 
 	}
 

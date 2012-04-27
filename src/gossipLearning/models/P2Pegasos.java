@@ -2,11 +2,7 @@ package gossipLearning.models;
 
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.SimilarityComputable;
-import gossipLearning.utils.Utils;
-
-import java.util.Map;
-import java.util.TreeMap;
-
+import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
 public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
@@ -19,7 +15,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   protected double lambda = 0.0001;
   
   /** @hidden */
-  protected Map<Integer, Double> w;
+  protected SparseVector w;
   protected double age;
   protected int numberOfClasses = 2;
   
@@ -27,7 +23,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    * Creates a default model with age=0 and the separating hyperplane is the 0 vector.
    */
   public P2Pegasos(){
-    w = new TreeMap<Integer, Double>();
+    w = new SparseVector();
     age = 0.0;
   }
   
@@ -38,11 +34,8 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    * @param age model age
    * @param lambda learning parameter
    */
-  protected P2Pegasos(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
-    this.w = new TreeMap<Integer, Double>();
-    for (int k : w.keySet()){
-      this.w.put(k, (double)w.get(k));
-    }
+  protected P2Pegasos(SparseVector w, double age, double lambda, int numberOfClasses){
+    this.w = (SparseVector)w.clone();
     this.age = age;
     this.lambda = lambda;
     this.numberOfClasses = numberOfClasses;
@@ -57,7 +50,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    */
   @Override
   public void init(String prefix) {
-    w = new TreeMap<Integer, Double>();
+    w = new SparseVector();
     age = 0.0;
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.0001);
   }
@@ -66,31 +59,17 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    * The official Pegasos update with the specified instances and corresponding label.
    */
   @Override
-  public void update(final Map<Integer, Double> instance, double label) {
+  public void update(final SparseVector instance, double label) {
     label = (label == 0.0) ? -1.0 : label;
     age ++;
     double nu = 1.0 / (lambda * age);
-    boolean isSV = label * Utils.innerProduct(w, instance) < 1.0;
-    int max = Utils.findMaxIdx(w, instance);
-    for (int i = 0; i <= max; i ++) {
-      Double wOldCompD = w.get(i);
-      Double xCompD = instance.get(i);
-      if (wOldCompD != null || xCompD != null) {
-        double wOldComp = (wOldCompD == null) ? 0.0 : wOldCompD.doubleValue();
-        double xComp = (xCompD == null) ? 0.0 : xCompD.doubleValue();
-        if (isSV) {
-          // the current point in the current model is a SV
-          // => applying the SV-based update rule
-          w.put(i, (1.0 - 1.0 / age) * wOldComp + nu * label * xComp);
-        } else {
-          // the current point is not a SV in the currently stored model
-          // => applying the normal update rule
-          if (wOldCompD != null) {
-            w.put(i, (1.0 - 1.0 / age) * wOldComp);
-          }
-        }
-      }
+    boolean isSV = label * w.mul(instance) < 1.0;
+    
+    w.mul(1.0 - 1.0 / age);
+    if (isSV) {
+      w.add(instance, nu * label);
     }
+    
   }
 
   /**
@@ -99,8 +78,8 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    * negative (0.0).
    */
   @Override
-  public double predict(final Map<Integer, Double> instance) {
-    double innerProd = Utils.innerProduct(w, instance);
+  public double predict(final SparseVector instance) {
+    double innerProd = w.mul(instance);
     return innerProd > 0.0 ? 1.0 : 0.0;
   }
 
@@ -109,7 +88,7 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
    */
   @Override
   public double computeSimilarity(final P2Pegasos model) {
-    return Utils.computeSimilarity(w, model.w);
+    return w.cosSim(model.w);
   }
   
   /**

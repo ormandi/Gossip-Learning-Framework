@@ -1,6 +1,8 @@
 package gossipLearning.models.weakLearners;
 
+import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.interfaces.WeakLearner;
+import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
 import java.util.HashMap;
@@ -112,28 +114,28 @@ public class SigmoidStumpLearner extends WeakLearner {
    * In this implementation the index computation of the best feature works in online way.
    */
   @Override
-  public void update(final Map<Integer, Double> instance, final double label, final double[] weigths) {
+  public void update(final SparseVector instance, final double label, final double[] weigths) {
     age ++;
     // compute nu
     //double nu = 1.0 / (double) (age * lambda); // regularized
     
-    for (int j : instance.keySet()){
+    for (VectorEntry e : instance){
       // getting sparse values
-      Double cValueD = cs.get(j);
+      Double cValueD = cs.get(e.index);
       double cj = (cValueD != null) ? cValueD.doubleValue() : 0.1;
-      Double dValueD = ds.get(j);
+      Double dValueD = ds.get(e.index);
       double dj = (dValueD != null) ? dValueD.doubleValue() : 0.0;
-      double[] vsArray = vs.get(j);
+      double[] vsArray = vs.get(e.index);
       if (vsArray == null){
         vsArray = initVJ();
-        vs.put(j, vsArray);
+        vs.put(e.index, vsArray);
       }
-      double xj = instance.get(j).doubleValue();
+      double xj = e.value;
     
       // compute edge for jth index
-      Double edgejD = edges.get(j);
+      Double edgejD = edges.get(e.index);
       double edgej = (edgejD == null) ? 0.0 : edgejD.doubleValue();
-      bestIndex = j;
+      bestIndex = e.index;
       double[] predictions = distributionForInstance(instance);
       
       // update jth edge
@@ -143,7 +145,7 @@ public class SigmoidStumpLearner extends WeakLearner {
         double pl = (predictions[l] >= 0.0) ? 1.0 : -1.0;
         edgeDelta += (pl == yl) ? weigths[l] : -weigths[l];
       }
-      edges.put(j, edgej + edgeDelta);
+      edges.put(e.index, edgej + edgeDelta);
     
       // computing sigmoid value and partial derivation of sigmoid
       double sigmoid = sigmoid(xj, cj, dj);
@@ -167,11 +169,11 @@ public class SigmoidStumpLearner extends WeakLearner {
       // update c and d
       //cj = (1.0 - 1.0 / age) * cj - nu * gradcj; // regularized
       cj -= (1.0 / age) * gradcj;
-      cs.put(j, cj);
+      cs.put(e.index, cj);
       //dj = (1.0 - 1.0 / age) * dj - nu * graddj; // regularized
       dj -= (1.0 / age) * graddj;
-      ds.put(j, dj);
-      vs.put(j, Utils.normalize(vsArray));
+      ds.put(e.index, dj);
+      vs.put(e.index, Utils.normalize(vsArray));
     }
     
     // finding best index based on edges
@@ -190,7 +192,7 @@ public class SigmoidStumpLearner extends WeakLearner {
    */
   private double[] distribution;
   @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     Double xjd = instance.get(bestIndex);
     double xj = (xjd == null) ? 0.0 : xjd.doubleValue();
     Double cjd = cs.get(bestIndex);

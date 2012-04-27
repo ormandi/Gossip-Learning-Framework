@@ -1,7 +1,8 @@
 package gossipLearning.interfaces;
 
+import gossipLearning.utils.SparseVector;
+
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * This interface describes the models that can be used in our system.
@@ -29,14 +30,14 @@ public interface Model extends Serializable, Cloneable {
    * @param instance the features that represent the instance
    * @param label the class label of the training instance or Double.NaN in case of clustering
    */
-  public void update(final Map<Integer, Double> instance, final double label);
+  public void update(final SparseVector instance, final double label);
   
   /**
    * This method can predict the label or the category of a given evaluation instance.
    * @param instance the features that represent the instance
    * @return returns the class label or the category that was predicted by the model
    */
-  public double predict(final Map<Integer, Double> instance);
+  public double predict(final SparseVector instance);
   
   /**
    * Returns the number of classes which were used during the training of this model.

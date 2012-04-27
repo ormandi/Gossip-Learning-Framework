@@ -1,12 +1,12 @@
 package gossipLearning;
 
+import gossipLearning.utils.SparseVector;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -52,7 +52,7 @@ public class DataBaseReader {
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
     }
     //InstanceHolder holder = new InstanceHolder();
-    Vector<Map<Integer,Double>> instances = new Vector<Map<Integer,Double>>();
+    Vector<SparseVector> instances = new Vector<SparseVector>();
     Vector<Double> labels = new Vector<Double>();
     BufferedReader br = new BufferedReader(new FileReader(file));
     int numberOfClasses = -1;
@@ -63,7 +63,7 @@ public class DataBaseReader {
     double label;
     int key;
     double value;
-    Map<Integer, Double> instance;
+    SparseVector instance;
     while ((line = br.readLine()) != null){
       c++;
       // checking whether it is a regression problem or not
@@ -89,7 +89,7 @@ public class DataBaseReader {
         // not a regression problem => the label has to be an integer which is greater or equal than 0 
         throw new RuntimeException("The class label has to be integer and greater or equal than 0, line " + c);
       }
-      instance = new TreeMap<Integer, Double>();
+      instance = new SparseVector(split.length >>> 1);
       for (int i = 1; i < split.length; i += 2){
         key = Integer.parseInt(split[i]) - 1; // index from 0
         if (key < 0){
@@ -99,7 +99,6 @@ public class DataBaseReader {
         instance.put(key, value);
       }
       // storing parsed instance
-      //holder.add(instance, label);
       instances.add(instance);
       labels.add(label);
       

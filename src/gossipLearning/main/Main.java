@@ -9,9 +9,9 @@ import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.modelHolders.BoundedModelHolder;
 import gossipLearning.models.boosting.FilterBoost;
+import gossipLearning.utils.SparseVector;
 
 import java.io.File;
-import java.util.Map;
 import java.util.Random;
 
 import peersim.config.Configuration;
@@ -43,7 +43,7 @@ public class Main {
     AbstractErrorComputator testErrorComputator = new ErrorComputator(reader.getEvalSet(), errorFunction);
     AbstractErrorComputator trainErrorComputator = new ErrorComputator(reader.getTrainingSet(), errorFunction);
     
-    Map<Integer, Double> instance;
+    SparseVector instance;
     double label;
     int prevt = -1;
     System.out.println("#iter\t" + modelName);

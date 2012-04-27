@@ -1,10 +1,11 @@
 package gossipLearning.models.multiClassLearners;
 
 import gossipLearning.interfaces.ProbabilityModel;
+import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.utils.Matrix;
+import gossipLearning.utils.SparseVector;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.TreeMap;
 
 import peersim.config.Configuration;
@@ -168,15 +169,15 @@ public class ANN extends ProbabilityModel {
    * 
    * @param x instance
    */
-  private void adjustInputLayer(Map<Integer,Double> x) {
+  private void adjustInputLayer(SparseVector x) {
     // insert a new column into the first theta matrix for each previously unseen dimension
     
     // FIXME: After debug replace it with sparse version
-    for (int inputDim : x.keySet()) {
+    for (VectorEntry e : x) {
     //for (int inputDim = 0; inputDim < 400; inputDim ++) {
-      if (!sparseDimMap.containsKey(inputDim)) {
+      if (!sparseDimMap.containsKey(e.index)) {
         int matrixDim = thetas[0].getNumberOfColumns();
-        sparseDimMap.put(inputDim, matrixDim);
+        sparseDimMap.put(e.index, matrixDim);
         Matrix newTheta = new Matrix(thetas[0].getNumberOfRows(), thetas[0].getNumberOfColumns() + 1);
         
         // copy existing data
@@ -220,15 +221,15 @@ public class ANN extends ProbabilityModel {
    * @param x training sample on which the propagation is computed
    * @return activations of each layer
    */
-  private Matrix[] computeActivations(Map<Integer,Double> x) {
+  private Matrix[] computeActivations(SparseVector x) {
     // create a[0] i.e. the instance as an output vector
     Matrix[] a = new Matrix[thetas.length + 1];
     a[0] = new Matrix(thetas[0].getNumberOfColumns(), 1);
-    for (int inputDim : x.keySet()) {
-      Integer matrixDimInt = sparseDimMap.get(inputDim);
+    for (VectorEntry e : x) {
+      Integer matrixDimInt = sparseDimMap.get(e.index);
       if (matrixDimInt != null) {
         int matrixDim = matrixDimInt.intValue();
-        a[0].setValue(matrixDim, 0, x.get(inputDim));
+        a[0].setValue(matrixDim, 0, x.get(e.index));
       }
     }
     
@@ -304,7 +305,7 @@ public class ANN extends ProbabilityModel {
   }
   
   @Override
-  public void update(Map<Integer, Double> instance, double label) {
+  public void update(SparseVector instance, double label) {
     // increase age
     age ++;
     
@@ -328,7 +329,7 @@ public class ANN extends ProbabilityModel {
   }
   
   @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     // add bias part
     instance.put(-1, 1.0);
     // perform propagation
@@ -337,11 +338,11 @@ public class ANN extends ProbabilityModel {
     return a[a.length-1].getColumn(0);  // TODO: normalization
   }
   
-  public double computeCostFunction(Map<Integer, Double> x, double label) {
+  public double computeCostFunction(SparseVector x, double label) {
     return computeCostFunction(x, label, lambda);
   }
   
-  public double computeCostFunction(Map<Integer, Double> x, double label, double lv) {
+  public double computeCostFunction(SparseVector x, double label, double lv) {
     // create y
     Matrix y = new Matrix(getNumberOfClasses(), 1);
     y.setValue((int) label, 0, 1.0);

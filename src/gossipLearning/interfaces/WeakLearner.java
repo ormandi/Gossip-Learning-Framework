@@ -1,7 +1,8 @@
 package gossipLearning.interfaces;
 
+import gossipLearning.utils.SparseVector;
+
 import java.util.Arrays;
-import java.util.Map;
 
 /**
  * This class describes a weak learner for boosting algorithms. The weak learners 
@@ -37,7 +38,7 @@ public abstract class WeakLearner extends ProbabilityModel{
   /**
    * Calls the weighted version of update function with initial and uniform weights.
    */
-  public final void update(final Map<Integer, Double> instance, final double label){
+  public final void update(final SparseVector instance, final double label){
     double[] uniformWeights = new double[getNumberOfClasses()];
     Arrays.fill(uniformWeights, 1.0 / (double)getNumberOfClasses());
     update(instance, label, uniformWeights);
@@ -49,5 +50,5 @@ public abstract class WeakLearner extends ProbabilityModel{
    * @param label label of training instance
    * @param weight weights of possible class labels
    */
-  public abstract void update(final Map<Integer, Double> instance, final double label, final double[] weight);
+  public abstract void update(final SparseVector instance, final double label, final double[] weight);
 }

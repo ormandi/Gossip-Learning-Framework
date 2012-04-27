@@ -1,9 +1,7 @@
 package gossipLearning.models;
 
 import gossipLearning.interfaces.Mergeable;
-
-import java.util.Map;
-import java.util.TreeMap;
+import gossipLearning.utils.SparseVector;
 
 /**
  * A mergeable version of the Pegasos algorithm.
@@ -24,7 +22,7 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
    * @param age model age
    * @param lambda learning parameter
    */
-  protected MergeablePegasos(Map<Integer, Double> w, double age, double lambda, int numberOfClasses){
+  protected MergeablePegasos(SparseVector w, double age, double lambda, int numberOfClasses){
     super(w, age, lambda, numberOfClasses);
   }
   
@@ -37,25 +35,12 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
    */
   @Override
   public MergeablePegasos merge(final MergeablePegasos model) {
-    //System.out.print(w + "\t" + model.w);
-    Map<Integer, Double> mergedw = new TreeMap<Integer, Double>();
-    //double age = Math.round((this.age + model.age) / 2.0);
+    SparseVector mergedw = new SparseVector(w);
     double age = Math.max(this.age, model.age);
-    double value;
-    for (int i : w.keySet()){
-      value = w.get(i);
-      if (model.w.containsKey(i)){
-        value += model.w.get(i);
-      }
-      value /= 2.0;
-      mergedw.put(i, value);
-    }
-    for (int i : model.w.keySet()){
-      if (!w.containsKey(i)){
-        mergedw.put(i, (double)model.w.get(i) / 2.0);
-      }
-    }
-    //System.out.println("\t" + mergedw);
+    
+    mergedw.mul(0.5);
+    mergedw.add(model.w, 0.5);
+    
     return new MergeablePegasos(mergedw, age, lambda, numberOfClasses);
   }
 

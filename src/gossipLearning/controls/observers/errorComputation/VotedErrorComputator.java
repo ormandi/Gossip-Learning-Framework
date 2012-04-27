@@ -3,8 +3,7 @@ package gossipLearning.controls.observers.errorComputation;
 import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
-
-import java.util.Map;
+import gossipLearning.utils.SparseVector;
 
 /**
  * This class computes the voted error using the specified error function.
@@ -36,7 +35,7 @@ public class VotedErrorComputator extends AbstractErrorComputator {
         Model model = modelHolder.getModel(modelIdx);
         
         for (int testIdx = 0; testIdx < eval.size(); testIdx ++) {
-          Map<Integer, Double> testInstance = eval.getInstance(testIdx);
+          SparseVector testInstance = eval.getInstance(testIdx);
           double p = model.predict(testInstance);
           if (errorIdx > 0) {
             meanOfPredictions[testIdx] += (p - meanOfPredictions[testIdx]) / (errorIdx + 1);

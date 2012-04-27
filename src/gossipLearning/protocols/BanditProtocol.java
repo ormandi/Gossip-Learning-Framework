@@ -6,13 +6,9 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.modelHolders.BoundedModelHolder;
 import gossipLearning.models.bandits.UCBSZBModel;
-
-import java.util.Map;
-
+import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
-import peersim.core.Network;
-import peersim.core.Node;
 
 public class BanditProtocol extends MultipleLearningProtocol {
   public static final String PAR_WAIT = "numOfWaitingPeriods";
@@ -138,7 +134,7 @@ public class BanditProtocol extends MultipleLearningProtocol {
       // updating the model with only one randomly selected local training sample
       if (instances != null) {
         int sampleID = CommonState.r.nextInt(instances.size());
-        Map<Integer, Double> x = instances.getInstance(sampleID);
+        SparseVector x = instances.getInstance(sampleID);
         double y = instances.getLabel(sampleID);
         model.update(x, y);
       }

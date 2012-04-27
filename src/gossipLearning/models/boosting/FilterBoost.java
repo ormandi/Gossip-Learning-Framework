@@ -5,7 +5,7 @@ import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.modelHolders.BoundedModelHolder;
 import gossipLearning.models.weakLearners.ConstantLearner;
-import gossipLearning.utils.MapComparator;
+import gossipLearning.utils.SparseVector;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class FilterBoost extends ProbabilityModel {
   private double constantWeights;
   private int ct;
   
-  protected Map<Map<Integer, Double>, double[]> cacheDist;
+  protected Map<SparseVector, double[]> cacheDist;
   
   /**
    * Constructs an initial model.<br/>
@@ -59,7 +59,7 @@ public class FilterBoost extends ProbabilityModel {
    */
   public FilterBoost() {
     numberOfClasses = 2;
-    cacheDist = new TreeMap<Map<Integer,Double>, double[]>(new MapComparator<Map<Integer,Double>>());
+    cacheDist = new TreeMap<SparseVector, double[]>();
   }
   
   /**
@@ -118,7 +118,7 @@ public class FilterBoost extends ProbabilityModel {
   protected double counter = 0.0;
   protected double cumulativeError = 1.0;
   @Override
-  public void update(Map<Integer, Double> instance, double label) {
+  public void update(SparseVector instance, double label) {
     if (c == 1){
       // compute the cumulative error and fill strong learner weights with 0
       if (counter == 0) {
@@ -231,7 +231,7 @@ public class FilterBoost extends ProbabilityModel {
    * @param weights weights of labels
    * @return array of [alpha, edge, sumWeigth]
    */
-  private static double[] computeAlpha(double[] distribution, double weakEdge, double weakWeigth, Map<Integer, Double> instance, double label, double[] weights){
+  private static double[] computeAlpha(double[] distribution, double weakEdge, double weakWeigth, SparseVector instance, double label, double[] weights){
     for (int i = 0; i < weights.length; i++) {
       double yl = (label == i) ? 1.0 : -1.0;
       double pl = (distribution[i] < 0.0) ? -1.0 : 1.0;
@@ -271,7 +271,7 @@ public class FilterBoost extends ProbabilityModel {
    * @param label label index
    * @return weight vector
    */
-  private double[] getWeights(Map<Integer, Double> instance, double label) {
+  private double[] getWeights(SparseVector instance, double label) {
     double[] distribution = distributionForInstance(instance);
     return getWeights(distribution, label);
   }
@@ -283,7 +283,7 @@ public class FilterBoost extends ProbabilityModel {
    * @param instance compute the distribution for
    * @return computed distribution
    */
-  private double[] cacheDistributionForInstance(Map<Integer, Double> instance) {
+  private double[] cacheDistributionForInstance(SparseVector instance) {
     double[] distribution = cacheDist.get(instance);
     if (distribution != null) {
       return distribution;
@@ -300,7 +300,7 @@ public class FilterBoost extends ProbabilityModel {
    * @return computed class distribution
    */
   private double[] distribution_qqq;
-  private double[] computeDistributionForInstance(Map<Integer, Double> instance) {
+  private double[] computeDistributionForInstance(SparseVector instance) {
     if (distribution_qqq == null) {
       distribution_qqq = new double[numberOfClasses];
     }
@@ -318,7 +318,7 @@ public class FilterBoost extends ProbabilityModel {
   }
   
   @Override
-  public double[] distributionForInstance(Map<Integer, Double> instance) {
+  public double[] distributionForInstance(SparseVector instance) {
     // in case of fully online manner
     return computeDistributionForInstance(instance);
     // using cached and updated class distributions
@@ -333,7 +333,7 @@ public class FilterBoost extends ProbabilityModel {
     strongLearner.add((WeakLearner)model);
     double[] distribution;
     double[] cachedDistribution;
-    for (Map<Integer, Double> instance : cacheDist.keySet()) {
+    for (SparseVector instance : cacheDist.keySet()) {
       distribution = model.distributionForInstance(instance);
       cachedDistribution = cacheDist.get(instance);
       for (int i = 0; i < distribution.length; i++) {
@@ -350,7 +350,7 @@ public class FilterBoost extends ProbabilityModel {
     WeakLearner model = (WeakLearner)strongLearner.remove(index);
     double[] distribution;
     double[] cachedDistribution;
-    for (Map<Integer, Double> instance : cacheDist.keySet()) {
+    for (SparseVector instance : cacheDist.keySet()) {
       distribution = model.distributionForInstance(instance);
       cachedDistribution = cacheDist.get(instance);
       for (int i = 0; i < distribution.length; i++) {
