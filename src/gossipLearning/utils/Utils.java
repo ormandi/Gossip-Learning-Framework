@@ -212,7 +212,7 @@ public class Utils {
     }
     return result;
   }
-  
+  /*
   public static double[] autoCorrelate(BoundedQueue<Double> array) {
     double[] result = new double[array.size()];
     Arrays.fill(result, 0.0);
@@ -240,7 +240,7 @@ public class Utils {
     }
     return result;
   }
-  
+  */
   public static double computeSimilarity(double[] a, double[] b) {
     if (a.length != b.length) {
       throw new RuntimeException("Parameters have different sizes:" + a.length + " and " + b.length);
