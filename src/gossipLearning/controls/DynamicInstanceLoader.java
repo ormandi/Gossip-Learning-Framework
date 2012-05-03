@@ -65,16 +65,35 @@ public class DynamicInstanceLoader extends InstanceLoader {
   /**
    * Sets a new instance for nodes as the training set.
    */
-  private void changeInstances(int n){
+  private void changeInstances(double n){
     InstanceHolder instanceHolder;
     int sampleIndex;
+    int numSamples = (int)Math.floor(n);
+    int inc = 0;
     for (int nId = 0; nId < Network.size(); nId++){
       instanceHolder = ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).getInstanceHolder();
+      if (instanceHolder == null) {
+        instanceHolder = new InstanceHolder(2);
+        ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).setInstenceHolder(instanceHolder);
+      }
+      if (CommonState.r.nextDouble() < n - numSamples) {
+        inc = 1;
+      } else {
+        inc = 0;
+      }
+      if (numSamples + inc > 0) {
+        instanceHolder.clear();
+        for (int i = 0; i < numSamples + inc; i++) {
+          sampleIndex = CommonState.r.nextInt(reader.getTrainingSet().size());
+          instanceHolder.add(reader.getTrainingSet().getInstance(sampleIndex), reader.getTrainingSet().getLabel(sampleIndex));
+        }
+      }
+      /*instanceHolder = ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).getInstanceHolder();
       instanceHolder.clear();
       for (int i = 0; i < n ; i++) {
         sampleIndex = CommonState.r.nextInt(reader.getTrainingSet().size());
         instanceHolder.add(reader.getTrainingSet().getInstance(sampleIndex), reader.getTrainingSet().getLabel(sampleIndex));
-      }
+      }*/
     }
   }
   
@@ -126,7 +145,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
     if (i == 0){
       super.execute();
       // at the first time set an instance for nodes and evaluate them
-      changeInstances(1);
+      changeInstances(1.0);
       eval();
     }
     
@@ -151,14 +170,15 @@ public class DynamicInstanceLoader extends InstanceLoader {
     
     double prevSampleTime = evalsPerTick * samplesPerEval * i;
     double actualSampleTime = evalsPerTick * samplesPerEval * (i + 1);
-    boolean isIncomingSample = Math.floor(actualSampleTime) - Math.floor(prevSampleTime) > 0.0;
-    double numOfIncomingSamples = Math.floor(actualSampleTime) - Math.floor(prevSampleTime);
+    //boolean isIncomingSample = Math.floor(actualSampleTime) - Math.floor(prevSampleTime) > 0.0;
+    //double numOfIncomingSamples = Math.floor(actualSampleTime) - Math.floor(prevSampleTime);
+    double amountOfIncomingSamples = actualSampleTime - prevSampleTime;
     
-    if (isIncomingSample){
+    //if (isIncomingSample){
       // change samples on nodes
-      changeInstances((int)numOfIncomingSamples);
+      changeInstances(amountOfIncomingSamples);
       //System.out.println("NEW INSATNCE");
-    }
+    //}
     if (isEval){
       // evaluates the models on nodes
       eval();
