@@ -40,8 +40,8 @@ the project.)
 * __running a predefined simulation__: To run a simulation applying one of the predefined scenario on the 
 [Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
 following code snippet `res/script/run.sh training_db evaluation_db 100 scenario result` 
-(assuming a standard unix environment with java and
-gnuplot installed). 
+(assuming a standard unix environment with installed java and
+gnuplot). 
 The parameters of the `run.sh` are pretty intuitives and you can find examples in the package.
 The first two parameters refer to the training and evaluation databases respectively presented in [SVMLight
 format](http://svmlight.joachims.org/). You can use the `res/db/iris_setosa_versicolor_train.dat` and 
@@ -50,8 +50,7 @@ number of iterations. The fourth one describes the simulation environment.
 Basically this is [Peersim](http://peersim.sourceforge.net/) 
 config file template (config file with some variables that are 
 instantiated based on the used training set). Here you can use 
-`res/config/no_failure_applying_more_learners_voting10.txt` or 
-`res/config/extreme_failures_applying_more_learners_voting10.txt` configuration files.
+`res/config/no_failure_applying_more_learners_voting10.txt` configuration file.
 The results are generated in the *results* subdirectory given in the fifth parameter 
 (it has to be created before the call of `run.sh`). 
 Make sure to delete previously generated results before you rerun the simulation!
