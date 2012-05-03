@@ -43,13 +43,11 @@ configuration templates (*config* subdirectory).
 To run a simulation applying one of the predefined scenario on the Iris dataset
 you have to type (assuming a standard unix environment with installed java and
 gnuplot)
-
       mkdir results
       ln -s res/db/iris_setosa_versicolor_train.dat training_db
       ln -s res/db/iris_setosa_versicolor_eval.dat evaluation_db
       ln -s res/config/no_failure_applying_more_learners_voting10.txt scenario
-      res/script/run.sh training_db evaluation_db 100 scenario result 
-
+      res/script/run.sh training_db evaluation_db 100 scenario result
 in the root directory of the project. (Note that the first four line create some shortcuts 
 to other files so they are optional and have to be typed in the first time
 only.) 
