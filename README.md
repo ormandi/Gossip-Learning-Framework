@@ -40,17 +40,10 @@ the project.)
 * __running a predefined simulation__: In the *res* directory of the
 project you can find some training datasets (*db* subdirectory) and some
 configuration templates (*config* subdirectory). 
-To run a simulation applying one of the predefined scenario on the Iris dataset
-you have to type (assuming a standard unix environment with installed java and
-gnuplot)
-
-	mkdir results
-	ln -s res/db/iris_setosa_versicolor_train.dat training_db
-	ln -s res/db/iris_setosa_versicolor_eval.dat evaluation_db
-	ln -s res/config/no_failure_applying_more_learners_voting10.txt scenario
-	res/script/run.sh training_db evaluation_db 100 scenario result
-
-in the root directory of the project. (Note that the first four line create some shortcuts 
+To run a simulation applying one of the predefined scenario on the 
+[Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
+following code snippet below (assuming a standard unix environment with installed java and
+gnuplot) in the root directory of the project. (Note that the first four line create some shortcuts 
 to other files so they are optional and have to be typed in the first time
 only.) 
 The parameters of the `run.sh` are pretty intuitives. The first two refers to the
@@ -62,6 +55,12 @@ config file template (config file with some variables that are
 instantiated based on the used training set).
 The results are generated in the *results* subdirectory. Make sure to delete
 them before you rerun the simulation!
+
+	mkdir results
+	ln -s res/db/iris_setosa_versicolor_train.dat training_db
+	ln -s res/db/iris_setosa_versicolor_eval.dat evaluation_db
+	ln -s res/config/no_failure_applying_more_learners_voting10.txt scenario
+	res/script/run.sh training_db evaluation_db 100 scenario result
 
 * __understanding the results__: The result charts can be found in the
 *results* subdirectory of the project's. It should be similar to
