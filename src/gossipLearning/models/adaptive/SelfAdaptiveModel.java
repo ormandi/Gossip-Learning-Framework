@@ -18,16 +18,16 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
   private static final double wsize = 100;
   private static final double alpha = 2.0/(wsize);
   private static LogNormalRandom r;
-  private String prefix;
-  private int numberOfClasses;
+  protected String prefix;
+  protected int numberOfClasses;
   
-  private Model model;
-  private double maximalAge;
-  private double age;
-  private String modelName;
-  private double meanError;
-  private double sqMeanError;
-  private double confidence;
+  protected Model model;
+  protected double maximalAge;
+  protected double age;
+  protected String modelName;
+  protected double meanError;
+  protected double sqMeanError;
+  protected double confidence;
 
   public SelfAdaptiveModel() {
     age = 2.0;
@@ -43,6 +43,7 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
     if (a.modelName != null) {
       modelName = new String(a.modelName);
     }
+    prefix = a.prefix;
     numberOfClasses = a.numberOfClasses;
     age = a.age;
     maximalAge = a.maximalAge;
