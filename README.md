@@ -56,11 +56,17 @@ instantiated based on the used training set).
 The results are generated in the *results* subdirectory. Make sure to delete
 them before you rerun the simulation!
 
+	
 	mkdir results
+	
 	ln -s res/db/iris_setosa_versicolor_train.dat training_db
+	
 	ln -s res/db/iris_setosa_versicolor_eval.dat evaluation_db
+	
 	ln -s res/config/no_failure_applying_more_learners_voting10.txt scenario
+	
 	res/script/run.sh training_db evaluation_db 100 scenario result
+	
 
 * __understanding the results__: The result charts can be found in the
 *results* subdirectory of the project's. It should be similar to
