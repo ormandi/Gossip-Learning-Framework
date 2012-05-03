@@ -46,7 +46,7 @@ following code snippet `res/script/run.sh training_db evaluation_db 100 scenario
 (assuming a standard unix environment with installed java and
 gnuplot) in the root directory of the project. 
 The parameters of the `run.sh` are pretty intuitives and you can find examples in the package.
-The first two refers to the training and evaluation databases respectively presented in [SVMLight
+The first two parameters refers to the training and evaluation databases respectively presented in [SVMLight
 format](http://svmlight.joachims.org/). You can use the `res/db/iris_setosa_versicolor_train.dat` and 
 `res/db/iris_setosa_versicolor_eval.dat` files respectively. The third parameters defines the
 number of iterations. The fourth one describes the simulation environment.
