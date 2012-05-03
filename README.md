@@ -41,11 +41,27 @@ the project.)
 project you can find some training datasets (*db* subdirectory) and some
 configuration templates (*config* subdirectory). 
 To run a simulation applying one of the predefined scenario on the Iris dataset
-you have to type `mkdir results && res/script/run.sh
-res/db/iris_setosa_versicolor_train.dat res/db/iris_setosa_versicolor_eval.dat
-100 res/config/no_failure_applying_more_learners_voting10.txt results`
-in the root directory of the project which generates the results as charts in 
-the *results* subdirectory.
+you have to type (assuming a standard unix environment with installed java and
+gnuplot)
+
+      mkdir results
+      ln -s res/db/iris_setosa_versicolor_train.dat training_db
+      ln -s res/db/iris_setosa_versicolor_eval.dat evaluation_db
+      ln -s res/config/no_failure_applying_more_learners_voting10.txt scenario
+      res/script/run.sh training_db evaluation_db 100 scenario result 
+
+in the root directory of the project. (Note that the first four line create some shortcuts 
+to other files so they are optional and have to be typed in the first time
+only.) 
+The parameters of the `run.sh` are pretty intuitives. The first two refers to the
+training and evaluation databases respectively presented in [SVMLight
+format](http://svmlight.joachims.org/). The third parameters defines the
+numbero of iterations. The fourth one describes the simulation environment.
+Basically this is [Peersim](http://peersim.sourceforge.net/) 
+config file template (config file with some variables that are 
+instantiated based on the used training set).
+The results are generated in the *results* subdirectory. Make sure to delete
+them before you rerun the simulation!
 
 * __understanding the results__: The result charts can be found in the
 *results* subdirectory of the project's. It should be similar to
