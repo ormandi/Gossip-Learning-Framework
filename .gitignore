@@ -1,5 +1,13 @@
 bin/
 build/
 doc/
+res/script/results
 .classpath
 .project
+*.class
+
+# vim
+.*.sw[a-z]
+*.un~
+Session.vim
+
