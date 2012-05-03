@@ -42,31 +42,22 @@ project you can find some training datasets (*db* subdirectory) and some
 configuration templates (*config* subdirectory). 
 To run a simulation applying one of the predefined scenario on the 
 [Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
-following code snippet below (assuming a standard unix environment with installed java and
-gnuplot) in the root directory of the project. (Note that the first four line create some shortcuts 
-to other files so they are optional and have to be typed in the first time
-only.) 
-The parameters of the `run.sh` are pretty intuitives. The first two refers to the
-training and evaluation databases respectively presented in [SVMLight
-format](http://svmlight.joachims.org/). The third parameters defines the
-numbero of iterations. The fourth one describes the simulation environment.
+following code snippet `res/script/run.sh training_db evaluation_db 100 scenario result` 
+(assuming a standard unix environment with installed java and
+gnuplot) in the root directory of the project. 
+The parameters of the `run.sh` are pretty intuitives and you can find examples in the package.
+The first two refers to the training and evaluation databases respectively presented in [SVMLight
+format](http://svmlight.joachims.org/). You can use the `res/db/iris_setosa_versicolor_train.dat` and 
+`res/db/iris_setosa_versicolor_eval.dat` files respectively. The third parameters defines the
+number of iterations. The fourth one describes the simulation environment.
 Basically this is [Peersim](http://peersim.sourceforge.net/) 
 config file template (config file with some variables that are 
-instantiated based on the used training set).
-The results are generated in the *results* subdirectory. Make sure to delete
-them before you rerun the simulation!
-
-	
-	mkdir results
-	
-	ln -s res/db/iris_setosa_versicolor_train.dat training_db
-	
-	ln -s res/db/iris_setosa_versicolor_eval.dat evaluation_db
-	
-	ln -s res/config/no_failure_applying_more_learners_voting10.txt scenario
-	
-	res/script/run.sh training_db evaluation_db 100 scenario result
-	
+instantiated based on the used training set). Here you can use 
+`res/config/no_failure_applying_more_learners_voting10.txt` or 
+`res/config/extreme_failures_applying_more_learners_voting10.txt` configuration file.
+The results are generated in the *results* subdirectory given in the fifth parameter 
+(it has to be created before the call of `run.sh`). 
+Make sure to delete previously generated results before you rerun the simulation!
 
 * __understanding the results__: The result charts can be found in the
 *results* subdirectory of the project's. It should be similar to
