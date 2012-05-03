@@ -37,14 +37,11 @@ directory of the project. (All of the libraries which are necessary for
 building or running the project are included in the *lib* directory of
 the project.)
 
-* __running a predefined simulation__: In the *res* directory of the
-project you can find some training datasets (*db* subdirectory) and some
-configuration templates (*config* subdirectory). 
-To run a simulation applying one of the predefined scenario on the 
+* __running a predefined simulation__: To run a simulation applying one of the predefined scenario on the 
 [Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
 following code snippet `res/script/run.sh training_db evaluation_db 100 scenario result` 
-(assuming a standard unix environment with installed java and
-gnuplot) in the root directory of the project. 
+(assuming a standard unix environment with java and
+gnuplot installed). 
 The parameters of the `run.sh` are pretty intuitives and you can find examples in the package.
 The first two parameters refer to the training and evaluation databases respectively presented in [SVMLight
 format](http://svmlight.joachims.org/). You can use the `res/db/iris_setosa_versicolor_train.dat` and 
@@ -58,6 +55,9 @@ instantiated based on the used training set). Here you can use
 The results are generated in the *results* subdirectory given in the fifth parameter 
 (it has to be created before the call of `run.sh`). 
 Make sure to delete previously generated results before you rerun the simulation!
+In the *res* directory of the
+project you can find additional training datasets (*db* subdirectory) and other
+configuration templates (*config* subdirectory). 
 
 * __understanding the results__: The result charts can be found in the
 *results* subdirectory of the project's. It should be similar to
