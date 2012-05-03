@@ -23,13 +23,13 @@ public class MultiLogReg extends ProbabilityModel {
   /**
    * The learning parameter is 0.0001 by default.
    */
-  private static final String PAR_LAMBDA = "MLR.lambda";
-  private double lambda = 0.0001;
+  protected static final String PAR_LAMBDA = "lambda";
+  protected double lambda = 0.0001;
   
-  private SparseVector[] w;
-  private double[] bias;
-  private double age;
-  private int numberOfClasses = 2;
+  protected SparseVector[] w;
+  protected double[] bias;
+  protected double age;
+  protected int numberOfClasses = 2;
 
   /**
    * Constructs a default multi-class logistic regression. <br/>
