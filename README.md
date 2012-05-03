@@ -39,16 +39,16 @@ the project.)
 
 * __running a predefined simulation__: In the *res* directory of the
 project you can find some training datasets (*db* subdirectory) and some
-configuration files (*config* subdirectory) which define exactly the
-same environment that was used in [this paper](http://arxiv.org/abs/1109.1396) and was called *AF* meaning
-'all failure'. To run a simulation in this environment on the Iris dataset
-you have to type `../res/script/run.sh ../res/config/iris_setosa_versicolor.txt`
-in the *bin* directory of the project which generates the result as a
-chart in the *results* subdirectory.
+configuration templates (*config* subdirectory). 
+To run a simulation applying one of the predefined scenario on the Iris dataset
+you have to type `mkdir results && res/script/run.sh
+res/db/iris_setosa_versicolor_train.dat res/db/iris_setosa_versicolor_eval.dat
+100 res/config/no_failure_applying_more_learners_voting10.txt results`
+in the root directory of the project which generates the results as charts in 
+the *results* subdirectory.
 
-* __understanding the results__: The result chart can be found in the
-*results* subdirectory of the *bin* directory on name
-*iris_setosa_versicolor.png*. It should be similar to
+* __understanding the results__: The result charts can be found in the
+*results* subdirectory of the project's. It should be similar to
 [this](http://www.inf.u-szeged.hu/rgai/~ormandi/iris_setosa_versicolor.png)
 figure. Each curve belongs to a certain type of learning algorithm
 (see labels) and each point of the curves corresponds to a time moment
