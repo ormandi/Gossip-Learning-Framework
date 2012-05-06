@@ -48,6 +48,8 @@ public class BaseLine {
   private List<Model>[] localModelCache;
   private List<Model>[] cacheModelCache;
   
+  protected int numOfClasses = 2;
+  
   @SuppressWarnings("unchecked")
   public BaseLine(long numOfEvals, double driftsPerEval, double samplesPerEval, double asyncRate, int dimension, int numOfInstances, boolean isSudden, boolean isNoise, int numOfLearners) throws Exception {
     r = new Random(seed);
@@ -70,28 +72,28 @@ public class BaseLine {
     from = new double[dimension];
     to = new double[dimension];
     w = new SparseVector(dimension);
-    training = new InstanceHolder(2);
-    evaluation = new InstanceHolder(2);
+    training = new InstanceHolder(numOfClasses);
+    evaluation = new InstanceHolder(numOfClasses);
     
     isClear = new boolean[numOfLearners];
     Arrays.fill(isClear, false);
     classifiers = new Model[numOfLearners];
     globalClassifier = (Model)Class.forName(modelName).newInstance();
-    globalClassifier.setNumberOfClasses(2);
+    globalClassifier.setNumberOfClasses(numOfClasses);
     cacheClassifiers = new Model[numOfLearners];
     localTrainSets = new InstanceHolder[numOfLearners];
-    globalTrainSet = new InstanceHolder(2);
+    globalTrainSet = new InstanceHolder(numOfClasses);
     cacheTrainSets = new InstanceHolder[numOfLearners];
     
     localModelCache = new List[numOfLearners];
     cacheModelCache = new List[numOfLearners];
     for (int i = 0; i < numOfLearners; i++){
       classifiers[i] = (Model)Class.forName(modelName).newInstance();
-      classifiers[i].setNumberOfClasses(2);
+      classifiers[i].setNumberOfClasses(numOfClasses);
       cacheClassifiers[i] = (Model)Class.forName(modelName).newInstance();
-      cacheClassifiers[i].setNumberOfClasses(2);
-      localTrainSets[i] = new InstanceHolder(2);
-      cacheTrainSets[i] = new InstanceHolder(2);
+      cacheClassifiers[i].setNumberOfClasses(numOfClasses);
+      localTrainSets[i] = new InstanceHolder(numOfClasses);
+      cacheTrainSets[i] = new InstanceHolder(numOfClasses);
       
       localModelCache[i] = new LinkedList<Model>();
       cacheModelCache[i] = new LinkedList<Model>();
@@ -140,8 +142,8 @@ public class BaseLine {
     
   }
   
-  private double prevAlpha = 0.0;
-  private void changeLabels(double alpha) {
+  protected double prevAlpha = 0.0;
+  protected void changeLabels(double alpha) {
     //System.out.println("CHANGE LABELS " + alpha + " " + prevAlpha);
     if (alpha == prevAlpha) {
       return;
@@ -246,7 +248,7 @@ public class BaseLine {
       // reset learner i
       if (localTrainSets[i].size() > 0){
         classifiers[i] = (Model)Class.forName(modelName).newInstance();
-        classifiers[i].setNumberOfClasses(2);
+        classifiers[i].setNumberOfClasses(numOfClasses);
         // train local model i
         trainModel(classifiers[i], localTrainSets[i]);
         int nodeId = r.nextInt(numOfLearners);
@@ -261,7 +263,7 @@ public class BaseLine {
       // reset cache learner i
       if (isNewCacheSample){
         cacheClassifiers[i] = (Model)Class.forName(modelName).newInstance();
-        cacheClassifiers[i].setNumberOfClasses(2);
+        cacheClassifiers[i].setNumberOfClasses(numOfClasses);
         // train cache model i
         trainModel(cacheClassifiers[i], cacheTrainSets[i]);
       }
@@ -275,7 +277,7 @@ public class BaseLine {
     if (globalTrainSet.size() > 0){
       // reset global learner
       globalClassifier = (Model)Class.forName(modelName).newInstance();
-      globalClassifier.setNumberOfClasses(2);
+      globalClassifier.setNumberOfClasses(numOfClasses);
       // train global model
       trainModel(globalClassifier, globalTrainSet);
       globalTrainSet.clear();

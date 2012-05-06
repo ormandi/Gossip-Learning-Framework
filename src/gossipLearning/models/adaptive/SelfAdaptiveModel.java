@@ -9,10 +9,10 @@ import peersim.config.Configuration;
 public class SelfAdaptiveModel implements ErrorEstimatorModel {
   private static final long serialVersionUID = 3943356691729519672L;
   private static final String PAR_MODELNAME = "model";
-  //private static final double mu = 8;
-  private static final double mu = 8.693147181;
-  //private static final double sigma = 0.5;
-  private static final double sigma = 0.25;
+  private static final double mu = 8.0;
+  //private static final double mu = 8.693147181;
+  private static final double sigma = 0.5;
+  //private static final double sigma = 0.25;
   
   private static final double C = 1.96;
   private static final double wsize = 100;
