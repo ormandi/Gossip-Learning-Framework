@@ -10,43 +10,43 @@ import java.util.List;
 import java.util.Random;
 
 public class BaseLine {
-  private static final long seed = 1234567890;
-  private static final String modelName = "gossipLearning.models.multiClassLearners.MultiLogReg";
+  protected static final long seed = 1234567890;
+  protected static final String modelName = "gossipLearning.models.multiClassLearners.MultiLogReg";
   
-  private final long numOfEvals;
+  protected final long numOfEvals;
   //private final double driftsPerEval;
-  private final double samplesPerEval;
+  protected final double samplesPerEval;
   //private final double asyncRate;
   
-  private final double driftLength;
-  private final double driftLength1;
+  protected final double driftLength;
+  protected final double driftLength1;
   
-  private final int dimension;
+  protected final int dimension;
   protected final int numOfInstances;
-  private final boolean isSudden;
-  private final boolean isNoise;
+  protected final boolean isSudden;
+  protected final boolean isNoise;
   
-  private final int numOfLearners;
+  protected final int numOfLearners;
   
-  private final double[] from;
-  private final double[] to;
-  private SparseVector w;
+  protected final double[] from;
+  protected final double[] to;
+  protected SparseVector w;
   protected InstanceHolder training;
   protected InstanceHolder evaluation;
-  private final Random r;
+  protected final Random r;
   
-  private boolean[] isClear;
-  private Model[] classifiers;
-  private Model globalClassifier;
-  private Model[] cacheClassifiers;
-  private final int cacheLearnerCacheSize = 100;
-  private InstanceHolder[] localTrainSets;
-  private InstanceHolder globalTrainSet;
-  private InstanceHolder[] cacheTrainSets;
-  private boolean isNewCacheSample = true;
+  protected boolean[] isClear;
+  protected Model[] classifiers;
+  protected Model globalClassifier;
+  protected Model[] cacheClassifiers;
+  protected final int cacheLearnerCacheSize = 100;
+  protected InstanceHolder[] localTrainSets;
+  protected InstanceHolder globalTrainSet;
+  protected InstanceHolder[] cacheTrainSets;
+  protected boolean isNewCacheSample = true;
   
-  private List<Model>[] localModelCache;
-  private List<Model>[] cacheModelCache;
+  protected List<Model>[] localModelCache;
+  protected List<Model>[] cacheModelCache;
   
   protected int numOfClasses = 2;
   
@@ -289,11 +289,11 @@ public class BaseLine {
   private void evaluate(int iteration, double alpha) {
     double prediction;
     double cachePrediction;
-    double votedPrediction;
-    double votedCachePrediction;
+    double[] votedPrediction = new double[numOfClasses];
+    double[] votedCachePrediction = new double[numOfClasses];
     double globalPrediction;
-    double delayPrediction;
-    double delayCahcePrediction;
+    double[] delayPrediction = new double[numOfClasses];
+    double[] delayCahcePrediction = new double[numOfClasses];
     
     double error = 0.0;
     double cahceError = 0.0;
@@ -313,54 +313,98 @@ public class BaseLine {
     for (int i = 0; i < evalSize; i++) {
       instance = evaluation.getInstance(i);
       label = evaluation.getLabel(i);
-      votedPrediction = 0.0;
-      votedCachePrediction = 0.0;
+      Arrays.fill(votedPrediction,0.0);
+      Arrays.fill(votedCachePrediction,0.0);
+      //votedPrediction = 0.0;
+      //votedCachePrediction = 0.0;
       
       for (int modelId = 0; modelId < numOfLearners; modelId++) {
         // compute local prediction, error
         prediction = classifiers[modelId].predict(instance);
+        //System.out.println(prediction + " " + label);
         if (prediction != label){
           error ++;
         }
-        votedPrediction += prediction;
         
+        votedPrediction[(int)prediction] ++;
+        //votedPrediction += prediction;
         // compute cache prediction, error
         cachePrediction = cacheClassifiers[modelId].predict(instance);
         if (cachePrediction != label){
           cahceError ++;
         }
-        votedCachePrediction += cachePrediction;
+        votedCachePrediction[(int)cachePrediction] ++;
+        //votedCachePrediction += cachePrediction;
         
         // compute prediction of local cached models
-        delayPrediction = prediction;
+        Arrays.fill(delayPrediction, 0.0);
+        delayPrediction[(int)prediction] ++;
+        //delayPrediction = prediction;
         for (int m = 0; m < localModelCache[modelId].size(); m++){
-          delayPrediction += localModelCache[modelId].get(m).predict(instance);
+          delayPrediction[(int)localModelCache[modelId].get(m).predict(instance)] ++;
+          //delayPrediction += localModelCache[modelId].get(m).predict(instance);
         }
-        delayPrediction = Math.round(delayPrediction / numOfLearners);
-        if (delayPrediction != label){
+        //delayPrediction = Math.round(delayPrediction / numOfLearners);
+        double maxindex = 0;
+        double maxval = 0.0;
+        for (int mi = 0; mi < numOfClasses; mi++) {
+          if (delayPrediction[mi] > maxval) {
+            maxval = delayPrediction[mi];
+            maxindex = mi;
+          }
+        }
+        if (maxindex != label){
           delayError ++;
         }
         
         // compute prediction of cahced cache models
-        delayCahcePrediction = cachePrediction;
+        Arrays.fill(delayCahcePrediction, 0.0);
+        delayCahcePrediction[(int) cachePrediction] ++;
+        //delayCahcePrediction = cachePrediction;
         for (int m = 0; m < cacheModelCache[modelId].size(); m++){
-          delayCahcePrediction += cacheModelCache[modelId].get(m).predict(instance);
+          delayCahcePrediction[(int)cacheModelCache[modelId].get(m).predict(instance)] ++;
+          //delayCahcePrediction += cacheModelCache[modelId].get(m).predict(instance);
         }
-        delayCahcePrediction = Math.round(delayCahcePrediction / numOfLearners);
-        if (delayCahcePrediction != label){
+        //delayCahcePrediction = Math.round(delayCahcePrediction / numOfLearners);
+        maxindex = 0;
+        maxval = 0.0;
+        for (int mi = 0; mi < numOfClasses; mi++) {
+          if (delayCahcePrediction[mi] > maxval) {
+            maxval = delayCahcePrediction[mi];
+            maxindex = mi;
+          }
+        }
+        if (maxindex != label){
           delayCacheError ++;
         }
       }
       
       // compute voted error
-      votedPrediction = Math.round(votedPrediction / numOfLearners);
-      if (votedPrediction != label){
+      //votedPrediction = Math.round(votedPrediction / numOfLearners);
+      double maxindex = 0;
+      double maxval = 0.0;
+      for (int mi = 0; mi < numOfClasses; mi++) {
+        if (votedPrediction[mi] > maxval) {
+          maxval = votedPrediction[mi];
+          maxindex = mi;
+        }
+      }
+      if (maxindex != label){
         votedError ++;
       }
       
       //compute voted cache error
-      votedCachePrediction = Math.round(votedCachePrediction / numOfLearners);
-      if (votedCachePrediction != label){
+      //votedCachePrediction = Math.round(votedCachePrediction / numOfLearners);
+      maxindex = 0;
+      maxval = 0.0;
+      for (int mi = 0; mi < numOfClasses; mi++) {
+        if (votedCachePrediction[mi] > maxval) {
+          maxval = votedCachePrediction[mi];
+          maxindex = mi;
+        }
+      }
+      
+      if (maxindex != label){
         votedCacheError ++;
       }
       
