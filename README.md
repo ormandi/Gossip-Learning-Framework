@@ -40,9 +40,8 @@ the project.)
 * __running a predefined simulation__: To run a simulation applying one of the predefined scenarios on the 
 [Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
 following code snippet: `res/script/run.sh training_db evaluation_db 100 scenario result` 
-(assuming a standard UNIX environment with java and gnuplot installed). 
-
-The parameters of the `run.sh` are pretty intuitive and you can find examples in the package.
+(assuming a standard UNIX environment with java and gnuplot installed).The parameters of the 
+`run.sh` are pretty intuitive and you can find examples in the package.
 The first two parameters refer to the training and evaluation datasets, respectively, presented in [SVMLight
 format](http://svmlight.joachims.org/). You can use the `res/db/iris_setosa_versicolor_train.dat` and 
 `res/db/iris_setosa_versicolor_eval.dat` files respectively. The third parameter defines the
