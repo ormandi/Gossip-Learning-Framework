@@ -37,25 +37,36 @@ directory of the project. (All of the libraries which are necessary for
 building or running the project are included in the *lib* directory of
 the project.)
 
-* __running a predefined simulation__: In the *res* directory of the
-project you can find some training datasets (*db* subdirectory) and some
-configuration files (*config* subdirectory) which define exactly the
-same environment that was used in [this paper](http://arxiv.org/abs/1109.1396) and was called *AF* meaning
-'all failure'. To run a simulation in this environment on the Iris dataset
-you have to type `../res/script/run.sh ../res/config/iris_setosa_versicolor.txt`
-in the *bin* directory of the project which generates the result as a
-chart in the *results* subdirectory.
+* __running a predefined simulation__: To run a simulation applying one of the predefined scenarios on the 
+[Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
+following code snippet: `res/script/run.sh training_db evaluation_db 100 scenario result` 
+(assuming a standard UNIX environment with java and gnuplot installed). 
 
-* __understanding the results__: The result chart can be found in the
-*results* subdirectory of the *bin* directory on name
-*iris_setosa_versicolor.png*. It should be similar to
+The parameters of the `run.sh` are pretty intuitive and you can find examples in the package.
+The first two parameters refer to the training and evaluation datasets, respectively, presented in [SVMLight
+format](http://svmlight.joachims.org/). You can use the `res/db/iris_setosa_versicolor_train.dat` and 
+`res/db/iris_setosa_versicolor_eval.dat` files respectively. The third parameter defines the
+number of iterations. The fourth one describes the simulation environment.
+Basically this is a [Peersim](http://peersim.sourceforge.net/) 
+configuration file template (configuration file with some variables that are 
+instantiated based on the used training set). Here you can use the 
+`res/config/no_failure_applying_more_learners_voting10.txt` configuration file.
+The results are generated in the *res/results* directory given in the fifth parameter 
+(it has to be created before the call of `run.sh`). 
+Make sure to delete previously generated results before you rerun the simulation!
+In the *res* directory of the
+project you can find additional training datasets (*db* subdirectory) and other
+configuration templates (*config* subdirectory). 
+
+* __understanding the results__: The result graphs can be found in the
+*res/results/* directory. It should be similar to
 [this](http://www.inf.u-szeged.hu/rgai/~ormandi/iris_setosa_versicolor.png)
 figure. Each curve belongs to a certain type of learning algorithm
-(see labels) and each point of the curves corresponds to a time moment
-(see label of x-axis). Each point shows the averaged 0-1 error over the
+(see labels) and each point of the curves corresponds to a point in time (see label of x-axis).
+Each point shows the averaged 0-1 error over the
 different machine learning models stored by the nodes of the network
-measured on a separated (i.e. not known by the learning algorithm)
-evaluation set. As you can see each line drops down after a certain point
+measured on a separate (i.e. not known by the learning algorithm)
+evaluation set. As you can see, each line drops down after a certain point
 in time which means each algorithm converges.
 
 This is just the tip of the iceberg since the framework provides an
@@ -89,7 +100,7 @@ is also shown.
 
 *To set up your development environment* you should
 __read our step-by-step guide__ which can be found here specifically
-for Eclipse tIDE.
+for Eclipse IDE.
 
 
 Citation

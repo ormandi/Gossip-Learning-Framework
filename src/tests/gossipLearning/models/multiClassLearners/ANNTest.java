@@ -23,7 +23,7 @@ public class ANNTest  extends TestCase implements Serializable {
   public void setUp() {
     
     if (! isConfigured) {
-      Configuration.setConfig(new ParsedProperties(new String[]{"../res/config/iris_setosa_versicolor_ANN.txt"}));
+      Configuration.setConfig(new ParsedProperties(new String[]{"res/config/no_failure_applying_more_learners_voting10.txt"}));
       isConfigured = true;
     }
     // initialize random
@@ -37,8 +37,8 @@ public class ANNTest  extends TestCase implements Serializable {
    */
   public void testLearning() {
     try {
-      File tFile = new File("../res/db/mnist_mlclass_training.txt");
-      File eFile = new File("../res/db/mnist_mlclass_evaluation.txt");
+      File tFile = new File("res/db/iris_train.dat");
+      File eFile = new File("res/db/iris_eval.dat");
       
       DataBaseReader r = DataBaseReader.createDataBaseReader(tFile, eFile);
       InstanceHolder training = r.getTrainingSet();
@@ -46,7 +46,7 @@ public class ANNTest  extends TestCase implements Serializable {
       
       // initialize learner
       ann = new ANN();
-      ann.setNumberOfClasses(10);
+      ann.setNumberOfClasses(3);
       ann.init("protocol.learningProtocol");
       double cost = Double.MAX_VALUE;
       
@@ -90,7 +90,7 @@ public class ANNTest  extends TestCase implements Serializable {
           System.out.println("" + i + "\t" +trainingCost + "\t" + trainingError + "\t" + evalCost + "\t" + evalError);
           
           // store the evaluation error
-          cost = evalError;
+          cost = trainingCost;
           if (cost < 0.1) {
             break;
           }
