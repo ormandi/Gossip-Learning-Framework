@@ -14,7 +14,8 @@ fi
 export mem="1G"
 export dir=`dirname $0`
 export basedir="${dir}/../.."
-export cp=`find ${basedir}/lib/ -name "*.jar" | awk -v basedir=${basedir} '{printf("%s:",$1);}END{print basedir "/bin/gossipLearning.jar"}'`
+export cpdelim=`java -help | grep -A 1 "classpath" | tail -n 1 | awk '{print $2}'`
+export cp=`find ${basedir}/lib/ -name "*.jar" | awk -v basedir=${basedir} -v cpdelim=${cpdelim} '{printf("%s%s",$1,cpdelim);}END{print basedir "/bin/gossipLearning.jar"}'`
 
 
 if [ -s "${trainingFile}" -a -s "$evaluationFile" -a -s "$config_template" ]; then
