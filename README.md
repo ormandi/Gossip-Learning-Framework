@@ -28,7 +28,9 @@ them you have to perform the following steps:
 
 * __getting the source__: First you have to download the source code of
 the framework. Probably the easiest way to do that is cloning this git
-repository by typing `git clone git://github.com/RobertOrmandi/Gossip-Learning-Framework.git`.
+repository by typing `git clone git://github.com/RobertOrmandi/Gossip-Learning-Framework.git`. 
+Additional possibilities are to download as [zip archive](https://github.com/RobertOrmandi/Gossip-Learning-Framework/zipball/master)
+or as [tar.gz archive](https://github.com/RobertOrmandi/Gossip-Learning-Framework/tarball/master).
 
 * __building it__: The building process is supported with *ant*. To create a jar you have
 to type `ant` in the root directory of the

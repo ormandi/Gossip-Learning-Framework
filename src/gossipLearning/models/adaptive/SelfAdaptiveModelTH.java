@@ -6,6 +6,12 @@ import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
+/**
+ * A type of model, that can handle the drifting concepts using a drift detection 
+ * method that based on the gradient of the historical performance.
+ * @author István Hegedűs
+ *
+ */
 public class SelfAdaptiveModelTH implements Model {
   private static final long serialVersionUID = 3943356691729519672L;
   
@@ -87,9 +93,7 @@ public class SelfAdaptiveModelTH implements Model {
       history.add(1.0);
     }
     if (isCreateNewModel()) {
-      // TODO: reset function for models
-      // model.reset();
-      System.err.println("#NEWMODEL:" + this);
+      //System.err.println("#NEWMODEL:" + this);
       try {
         model = (Model)Class.forName(modelName).newInstance();
       } catch (Exception e) {
@@ -115,7 +119,6 @@ public class SelfAdaptiveModelTH implements Model {
     if (age < historyLength) {
       return false;
     }
-    // TODO: fill this function
     // features: time based performance, derivatives, autocorrelations
     int len = historyLength / 2;
     error = 0.0;
@@ -137,7 +140,6 @@ public class SelfAdaptiveModelTH implements Model {
     }
     error /= history.size();
     ab = regression(errors);
-    //double[] autCorr = Utils.autoCorrelate(history);
     if (ab[0] < 0.0) {
       return false;
     }
@@ -159,11 +161,9 @@ public class SelfAdaptiveModelTH implements Model {
       sumx += (i+1);
       sumy += array[i];
       sum2x += (i+1)*(i+1);
-      //System.out.println((i+1) + "\t" + array[i]);
     }
     a = (array.length * cov - (sumx * sumy)) / (array.length * sum2x - (sumx * sumx));
     b = sumy / array.length - a * sumx / array.length;
-    //System.out.println(a + "\t" + b);
     return new double[]{a*array.length, b};
   }
 
@@ -189,7 +189,6 @@ public class SelfAdaptiveModelTH implements Model {
   
   public String toString() {
     StringBuffer sb = new StringBuffer();
-    //sb.append(age + "," + error + "," + ((ab == null) ? "null" : ab[0]) + "," + history);
     sb.append(((ab == null) ? "null" : ab[0] + "," + ab[1] + ""));
     if (errors == null) {
       sb.append(",null");
@@ -203,20 +202,7 @@ public class SelfAdaptiveModelTH implements Model {
         sb.append(errors[i]);
       }
     }
-    /*if (diffs == null) {
-      sb.append(",null");
-    } else {
-      for (int i = 0; i < diffs.length-1; i++) {
-        if (i == 0) {
-          sb.append(',');
-        } else {
-          sb.append(' ');
-        }
-        sb.append(diffs[i]);
-      }
-    }*/
     return sb.toString();
-    //return ((ab == null) ? "null" : ab[0] + "");
   }
 
 }

@@ -88,12 +88,6 @@ public class DynamicInstanceLoader extends InstanceLoader {
           instanceHolder.add(reader.getTrainingSet().getInstance(sampleIndex), reader.getTrainingSet().getLabel(sampleIndex));
         }
       }
-      /*instanceHolder = ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).getInstanceHolder();
-      instanceHolder.clear();
-      for (int i = 0; i < n ; i++) {
-        sampleIndex = CommonState.r.nextInt(reader.getTrainingSet().size());
-        instanceHolder.add(reader.getTrainingSet().getInstance(sampleIndex), reader.getTrainingSet().getLabel(sampleIndex));
-      }*/
     }
   }
   
@@ -101,16 +95,6 @@ public class DynamicInstanceLoader extends InstanceLoader {
    * Evaluates the models using the specified observer.
    */
   private void eval(){
-    /*double nNew = 0.0;
-    int c = 0;
-    for (int i = 0; i < Network.size(); i++) {
-      LearningProtocol model = (LearningProtocol)((Node) Network.get(i)).getProtocol(pid);
-      for (int mId = 0; mId < model.getModelHolder(0).size(); mId++) {
-        nNew += Double.parseDouble(model.getModelHolder(0).getModel(mId).toString());
-        c++;
-      }
-    }
-    System.out.println("#" + (nNew/c));*/
     for (PredictionObserver observer : observers) {
       observer.execute();
     }
@@ -170,15 +154,10 @@ public class DynamicInstanceLoader extends InstanceLoader {
     
     double prevSampleTime = evalsPerTick * samplesPerEval * i;
     double actualSampleTime = evalsPerTick * samplesPerEval * (i + 1);
-    //boolean isIncomingSample = Math.floor(actualSampleTime) - Math.floor(prevSampleTime) > 0.0;
-    //double numOfIncomingSamples = Math.floor(actualSampleTime) - Math.floor(prevSampleTime);
     double amountOfIncomingSamples = actualSampleTime - prevSampleTime;
     
-    //if (isIncomingSample){
-      // change samples on nodes
-      changeInstances(amountOfIncomingSamples);
-      //System.out.println("NEW INSATNCE");
-    //}
+    changeInstances(amountOfIncomingSamples);
+    
     if (isEval){
       // evaluates the models on nodes
       eval();

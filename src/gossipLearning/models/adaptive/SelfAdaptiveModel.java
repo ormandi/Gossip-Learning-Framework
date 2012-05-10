@@ -6,13 +6,18 @@ import gossipLearning.utils.LogNormalRandom;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
+/**
+ * A type of model, that can handle the drifting concepts through 
+ * keeps divers the age of the models in the network based on 
+ * the predefined life time of the models using renewal process theorems.
+ * @author István Hegedűs
+ *
+ */
 public class SelfAdaptiveModel implements ErrorEstimatorModel {
   private static final long serialVersionUID = 3943356691729519672L;
   private static final String PAR_MODELNAME = "model";
   private static final double mu = 8.0;
-  //private static final double mu = 8.693147181;
   private static final double sigma = 0.5;
-  //private static final double sigma = 0.25;
   
   private static final double C = 1.96;
   private static final double wsize = 100;

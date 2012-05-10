@@ -9,14 +9,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This class models the problem of drifting concepts using the moving hyperplane 
+ * approach and measures the performance of some baseline algorithms. 
+ * Defines samples in the d dimensional unit hypercube and two hypesrplanes 
+ * , go through the origin, that are orthogonal to each other. The concept moves 
+ * between these hyperplanes periodically and specifies the labelling of the samples. 
+ * The move of the hyperplane can be sudden of incremental.
+ * @author István Hegedűs
+ *
+ */
 public class BaseLine {
   protected static final long seed = 1234567890;
   protected static final String modelName = "gossipLearning.models.multiClassLearners.MultiLogReg";
   
   protected final long numOfEvals;
-  //private final double driftsPerEval;
   protected final double samplesPerEval;
-  //private final double asyncRate;
   
   protected final double driftLength;
   protected final double driftLength1;
@@ -54,11 +62,8 @@ public class BaseLine {
   public BaseLine(long numOfEvals, double driftsPerEval, double samplesPerEval, double asyncRate, int dimension, int numOfInstances, boolean isSudden, boolean isNoise, int numOfLearners) throws Exception {
     r = new Random(seed);
     this.numOfEvals = numOfEvals;
-    //this.driftsPerEval = driftsPerEval;
     this.samplesPerEval = samplesPerEval;
-    //this.asyncRate = asyncRate;
     
-    //driftLength = 1.0 / driftsPerEval;
     driftLength = numOfLearners / driftsPerEval;
     driftLength1 = asyncRate * driftLength;
     
@@ -126,7 +131,6 @@ public class BaseLine {
         } else {
           instance.put(d, (r.nextDouble() * 2.0) - 1.0);
         }
-        //instance.put(d, (CommonState.r.nextDouble() * 2.0) - 1.0);
       }
       dotProd = w.mul(instance);
       label = dotProd < 0.0 ? 0.0 : 1.0;
@@ -180,24 +184,6 @@ public class BaseLine {
     //System.err.println("NUMOFLABELCHANGES=" + numOfChanges + "\tSIMILARITY=" + Utils.computeSimilarity(wOld, w) + "\tPOSITIVERATIO=" + numOfPosLabels/numOfInstances);
   }
   
-  /*private void clear(){
-    // clear the local train sets
-    for (int i = 0; i < numOfLearners; i++){
-      localTrainSets[i].clear();
-    }
-    // clear the global train set
-    globalTrainSet.clear();
-  }*/
-  
-  /*private static TreeMap<Integer, Double> cloneMap(Map<Integer, Double> map) {
-    TreeMap<Integer, Double> result = new TreeMap<Integer, Double>();
-    for (int k : map.keySet()) {
-      result.put(k, map.get(k).doubleValue());
-    }
-    
-    return result;
-  }*/
-  
   private void changeInstances(double n) {
     // select a random sample for local and global learners
     int sampleIndex;
@@ -227,12 +213,12 @@ public class BaseLine {
           cacheTrainSets[i].remove(0);
         }
         localTrainSets[i].add((SparseVector)instance.clone(), label);
-        //globalTrainSet.add((SparseVector)instance.clone(), label);
       }
     }
   }
   
   private void trainModel(Model model, InstanceHolder samples) {
+    // selects a random training sample 10 * sampesize times
     double numOfIters = 10 * samples.size();
     SparseVector instance;
     double label;
@@ -315,36 +301,28 @@ public class BaseLine {
       label = evaluation.getLabel(i);
       Arrays.fill(votedPrediction,0.0);
       Arrays.fill(votedCachePrediction,0.0);
-      //votedPrediction = 0.0;
-      //votedCachePrediction = 0.0;
       
       for (int modelId = 0; modelId < numOfLearners; modelId++) {
         // compute local prediction, error
         prediction = classifiers[modelId].predict(instance);
-        //System.out.println(prediction + " " + label);
         if (prediction != label){
           error ++;
         }
         
         votedPrediction[(int)prediction] ++;
-        //votedPrediction += prediction;
         // compute cache prediction, error
         cachePrediction = cacheClassifiers[modelId].predict(instance);
         if (cachePrediction != label){
           cahceError ++;
         }
         votedCachePrediction[(int)cachePrediction] ++;
-        //votedCachePrediction += cachePrediction;
         
         // compute prediction of local cached models
         Arrays.fill(delayPrediction, 0.0);
         delayPrediction[(int)prediction] ++;
-        //delayPrediction = prediction;
         for (int m = 0; m < localModelCache[modelId].size(); m++){
           delayPrediction[(int)localModelCache[modelId].get(m).predict(instance)] ++;
-          //delayPrediction += localModelCache[modelId].get(m).predict(instance);
         }
-        //delayPrediction = Math.round(delayPrediction / numOfLearners);
         double maxindex = 0;
         double maxval = 0.0;
         for (int mi = 0; mi < numOfClasses; mi++) {
@@ -360,12 +338,9 @@ public class BaseLine {
         // compute prediction of cahced cache models
         Arrays.fill(delayCahcePrediction, 0.0);
         delayCahcePrediction[(int) cachePrediction] ++;
-        //delayCahcePrediction = cachePrediction;
         for (int m = 0; m < cacheModelCache[modelId].size(); m++){
           delayCahcePrediction[(int)cacheModelCache[modelId].get(m).predict(instance)] ++;
-          //delayCahcePrediction += cacheModelCache[modelId].get(m).predict(instance);
         }
-        //delayCahcePrediction = Math.round(delayCahcePrediction / numOfLearners);
         maxindex = 0;
         maxval = 0.0;
         for (int mi = 0; mi < numOfClasses; mi++) {
@@ -380,7 +355,6 @@ public class BaseLine {
       }
       
       // compute voted error
-      //votedPrediction = Math.round(votedPrediction / numOfLearners);
       double maxindex = 0;
       double maxval = 0.0;
       for (int mi = 0; mi < numOfClasses; mi++) {
@@ -394,7 +368,6 @@ public class BaseLine {
       }
       
       //compute voted cache error
-      //votedCachePrediction = Math.round(votedCachePrediction / numOfLearners);
       maxindex = 0;
       maxval = 0.0;
       for (int mi = 0; mi < numOfClasses; mi++) {
@@ -455,7 +428,6 @@ public class BaseLine {
         }
       }
       
-      //double evalsPerTick = (double)numOfEvals / (double)CommonState.getEndTime();
       double evalsPerTick = 1.0/numOfLearners;
       
       double prevEvalTime = evalsPerTick * (i - 1);
@@ -464,8 +436,6 @@ public class BaseLine {
       
       double prevSampleTime = evalsPerTick * samplesPerEval * (i - 1);
       double actualSampleTime = evalsPerTick * samplesPerEval * i;
-      //boolean isIncomingSample = Math.floor(actualSampleTime) - Math.floor(prevSampleTime) > 0.0;
-      //double numOfIncomingSamples = Math.floor(actualSampleTime) - Math.floor(prevSampleTime);
       double amountOfIncomingSamples = actualSampleTime - prevSampleTime;
       
       if (isEval){
@@ -473,15 +443,9 @@ public class BaseLine {
         train();
         evaluate(i/numOfLearners, alpha);
         Arrays.fill(isClear, true);
-        //clear();
       }
-      //if (isIncomingSample){
-        // change samples on nodes
-        //for (int s = 0; s < numOfIncomingSamples; s++) {
-          changeInstances(amountOfIncomingSamples);
-          //System.out.println("NEW INSATNCE");
-        //}
-      //}
+      
+      changeInstances(amountOfIncomingSamples);
     }
   }
   

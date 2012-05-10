@@ -238,16 +238,10 @@ public class BaseLineControl implements Control {
     
     double prevSampleTime = evalsPerTick * samplesPerEval * i;
     double actualSampleTime = evalsPerTick * samplesPerEval * (i + 1);
-    //boolean isIncomingSample = Math.floor(actualSampleTime) - Math.floor(prevSampleTime) > 0.0;
-    //double numOfIncomingSamples = Math.floor(actualSampleTime) - Math.floor(prevSampleTime);
     double amountOfIncomingSamples = actualSampleTime - prevSampleTime;
     
-    //if (isIncomingSample){
-      // change samples on nodes
-      //changeInstances((int)numOfIncomingSamples);
-      changeInstances(amountOfIncomingSamples);
-      //System.out.println("NEW INSATNCE");
-    //}
+    changeInstances(amountOfIncomingSamples);
+    
     if (isEval){
       // evaluates the models on nodes
       eval();
