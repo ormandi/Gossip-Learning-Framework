@@ -1,12 +1,11 @@
 #!/bin/bash
 
-export trainingFile="$1"
-export evaluationFile="$2"
-export iter=$3
-export config_template="$4"
+export n=$1
+export iter=$2
+export config_template="$3"
 
-if [ $# -eq 5 -a -d "$5" ]; then
-  export out_dir="$5";
+if [ $# -eq 4 -a -d "$4" ]; then
+  export out_dir="$4";
 else
   export out_dir="."
 fi
@@ -18,10 +17,9 @@ export cpdelim=`java -help | grep -A 1 "classpath" | tail -n 1 | awk '{print $2}
 export cp=`find ${basedir}/lib/ -name "*.jar" | awk -v basedir=${basedir} -v cpdelim=${cpdelim} '{printf("%s%s",$1,cpdelim);}END{print basedir "/bin/gossipLearning.jar"}'`
 
 
-if [ -s "${trainingFile}" -a -s "$evaluationFile" -a -s "$config_template" ]; then
+if [ -s "$config_template" ]; then
   # generate config
-  export n=`cat $trainingFile | wc -l`
-  echo -e "ITERATIONS ${iter}\nNETWORK_SIZE ${n}\nTRAINING_DATABASE $trainingFile\nEVALUATION_DATABASE $evaluationFile" | ${dir}/generate_config.sh $config_template > ${out_dir}/config.txt
+  echo -e "ITERATIONS ${iter}\nNETWORK_SIZE ${n}" | ${dir}/generate_config.sh $config_template > ${out_dir}/config.txt
   
   # run simulation
   nice -n 19 java -Xmx${mem} -cp ${cp} peersim.Simulator ${out_dir}/config.txt | tee ${out_dir}/raw_output.txt
@@ -33,7 +31,7 @@ if [ -s "${trainingFile}" -a -s "$evaluationFile" -a -s "$config_template" ]; th
   export numOfHeaders=`cat ${out_dir}/config.txt | awk '{if ($1 ~ /^control\.[^\.]+$/) {l++;}}END{print l;}'`;
   # replace model names
   cat ${out_dir}/output.txt | awk -v out_dir=${out_dir} -v numOfHeaders=${numOfHeaders} '{lines ++; if (lines <= numOfHeaders) {if (line == 1) {header = $0;} else {header = header "\n" $0;}} else {result=$1; for (i=2; i<=NF; i++) {if ($i ~ /#/) {break;} else {result=result "\t" $i;}}; file=$(i+1); for (j=i+2; j<=NF; j++) {file=file "_" $j;}; gsub("_-_", "_", file); file=out_dir "/" file ".txt"; print result >> file;}}'
-  
+
   # remove temporary files
   rm -Rf ${out_dir}/raw_output.txt ${out_dir}/tmp_names.txt
 
@@ -70,7 +68,7 @@ gptend
       echo -e "\t\"${base_file}\" u 1:2 w l t \"${out_file}\";" >> ${out_dir}/all.gpt
     fi
   done
-
+  
   # create all in one plot
   chmod 755 ${out_dir}/all.gpt
   export currentDir=`pwd`
@@ -79,5 +77,5 @@ gptend
   cd ${currentDir}
 
 else
-  echo "Usage: $0 trainingFile evaluationFile iter config_template [out_dir]" >> "/dev/stderr"
+  echo "Usage: $0 networkSize iter config_template [out_dir]" >> "/dev/stderr"
 fi

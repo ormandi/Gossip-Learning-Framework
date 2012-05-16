@@ -57,6 +57,7 @@ public class PredictionObserver extends GraphObserver {
   /** @hidden */
   private InstanceHolder eval;
   /** @hidden */
+  private static final String PAR_SUFFIX = "suffix";
   private String printSuffix = "";
     
   @SuppressWarnings("unchecked")
@@ -64,6 +65,7 @@ public class PredictionObserver extends GraphObserver {
     super(prefix);
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
     format = Configuration.getString(prefix + "." + PAR_FORMAT, "");
+    printSuffix = Configuration.getString(prefix + "." + PAR_SUFFIX, "");
     
     // create error computator
     String errorComputatorClassName = Configuration.getString(prefix + "." + PAR_EC);
@@ -93,7 +95,7 @@ public class PredictionObserver extends GraphObserver {
     }
     updateGraph();
     if (format.equals("gpt") && CommonState.getTime() == 0) {
-      System.out.println("#iter\tavgavgE\tdevavgE\tmaxAvgE\tminAvgE\t# " + errorComputator.getClass().getCanonicalName() + "[NumOfVotes]" + "\t[HolderIndex]");
+      System.out.println("#iter\tavgavgE\tdevavgE\tmaxAvgE\tminAvgE" + ((printSuffix.length() > 0) ? "\t# " + printSuffix + " ": "\t# ") + errorComputator.getClass().getCanonicalName() + "[NumOfVotes]" + "\t[HolderIndex]");
     }
     
     Vector<Vector<Double>> errorCounter = new Vector<Vector<Double>>();
@@ -155,7 +157,7 @@ public class PredictionObserver extends GraphObserver {
         if (CommonState.getTime() > 0) {
           if (format.equals("gpt")) {
             //System.out.println(CommonState.getTime() + "\t" + Configuration.getLong("simulation.logtime"));
-            System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + avgError.get(i).get(j) + "\t" + devError.get(i).get(j) + "\t" + maxAvgError.get(i).get(j) + "\t" + minAvgError.get(i).get(j) + "\t# " + getClass().getCanonicalName() +  " - " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ((printSuffix.length() > 0) ? "\t# " + printSuffix : ""));
+            System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + avgError.get(i).get(j) + "\t" + devError.get(i).get(j) + "\t" + maxAvgError.get(i).get(j) + "\t" + minAvgError.get(i).get(j) + ((printSuffix.length() > 0) ? "\t# " + printSuffix + " ": "\t# ") +  getClass().getCanonicalName() +  " - " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]");
           } else {
             System.out.println(getClass().getCanonicalName() + " - " + errorComputator.getClass().getCanonicalName() + "[" + j + "]\t[" + i + "]" + ":\tAvgE=" + avgError.get(i).get(j) + "\tDevE=" + devError.get(i).get(j) + "\tMaxE=" + maxAvgError.get(i).get(j) + "\tMinE=" + minAvgError.get(i).get(j) + ((printSuffix.length() > 0) ? "\t# " + printSuffix : "") );
           }

@@ -73,7 +73,7 @@ public class BanditProtocol extends MultipleLearningProtocol {
       clocal = 0;
     }
     if (clocal == numOfWaitingPeriods) {
-      System.out.println("ERR:INJECT");
+      //System.out.println("ERR:INJECT");
       numberOfIncomingModels = 1;
       clocal = 0;
     }
@@ -85,7 +85,7 @@ public class BanditProtocol extends MultipleLearningProtocol {
         // if there is not enough model then not send
         if (numberOfIncomingModels > modelHolders[i].size()) {
           isSend = false;
-          System.out.println("ERR:OUTOF");
+          //System.out.println("ERR:OUTOF");
           continue;
         }
         // store the latest models in a new modelHolder, and remove all but the latest

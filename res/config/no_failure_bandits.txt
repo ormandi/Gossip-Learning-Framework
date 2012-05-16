@@ -16,7 +16,7 @@ NEWSCAST_CACHESIZE 5
 NEWSCAST_FREQ ONLINESIZE/10.0
 
 # Parameters of the learning protocol
-CAPACITY 1
+CAPACITY 10
 DELAY_MEAN ONLINESIZE
 DELAY_VAR ONLINESIZE/10.0
 
@@ -51,7 +51,7 @@ protocol.banditProtocol.modelHolderName gossipLearning.modelHolders.BoundedModel
 protocol.banditProtocol.capacity CAPACITY
 
 protocol.banditProtocol.numOfWaitingPeriods 10
-protocol.banditProtocol.modelNames gossipLearning.models.bandits.UCBModel,gossipLearning.models.bandits.UCBMergeModel,gossipLearning.models.bandits.UCBSZBModel
+protocol.banditProtocol.modelNames gossipLearning.models.bandits.UCBModel,gossipLearning.models.bandits.UCBSZBModel
 
 
 #-------------------- Initializers --------------------
@@ -72,11 +72,19 @@ include.init overlayInit overlayStart banditProtocolStart
 
 
 #-------------------- Observers --------------------
-control.prediction gossipLearning.controls.observers.PredictionObserver
-control.prediction.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditPercComputator
-control.prediction.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
-control.prediction.step LOGTIME
-control.prediction.protocol banditProtocol
-control.prediction.format gpt
+control.prediction1 gossipLearning.controls.observers.PredictionObserver
+control.prediction1.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditPercComputator
+control.prediction1.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction1.step LOGTIME
+control.prediction1.protocol banditProtocol
+control.prediction1.format gpt
+control.prediction1.suffix bestArmHittingProb
 
 
+control.prediction2 gossipLearning.controls.observers.PredictionObserver
+control.prediction2.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditErrorComputator
+control.prediction2.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction2.step LOGTIME
+control.prediction2.protocol banditProtocol
+control.prediction2.format gpt
+control.prediction2.suffix regret
