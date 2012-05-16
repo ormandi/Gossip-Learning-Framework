@@ -5,6 +5,7 @@ package gossipLearning.models;
 
 import gossipLearning.interfaces.Model;
 import gossipLearning.utils.SparseVector;
+import peersim.config.Configuration;
 
 /**
  * @author csko
@@ -13,11 +14,12 @@ import gossipLearning.utils.SparseVector;
  * perceptron can be found in the weakLearners package.
  */
 public class AdalinePerceptron implements Model {
+  protected static final String PAR_LAMBDA = "adaline.lambda";
 	/** @hidden */
 	protected SparseVector w;
 	protected double age;
 	protected int numberOfClasses = 2;
-	protected double lambda = 3;
+	protected double lambda = 0.1;
 
 	/**
 	 * Returns a clone of this object.
@@ -28,6 +30,8 @@ public class AdalinePerceptron implements Model {
 		AdalinePerceptron tmp = new AdalinePerceptron();
 		tmp.w = (SparseVector)w.clone();
 		tmp.age = age;
+    tmp.numberOfClasses = numberOfClasses;
+    tmp.lambda = lambda;
 		return tmp;
 	}
 
@@ -42,6 +46,7 @@ public class AdalinePerceptron implements Model {
 	public void init(String prefix) {
 		// w = 0 in sparse representation.
 		age = 0.0;
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.1);
 	}
 
 	@Override
