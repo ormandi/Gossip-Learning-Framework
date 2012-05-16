@@ -5,7 +5,7 @@ import gossipLearning.utils.SparseVector;
 import java.util.Arrays;
 
 public class UCBModel implements BanditModel {
-private static final long serialVersionUID = 5232458167435240109L;
+  private static final long serialVersionUID = 5232458167435240109L;
 
   /** @hidden */
   protected double[] avgs;
@@ -50,9 +50,9 @@ private static final long serialVersionUID = 5232458167435240109L;
       avgs[i] = GlobalArmModel.playMachine(i);
     }
   }
-
+  
   @Override
-  public void update(SparseVector instance, double label) {
+  public void update() {
     // find best arm
     double ln = Math.sqrt(2.0*Math.log(sumN));
     int max = -1;
@@ -65,11 +65,19 @@ private static final long serialVersionUID = 5232458167435240109L;
       }
     }
     
+    
+    
     // play best arm
     double nu = 1.0 / (1.0 + n[max]);
     avgs[max] = (1.0 - nu) * avgs[max] + nu * GlobalArmModel.playMachine(max);
     n[max] ++;
     sumN ++;
+  }
+  
+  @Override
+  public void update(SparseVector instance, double label) {
+    // update using global arm model
+    update();
   }
 
   @Override

@@ -37,5 +37,10 @@ public class GlobalArmModel {
     }
     return Double.NaN;
   }
+  
+  public static double getDValue() {
+    // TODO: compute d
+    return 0.0;
+  }
 
 }
