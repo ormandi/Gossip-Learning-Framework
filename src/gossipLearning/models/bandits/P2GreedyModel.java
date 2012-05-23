@@ -4,6 +4,7 @@ import gossipLearning.interfaces.Mergeable;
 
 import java.util.Arrays;
 
+import peersim.core.CommonState;
 import peersim.core.Network;
 
 public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2GreedyModel> {
@@ -11,10 +12,10 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
   
   // counters
   protected double[] n;
-  protected double sumN;
+  protected double sumN = 0.0;
   
   // age
-  protected int age;
+  protected long age = 0;
   
   // model
   protected double[] s;
@@ -25,12 +26,14 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
   protected double[] g;
   
   // simulation related values
-  public static double N = (double) Network.size();
   public static double K = (double) GlobalArmModel.numberOfArms();
   public static double d = GlobalArmModel.getDValue();
-  public static double m = Math.log(N)/Math.log(2.0);
+  public static final double c = 6.0; 
   
-  protected P2GreedyModel(int age, double[] n, double sumN, double[] s, double[] w, double[] r, double[] q, double[] f, double[] g){
+  public P2GreedyModel() {
+  }
+  
+  protected P2GreedyModel(long age, double[] n, double sumN, double[] s, double[] w, double[] r, double[] q, double[] f, double[] g){
     // age
     this.age = age;
     
@@ -63,32 +66,99 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     sumN = 0.0;
     
     // model
-    s = new double[GlobalArmModel.numberOfArms()];
-    w = new double[GlobalArmModel.numberOfArms()];
-    r = new double[GlobalArmModel.numberOfArms()];
-    q = new double[GlobalArmModel.numberOfArms()];
-    f = new double[GlobalArmModel.numberOfArms()];
-    g = new double[GlobalArmModel.numberOfArms()];
+    s = Arrays.copyOf(n, n.length);
+    w = Arrays.copyOf(n, n.length);
+    r = Arrays.copyOf(n, n.length);
+    q = Arrays.copyOf(n, n.length);
+    f = Arrays.copyOf(n, n.length);
+    g = Arrays.copyOf(n, n.length);
   }
   
   public void update() {
-    double t = (double) ++age;
-    //double c = ;
     
-    //double eps = 
+    final double N = (double) Network.size();
+    //final double m = Math.log(N)/Math.log(2.0);
+    final double t = (double) ++age;
+    
+    final double eps = c*K/(d*d*t*N*N);
     int I = 0;  // index of the arm which will be played in the current run
     
-    // TODO: update
+    if (t == 1) {
+      I = CommonState.r.nextInt(GlobalArmModel.numberOfArms());
+    } else {
+      final double r = CommonState.r.nextDouble();
+      if (r < eps) {
+        // random
+        I = CommonState.r.nextInt(GlobalArmModel.numberOfArms());
+      } else {
+        // best
+        I = bestArmIdx();
+      }
+      
+    }
+    
+    // play arm I
+    final double xi = GlobalArmModel.playMachine(I);
+    
+    // update
+    if (isPower2(t)) {
+      addAndSetTo0(s, r);
+      addAndSetTo0(w, q);
+      addAndSetTo0(r, f);
+      addAndSetTo0(q, g);
+    }
+    final double mul = N/2.0;
+    f[I] += mul * xi;
+    g[I] += mul;
     
     // update counters
     n[I]++;
     sumN ++;
   }
+  
+  private static void addAndSetTo0(double[] first, double[] second) {
+    final boolean init = first != null && second != null && first.length == second.length;
+    for (int i = 0; init && i < first.length && i < second.length; i ++) {
+      first[i] += second[i];
+      second[i] = 0.0;
+    }
+  }
+  
+  private static boolean isPower2(double t) {
+    final long tl = (long) t;
+    return (tl & (tl - 1)) == 0;
+  }
+  
+  private int bestArmIdx() {
+    int max = -1;
+    double maxV = Double.NEGATIVE_INFINITY;
+    for (int i = 0; i < s.length; i ++) {
+      double v = predict(i);
+      if (v > maxV) {
+        max = i;
+        maxV = v;
+      }
+    }
+    return max;
+  }
 
   @Override
-  public P2GreedyModel merge(P2GreedyModel model) {
-    // TODO Auto-generated method stub
-    return null;
+  public P2GreedyModel merge(P2GreedyModel m) {
+    addAndSetTo0(s, m.s);
+    addAndSetTo0(w, m.w);
+    addAndSetTo0(r, m.r);
+    addAndSetTo0(q, m.q);
+    addAndSetTo0(f, m.f);
+    addAndSetTo0(g, m.g);
+    for (int i = 0; i < s.length; i ++) {
+      s[i] /= 2.0;
+      w[i] /= 2.0;
+      r[i] /= 2.0;
+      q[i] /= 2.0;
+      f[i] /= 2.0;
+      g[i] /= 2.0;
+    }
+    return this;
   }
 
   @Override

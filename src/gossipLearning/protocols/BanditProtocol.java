@@ -137,6 +137,8 @@ public class BanditProtocol extends MultipleLearningProtocol {
         SparseVector x = instances.getInstance(sampleID);
         double y = instances.getLabel(sampleID);
         model.update(x, y);
+      } else {
+        model.update(null, 0.0);
       }
       // stores the updated model
       if (!(model instanceof UCBSZBModel)) {

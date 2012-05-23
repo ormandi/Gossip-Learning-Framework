@@ -40,7 +40,7 @@ public class GlobalArmModel {
   
   public static double getDValue() {
     // TODO: compute d
-    return 0.0;
+    return 0.05;
   }
 
 }

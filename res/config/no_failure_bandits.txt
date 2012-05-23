@@ -51,7 +51,7 @@ protocol.banditProtocol.modelHolderName gossipLearning.modelHolders.BoundedModel
 protocol.banditProtocol.capacity CAPACITY
 
 protocol.banditProtocol.numOfWaitingPeriods 10
-protocol.banditProtocol.modelNames gossipLearning.models.bandits.UCBModel,gossipLearning.models.bandits.UCBSZBModel
+protocol.banditProtocol.modelNames gossipLearning.models.bandits.UCBSZBModel,gossipLearning.models.bandits.P2GreedyModel
 
 
 #-------------------- Initializers --------------------
