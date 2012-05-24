@@ -42,7 +42,7 @@ protocol.overlay.baseFreq NEWSCAST_FREQ
 
 
 #-------------------- Bandit layer(s) --------------------
-protocol.banditProtocol gossipLearning.protocols.BanditProtocol
+protocol.banditProtocol gossipLearning.protocols.SimpleBanditProtocol2SentModels
 protocol.banditProtocol.linkable overlay
 protocol.banditProtocol.transport transport
 protocol.banditProtocol.delayMean DELAY_MEAN
@@ -50,8 +50,7 @@ protocol.banditProtocol.delayVar DELAY_VAR
 protocol.banditProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.banditProtocol.capacity CAPACITY
 
-protocol.banditProtocol.numOfWaitingPeriods 10
-protocol.banditProtocol.modelNames gossipLearning.models.bandits.UCBSZBModel,gossipLearning.models.bandits.P2GreedyModel
+protocol.banditProtocol.modelName gossipLearning.models.bandits.P2GreedyModel
 
 
 #-------------------- Initializers --------------------
