@@ -1,5 +1,5 @@
-C ${ITERATIONS}
-NETWORKSIZE ${NETWORK_SIZE}
+C 100
+NETWORKSIZE 100
 ONLINESIZE NETWORKSIZE
 
 CYCLE C*ONLINESIZE+1
@@ -71,18 +71,14 @@ include.init overlayInit overlayStart banditProtocolStart
 
 
 #-------------------- Observers --------------------
-control.prediction1 gossipLearning.controls.observers.PredictionObserver
-control.prediction1.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditPercComputator
-control.prediction1.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction1 gossipLearning.controls.observers.BanditPrecisionObserver
 control.prediction1.step LOGTIME
 control.prediction1.protocol banditProtocol
 control.prediction1.format gpt
 control.prediction1.suffix bestArmHittingProb
 
 
-control.prediction2 gossipLearning.controls.observers.PredictionObserver
-control.prediction2.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditErrorComputator
-control.prediction2.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction2 gossipLearning.controls.observers.BanditRegretObserver
 control.prediction2.step LOGTIME
 control.prediction2.protocol banditProtocol
 control.prediction2.format gpt

@@ -6,17 +6,29 @@ public class GlobalArmModel {
   private static Random rand;
   private static double[] armParams;
   
+  private static final double slices = 10;
+  private static double d;
+  
   public static void initialize(String prefix) {
     if (rand == null || armParams == null) {
       // TODO: fill from configuration
       //rand = new Random(125689014);
       rand = new Random(System.currentTimeMillis());
-      armParams = new double[]{0.8, 0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8};
+      //armParams = new double[]{0.8, 0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8};
       //armParams = new double[]{0.5, 0.9, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
       //armParams = new double[]{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.0};
       //armParams = new double[]{0.8, 0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8};
       //armParams = new double[]{0.85, 0.9, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85, 0.85};
       //armParams = new double[]{0.8, 0.9, 0.8};
+      //d = 0.05;
+      
+      armParams = new double[(int)slices + 1];
+      int c = 0;
+      for (double i = 0.0; i <= slices; i++) {
+        armParams[c] = (0.8 / slices) * i + 0.1;
+        c++;
+      }
+      d = ((0.8)/slices) * 0.9;
     }   
   }
   
@@ -39,8 +51,7 @@ public class GlobalArmModel {
   }
   
   public static double getDValue() {
-    // TODO: compute d
-    return 0.05;
+    return d;
   }
 
 }

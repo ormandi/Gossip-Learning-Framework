@@ -74,7 +74,7 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     g = Arrays.copyOf(n, n.length);
   }
   
-  public void update() {
+  public int update() {
     
     final double N = (double) Network.size();
     //final double m = Math.log(N)/Math.log(2.0);
@@ -114,6 +114,8 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     // update counters
     n[I]++;
     sumN ++;
+    
+    return I;
   }
   
   private static void addAndSetTo0(double[] first, double[] second) {

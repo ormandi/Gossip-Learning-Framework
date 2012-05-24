@@ -52,7 +52,7 @@ public class UCBModel implements BanditModel {
   }
   
   @Override
-  public void update() {
+  public int update() {
     // find best arm
     double ln = Math.sqrt(2.0*Math.log(sumN));
     int max = -1;
@@ -72,6 +72,7 @@ public class UCBModel implements BanditModel {
     avgs[max] = (1.0 - nu) * avgs[max] + nu * GlobalArmModel.playMachine(max);
     n[max] ++;
     sumN ++;
+    return max;
   }
   
   @Override
