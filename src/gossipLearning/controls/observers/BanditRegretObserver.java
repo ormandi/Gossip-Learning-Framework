@@ -78,7 +78,7 @@ public class BanditRegretObserver extends GraphObserver {
         double expectedValue = GlobalArmModel.getHiddenParameter(maxIdx) * protocol.getSumHits();
         double err = expectedValue - predictedValue;
         avgError += err;
-        devError += err * err;
+        //devError += err * err;
         if (err < minError) {
           minError = err;
         }
@@ -87,9 +87,9 @@ public class BanditRegretObserver extends GraphObserver {
         }
       }
     }
-    avgError /= idxSet.size();
-    devError /= idxSet.size();
-    devError = Math.sqrt(devError - (avgError * avgError));
+    //avgError /= idxSet.size();
+    //devError /= idxSet.size();
+    //devError = Math.sqrt(devError - (avgError * avgError));
     if (CommonState.getTime() > 0) {
       if (format.equals("gpt")) {
         //System.out.println(CommonState.getTime() + "\t" + Configuration.getLong("simulation.logtime"));

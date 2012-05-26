@@ -2,16 +2,20 @@ package gossipLearning.models.bandits;
 
 import java.util.Random;
 
+import peersim.config.Configuration;
+
 public class GlobalArmModel {
-  private static Random rand;
-  private static double[] armParams;
+  private static final String PAR_NUMARMS = "numOfArms";
+  private static Random rand = null;
+  private static double[] armParams = null;
   
-  private static final double slices = 10;
+  private static double slices = 1;
   private static double d;
   
   public static void initialize(String prefix) {
     if (rand == null || armParams == null) {
-      // TODO: fill from configuration
+      int numOfArms = Configuration.getInt(prefix + "." + PAR_NUMARMS);
+      slices = numOfArms -1;
       //rand = new Random(125689014);
       rand = new Random(System.currentTimeMillis());
       //armParams = new double[]{0.8, 0.9, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8};
@@ -28,7 +32,7 @@ public class GlobalArmModel {
         armParams[c] = (0.8 / slices) * i + 0.1;
         c++;
       }
-      d = ((0.8)/slices) * 0.9;
+      d = (0.8 / slices) * 0.9;
     }   
   }
   

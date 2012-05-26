@@ -28,7 +28,7 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
   // simulation related values
   public static double K = (double) GlobalArmModel.numberOfArms();
   public static double d = GlobalArmModel.getDValue();
-  public static final double c = 6.0; 
+  public static double c = 6.0; 
   
   public P2GreedyModel() {
   }
@@ -60,6 +60,9 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     // initialize global arm model
     GlobalArmModel.initialize(prefix);
     
+    c = 1.0/GlobalArmModel.numberOfArms() * Network.size();
+    K = (double) GlobalArmModel.numberOfArms();
+    d = GlobalArmModel.getDValue();
     // initialize counters
     n = new double[GlobalArmModel.numberOfArms()];
     Arrays.fill(n, 0.0);
