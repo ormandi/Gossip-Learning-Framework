@@ -10,6 +10,9 @@ import gossipLearning.models.bandits.GlobalArmModel;
 
 import java.util.Arrays;
 
+import peersim.core.Linkable;
+import peersim.core.Node;
+
 public class SimpleBanditProtocol2SentModels extends SimpleLearningProtocol {
   private final String prefix;
   
@@ -55,9 +58,16 @@ public class SimpleBanditProtocol2SentModels extends SimpleLearningProtocol {
       latestModelHolder.add(latestModel);
       
       // send the latest model to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder));
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder));
+      sendToNeighbor(new ModelMessage(currentNode, latestModelHolder), 0);
+      sendToNeighbor(new ModelMessage(currentNode, latestModelHolder), 1);
     }
+  }
+  
+  protected void sendToNeighbor(ModelMessage message, int i) {
+    message.setSource(currentNode);
+    Linkable overlay = getOverlay();
+    Node randomNode = overlay.getNeighbor(i);
+    getTransport().send(currentNode, randomNode, message, currentProtocolID);
   }
   
   @SuppressWarnings({ "unchecked" })
