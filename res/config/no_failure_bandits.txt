@@ -50,10 +50,7 @@ protocol.banditProtocol.delayVar DELAY_VAR
 protocol.banditProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.banditProtocol.capacity CAPACITY
 
-protocol.banditProtocol.numOfArms 10	# parameter of gloabal arm model
-
-protocol.banditProtocol.modelName gossipLearning.models.bandits.P2GreedySlim
-protocol.banditProtocol.p2greedy.C 0.1
+protocol.banditProtocol.modelName gossipLearning.models.bandits.P2GreedyModel
 
 
 #-------------------- Initializers --------------------
@@ -74,18 +71,14 @@ include.init overlayInit overlayStart banditProtocolStart
 
 
 #-------------------- Observers --------------------
-control.prediction1 gossipLearning.controls.observers.PredictionObserver
-control.prediction1.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditPercComputator
-control.prediction1.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction1 gossipLearning.controls.observers.BanditPrecisionObserver
 control.prediction1.step LOGTIME
 control.prediction1.protocol banditProtocol
 control.prediction1.format gpt
 control.prediction1.suffix bestArmHittingProb
 
 
-control.prediction2 gossipLearning.controls.observers.PredictionObserver
-control.prediction2.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditErrorComputator
-control.prediction2.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction2 gossipLearning.controls.observers.BanditRegretObserver
 control.prediction2.step LOGTIME
 control.prediction2.protocol banditProtocol
 control.prediction2.format gpt
