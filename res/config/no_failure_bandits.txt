@@ -50,7 +50,10 @@ protocol.banditProtocol.delayVar DELAY_VAR
 protocol.banditProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.banditProtocol.capacity CAPACITY
 
-protocol.banditProtocol.modelName gossipLearning.models.bandits.P2GreedyModel
+protocol.banditProtocol.numOfArms 10	# parameter of gloabal arm model
+
+protocol.banditProtocol.modelName gossipLearning.models.bandits.P2GreedySlim
+protocol.banditProtocol.p2greedy.C 0.1
 
 
 #-------------------- Initializers --------------------
