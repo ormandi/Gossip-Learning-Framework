@@ -1,6 +1,7 @@
 package gossipLearning.models.bandits;
 
 import gossipLearning.interfaces.Mergeable;
+import gossipLearning.utils.Utils;
 
 import java.util.Arrays;
 
@@ -27,9 +28,9 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
   protected double[] g;
   
   // simulation related values
-  public static double K = (double) GlobalArmModel.numberOfArms();
-  public static double d = GlobalArmModel.getDValue();
-  public static double c = 6.0; 
+  public static double K;
+  public static double d;
+  public double c; 
   
   public P2GreedyModel() {
   }
@@ -50,7 +51,7 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     this.f = Arrays.copyOf(f, f.length);
     this.g = Arrays.copyOf(g, g.length);
     
-    // param
+    // parameter
     this.c = c;
   }
 
@@ -64,9 +65,10 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     // initialize global arm model
     GlobalArmModel.initialize(prefix);
     
-    c = 1.0/GlobalArmModel.numberOfArms() * Network.size();
+    // initialize static fields
     K = (double) GlobalArmModel.numberOfArms();
     d = GlobalArmModel.getDValue();
+    
     // initialize counters
     n = new double[GlobalArmModel.numberOfArms()];
     Arrays.fill(n, 0.0);
@@ -80,8 +82,8 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     f = Arrays.copyOf(n, n.length);
     g = Arrays.copyOf(n, n.length);
     
-    // param
-    c = Configuration.getDouble(prefix + ".p2greedy.C", 6.0);
+    // parameter
+    c = Configuration.getDouble(prefix + ".p2greedy.C");
   }
   
   public int update() {
@@ -111,7 +113,7 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     final double xi = GlobalArmModel.playMachine(I);
     
     // update
-    if (isPower2(t)) {
+    if (Utils.isPower2(t)) {
       addAndSetTo0(s, r);
       addAndSetTo0(w, q);
       addAndSetTo0(r, f);
@@ -134,11 +136,6 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
       first[i] += second[i];
       second[i] = 0.0;
     }
-  }
-  
-  private static boolean isPower2(double t) {
-    final long tl = (long) t;
-    return (tl & (tl - 1)) == 0;
   }
   
   private int bestArmIdx() {

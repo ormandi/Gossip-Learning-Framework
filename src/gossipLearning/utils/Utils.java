@@ -6,6 +6,11 @@ import java.util.Random;
 import java.util.TreeMap;
 
 public class Utils {
+  public static boolean isPower2(double t) {
+    final long tl = (long) t;
+    return (tl & (tl - 1)) == 0;
+  }
+  
   /**
    * It computes the inner product between the two input vectors.
    *
