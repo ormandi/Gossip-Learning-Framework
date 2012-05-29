@@ -1,11 +1,13 @@
 package gossipLearning.models.bandits;
 
 import gossipLearning.interfaces.Mergeable;
+import gossipLearning.utils.Utils;
 
 import java.util.Arrays;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
+import peersim.core.Network;
 
 public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2GreedySlim> {
   private static final long serialVersionUID = 8312708154569649141L;
@@ -24,8 +26,10 @@ public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2Gre
   protected double q;
   protected double f;
   protected double g;
-  // index of arm
   protected int I;
+  
+  private static P2GreedySlim[] peerToModel = null;
+  private static String prefix;
   
   // simulation related values
   public static double K;
@@ -36,6 +40,21 @@ public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2Gre
   }
   
   protected P2GreedySlim(P2GreedySlim o) {
+    // initialize peer to model mapping
+    if (peerToModel == null) {
+      //System.out.println("Initialize table, with prefix: " + prefix);
+      peerToModel = new P2GreedySlim[Network.size()];
+      for (int i = 0; i < peerToModel.length; i ++) {
+        peerToModel[i] = new P2GreedySlim();
+        peerToModel[i].init(prefix);
+        peerToModel[i].I = i % GlobalArmModel.numberOfArms();
+      }
+      
+      //for (int i = 0; i < peerToModel.length; i ++) {
+      //  System.out.println(i + "\t" + peerToModel[i].I);
+      //}
+    }
+    
     // age
     this.age = o.age;
     
@@ -63,29 +82,86 @@ public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2Gre
   
   @Override
   public int update() {
-    // TODO Auto-generated method stub
-    return 0;
+    final double N = (double) Network.size();
+    final double t = (double) ++age;
+    P2GreedySlim M = getMyModel();
+    
+    final double eps = Math.min(1.0, c*K/(d*d*t*N));
+    int Il = 0;  // index of the arm which will be played in the current run
+    
+    final double r = CommonState.r.nextDouble();
+    if (r < eps) {
+      // random
+      Il = M.I;
+    } else {
+      // best
+      Il = bestArmIdx();
+    }    
+    
+    // play arm I
+    final double xi = GlobalArmModel.playMachine(I);
+    
+    // perform updates
+    if (Il == I) {
+      // the played arm is based on the received model
+      update(xi, c, t);
+      if (I == M.I) {
+        peerToModel[I] = (P2GreedySlim) this.clone();
+        M = getMyModel();
+      } else {
+        M.update(0.0, 0.0, t);
+      }
+    } else {
+      // the played arm is based on the model stored at the current peer
+      M.update(xi, c, t);
+      update(0.0, 0.0, t);
+    }
+    
+    // update counters
+    n[I]++;
+    sumN ++;
+    
+    return I;
+  }
+  
+  private void update(double xi, double c, double t) {
+    if (Utils.isPower2(t)) {
+      s += r;
+      w += q;
+      r = f;
+      q = g;
+      f = 0.0;
+      g = 0.0;
+    }
+    final double mul = ((double)Network.size())/2.0;
+    f += c * mul * xi;
+    g += c * mul;
   }
   
   @Override
   public double predict(int armIdx) {
-    // TODO predict
-    return 0.0;
-    /*
-    if (0 <= armIdx && armIdx < n.length) {
-      if (w[armIdx] != 0.0) {
-        return s[armIdx] / w[armIdx];
-      } else {
-        return 0.0;
-      }
+    final P2GreedySlim m = getMyModel();
+    if (m.I == armIdx && m.w != 0.0) {
+      return m.s / m.w;
+    } else if (I == armIdx && w != 0.0) {
+      return s / w;
     }
-    return Double.NaN;
-    */
+    return 0.0;
+  }
+  
+  private P2GreedySlim getMyModel() {
+    return peerToModel[(int) CommonState.getNode().getID()];
+  }
+  
+  private int bestArmIdx() {
+    final P2GreedySlim m = getMyModel();
+    return (this.predict(this.I) >= m.predict(m.I)) ? this.I : m.I;
   }
   
   @Override
   public void init(String prefix) {
     // initialize global arm model
+    P2GreedySlim.prefix = prefix;
     GlobalArmModel.initialize(prefix);
     
     // initialize static parameters
@@ -109,20 +185,22 @@ public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2Gre
     I = (int) CommonState.getNode().getID() % GlobalArmModel.numberOfArms();
     //System.out.println("Node: " + CommonState.getNode().getID() + ", Arm: " + I);
     
-    
     // parameter
     c = Configuration.getDouble(prefix + ".p2greedy.C");
   }
 
   @Override
   public P2GreedySlim merge(P2GreedySlim m) {
-    s += m.s; s /= 2.0;
-    w += m.w; w /= 2.0;
-    r += m.r; r /= 2.0;
-    q += m.q; q /= 2.0;
-    f += m.f; f /= 2.0;
-    g += m.g; g /= 2.0;
-    return this;
+    if (I == m.I) {
+      s += m.s; s /= 2.0;
+      w += m.w; w /= 2.0;
+      r += m.r; r /= 2.0;
+      q += m.q; q /= 2.0;
+      f += m.f; f /= 2.0;
+      g += m.g; g /= 2.0;
+      return this;
+    }
+    return (this.predict(this.I) >= m.predict(m.I)) ? this : m;
   }
   
   @Override

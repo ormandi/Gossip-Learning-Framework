@@ -1,5 +1,5 @@
-C 2000
-NETWORKSIZE 100
+C ${ITERATIONS}
+NETWORKSIZE ${NETWORK_SIZE}
 ONLINESIZE NETWORKSIZE
 
 CYCLE C*ONLINESIZE+1
@@ -42,7 +42,7 @@ protocol.overlay.baseFreq NEWSCAST_FREQ
 
 
 #-------------------- Bandit layer(s) --------------------
-protocol.banditProtocol gossipLearning.protocols.SimpleBanditProtocol2SentModels
+protocol.banditProtocol gossipLearning.protocols.BanditProtocol
 protocol.banditProtocol.linkable overlay
 protocol.banditProtocol.transport transport
 protocol.banditProtocol.delayMean DELAY_MEAN
@@ -50,10 +50,8 @@ protocol.banditProtocol.delayVar DELAY_VAR
 protocol.banditProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.banditProtocol.capacity CAPACITY
 
-protocol.banditProtocol.numOfArms 10	# parameter of gloabal arm model
-
-protocol.banditProtocol.modelName gossipLearning.models.bandits.P2GreedySlim
-protocol.banditProtocol.p2greedy.C 0.1
+protocol.banditProtocol.numOfWaitingPeriods 10
+protocol.banditProtocol.modelNames gossipLearning.models.bandits.UCBSZBModel,
 
 
 #-------------------- Initializers --------------------

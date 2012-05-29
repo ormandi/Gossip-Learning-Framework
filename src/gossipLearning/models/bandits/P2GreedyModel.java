@@ -92,7 +92,8 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     //final double m = Math.log(N)/Math.log(2.0);
     final double t = (double) ++age;
     
-    final double eps = c*K/(d*d*t*N*N);
+    //final double eps = c*K/(d*d*t*N*N);
+    final double eps = Math.min(1.0, c*K/(d*d*t*N));
     int I = 0;  // index of the arm which will be played in the current run
     
     if (t == 1) {
