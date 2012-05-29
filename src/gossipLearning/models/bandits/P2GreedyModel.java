@@ -4,6 +4,7 @@ import gossipLearning.interfaces.Mergeable;
 
 import java.util.Arrays;
 
+import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 
@@ -33,7 +34,7 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
   public P2GreedyModel() {
   }
   
-  protected P2GreedyModel(long age, double[] n, double sumN, double[] s, double[] w, double[] r, double[] q, double[] f, double[] g){
+  protected P2GreedyModel(long age, double[] n, double sumN, double[] s, double[] w, double[] r, double[] q, double[] f, double[] g, double c){
     // age
     this.age = age;
     
@@ -48,11 +49,14 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     this.q = Arrays.copyOf(q, q.length);
     this.f = Arrays.copyOf(f, f.length);
     this.g = Arrays.copyOf(g, g.length);
+    
+    // param
+    this.c = c;
   }
 
   @Override
   public Object clone() {
-    return new P2GreedyModel(age, n, sumN, s, w, r, q, f, g);
+    return new P2GreedyModel(age, n, sumN, s, w, r, q, f, g, c);
   }
   
   @Override
@@ -75,6 +79,9 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     q = Arrays.copyOf(n, n.length);
     f = Arrays.copyOf(n, n.length);
     g = Arrays.copyOf(n, n.length);
+    
+    // param
+    c = Configuration.getDouble(prefix + ".p2greedy.C", 6.0);
   }
   
   public int update() {
