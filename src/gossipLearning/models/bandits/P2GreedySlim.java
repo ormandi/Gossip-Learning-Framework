@@ -99,7 +99,7 @@ public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2Gre
     }    
     
     // play arm I
-    final double xi = GlobalArmModel.playMachine(I);
+    final double xi = GlobalArmModel.playMachine(Il);
     
     // perform updates
     if (Il == I) {
@@ -149,8 +149,12 @@ public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2Gre
     return 0.0;
   }
   
-  private P2GreedySlim getMyModel() {
+  public P2GreedySlim getMyModel() {
     return peerToModel[(int) CommonState.getNode().getID()];
+  }
+  
+  public int getI() {
+    return this.I;
   }
   
   private int bestArmIdx() {
