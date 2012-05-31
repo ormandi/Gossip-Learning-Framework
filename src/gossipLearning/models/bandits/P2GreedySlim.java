@@ -106,7 +106,7 @@ public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2Gre
       // the played arm is based on the received model
       update(xi, c, t);
       if (I == M.I) {
-        peerToModel[I] = (P2GreedySlim) this.clone();
+        peerToModel[(int) CommonState.getNode().getID()] = (P2GreedySlim) this.clone();
         M = getMyModel();
       } else {
         M.update(0.0, 0.0, t);
