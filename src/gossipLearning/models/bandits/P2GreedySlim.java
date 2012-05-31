@@ -150,7 +150,8 @@ public class P2GreedySlim extends AbstractBanditModel implements Mergeable<P2Gre
   }
   
   public P2GreedySlim getMyModel() {
-    return peerToModel[(int) CommonState.getNode().getID()];
+    final int idx = (int) CommonState.getNode().getID();
+    return (peerToModel != null && 0 <= idx && idx < peerToModel.length) ? peerToModel[idx] : null; 
   }
   
   public int getI() {
