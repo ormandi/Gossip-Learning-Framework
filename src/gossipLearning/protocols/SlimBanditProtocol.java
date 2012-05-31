@@ -40,7 +40,12 @@ public class SlimBanditProtocol extends SimpleBanditProtocol2SentModels {
       
       
       // get the model with higher expected reward
-      final Model M = (latestModel.predict(latestModel.getI()) >= storedModel.predict(storedModel.getI())) ? latestModel : storedModel;
+      Model M = latestModel; 
+      if (storedModel != null) {
+        M = (latestModel.predict(latestModel.getI()) >= storedModel.predict(storedModel.getI())) ? latestModel : storedModel;
+      } else {
+        System.err.println("My model is null!!!");
+      }
       
       ModelHolder sendingModelHolder = new BoundedModelHolder(1);
       sendingModelHolder.add(M);
