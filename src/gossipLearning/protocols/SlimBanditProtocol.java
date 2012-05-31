@@ -28,7 +28,7 @@ public class SlimBanditProtocol extends SimpleBanditProtocol2SentModels {
       
       // check the model stored in the holder
       final Model latestModelG = getModelHolder(0).getModel(getModelHolder(0).size() - 1);
-      if (! (latestModelG instanceof P2GreedyModel)) {
+      if (! (latestModelG instanceof P2GreedySlim)) {
         throw new RuntimeException("This protocol supports only the P2GreedySlim models!!!");
       }
       
