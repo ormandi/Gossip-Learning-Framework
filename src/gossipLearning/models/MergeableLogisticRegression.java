@@ -28,7 +28,7 @@ public class MergeableLogisticRegression extends LogisticRegression implements M
   @Override
   public MergeableLogisticRegression merge(final MergeableLogisticRegression model) {
     SparseVector mergedw = new SparseVector(w);
-    double age = Math.round((this.age + model.age) / 2.0);
+    double age = Math.max(this.age, model.age);
     double bias = (this.bias + model.bias) / 2.0;
     mergedw.mul(0.5);
     mergedw.add(model.w, 0.5);
