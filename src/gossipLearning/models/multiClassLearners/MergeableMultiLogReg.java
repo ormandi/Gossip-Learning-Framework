@@ -38,6 +38,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
       result.w[i].add(model.w[i], 0.5);
       result.bias[i] = (bias[i] + model.bias[i]) / 2.0;
     }
+    result.age = Math.max(age, model.age);
     return result;
   }
 
