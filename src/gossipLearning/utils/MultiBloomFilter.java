@@ -35,7 +35,7 @@ import java.util.Arrays;
  * 
  * The above mentioned implementation was reused for having multi-set bloom filter.
  *
- * @author Magnus Skjegstad <magnus@skjegstad.com>, and István Hegedűs
+ * @author István Hegedűs
  */
 public class MultiBloomFilter implements Serializable {
   private static final long serialVersionUID = -1382642528679993189L;
@@ -68,10 +68,31 @@ public class MultiBloomFilter implements Serializable {
   public MultiBloomFilter(int m, int k) {
     this.k = k;
     this.size = m;
-    Math.log(2);
     this.counters = new double[size];
     numberOfAddedElements = 0.0;
     numberOfDifferentElements = 0.0;
+  }
+  
+  /**
+   * Deep copy constructor.
+   * @param a to be copied
+   */
+  public MultiBloomFilter(MultiBloomFilter a) {
+    this.k = a.k;
+    this.size = a.size;
+    numberOfAddedElements = a.numberOfAddedElements;
+    numberOfDifferentElements = a.numberOfDifferentElements;
+    this.counters = new double[size];
+    for (int i = 0; i < size; i++) {
+      this.counters[i] = a.counters[i];
+    }
+  }
+  
+  /**
+   * Makes a deep copy of the current object.
+   */
+  public Object clone() {
+    return new MultiBloomFilter(this);
   }
 
   /**
