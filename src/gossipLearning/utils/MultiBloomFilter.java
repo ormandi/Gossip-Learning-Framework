@@ -175,6 +175,10 @@ public class MultiBloomFilter implements Serializable {
     add(element.getBytes(charset));
   }
   
+  /**
+   * Adds the specified integer to the filter.
+   * @param element integer to add
+   */
   public void add(int element) {
     byte[] bytes = new byte[] {
         (byte)(element >>> 24),
@@ -215,11 +219,19 @@ public class MultiBloomFilter implements Serializable {
    * @param element element to check.
    * @return true if the element could have been inserted into the Bloom filter.
    */
-  public int contains(String element) {
+  public double contains(String element) {
     return contains(element.getBytes(charset));
   }
   
-  public int contains(int element) {
+  /**
+   * Returns true if the specified element could have been inserted into the Bloom filter.
+   * Use getFalsePositiveProbability() to calculate the probability of this
+   * being correct.
+   * 
+   * @param element integer to check
+   * @return true if the element could have been inserted into the Bloom filter.
+   */
+  public double contains(int element) {
     byte[] bytes = new byte[] {
         (byte)(element >>> 24),
         (byte)(element >>> 16),
@@ -237,7 +249,7 @@ public class MultiBloomFilter implements Serializable {
    * @param bytes array of bytes to check.
    * @return true if the array could have been inserted into the Bloom filter.
    */
-  public int contains(byte[] bytes) {
+  public double contains(byte[] bytes) {
     double occurrences = numberOfAddedElements;
     double counter;
     int[] hashes = createHashes(bytes, k);
@@ -245,7 +257,7 @@ public class MultiBloomFilter implements Serializable {
       counter = counters[Math.abs(hash % size)];
       occurrences = counter < occurrences ? counter : occurrences;
     }
-    return (int)occurrences;
+    return occurrences;
   }
 
   /**
@@ -268,16 +280,33 @@ public class MultiBloomFilter implements Serializable {
     return this.numberOfAddedElements;
   }
   
+  /**
+   * Returns the number of unique elements added to the Bloom filter after it
+   * was constructed or after clear() was called.
+   *
+   * @return number of unique elements added to the Bloom filter.
+   */
+  public double uniqueCount() {
+    return this.numberOfDifferentElements;
+  }
+  
+  /**
+   * Calculate the probability of a false positive given the
+   * number of inserted elements.
+   *
+   * @return probability of a false positive.
+   */
   public double getFalsePositiveProbability() {
     // (1 - e^(-k * n / m)) ^ k
     return Math.pow((1 - Math.exp(-k * numberOfDifferentElements / (double) size)), k);
   }
 
+  /**
+   * Java Map like string representation.
+   */
   public String toString() {
     boolean contains = false;
     StringBuffer sb = new StringBuffer();
-    sb.append(size);
-    sb.append(' ');
     sb.append('{');
     for (int i = 0; i < size; i++) {
       if (counters[i] != 0.0) {
