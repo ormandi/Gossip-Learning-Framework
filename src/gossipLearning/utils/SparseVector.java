@@ -449,6 +449,28 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     }
     return mul(vector) / (norm() * vector.norm());
   }
+  
+  /**
+   * Computes the Euclidean distance between the specified SparseVector and this.
+   * @param vector
+   * @return the Euclidean distance
+   */
+  public double euclideanDistance(SparseVector vector) {
+    SparseVector clone = (SparseVector)clone();
+    clone.add(vector, -1.0);
+    return clone.norm();
+  }
+  
+  /**
+   * Computes the Euclidean distance between the specified DenseVector and this.
+   * @param vector
+   * @return the Euclidean distance
+   */
+  public double euclideanDistance(DenseVector vector) {
+    SparseVector clone = (SparseVector)clone();
+    clone.add(vector, -1.0);
+    return clone.norm();
+  }
 
   /**
    * Returns the number of stored values.
