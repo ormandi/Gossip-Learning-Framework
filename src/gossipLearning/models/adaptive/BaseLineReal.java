@@ -38,7 +38,7 @@ public class BaseLineReal extends BaseLine {
     globalClassifier.setNumberOfClasses(numOfClasses);
     cacheClassifiers = new Model[numOfLearners];
     localTrainSets = new InstanceHolder[numOfLearners];
-    globalTrainSet = new InstanceHolder(numOfClasses);
+    globalTrainSet = new InstanceHolder(numOfClasses, training.getNumberOfFeatures());
     cacheTrainSets = new InstanceHolder[numOfLearners];
     
     localModelCache = new List[numOfLearners];
@@ -48,8 +48,8 @@ public class BaseLineReal extends BaseLine {
       classifiers[i].setNumberOfClasses(numOfClasses);
       cacheClassifiers[i] = (Model)Class.forName(modelName).newInstance();
       cacheClassifiers[i].setNumberOfClasses(numOfClasses);
-      localTrainSets[i] = new InstanceHolder(numOfClasses);
-      cacheTrainSets[i] = new InstanceHolder(numOfClasses);
+      localTrainSets[i] = new InstanceHolder(numOfClasses, training.getNumberOfFeatures());
+      cacheTrainSets[i] = new InstanceHolder(numOfClasses, training.getNumberOfFeatures());
       
       localModelCache[i] = new LinkedList<Model>();
       cacheModelCache[i] = new LinkedList<Model>();

@@ -92,8 +92,8 @@ public class BaseLineControl implements Control {
       w.put(d, from[d]);
     }
     // generate random instances in N[-1.0,1.0]^d
-    training = new InstanceHolder(2);
-    evaluation = new InstanceHolder(2);
+    training = new InstanceHolder(2, dimension);
+    evaluation = new InstanceHolder(2, dimension);
     SparseVector instance;
     double label;
     double dotProd;
@@ -168,7 +168,7 @@ public class BaseLineControl implements Control {
     for (int nId = 0; nId < Network.size(); nId++){
       instanceHolder = ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).getInstanceHolder();
       if (instanceHolder == null) {
-        instanceHolder = new InstanceHolder(2);
+        instanceHolder = new InstanceHolder(2, dimension);
         ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).setInstenceHolder(instanceHolder);
       }
       if (CommonState.r.nextDouble() < n - numSamples) {

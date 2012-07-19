@@ -53,12 +53,12 @@ public class PredictionObserver extends GraphObserver {
   protected ErrorFunction errorFunction;
   
   /** @hidden */
-  private Constructor<? extends AbstractErrorComputator> errorComputatorConstructor;
+  protected Constructor<? extends AbstractErrorComputator> errorComputatorConstructor;
   /** @hidden */
-  private InstanceHolder eval;
+  protected InstanceHolder eval;
   /** @hidden */
   private static final String PAR_SUFFIX = "suffix";
-  private String printSuffix = "";
+  protected String printSuffix = "";
     
   @SuppressWarnings("unchecked")
   public PredictionObserver(String prefix) throws Exception {

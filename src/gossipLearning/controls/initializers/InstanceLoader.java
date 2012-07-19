@@ -65,7 +65,7 @@ public class InstanceLoader implements Control {
         Protocol protocol = node.getProtocol(pid);
         if (protocol instanceof LearningProtocol) {
           LearningProtocol learningProtocol = (LearningProtocol) protocol;
-          InstanceHolder instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses());
+          InstanceHolder instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
           for (int j = 0; j < samplesPerNode; j++){
             instances.add(reader.getTrainingSet().getInstance((i * samplesPerNode + j) % numOfSamples), reader.getTrainingSet().getLabel((i * samplesPerNode + j) % numOfSamples));
           }

@@ -22,12 +22,14 @@ public class InstanceHolder implements Serializable{
   /** @hidden */
   private Vector<Double> labels;
   private final int numberOfClasses;
+  private final int numberOfFeatures;
   
   /**
    * Constructs and initializes a new InstanceHolder object.
    */
-  public InstanceHolder(int numberOfClasses){
+  public InstanceHolder(int numberOfClasses, int numberOfFeatures){
     this.numberOfClasses = numberOfClasses;
+    this.numberOfFeatures = numberOfFeatures;
     size = 0;
     instances = new Vector<SparseVector>();
     labels = new Vector<Double>();
@@ -41,10 +43,11 @@ public class InstanceHolder implements Serializable{
    * @param labels class labels
    * @param numberOfClasses number of classes (0 - clustering, N - classification, Integer.MAX_VALUE - regression)
    */
-  public InstanceHolder(Vector<SparseVector> instances, Vector<Double> labels, int numberOfClasses) {
+  public InstanceHolder(Vector<SparseVector> instances, Vector<Double> labels, int numberOfClasses, int numberOfFeatures) {
     this.instances = instances;
     this.labels = labels;
     this.numberOfClasses = numberOfClasses;
+    this.numberOfFeatures = numberOfFeatures;
     this.size = instances.size();
   }
   
@@ -54,30 +57,40 @@ public class InstanceHolder implements Serializable{
    * @param instances
    * @param labels
    */
-  private InstanceHolder(int size, Vector<SparseVector> instances, Vector<Double> labels, int numberOfClasses){
-    this.size = size;
-    this.numberOfClasses = numberOfClasses;
+  private InstanceHolder(InstanceHolder a){
+    this.size = a.size;
+    this.numberOfClasses = a.numberOfClasses;
+    this.numberOfFeatures = a.numberOfFeatures;
     this.instances = new Vector<SparseVector>();
     this.labels = new Vector<Double>();
-    for (int i = 0; i < instances.size(); i++){
-      this.instances.add((SparseVector)instances.get(i).clone());
+    for (int i = 0; i < a.instances.size(); i++){
+      this.instances.add((SparseVector)a.instances.get(i).clone());
     }
-    for (int i = 0; i < labels.size(); i++){
-      this.labels.add((double)labels.get(i));
+    for (int i = 0; i < a.labels.size(); i++){
+      this.labels.add((double)a.labels.get(i));
     }
   }
   
   public Object clone(){
-    return new InstanceHolder(size, instances, labels, numberOfClasses);
+    return new InstanceHolder(this);
   }
   
   /**
-   * Return the number of classes set by the constructor.
+   * Returns the number of classes set by the constructor.
    * 
    * @return number of classes
    */
   public int getNumberOfClasses() {
     return numberOfClasses;
+  }
+  
+  /**
+   * Returns the number of features set by the constructor.
+   * 
+   * @return number of features
+   */
+  public int getNumberOfFeatures() {
+    return numberOfFeatures;
   }
   
   /**

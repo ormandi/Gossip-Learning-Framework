@@ -25,7 +25,7 @@ public class DataBaseReader {
   /** @hidden */
   private InstanceHolder evalSet;
   
-  private DataBaseReader(final File tFile, final File eFile) throws IOException{
+  protected DataBaseReader(final File tFile, final File eFile) throws IOException{
     // reading training file
     trainingSet = parseFile(tFile);
     // reading evaluation file
@@ -46,7 +46,7 @@ public class DataBaseReader {
    * @param file the file that has to be parsed
    * @throws IOException if file reading error occurs.
    */
-  private static InstanceHolder parseFile(final File file) throws IOException{
+  protected static InstanceHolder parseFile(final File file) throws IOException{
     // throw exception if the file does not exist or null
     if (file == null || !file.exists()){
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
@@ -56,6 +56,7 @@ public class DataBaseReader {
     Vector<Double> labels = new Vector<Double>();
     BufferedReader br = new BufferedReader(new FileReader(file));
     int numberOfClasses = -1;
+    int numberOfFeatures = -1;
     Set<Double> classes = new TreeSet<Double>();
     String line;
     String[] split;
@@ -87,13 +88,16 @@ public class DataBaseReader {
       label = Double.parseDouble(split[0]);
       if (numberOfClasses != Integer.MAX_VALUE && (label < 0.0 || label != (int)label)) {
         // not a regression problem => the label has to be an integer which is greater or equal than 0 
-        throw new RuntimeException("The class label has to be integer and greater or equal than 0, line " + c);
+        throw new RuntimeException("The class label has to be integer and greater than or equal to 0, line " + c);
       }
       instance = new SparseVector(split.length >>> 1);
       for (int i = 1; i < split.length; i += 2){
         key = Integer.parseInt(split[i]) - 1; // index from 0
         if (key < 0){
           throw new RuntimeException("The index of the features must be non-negative integer, line " + c);
+        }
+        if (key > numberOfFeatures) {
+          numberOfFeatures = key;
         }
         value = Double.parseDouble(split[i + 1]);
         instance.put(key, value);
@@ -114,7 +118,7 @@ public class DataBaseReader {
       numberOfClasses = classes.size();
     }
     
-    return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses); // 1-> indicating clustering
+    return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses, numberOfFeatures); // 1-> indicating clustering
   }
   
   /**
@@ -157,7 +161,7 @@ public class DataBaseReader {
    * @return An instance of this class
    * @throws IOException if file reading error occurs.
    */
-  public static final DataBaseReader createDataBaseReader(final File tFile, final File eFile) throws IOException {
+  public static DataBaseReader createDataBaseReader(final File tFile, final File eFile) throws IOException {
     if (instance == null || !tFile.equals(DataBaseReader.tFile) || !eFile.equals(DataBaseReader.eFile)) {
       DataBaseReader.tFile = tFile;
       DataBaseReader.eFile = eFile;

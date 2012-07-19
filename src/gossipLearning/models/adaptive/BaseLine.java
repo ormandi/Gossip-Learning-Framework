@@ -77,8 +77,8 @@ public class BaseLine {
     from = new double[dimension];
     to = new double[dimension];
     w = new SparseVector(dimension);
-    training = new InstanceHolder(numOfClasses);
-    evaluation = new InstanceHolder(numOfClasses);
+    training = new InstanceHolder(numOfClasses, dimension);
+    evaluation = new InstanceHolder(numOfClasses, dimension);
     
     isClear = new boolean[numOfLearners];
     Arrays.fill(isClear, false);
@@ -87,7 +87,7 @@ public class BaseLine {
     globalClassifier.setNumberOfClasses(numOfClasses);
     cacheClassifiers = new Model[numOfLearners];
     localTrainSets = new InstanceHolder[numOfLearners];
-    globalTrainSet = new InstanceHolder(numOfClasses);
+    globalTrainSet = new InstanceHolder(numOfClasses, dimension);
     cacheTrainSets = new InstanceHolder[numOfLearners];
     
     localModelCache = new List[numOfLearners];
@@ -97,8 +97,8 @@ public class BaseLine {
       classifiers[i].setNumberOfClasses(numOfClasses);
       cacheClassifiers[i] = (Model)Class.forName(modelName).newInstance();
       cacheClassifiers[i].setNumberOfClasses(numOfClasses);
-      localTrainSets[i] = new InstanceHolder(numOfClasses);
-      cacheTrainSets[i] = new InstanceHolder(numOfClasses);
+      localTrainSets[i] = new InstanceHolder(numOfClasses, dimension);
+      cacheTrainSets[i] = new InstanceHolder(numOfClasses, dimension);
       
       localModelCache[i] = new LinkedList<Model>();
       cacheModelCache[i] = new LinkedList<Model>();

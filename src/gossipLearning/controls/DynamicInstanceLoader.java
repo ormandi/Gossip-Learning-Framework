@@ -73,7 +73,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
     for (int nId = 0; nId < Network.size(); nId++){
       instanceHolder = ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).getInstanceHolder();
       if (instanceHolder == null) {
-        instanceHolder = new InstanceHolder(2);
+        instanceHolder = new InstanceHolder(2, reader.getTrainingSet().getNumberOfFeatures());
         ((LearningProtocol)(Network.get(nId)).getProtocol(pid)).setInstenceHolder(instanceHolder);
       }
       if (CommonState.r.nextDouble() < n - numSamples) {
