@@ -2,6 +2,7 @@ package gossipLearning.models.recSys;
 
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.VectorEntry;
+import gossipLearning.models.clusterer.KMeans;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Vector;
