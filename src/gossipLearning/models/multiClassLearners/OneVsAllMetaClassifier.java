@@ -23,7 +23,7 @@ import peersim.config.Configuration;
  */
 public class OneVsAllMetaClassifier extends ProbabilityModel {
   private static final long serialVersionUID = 1650527797690827114L;
-  private static final String PAR_BNAME = "baseLearnerName";
+  private static final String PAR_BNAME = "OVsA.modelName";
   
   private int numberOfClasses;
   private ModelHolder classifiers;
@@ -74,13 +74,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     double[] distribution = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
       double[] baseDistribution = ((ProbabilityModel)classifiers.getModel(i)).distributionForInstance(instance);
-      for (int j = 0; j < numberOfClasses; j++) {
-        if (i == j) {
-          distribution[j] += baseDistribution[1];
-        } else {
-          distribution[j] += baseDistribution[0] / (numberOfClasses - 1.0);
-        }
-      }
+      distribution[i] = baseDistribution[1];
     }
     return Utils.normalize(distribution);
   }
