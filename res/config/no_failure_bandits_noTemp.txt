@@ -1,0 +1,92 @@
+C 1000
+NETWORKSIZE 100
+ONLINESIZE NETWORKSIZE
+
+CYCLE C*ONLINESIZE+1
+LOGTIME ONLINESIZE
+SEED 1234567890
+
+# Transport parameters
+DROP 0.0
+MINDELAY ONLINESIZE*0.9
+MAXDELAY ONLINESIZE*1.1
+
+# Overlay parameters
+NEWSCAST_CACHESIZE 5
+NEWSCAST_FREQ ONLINESIZE/10.0
+
+# Parameters of the learning protocol
+CAPACITY 10
+DELAY_MEAN ONLINESIZE
+DELAY_VAR ONLINESIZE/10.0
+
+
+#-------------------- General Simulation Properties --------------------
+network.size NETWORKSIZE
+simulation.endtime CYCLE
+simulation.logtime LOGTIME
+random.seed SEED
+
+
+#-------------------- Transport layer --------------------
+protocol.transport UniformRandomTransport
+protocol.transport.mindelay MINDELAY
+protocol.transport.maxdelay MAXDELAY
+
+
+#-------------------- Connection layer --------------------
+protocol.overlay peersim.extras.mj.ednewscast.EdNewscast
+protocol.overlay.transport transport
+protocol.overlay.cache NEWSCAST_CACHESIZE
+protocol.overlay.baseFreq NEWSCAST_FREQ
+
+
+#-------------------- Bandit layer(s) --------------------
+protocol.banditProtocol gossipLearning.protocols.SimpleBanditProtocol2SentModels
+protocol.banditProtocol.linkable overlay
+protocol.banditProtocol.transport transport
+protocol.banditProtocol.delayMean DELAY_MEAN
+protocol.banditProtocol.delayVar DELAY_VAR
+protocol.banditProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
+protocol.banditProtocol.capacity CAPACITY
+
+protocol.banditProtocol.numOfArms 10	# parameter of gloabal arm model
+
+protocol.banditProtocol.modelName gossipLearning.models.bandits.P2GreedySlim
+protocol.banditProtocol.p2greedy.C 0.1
+
+
+#-------------------- Initializers --------------------
+init.overlayInit WireKOut
+init.overlayInit.k NEWSCAST_CACHESIZE
+init.overlayInit.protocol overlay
+
+init.overlayStart peersim.extras.mj.ednewscast.EventInitializer
+init.overlayStart.protocolID overlay
+
+init.banditProtocolStart gossipLearning.controls.initializers.StartMessageInitializer
+init.banditProtocolStart.protocol banditProtocol
+init.banditProtocolStart.delay 0
+
+
+#-------------------- Define Init Sequence --------------------
+include.init overlayInit overlayStart banditProtocolStart
+
+
+#-------------------- Observers --------------------
+control.prediction1 gossipLearning.controls.observers.PredictionObserver
+control.prediction1.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditPercComputator
+control.prediction1.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction1.step LOGTIME
+control.prediction1.protocol banditProtocol
+control.prediction1.format gpt
+control.prediction1.suffix bestArmHittingProb
+
+
+control.prediction2 gossipLearning.controls.observers.PredictionObserver
+control.prediction2.errorComputatorClass gossipLearning.controls.observers.errorComputation.BanditErrorComputator
+control.prediction2.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
+control.prediction2.step LOGTIME
+control.prediction2.protocol banditProtocol
+control.prediction2.format gpt
+control.prediction2.suffix regret

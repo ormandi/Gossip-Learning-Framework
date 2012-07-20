@@ -1,5 +1,6 @@
 C ${ITERATIONS}
 NETWORKSIZE ${NETWORK_SIZE}
+
 ONLINESIZE NETWORKSIZE
 
 CYCLE C*ONLINESIZE+1
@@ -50,15 +51,17 @@ protocol.learningProtocol.delayMean DELAY_MEAN
 protocol.learningProtocol.delayVar DELAY_VAR
 protocol.learningProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.learningProtocol.capacity CAPACITY
-protocol.learningProtocol.modelNames gossipLearning.models.P2Pegasos,gossipLearning.models.MergeablePegasos,gossipLearning.models.LogisticRegression,gossipLearning.models.MergeableLogisticRegression,gossipLearning.models.AdalinePerceptron
-protocol.learningProtocol.lambda LAMBDA
+protocol.learningProtocol.modelNames gossipLearning.models.recSys.RBMRecSys
 
-protocol.learningProtocol.ann.hiddenLayers 20
-protocol.learningProtocol.ann.lambda 0.001            # regularization lambda!
-protocol.learningProtocol.ann.learningRate 0.1
-
-#protocol.learningProtocol.adaline.lambda 0.03         # optimized for SpamBase
-protocol.learningProtocol.adaline.lambda 10.0          # optimized for Iris
+protocol.learningProtocol.recsys.protocolID learningProtocol
+protocol.learningProtocol.recsys.modelUpdateFrequency 10
+protocol.learningProtocol.recsys.numberOfCounters 30
+protocol.learningProtocol.recsys.numberOfHashFunctions 4
+protocol.learningProtocol.recsys.clusters 0
+protocol.learningProtocol.recsys.clusteringSteps 0
+protocol.learningProtocol.recsys.model gossipLearning.models.multiClassLearners.OneVsAllMetaClassifier
+protocol.learningProtocol.recsys.model.OVsA.modelName gossipLearning.models.P2Pegasos
+protocol.learningProtocol.recsys.model.OVsA.modelName.lambda LAMBDA
 
 
 #-------------------- Initializers --------------------
@@ -70,10 +73,11 @@ init.overlayStart peersim.extras.mj.ednewscast.EventInitializer
 init.overlayStart.protocolID overlay
 
 init.instanceLoader gossipLearning.controls.initializers.InstanceLoader
+init.instanceLoader.readerClass gossipLearning.RecSysDataBaseReader
 init.instanceLoader.protocol learningProtocol
 init.instanceLoader.trainingFile ${TRAINING_DATABASE}
 init.instanceLoader.evaluationFile ${EVALUATION_DATABASE}
-init.instanceLoader.samplesPerNode 10
+init.instanceLoader.samplesPerNode 1
 
 init.setNumberOfClassesForModels gossipLearning.controls.initializers.SetNumberOfClassesForModels
 init.setNumberOfClassesForModels.protocol learningProtocol
@@ -88,9 +92,9 @@ include.init overlayInit overlayStart instanceLoader setNumberOfClassesForModels
 
 
 #-------------------- Observers --------------------
-control.prediction gossipLearning.controls.observers.PredictionObserver
-control.prediction.errorComputatorClass gossipLearning.controls.observers.errorComputation.VotedErrorComputator
-control.prediction.errorFunctionClass gossipLearning.controls.observers.errorComputation.ZeroOneError
+control.prediction gossipLearning.controls.observers.RecSysPredictionObsever
+control.prediction.errorComputatorClass gossipLearning.controls.observers.errorComputation.VotedErrorComputator  # not used
+control.prediction.errorFunctionClass gossipLearning.controls.observers.errorComputation.MAError
 control.prediction.step LOGTIME
 control.prediction.protocol learningProtocol
 control.prediction.format gpt
