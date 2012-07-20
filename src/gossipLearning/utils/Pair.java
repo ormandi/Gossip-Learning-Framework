@@ -14,27 +14,51 @@ public class Pair<K extends Comparable<K>, V extends Comparable<V>> implements C
   private K key;
   private V value;
   
+  /**
+   * Stores the specified key and value.
+   * @param key to be stored
+   * @param value to be stored
+   */
   public Pair(K key, V value) {
     this.key = key;
     this.value = value;
   }
   
+  /**
+   * Returns the key value.
+   * @return key
+   */
   public K getKey() {
     return key;
   }
 
+  /**
+   * Stores the specified key.
+   * @param key to be stored
+   */
   public void setKey(K key) {
     this.key = key;
   }
 
+  /**
+   * Returns the value value.
+   * @return value
+   */
   public V getValue() {
     return value;
   }
 
+  /**
+   * Stores the specified value.
+   * @param value to be stored
+   */
   public void setValue(V value) {
     this.value = value;
   }
 
+  /**
+   * If the keys are equal than compares the values.
+   */
   public int compareTo(Pair<K, V> o) {
     int c = key.compareTo(o.key);
     if (c == 0) {
@@ -43,8 +67,11 @@ public class Pair<K extends Comparable<K>, V extends Comparable<V>> implements C
     return c;
   }
   
+  /**
+   * The string representation is "key=value".
+   */
   public String toString() {
-    return "<" + key.toString() + ":" + value.toString() + ">";
+    return key.toString() + "=" + value.toString();
   }
 
 }
