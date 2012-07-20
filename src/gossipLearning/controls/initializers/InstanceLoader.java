@@ -30,11 +30,13 @@ public class InstanceLoader implements Control {
   private static final String PAR_TFILE = "trainingFile";
   private static final String PAR_EFILE = "evaluationFile";
   private static final String PAR_SIZE = "samplesPerNode";
+  private static final String PAR_READERCLASS = "readerClass";
   
   protected final int pid;
   /** @hidden */
   protected final File tFile;
   protected Vector<PredictionObserver> observers;
+  protected String readerClassName;
   protected DataBaseReader reader;
   /** @hidden */
   protected final File eFile;
@@ -45,13 +47,14 @@ public class InstanceLoader implements Control {
     tFile = new File(Configuration.getString(prefix + "." + PAR_TFILE));
     eFile = new File(Configuration.getString(prefix + "." + PAR_EFILE));
     samplesPerNode = Configuration.getInt(prefix + "." + PAR_SIZE, 1);
+    readerClassName = Configuration.getString(prefix + "." + PAR_READERCLASS, "gossipLearning.DataBaseReader");
     observers = new Vector<PredictionObserver>();
   }
   
   public boolean execute(){
     try {
       // read instances
-      reader = DataBaseReader.createDataBaseReader(tFile, eFile);
+      reader = DataBaseReader.createDataBaseReader(readerClassName, tFile, eFile);
       
       // InstanceLoader initializes the evaluation set of prediction observer
       for (PredictionObserver observer : observers) {
@@ -75,6 +78,7 @@ public class InstanceLoader implements Control {
         } else {
           throw new RuntimeException("The protocol " + pid + " have to implement LearningProtocol interface!");
         }
+        
       }
     } catch (Exception ex) {
       throw new RuntimeException("Exception has occurred in InstanceLoader!", ex);

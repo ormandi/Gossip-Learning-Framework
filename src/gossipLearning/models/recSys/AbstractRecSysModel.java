@@ -1,5 +1,6 @@
 package gossipLearning.models.recSys;
 
+import gossipLearning.interfaces.LearningProtocol;
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.models.clusterer.KMeans;
@@ -13,6 +14,7 @@ import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
+import peersim.core.Protocol;
 
 /**
  * 
@@ -67,6 +69,8 @@ public abstract class AbstractRecSysModel implements RecSysModel {
   protected static final String PAR_MODEL_CLASS = "recsys.model";
   protected static final String DEFAULT_MODEL_CLASS = "gossipLearning.models.P2Pegasos";
   
+  protected static final String PAR_PID = "recsys.protocolID";
+  
   protected int numberOfItems = 0;
   protected int numberOfRatings = 0;
   protected int modelUpdateFrequency = DEFAULT_MODEL_UPDATE_FREQUENCY;
@@ -77,6 +81,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
   protected Node node = null;
   protected int numberOfCounters = DEFAULT_NUMBER_OF_COUNTERS;
   protected int numberOfHashFunctions = DEFAULT_NUMBER_OF_HASH_FUNCTIONS;
+  protected int pid = -1;
   
   // set representation
   protected ItemFrequencies itemFreqs;
@@ -98,6 +103,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
     numberOfCounters = Configuration.getInt(prefix + "." + PAR_NUMBER_OF_COUNTERS, DEFAULT_NUMBER_OF_COUNTERS);
     numberOfHashFunctions = Configuration.getInt(prefix + "." + PAR_NUMBER_OF_HASH_FUNCTIONS, DEFAULT_NUMBER_OF_HASH_FUNCTIONS);
     modelClassName = Configuration.getString(prefix + "." + PAR_MODEL_CLASS, DEFAULT_MODEL_CLASS);
+    pid = Configuration.getPid(prefix + "." + PAR_PID);
   }
 
   /**

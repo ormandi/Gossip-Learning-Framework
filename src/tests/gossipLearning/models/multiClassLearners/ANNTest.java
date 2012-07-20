@@ -40,7 +40,7 @@ public class ANNTest  extends TestCase implements Serializable {
       File tFile = new File("res/db/iris_train.dat");
       File eFile = new File("res/db/iris_eval.dat");
       
-      DataBaseReader r = DataBaseReader.createDataBaseReader(tFile, eFile);
+      DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", tFile, eFile);
       InstanceHolder training = r.getTrainingSet();
       InstanceHolder eval = r.getEvalSet();
       

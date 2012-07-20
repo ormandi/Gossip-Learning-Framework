@@ -94,7 +94,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < numberOfClasses; i++) {
       try {
         ProbabilityModel model = (ProbabilityModel)Class.forName(baseLearnerName).newInstance();
-        model.init(prefix);
+        model.init(prefix + "." + PAR_BNAME);
         model.setNumberOfClasses(2);
         classifiers.add(model);
       } catch (Exception e) {

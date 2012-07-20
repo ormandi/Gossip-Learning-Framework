@@ -44,13 +44,13 @@ public class ItemFrequencies implements Serializable {
     // deep copy of rating set
     ratingSet = (other.ratingSet == null) ? null : new MultiBloomFilter[other.ratingSet.length];
     for (int i = 0; other.ratingSet != null && i < other.ratingSet.length; i ++) {
-      ratingSet[i] = (MultiBloomFilter) other.ratingSet[i].clone();
+      ratingSet[i] = (other.ratingSet[i] != null) ? (MultiBloomFilter) other.ratingSet[i].clone() : null;
     }
     
     // deep copy of likeability set
     likeabilitySet = (other.likeabilitySet == null) ? null : new MultiBloomFilter[other.ratingSet.length];
     for (int i = 0; other.likeabilitySet != null && i < other.likeabilitySet.length; i ++) {
-      likeabilitySet[i] = (MultiBloomFilter) other.likeabilitySet[i].clone();
+      likeabilitySet[i] = (other.likeabilitySet[i] != null) ? (MultiBloomFilter) other.likeabilitySet[i].clone() : null;
     }
   }
   

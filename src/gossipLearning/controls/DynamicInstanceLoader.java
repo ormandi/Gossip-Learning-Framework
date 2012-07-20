@@ -5,9 +5,6 @@ import gossipLearning.InstanceHolder;
 import gossipLearning.controls.initializers.InstanceLoader;
 import gossipLearning.controls.observers.PredictionObserver;
 import gossipLearning.interfaces.LearningProtocol;
-
-import java.io.IOException;
-
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
@@ -52,8 +49,8 @@ public class DynamicInstanceLoader extends InstanceLoader {
     driftLength1 = asyncRate * driftLength;
     
     try {
-      reader = DataBaseReader.createDataBaseReader(tFile, eFile);
-    } catch (IOException e) {
+      reader = DataBaseReader.createDataBaseReader(readerClassName, tFile, eFile);
+    } catch (Exception e) {
       throw new RuntimeException("Exception in " + getClass().getCanonicalName(), e);
     }
     if (reader.getTrainingSet().getNumberOfClasses() == Integer.MAX_VALUE 

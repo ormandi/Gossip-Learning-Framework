@@ -31,7 +31,7 @@ public class Main {
     int numIters = Configuration.getInt("ITER");
     CommonState.r.setSeed(seed);
     
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", tFile, eFile);
     Model model = (Model)Class.forName(Configuration.getString("learner")).newInstance();
     //FilterBoost model = (FilterBoost)Class.forName(modelName).newInstance();
     model.init("learner");

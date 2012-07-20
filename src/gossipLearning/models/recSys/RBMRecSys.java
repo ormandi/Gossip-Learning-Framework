@@ -11,6 +11,9 @@ public class RBMRecSys extends AbstractRecSysModel {
   private static final long serialVersionUID = 1370247633525862204L;
   private Model model;
   
+  public RBMRecSys() {
+  }
+  
   public RBMRecSys(RBMRecSys o) {
     // copy the field of base class
     numberOfItems = o.numberOfItems;
@@ -24,6 +27,7 @@ public class RBMRecSys extends AbstractRecSysModel {
     itemFreqs = (ItemFrequencies) o.itemFreqs.clone();
     prefix = o.prefix;
     modelClassName = o.modelClassName;
+    pid = o.pid;
     clusterer = o.clusterer; // not necessary to clone it since in every update step it is rebuilt => reference is enough for predict
     
     // copy models
@@ -37,25 +41,28 @@ public class RBMRecSys extends AbstractRecSysModel {
 
   @Override
   public double predict(SparseVector instance) {
-    int userID = (int) node.getID();
-    int itemID = instance.iterator().next().index;
-    
-    // get the number of all users
-    int numberOfAllUsers = 10000;          // FIXME: correct normalization constant
-    
-    // get userRatings
-    SparseVector userRatings = ((LearningProtocol)Network.get(userID).getProtocol(CommonState.getPid())).getInstanceHolder().getInstance(0);
-    
-    // compute user specific part of feature vector
-    double[] featureVectorA = new double[NUMBER_OF_FEATURES];
-    computeUserSpecificFeatureVectorPart(userRatings, featureVectorA, numberOfAllUsers, false);
-    
-    // compute item specific part of feature vector
-    Pair<SparseVector, Integer> fc = computeItemSpecificFinalFeatureVector(itemID, featureVectorA, numberOfAllUsers);
-    SparseVector featureVector = fc.getKey();
-    
-    // evaluate models
-    return model.predict(featureVector) + 1;
+    if (node != null) {
+      int userID = (int) node.getID();
+      int itemID = instance.iterator().next().index;
+      
+      // get the number of all users
+      int numberOfAllUsers = 10000;          // FIXME: correct normalization constant
+      
+      // get userRatings
+      SparseVector userRatings = ((LearningProtocol)Network.get(userID).getProtocol(pid)).getInstanceHolder().getInstance(0);
+      
+      // compute user specific part of feature vector
+      double[] featureVectorA = new double[NUMBER_OF_FEATURES];
+      computeUserSpecificFeatureVectorPart(userRatings, featureVectorA, numberOfAllUsers, false);
+      
+      // compute item specific part of feature vector
+      Pair<SparseVector, Integer> fc = computeItemSpecificFinalFeatureVector(itemID, featureVectorA, numberOfAllUsers);
+      SparseVector featureVector = fc.getKey();
+      
+      // evaluate models
+      return model.predict(featureVector) + 1;
+    }
+    return 1;
   }
 
   @Override

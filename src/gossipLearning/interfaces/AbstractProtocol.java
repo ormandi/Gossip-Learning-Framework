@@ -51,7 +51,7 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
   /** @hidden */
   protected Node currentNode;
   /** @hidden */
-  protected int currentProtocolID;
+  protected int currentProtocolID = -1;
   /** @hidden */
   protected String prefix;
   
@@ -154,6 +154,13 @@ public abstract class AbstractProtocol implements EDProtocol, Churnable, Learnin
       // The received message is a model message => calling the passive thread handler
       passiveThread((ModelMessage)messageObj);
     }
+  }
+  
+  public int getPID() {
+    if (currentProtocolID < 0) {
+      throw new RuntimeException("Too early request for PID!");
+    }
+    return currentProtocolID;
   }
   
   //----- Instance related methods -----

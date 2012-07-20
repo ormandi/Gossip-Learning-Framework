@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -32,6 +33,8 @@ public class DataBaseReader {
     evalSet = parseFile(eFile);
     
     // some basic database checks
+    /*
+    // it does not work with recsys reader
     if ((trainingSet.getNumberOfClasses() == Integer.MAX_VALUE && evalSet.getNumberOfClasses() != Integer.MAX_VALUE) ||
         (trainingSet.getNumberOfClasses() != Integer.MAX_VALUE && evalSet.getNumberOfClasses() == Integer.MAX_VALUE) ||
         (trainingSet.getNumberOfClasses() < evalSet.getNumberOfClasses()) ||
@@ -39,6 +42,7 @@ public class DataBaseReader {
         (trainingSet.getNumberOfClasses() != 0 && evalSet.getNumberOfClasses() == 0)) {
       throw new RuntimeException("Trainig and evaluation databas mismatch. Possible cases: regression <-> non-regression, custering<->non-clustering, unknown label in the eval set.");
     }
+    */
   }
   
   /**
@@ -46,7 +50,7 @@ public class DataBaseReader {
    * @param file the file that has to be parsed
    * @throws IOException if file reading error occurs.
    */
-  protected static InstanceHolder parseFile(final File file) throws IOException{
+  protected InstanceHolder parseFile(final File file) throws IOException{
     // throw exception if the file does not exist or null
     if (file == null || !file.exists()){
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
@@ -156,16 +160,21 @@ public class DataBaseReader {
   /**
    * Creates and returns a DataBaseReader object that contains the training and the evaluation sets. 
    * Based on the parameter files that should have Jochaims's SVMLight format.
+   * 
+   * @param className the canonical class name of the reader class
    * @param tFile the training file
    * @param eFile the evaluation file
    * @return An instance of this class
    * @throws IOException if file reading error occurs.
    */
-  public static DataBaseReader createDataBaseReader(final File tFile, final File eFile) throws IOException {
-    if (instance == null || !tFile.equals(DataBaseReader.tFile) || !eFile.equals(DataBaseReader.eFile)) {
+  @SuppressWarnings("unchecked")
+  public static DataBaseReader createDataBaseReader(String className, final File tFile, final File eFile) throws Exception {
+    if (instance == null || !instance.getClass().getCanonicalName().equals(className) || !tFile.equals(DataBaseReader.tFile) || !eFile.equals(DataBaseReader.eFile)) {
       DataBaseReader.tFile = tFile;
       DataBaseReader.eFile = eFile;
-      DataBaseReader.instance = new DataBaseReader(tFile, eFile);
+      Class<? extends DataBaseReader> dataBaseReaderClass = (Class<? extends DataBaseReader>) Class.forName(className);
+      Constructor<? extends DataBaseReader> dbrConst = dataBaseReaderClass.getDeclaredConstructor(File.class, File.class);
+      DataBaseReader.instance = dbrConst.newInstance(tFile, eFile);
     }
     return instance;
   }

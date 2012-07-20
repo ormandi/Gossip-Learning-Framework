@@ -10,7 +10,7 @@ import java.util.Vector;
 
 public class RecSysDataBaseReader extends DataBaseReader {
 
-  protected RecSysDataBaseReader(final File tFile, final File eFile) throws IOException{
+  protected RecSysDataBaseReader(File tFile, File eFile) throws IOException{
     super(tFile, eFile);
   }
   
@@ -19,7 +19,7 @@ public class RecSysDataBaseReader extends DataBaseReader {
    * @param file the file that has to be parsed
    * @throws IOException if file reading error occurs.
    */
-  protected static InstanceHolder parseFile(final File file) throws IOException{
+  protected InstanceHolder parseFile(final File file) throws IOException{
     // throw exception if the file does not exist or null
     if (file == null || !file.exists()){
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
@@ -55,6 +55,7 @@ public class RecSysDataBaseReader extends DataBaseReader {
       userId = Integer.parseInt(split[0]) - 1;
       itemId = Integer.parseInt(split[1]) - 1;
       rate = Double.parseDouble(split[2]);
+      
       if (numberOfClasses != Integer.MAX_VALUE && (rate <= 0.0 || rate != (int)rate)) {
         // not a regression problem => the label has to be an integer which is greater or equal than 0 
         throw new RuntimeException("The rate value has to be integer and greater than 0, line " + c);
@@ -85,27 +86,6 @@ public class RecSysDataBaseReader extends DataBaseReader {
     br.close();
     
     return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses, numberOfFeatures); // 1-> indicating clustering
-  }
-  
-  private static RecSysDataBaseReader instance = null;
-  private static File tFile = null;
-  private static File eFile = null;
-  
-  /**
-   * Creates and returns a DataBaseReader object that contains the training and the evaluation sets. 
-   * Based on the parameter files that should have Jochaims's SVMLight format.
-   * @param tFile the training file
-   * @param eFile the evaluation file
-   * @return An instance of this class
-   * @throws IOException if file reading error occurs.
-   */
-  public static RecSysDataBaseReader createDataBaseReader(final File tFile, final File eFile) throws IOException {
-    if (instance == null || !tFile.equals(RecSysDataBaseReader.tFile) || !eFile.equals(RecSysDataBaseReader.eFile)) {
-      RecSysDataBaseReader.tFile = tFile;
-      RecSysDataBaseReader.eFile = eFile;
-      RecSysDataBaseReader.instance = new RecSysDataBaseReader(tFile, eFile);
-    }
-    return instance;
   }
   
 }

@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import peersim.config.Configuration;
+
 /**
  * This class models the problem of drifting concepts using a real dataset 
  * and measures the performance of some baseline algorithms.
@@ -24,7 +26,7 @@ public class BaseLineReal extends BaseLine {
   public BaseLineReal(long numOfEvals, double driftsPerEval, double samplesPerEval, double asyncRate, int numOfLearners, String trainName, String testName) throws Exception {
     super(numOfEvals, driftsPerEval, samplesPerEval, asyncRate, 2, 0, true, false, numOfLearners);
     
-    reader = DataBaseReader.createDataBaseReader(new File(trainName), new File(testName));
+    reader = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File(trainName), new File(testName));
     training = reader.getTrainingSet();
     evaluation = reader.getEvalSet();
     numOfClasses = training.getNumberOfClasses();
