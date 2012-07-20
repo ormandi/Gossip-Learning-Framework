@@ -52,8 +52,8 @@ public class RecSysDataBaseReader extends DataBaseReader {
       if (split.length != 3){
         throw new RuntimeException("The file \"" + file.toString() + "\" has invalid structure at line " + c);
       }
-      userId = Integer.parseInt(split[0]);
-      itemId = Integer.parseInt(split[1]);
+      userId = Integer.parseInt(split[0]) - 1;
+      itemId = Integer.parseInt(split[1]) - 1;
       rate = Double.parseDouble(split[2]);
       if (numberOfClasses != Integer.MAX_VALUE && (rate <= 0.0 || rate != (int)rate)) {
         // not a regression problem => the label has to be an integer which is greater or equal than 0 
