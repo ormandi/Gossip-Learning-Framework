@@ -1,11 +1,12 @@
 package gossipLearning.models;
 
 import gossipLearning.interfaces.Model;
+import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.SimilarityComputable;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
-public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
+public class P2Pegasos extends ProbabilityModel implements Model, SimilarityComputable<P2Pegasos> {
   private static final long serialVersionUID = 5232458167435240109L;
   
   /**
@@ -75,13 +76,20 @@ public class P2Pegasos implements Model, SimilarityComputable<P2Pegasos> {
   /**
    * Computes the inner product of the hyperplane and the specified instance. 
    * If it is greater than 0 then the label is positive (1.0), otherwise the label is
-   * negative (0.0).
+   * negative (0.0).</br></br>
+   * The first value of the result vector is 0.0, the second is the value of 
+   * the inner product.
    */
   @Override
+  public double[] distributionForInstance(SparseVector instance) {
+    double innerProd = w.mul(instance);
+    return new double[]{0.0, innerProd};
+  }
+  /*@Override
   public double predict(final SparseVector instance) {
     double innerProd = w.mul(instance);
     return innerProd > 0.0 ? 1.0 : 0.0;
-  }
+  }*/
 
   /**
    * Returns the cosine similarity of the hyperplanes of the current and the specified models. 
