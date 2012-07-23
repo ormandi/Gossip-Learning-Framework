@@ -290,6 +290,27 @@ public class MultiBloomFilter implements Serializable {
   public int size() {
     return this.size;
   }
+  
+  /**
+   * Merges the specified bloom filter to the current filter.</br></br>
+   * <b>NOTE:</b> Using this function the count(), the uniqueCount() and 
+   * the getFalsePositiveProbability() functions probably will return false values!
+   * 
+   * @param a Bloom filter to merge
+   * @return merged filters.
+   */
+  public MultiBloomFilter merge(MultiBloomFilter a) {
+    if (size != a.size || k != a.k) {
+      throw new RuntimeException("Can not merge bloomfilters with different size (" + 
+      size + "<->" + a.size + ") or different number of hash functions (" + k + "<->" + a.k + ")!");
+    }
+    for (int i = 0; i < size; i++) {
+      counters[i] = Math.ceil((counters[i] + a.counters[i]) / 2.0); 
+    }
+    numberOfAddedElements = Math.ceil((numberOfAddedElements + a.numberOfAddedElements) / 2.0);
+    numberOfDifferentElements = Math.ceil((numberOfDifferentElements + a.numberOfDifferentElements) / 2.0);
+    return this;
+  }
 
   /**
    * Returns the number of elements added to the Bloom filter after it
@@ -297,9 +318,9 @@ public class MultiBloomFilter implements Serializable {
    *
    * @return number of elements added to the Bloom filter.
    */
-  public double count() {
+  /*public double count() {
     return this.numberOfAddedElements;
-  }
+  }*/
   
   /**
    * Returns the number of unique elements added to the Bloom filter after it
@@ -307,9 +328,9 @@ public class MultiBloomFilter implements Serializable {
    *
    * @return number of unique elements added to the Bloom filter.
    */
-  public double uniqueCount() {
+  /*public double uniqueCount() {
     return this.numberOfDifferentElements;
-  }
+  }*/
   
   /**
    * Calculate the probability of a false positive given the
@@ -317,10 +338,10 @@ public class MultiBloomFilter implements Serializable {
    *
    * @return probability of a false positive.
    */
-  public double getFalsePositiveProbability() {
+  /*public double getFalsePositiveProbability() {
     // (1 - e^(-k * n / m)) ^ k
     return Math.pow((1 - Math.exp(-k * numberOfDifferentElements / (double) size)), k);
-  }
+  }*/
 
   /**
    * Java Map like string representation.
