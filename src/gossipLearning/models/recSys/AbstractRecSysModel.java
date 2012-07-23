@@ -1,6 +1,5 @@
 package gossipLearning.models.recSys;
 
-import gossipLearning.interfaces.LearningProtocol;
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.models.clusterer.KMeans;
@@ -14,7 +13,6 @@ import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
-import peersim.core.Protocol;
 
 /**
  * 

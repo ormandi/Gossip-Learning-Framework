@@ -8,7 +8,7 @@ import peersim.core.Network;
 
 public class RBMRecSys extends AbstractRecSysModel {
   private static final long serialVersionUID = 1370247633525862204L;
-  private Model model;
+  protected Model model;
   
   public RBMRecSys() {
   }

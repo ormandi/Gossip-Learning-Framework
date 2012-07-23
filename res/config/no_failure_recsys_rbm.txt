@@ -51,7 +51,7 @@ protocol.learningProtocol.delayMean DELAY_MEAN
 protocol.learningProtocol.delayVar DELAY_VAR
 protocol.learningProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.learningProtocol.capacity CAPACITY
-protocol.learningProtocol.modelNames gossipLearning.models.recSys.RBMRecSys
+protocol.learningProtocol.modelNames gossipLearning.models.recSys.RBMRecSys,gossipLearning.models.recSys.MergeableRBMRecSys
 
 protocol.learningProtocol.recsys.protocolID learningProtocol
 protocol.learningProtocol.recsys.modelUpdateFrequency 10
@@ -60,7 +60,7 @@ protocol.learningProtocol.recsys.numberOfHashFunctions 4
 protocol.learningProtocol.recsys.clusters 0
 protocol.learningProtocol.recsys.clusteringSteps 0
 protocol.learningProtocol.recsys.model gossipLearning.models.multiClassLearners.OneVsAllMetaClassifier
-protocol.learningProtocol.recsys.model.OVsA.modelName gossipLearning.models.P2Pegasos
+protocol.learningProtocol.recsys.model.OVsA.modelName gossipLearning.models.MergeablePegasos
 protocol.learningProtocol.recsys.model.OVsA.modelName.lambda LAMBDA
 
 

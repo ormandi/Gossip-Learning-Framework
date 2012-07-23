@@ -155,4 +155,21 @@ public class ItemFrequencies implements Serializable {
     }
     return sum;
   }
+  
+  /**
+   * Merges the specified ItemFrequencies object to this.
+   * @param a object to merge
+   * @return this
+   */
+  public ItemFrequencies merge(ItemFrequencies a) {
+    if (ratingSet != null && likeabilitySet != null && a.ratingSet != null && a.likeabilitySet != null) {
+      for (int i = 0; i < a.ratingSet.length; i++) {
+        if (ratingSet[i] != null && likeabilitySet[i] != null && a.ratingSet[i] != null && a.likeabilitySet[i] != null) {
+          ratingSet[i].merge(a.ratingSet[i]);
+          likeabilitySet[i].merge(a.likeabilitySet[i]);
+        }
+      }
+    }
+    return this;
+  }
 }

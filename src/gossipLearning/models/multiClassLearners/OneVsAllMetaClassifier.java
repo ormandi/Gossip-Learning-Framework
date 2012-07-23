@@ -1,5 +1,6 @@
 package gossipLearning.models.multiClassLearners;
 
+import gossipLearning.interfaces.Mergeable;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.modelHolders.BoundedModelHolder;
@@ -21,7 +22,7 @@ import peersim.config.Configuration;
  * @author István Hegedűs
  *
  */
-public class OneVsAllMetaClassifier extends ProbabilityModel {
+public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeable<OneVsAllMetaClassifier> {
   private static final long serialVersionUID = 1650527797690827114L;
   private static final String PAR_BNAME = "OVsA.modelName";
   
@@ -101,6 +102,18 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
         throw new RuntimeException("Exception in class " + getClass().getCanonicalName(), e);
       }
     }
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Override
+  public OneVsAllMetaClassifier merge(OneVsAllMetaClassifier model) {
+    for (int i = 0; i < classifiers.size(); i++) {
+      if (!(classifiers.getModel(i) instanceof Mergeable)) {
+        return this;
+      }
+      ((Mergeable)classifiers.getModel(i)).merge(model.classifiers.getModel(i));
+    }
+    return this;
   }
 
 }
