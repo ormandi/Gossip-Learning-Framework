@@ -4,7 +4,6 @@ import gossipLearning.interfaces.LearningProtocol;
 import gossipLearning.interfaces.Model;
 import gossipLearning.utils.Pair;
 import gossipLearning.utils.SparseVector;
-import peersim.core.CommonState;
 import peersim.core.Network;
 
 public class RBMRecSys extends AbstractRecSysModel {
@@ -62,7 +61,7 @@ public class RBMRecSys extends AbstractRecSysModel {
       // evaluate models
       return model.predict(featureVector) + 1;
     }
-    return 1;
+    return (getNumberOfItems() + 1) / 2.0;
   }
 
   @Override
