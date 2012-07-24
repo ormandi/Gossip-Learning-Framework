@@ -36,6 +36,9 @@ public abstract class AbstractRecSysModel implements RecSysModel {
   protected static final String PAR_NUMBER_OF_COUNTERS = "recsys.numberOfCounters";
   protected static final int DEFAULT_NUMBER_OF_COUNTERS = 30;
   
+  protected static final String PAR_NUMBER_OF_MAX_UPDATES = "recsys.numberOfFilterUpdates";
+  protected static final int DEFAULT_NUMBER_OF_MAX_UPDATES = 30;
+  
   /**
    * It defines the number of hash functions used in the Bloom Filters that describes the item
    * related features.
@@ -81,8 +84,10 @@ public abstract class AbstractRecSysModel implements RecSysModel {
   protected int numberOfHashFunctions = DEFAULT_NUMBER_OF_HASH_FUNCTIONS;
   protected int pid = -1;
   
+  protected int numberOfMaxUpdates = DEFAULT_NUMBER_OF_MAX_UPDATES;
+  
   // set representation
-  protected ItemFrequencies itemFreqs;
+  protected static ItemFrequencies itemFreqs;
   
   // clusterer representation
   protected Model clusterer;
@@ -102,6 +107,8 @@ public abstract class AbstractRecSysModel implements RecSysModel {
     numberOfHashFunctions = Configuration.getInt(prefix + "." + PAR_NUMBER_OF_HASH_FUNCTIONS, DEFAULT_NUMBER_OF_HASH_FUNCTIONS);
     modelClassName = Configuration.getString(prefix + "." + PAR_MODEL_CLASS, DEFAULT_MODEL_CLASS);
     pid = Configuration.getPid(prefix + "." + PAR_PID);
+    
+    numberOfMaxUpdates = Configuration.getInt(prefix + "." + PAR_NUMBER_OF_MAX_UPDATES);
   }
 
   /**
@@ -284,7 +291,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       numberOfRatings = numberOfClasses;
       
       // reinitialize set structure
-      itemFreqs = new ItemFrequencies(numberOfRatings, numberOfCounters, numberOfHashFunctions);
+      itemFreqs = new ItemFrequencies(numberOfRatings, numberOfCounters, numberOfHashFunctions, numberOfMaxUpdates);
       
       // reinitialize model structure
       initializeModels(numberOfClusters, numberOfRatings);
@@ -322,6 +329,10 @@ public abstract class AbstractRecSysModel implements RecSysModel {
   @Override
   public Node getNode() {
     return node;
+  }
+  
+  public ItemFrequencies getItemFrequencies() {
+    return itemFreqs;
   }
   
   // --------------- Abstract Methods ---------------

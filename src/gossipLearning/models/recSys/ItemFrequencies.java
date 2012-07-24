@@ -4,6 +4,8 @@ import gossipLearning.utils.MultiBloomFilter;
 
 import java.io.Serializable;
 
+import peersim.core.CommonState;
+
 /**
  * Space efficient item frequency and likeability estimator class based on counting Bloom Filter implementation.
  *  
@@ -13,6 +15,10 @@ public class ItemFrequencies implements Serializable {
   private static final long serialVersionUID = 1348239L;
   private MultiBloomFilter[] ratingSet;
   private MultiBloomFilter[] likeabilitySet;
+  
+  private final int q;
+  private int counter;
+  private int prevNodeId;
   
   private int m;
   private int k;
@@ -24,9 +30,12 @@ public class ItemFrequencies implements Serializable {
    * @param m number of counters applied by the wrapped bloom filters
    * @param k number of hash functions applied by the inner bloom filters
    */
-  public ItemFrequencies(int numberOfRatings, int m, int k) {
+  public ItemFrequencies(int numberOfRatings, int m, int k, int q) {
     this.m = m;
     this.k = k;
+    this.q = q;
+    counter = 0;
+    prevNodeId = -1;
     ratingSet = new MultiBloomFilter[numberOfRatings];
     likeabilitySet = new MultiBloomFilter[numberOfRatings];
   }
@@ -40,6 +49,9 @@ public class ItemFrequencies implements Serializable {
     // copy simple fields
     m = other.m;
     k = other.k;
+    q = other.q;
+    counter = other.counter;
+    prevNodeId = other.prevNodeId;
     
     // deep copy of rating set
     ratingSet = (other.ratingSet == null) ? null : new MultiBloomFilter[other.ratingSet.length];
@@ -69,6 +81,14 @@ public class ItemFrequencies implements Serializable {
    * @param userAvgRating average rating value of the user who adds the item (this is necessary for computing likeability)
    */
   public void add(int itemID, double rating, double userAvgRating) {
+    if (counter >= q) {
+      return;
+    }
+    System.err.println("UPDATE: " + itemID + "\t" + CommonState.getNode().getID());
+    if (prevNodeId != CommonState.getNode().getID()) {
+      counter ++;
+      prevNodeId = (int)CommonState.getNode().getID();
+    }
     // get rating ID
     int rateID = (int)rating - 1;
     
@@ -171,5 +191,11 @@ public class ItemFrequencies implements Serializable {
       }
     }
     return this;
+  }
+  
+  public void resetCounter() {
+    System.err.println("RESET");
+    counter = 0;
+    prevNodeId = -1;
   }
 }

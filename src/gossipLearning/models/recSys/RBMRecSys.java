@@ -23,7 +23,7 @@ public class RBMRecSys extends AbstractRecSysModel {
     node = o.node;
     numberOfCounters = o.numberOfCounters;
     numberOfHashFunctions = o.numberOfHashFunctions;
-    itemFreqs = (ItemFrequencies) o.itemFreqs.clone();
+    //itemFreqs = (ItemFrequencies) o.itemFreqs.clone();
     prefix = o.prefix;
     modelClassName = o.modelClassName;
     pid = o.pid;

@@ -4,6 +4,7 @@ import gossipLearning.interfaces.LearningProtocol;
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.VectorEntry;
+import gossipLearning.models.recSys.AbstractRecSysModel;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Vector;
@@ -38,6 +39,7 @@ public class RecSysPredictionObsever extends PredictionObserver {
       for (int holderIndex = 0; holderIndex < prot.size(); holderIndex ++){
         ModelHolder modelHolder = prot.getModelHolder(holderIndex);
         Model model = modelHolder.getModel(modelHolder.size() - 1);
+        ((AbstractRecSysModel)model).getItemFrequencies().resetCounter();
         if (counters.size() <= holderIndex) {
           avgError.add(0.0);
           devError.add(0.0);

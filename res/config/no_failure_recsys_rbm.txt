@@ -57,6 +57,7 @@ protocol.learningProtocol.recsys.protocolID learningProtocol
 protocol.learningProtocol.recsys.modelUpdateFrequency 10
 protocol.learningProtocol.recsys.numberOfCounters 30
 protocol.learningProtocol.recsys.numberOfHashFunctions 4
+protocol.learningProtocol.recsys.numberOfFilterUpdates 3
 protocol.learningProtocol.recsys.clusters 0
 protocol.learningProtocol.recsys.clusteringSteps 0
 protocol.learningProtocol.recsys.model gossipLearning.models.multiClassLearners.OneVsAllMetaClassifier
