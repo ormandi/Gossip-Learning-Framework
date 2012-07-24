@@ -12,7 +12,7 @@ else
 fi
 
 export findCmd="/usr/bin/find"
-export mem="15G"
+export mem="1G"
 export dir=`dirname $0`
 export basedir="${dir}/../.."
 export cpdelim=`java -help 2>&1 | grep -A 1 "classpath" | tail -n 1 | awk '{print $2}'`
