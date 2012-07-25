@@ -83,6 +83,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
   protected int numberOfCounters = DEFAULT_NUMBER_OF_COUNTERS;
   protected int numberOfHashFunctions = DEFAULT_NUMBER_OF_HASH_FUNCTIONS;
   protected int pid = -1;
+  protected int age = 0;
   
   protected int numberOfMaxUpdates = DEFAULT_NUMBER_OF_MAX_UPDATES;
   
@@ -121,6 +122,9 @@ public abstract class AbstractRecSysModel implements RecSysModel {
    */
   @Override
   public void update(SparseVector instance, double label) {
+    // observed node
+    final int observed = 0;
+    
     // store the node to which the current model arrived
     final int userID = (int) label; 
     node = Network.get(userID);
@@ -141,9 +145,13 @@ public abstract class AbstractRecSysModel implements RecSysModel {
     }
     
     // check whether model update is needed or not
-    if (CommonState.getTime() % modelUpdateFrequency == 0) {
+    if (age++ % modelUpdateFrequency == 0) {
+      //if (userID == observed) {
+      //  System.out.println("LEARNING!!! " + age);
+      //}
+      
       // get the number of all users
-      int numberOfAllUsers = 10000;          // FIXME: correct normalization constant
+      int numberOfAllUsers = 1;          // FIXME: correct normalization constant
       
       // perform user specific feature extraction
       double[] featureVectorA = new double[NUMBER_OF_FEATURES];
@@ -158,11 +166,20 @@ public abstract class AbstractRecSysModel implements RecSysModel {
         Pair<SparseVector, Integer> fc = computeItemSpecificFinalFeatureVector(itemID, featureVectorA, numberOfAllUsers);
         SparseVector featureVector = fc.getKey();
         int clusterID = fc.getValue();
-          
+        
+        //if (userID == observed) {
+        //  System.out.println("  y=" + rating + "\tx=" + featureVector + "\tclus=" + clusterID + "\tisInFilter=" + featureVector.get(9));
+        //}
+        
         // update model
         updateModel(featureVector, clusterID, rating);
       }
     }
+    
+    //if (userID == observed) {
+    //  System.out.println("-------------------------");
+    //}
+    
   }
   
   /**
@@ -221,6 +238,8 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       // general
       featureVectorA[2] += itemPop;
       featureVectorA[3] += itemAvg;
+      
+      // TODO: Istvánka's version 
       
       // like
       if (rating > userAvgRating) {
@@ -291,7 +310,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       numberOfRatings = numberOfClasses;
       
       // reinitialize set structure
-      itemFreqs = new ItemFrequencies(numberOfRatings, numberOfCounters, numberOfHashFunctions, numberOfMaxUpdates);
+      itemFreqs = (itemFreqs == null) ? new ItemFrequencies(numberOfRatings, numberOfCounters, numberOfHashFunctions, numberOfMaxUpdates) : itemFreqs;
       
       // reinitialize model structure
       initializeModels(numberOfClusters, numberOfRatings);

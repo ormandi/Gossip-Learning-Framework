@@ -84,7 +84,10 @@ public class ItemFrequencies implements Serializable {
     if (counter >= q) {
       return;
     }
-    System.err.println("UPDATE: " + itemID + "\t" + CommonState.getNode().getID());
+    //int userID = (int)CommonState.getNode().getID();
+    //if (itemID == 0) {
+    //  System.out.println("========== SET UPDATE =============: r(" + userID + "," + itemID + ")=" + rating); 
+    
     if (prevNodeId != CommonState.getNode().getID()) {
       counter ++;
       prevNodeId = (int)CommonState.getNode().getID();
@@ -140,7 +143,7 @@ public class ItemFrequencies implements Serializable {
     double sum = 0.0;
     for (int i = 0; i < ratingSet.length; i ++) {
       if (ratingSet[i] != null) {
-        avg += ratingSet[i].contains(itemID) * (double)i;
+        avg += ratingSet[i].contains(itemID) * (double)(i+1);
         sum += ratingSet[i].contains(itemID);
       }
     }
@@ -194,8 +197,20 @@ public class ItemFrequencies implements Serializable {
   }
   
   public void resetCounter() {
-    System.err.println("RESET");
+    //System.err.println("RESET");
     counter = 0;
     prevNodeId = -1;
+  }
+  
+  @Override
+  public String toString() {
+    StringBuffer br = new StringBuffer();
+    br.append("rating: ");
+    StringBuffer bl = new StringBuffer();
+    for (int i = 0; i < ratingSet.length; i++) {
+      br.append(i + ": " +ratingSet[i] + "\t");
+      bl.append(i + ": " + likeabilitySet[i] + "\t");
+    }
+    return br.append(", like: ").append(bl).toString();
   }
 }

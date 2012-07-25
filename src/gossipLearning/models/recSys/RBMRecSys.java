@@ -28,6 +28,7 @@ public class RBMRecSys extends AbstractRecSysModel {
     modelClassName = o.modelClassName;
     pid = o.pid;
     clusterer = o.clusterer; // not necessary to clone it since in every update step it is rebuilt => reference is enough for predict
+    age = o.age;
     
     // copy models
     model =  (o.model != null) ? (Model) o.model.clone() : null;
