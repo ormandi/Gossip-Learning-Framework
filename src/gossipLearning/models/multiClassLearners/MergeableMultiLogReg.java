@@ -1,11 +1,14 @@
 package gossipLearning.models.multiClassLearners;
 
+import peersim.config.Configuration;
 import gossipLearning.interfaces.Mergeable;
 import gossipLearning.utils.SparseVector;
 
 public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<MergeableMultiLogReg> {
   private static final long serialVersionUID = -7800995106591726828L;
 
+  protected static final String PAR_LAMBDA = "MergeableMultiLogReg.lambda";
+  
   public MergeableMultiLogReg() {
     super();
   }
@@ -28,6 +31,11 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
   
   public Object clone() {
     return new MergeableMultiLogReg(this);
+  }
+  
+  public void init(String prefix) {
+    super.init(prefix);
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.0001);
   }
   
   @Override

@@ -12,7 +12,7 @@ public class P2Pegasos extends ProbabilityModel implements Model, SimilarityComp
   /**
    * The learning parameter is 0.0001 by default.
    */
-  protected static final String PAR_LAMBDA = "lambda";
+  protected static final String PAR_LAMBDA = "P2Pegasos.lambda";
   protected double lambda = 0.0001;
   
   /** @hidden */

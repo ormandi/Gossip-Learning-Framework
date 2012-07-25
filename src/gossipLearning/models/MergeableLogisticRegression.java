@@ -1,10 +1,13 @@
 package gossipLearning.models;
 
+import peersim.config.Configuration;
 import gossipLearning.interfaces.Mergeable;
 import gossipLearning.utils.SparseVector;
 
 public class MergeableLogisticRegression extends LogisticRegression implements Mergeable<MergeableLogisticRegression>{
   private static final long serialVersionUID = -4465428750554412761L;
+  
+  protected static final String PAR_LAMBDA = "MergeableLogisticRegression.lambda";
 
   public MergeableLogisticRegression(){
     super();
@@ -23,6 +26,11 @@ public class MergeableLogisticRegression extends LogisticRegression implements M
   
   public Object clone(){
     return new MergeableLogisticRegression(w, age, lambda, numberOfClasses, bias);
+  }
+  
+  public void init(String prefix) {
+    super.init(prefix);
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.0001);
   }
   
   @Override

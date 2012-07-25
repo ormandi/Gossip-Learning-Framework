@@ -1,5 +1,6 @@
 package gossipLearning.models;
 
+import peersim.config.Configuration;
 import gossipLearning.interfaces.Mergeable;
 import gossipLearning.utils.SparseVector;
 
@@ -10,6 +11,8 @@ import gossipLearning.utils.SparseVector;
  */
 public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePegasos> {
   private static final long serialVersionUID = 5703095161342004957L;
+  
+  protected static final String PAR_LAMBDA = "MergeablePegasos.lambda";
   
   public MergeablePegasos(){
     super();
@@ -28,6 +31,11 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
   
   public Object clone(){
     return new MergeablePegasos(w, age, lambda, numberOfClasses);
+  }
+  
+  public void init(String prefix) {
+    super.init(prefix);
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.0001);
   }
   
   /**

@@ -23,7 +23,7 @@ public class MultiLogReg extends ProbabilityModel {
   /**
    * The learning parameter is 0.0001 by default.
    */
-  protected static final String PAR_LAMBDA = "lambda";
+  protected static final String PAR_LAMBDA = "MultiLogReg.lambda";
   protected double lambda = 0.0001;
   
   protected SparseVector[] w;

@@ -14,7 +14,7 @@ import peersim.config.Configuration;
  * perceptron can be found in the weakLearners package.
  */
 public class AdalinePerceptron implements Model {
-  protected static final String PAR_LAMBDA = "adaline.lambda";
+  protected static final String PAR_LAMBDA = "AdalinePerceptron.lambda";
 	/** @hidden */
 	protected SparseVector w;
 	protected double age;

@@ -75,13 +75,13 @@ public class P2Winnow implements Model  {
 	 * Value of eta, the learning constant.
 	 */
 	protected double eta = 1.0;
-	protected static final String PAR_ETA = "eta";
+	protected static final String PAR_ETA = "P2Winnow.eta";
 	
 	/**
 	 * Value of theta, the threshold by prediction.
 	 */
 	protected double theta = 0.5;
-	protected static final String PAR_THETA = "theta";
+	protected static final String PAR_THETA = "P2Winnow.theta";
 	
 	/**
 	 * Default constructor, creates a P2Winnow 

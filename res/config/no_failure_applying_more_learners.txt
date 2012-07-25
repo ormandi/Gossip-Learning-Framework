@@ -51,14 +51,25 @@ protocol.learningProtocol.delayVar DELAY_VAR
 protocol.learningProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.learningProtocol.capacity CAPACITY
 protocol.learningProtocol.modelNames gossipLearning.models.P2Pegasos,gossipLearning.models.MergeablePegasos,gossipLearning.models.LogisticRegression,gossipLearning.models.MergeableLogisticRegression,gossipLearning.models.AdalinePerceptron
-protocol.learningProtocol.lambda LAMBDA
+
+protocol.learningProtocol.P2Pegasos.lambda LAMBDA
+protocol.learningProtocol.MergeablePegasos.lambda LAMBDA
+protocol.learningProtocol.LogisticRegression.lambda LAMBDA
+protocol.learningProtocol.MergeableLogisticRegression.lambda LAMBDA
+protocol.learningProtocol.LinearRegression.lambda LAMBDA
+protocol.learningProtocol.AdalinePerceptron.lambda LAMBDA
+protocol.learningProtocol.MultiLogReg.lambda LAMBDA
+protocol.learningProtocol.MergeableMultiLogReg.lambda LAMBDA
+protocol.learningProtocol.P2Winnow.eta 1.0
+protocol.learningProtocol.P2Winnow.theta 0.5
+
 
 protocol.learningProtocol.ann.hiddenLayers 20
 protocol.learningProtocol.ann.lambda 0.001            # regularization lambda!
 protocol.learningProtocol.ann.learningRate 0.1
 
 #protocol.learningProtocol.adaline.lambda 0.03         # optimized for SpamBase
-protocol.learningProtocol.adaline.lambda 10.0          # optimized for Iris
+#protocol.learningProtocol.adaline.lambda 10.0          # optimized for Iris
 
 
 #-------------------- Initializers --------------------
