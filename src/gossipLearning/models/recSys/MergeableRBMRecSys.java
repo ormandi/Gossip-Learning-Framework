@@ -23,7 +23,7 @@ public class MergeableRBMRecSys extends RBMRecSys implements Mergeable<Mergeable
     if (!(this.model instanceof Mergeable)) {
       throw new RuntimeException("The inner model (" + model.model.getClass().getCanonicalName() + ") of the RBMRecSys is not mergeable!");
     }
-    itemFreqs.merge(model.itemFreqs);
+    //itemFreqs.merge(model.itemFreqs);
     ((Mergeable)this.model).merge(model.model);
     return this;
   }

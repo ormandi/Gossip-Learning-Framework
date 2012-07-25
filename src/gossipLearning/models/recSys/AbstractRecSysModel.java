@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Vector;
 
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 
@@ -122,9 +121,6 @@ public abstract class AbstractRecSysModel implements RecSysModel {
    */
   @Override
   public void update(SparseVector instance, double label) {
-    // observed node
-    final int observed = 0;
-    
     // store the node to which the current model arrived
     final int userID = (int) label; 
     node = Network.get(userID);
@@ -222,7 +218,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       // perform clustering
       clusterer = new KMeans(numberOfClusters);
       for (int step = 1; step <= numberOfClusteringSteps; step ++) {
-        clusterer.update(clusteringDB.get(clusteringDB.size() % step), 0.0);
+        clusterer.update(clusteringDB.get(step % clusteringDB.size()), 0.0);
       }
     }
     
