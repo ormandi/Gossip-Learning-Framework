@@ -1,6 +1,7 @@
 package gossipLearning.models.multiClassLearners;
 
 import gossipLearning.interfaces.Mergeable;
+import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.modelHolders.BoundedModelHolder;
@@ -111,7 +112,8 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
       if (!(classifiers.getModel(i) instanceof Mergeable)) {
         return this;
       }
-      ((Mergeable)classifiers.getModel(i)).merge(model.classifiers.getModel(i));
+      Model result = ((Mergeable)classifiers.getModel(i)).merge(model.classifiers.getModel(i));
+      classifiers.setModel(i, result);
     }
     return this;
   }
