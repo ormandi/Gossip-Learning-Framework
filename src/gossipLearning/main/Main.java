@@ -26,12 +26,13 @@ public class Main {
     File tFile = new File(Configuration.getString("trainingFile"));
     File eFile = new File(Configuration.getString("evaluationFile"));
     String modelName = Configuration.getString("learner");
+    String dbReaderName = Configuration.getString("dbReader");
     long seed = Configuration.getLong("SEED");
     Random r = new Random(seed);
     int numIters = Configuration.getInt("ITER");
     CommonState.r.setSeed(seed);
     
-    DataBaseReader reader = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
     Model model = (Model)Class.forName(Configuration.getString("learner")).newInstance();
     //FilterBoost model = (FilterBoost)Class.forName(modelName).newInstance();
     model.init("learner");

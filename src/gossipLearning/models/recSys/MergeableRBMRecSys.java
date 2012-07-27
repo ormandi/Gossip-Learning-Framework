@@ -20,11 +20,14 @@ public class MergeableRBMRecSys extends RBMRecSys implements Mergeable<Mergeable
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
   public MergeableRBMRecSys merge(MergeableRBMRecSys model) {
-    if (!(this.model instanceof Mergeable)) {
-      throw new RuntimeException("The inner model (" + model.model.getClass().getCanonicalName() + ") of the RBMRecSys is not mergeable!");
+    int numClusters = numberOfClusters == 0 ? 1 : numberOfClusters;
+    for (int i = 0; i < numClusters; i++) {
+      if (!(this.model[i] instanceof Mergeable)) {
+        throw new RuntimeException("The inner model (" + model.model.getClass().getCanonicalName() + ") of the RBMRecSys is not mergeable!");
+      }
+      //itemFreqs.merge(model.itemFreqs);
+      ((Mergeable)this.model[i]).merge(model.model[i]);
     }
-    //itemFreqs.merge(model.itemFreqs);
-    ((Mergeable)this.model).merge(model.model);
     return this;
   }
 

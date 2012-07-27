@@ -8,7 +8,7 @@ import peersim.core.Network;
 
 public class RBMRecSys extends AbstractRecSysModel {
   private static final long serialVersionUID = 1370247633525862204L;
-  protected Model model;
+  protected Model[] model;
   
   public RBMRecSys() {
   }
@@ -31,7 +31,14 @@ public class RBMRecSys extends AbstractRecSysModel {
     age = o.age;
     
     // copy models
-    model =  (o.model != null) ? (Model) o.model.clone() : null;
+    int numClusters = numberOfClusters == 0 ? 1 : numberOfClusters;
+    model = null;
+    if (o.model != null) {
+      model = new Model[numClusters];
+      for (int i = 0; i < numClusters; i++) {
+        model[i] = (o.model[i] != null) ? (Model) o.model[i].clone() : null;
+      }
+    }
   }
   
   @Override
@@ -60,17 +67,22 @@ public class RBMRecSys extends AbstractRecSysModel {
       SparseVector featureVector = fc.getKey();
       
       // evaluate models
-      return model.predict(featureVector) + 1;
+      int clusterID = numberOfClusters == 0 ? 0 : fc.getValue();
+      return model[clusterID].predict(featureVector) + 1;
     }
     return (getNumberOfItems() + 1) / 2.0;
   }
 
   @Override
   protected void initializeModels(int numberOfClusters, int numberOfRatings) {
+    int numClasters = numberOfClusters == 0 ? 1 : numberOfClusters;
     try {
-      model = (Model) Class.forName(modelClassName).newInstance();
-      model.init(prefix + "." + PAR_MODEL_CLASS);
-      model.setNumberOfClasses(numberOfRatings);
+      model = new Model[numClasters];
+      for (int i = 0; i < numClasters; i++) {
+        model[i] = (Model) Class.forName(modelClassName).newInstance();
+        model[i].init(prefix + "." + PAR_MODEL_CLASS);
+        model[i].setNumberOfClasses(numberOfRatings);
+      }
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -79,7 +91,8 @@ public class RBMRecSys extends AbstractRecSysModel {
   @Override
   protected void updateModel(SparseVector featureVector, int clusterID, double rating) {
     int rateingID = (int) rating - 1;
-    model.update(featureVector, rateingID);
+    clusterID = numberOfClusters == 0 ? 0 : clusterID;
+    model[clusterID].update(featureVector, rateingID);
   }
 
 }
