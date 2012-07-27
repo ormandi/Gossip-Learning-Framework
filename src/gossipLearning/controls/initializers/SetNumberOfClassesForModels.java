@@ -1,6 +1,7 @@
 package gossipLearning.controls.initializers;
 
 import gossipLearning.interfaces.LearningProtocol;
+import gossipLearning.models.recSys.RecSysModel;
 import peersim.config.Configuration;
 import peersim.core.Control;
 import peersim.core.Network;
@@ -37,6 +38,9 @@ public class SetNumberOfClassesForModels implements Control {
             if (learningProtocol.getModelHolder(j).getModel(k) != null) {
               // sets the number of classes based on the stored instance holder
               learningProtocol.getModelHolder(j).getModel(k).setNumberOfClasses(learningProtocol.getInstanceHolder().getNumberOfClasses());
+              if (learningProtocol.getModelHolder(j).getModel(k) instanceof RecSysModel) {
+                ((RecSysModel)learningProtocol.getModelHolder(j).getModel(k)).setNumberOfItems(learningProtocol.getInstanceHolder().getNumberOfFeatures());
+              }
             }
           }
         }

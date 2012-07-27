@@ -27,7 +27,7 @@ public class RBMRecSys extends AbstractRecSysModel {
     prefix = o.prefix;
     modelClassName = o.modelClassName;
     pid = o.pid;
-    clusterer = o.clusterer; // not necessary to clone it since in every update step it is rebuilt => reference is enough for predict
+    //clusterer = o.clusterer; // not necessary to clone it since in every update step it is rebuilt => reference is enough for predict
     age = o.age;
     
     // copy models
@@ -60,7 +60,7 @@ public class RBMRecSys extends AbstractRecSysModel {
       
       // compute user specific part of feature vector
       double[] featureVectorA = new double[NUMBER_OF_FEATURES];
-      computeUserSpecificFeatureVectorPart(userRatings, featureVectorA, numberOfAllUsers, false);
+      computeUserSpecificFeatureVectorPart(userRatings, featureVectorA, numberOfAllUsers, false, userID);
       
       // compute item specific part of feature vector
       Pair<SparseVector, Integer> fc = computeItemSpecificFinalFeatureVector(itemID, featureVectorA, numberOfAllUsers);
@@ -70,7 +70,7 @@ public class RBMRecSys extends AbstractRecSysModel {
       int clusterID = numberOfClusters == 0 ? 0 : fc.getValue();
       return model[clusterID].predict(featureVector) + 1;
     }
-    return (getNumberOfItems() + 1) / 2.0;
+    return (getNumberOfClasses() + 1) / 2.0;
   }
 
   @Override

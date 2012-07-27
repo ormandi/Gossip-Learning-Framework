@@ -90,7 +90,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
   protected static ItemFrequencies itemFreqs;
   
   // clusterer representation
-  protected Model clusterer;
+  protected static Model clusterer;
   
   @Override
   public Object clone() {
@@ -151,7 +151,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       
       // perform user specific feature extraction
       double[] featureVectorA = new double[NUMBER_OF_FEATURES];
-      computeUserSpecificFeatureVectorPart(instance, featureVectorA, numberOfAllUsers, true);
+      computeUserSpecificFeatureVectorPart(instance, featureVectorA, numberOfAllUsers, true, userID);
       
       // continue feature extraction on item specific features and update models
       for (VectorEntry itemRating : instance) {
@@ -185,7 +185,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
    * @param featureVectorA feature vector
    * @return The clusterer model of the items or null if no clustering was performed
    */
-  protected void computeUserSpecificFeatureVectorPart(SparseVector userRatings, double[] featureVectorA, int numberOfAllUsers, boolean computeClusterer) {
+  protected void computeUserSpecificFeatureVectorPart(SparseVector userRatings, double[] featureVectorA, int numberOfAllUsers, boolean computeClusterer, int userID) {
     // compute the averaged rating of the user
     double userAvgRating = 0.0, userNumberOfRatings = 0.0;
     for (VectorEntry itemRating : userRatings) {
@@ -199,11 +199,11 @@ public abstract class AbstractRecSysModel implements RecSysModel {
     double likeSize = 0.0, disLikeSize = 0.0;
     
     // check whether building clusterer is necessary
-    if (numberOfClusters > 0 && computeClusterer) {
+    if (numberOfClusters > 0 && computeClusterer && userID == 0) {
       // create database for clustering
       Vector<SparseVector> clusteringDB = new Vector<SparseVector>();
-      for (VectorEntry itemRating : userRatings) {
-        int itemID = itemRating.index;
+      for (int itemID = 0; itemID < numberOfItems; itemID++) {
+        //int itemID = itemRating.index;
         double[] clusteringDBVec = new double[3];
         
         clusteringDBVec[0] = itemFreqs.getAverageRating(itemID);
@@ -217,7 +217,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       
       // perform clustering
       clusterer = new KMeans(numberOfClusters);
-      for (int step = 1; step <= numberOfClusteringSteps; step ++) {
+      for (int step = 0; step < numberOfClusteringSteps*clusteringDB.size(); step ++) {
         clusterer.update(clusteringDB.get(step % clusteringDB.size()), 0.0);
       }
     }
@@ -274,7 +274,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       clusteringInstance.put(0, featureVectorA[8]);
       clusteringInstance.put(1, featureVectorA[9]);
       clusteringInstance.put(2, featureVectorA[10]);
-      clusterID = (int) clusterer.predict(clusteringInstance);
+      clusterID = (clusterer == null) ? 0 : (int) clusterer.predict(clusteringInstance);
     }
     
     // create final feature vector (the corresponding class label is in variable rating)
