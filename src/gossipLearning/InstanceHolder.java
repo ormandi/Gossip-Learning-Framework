@@ -200,7 +200,7 @@ public class InstanceHolder implements Serializable{
       sb.append(labels.get(i));
       for (VectorEntry e : instances.get(i)){
         sb.append(' ');
-        sb.append(e.index);
+        sb.append(e.index + 1);
         sb.append(':');
         sb.append(e.value);
       }

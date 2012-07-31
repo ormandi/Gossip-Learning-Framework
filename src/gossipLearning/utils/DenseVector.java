@@ -282,6 +282,45 @@ public class DenseVector implements Serializable, Iterable<VectorEntry>, Compara
     }
     return ret;
   }
+  
+  /**
+   * Point-wise divides the current vector by the non 0 elements of the specified dense vector.
+   * @param vector to divide with
+   * @return this
+   */
+  public DenseVector div(DenseVector vector) {
+    for (int i = 0; i < values.length && i < vector.size(); i++) {
+      if (values[i] != 0.0 && vector.get(i) != 0.0) {
+        values[i] /= vector.get(i);
+      }
+    }
+    return this;
+  }
+  
+  /**
+   * Point-wise divides the current vector by the non 0 elements of the specified sparse vector.
+   * @param vector to divide with
+   * @return this
+   */
+  public DenseVector div(SparseVector vector) {
+    for (VectorEntry e : vector) {
+      if (e.index < values.length) {
+        values[e.index] /= e.value;
+      }
+    }
+    return this;
+  }
+  
+  /**
+   * Point-wise inverts the non 0 vector elements.
+   * @return this
+   */
+  public DenseVector inv() {
+    for (int i = 0; i < values.length; i++) {
+      values[i] = values[i] == 0.0 ? 0.0 : 1.0 / values[i];
+    }
+    return this;
+  }
 
   /**
    * Computes the cosine similarity between the specified DenseVector and this.

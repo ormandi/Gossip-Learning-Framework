@@ -69,8 +69,8 @@ public class RecSysDataBaseReader extends DataBaseReader {
       if (rate > numberOfClasses) {
         numberOfClasses = (int)rate;
       }
-      if (itemId > numberOfFeatures) {
-        numberOfFeatures = itemId;
+      if (itemId >= numberOfFeatures) {
+        numberOfFeatures = itemId + 1;
       }
       if (instances.size() <= userId) {
         for (int i = instances.size(); i <= userId; i++) {
@@ -84,7 +84,6 @@ public class RecSysDataBaseReader extends DataBaseReader {
       labels.set(userId, (double)userId);
     }
     br.close();
-    
     return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses, numberOfFeatures); // 1-> indicating clustering
   }
   

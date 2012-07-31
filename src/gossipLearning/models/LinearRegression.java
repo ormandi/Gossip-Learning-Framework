@@ -55,18 +55,21 @@ public class LinearRegression implements Model, Mergeable<LinearRegression>, Sim
   public void init(String prefix) {
     w = new SparseVector();
     age = 0.0;
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA, 0.0001);
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
 
   @Override
   public void update(SparseVector instance, double label) {
-    double err = label - w.mul(instance);
+    //SparseVector inst = SparseVector(instance);
+    //inst.normalize();
     age ++;
-    double nu = 1.0 / (lambda * age);
+    double err = label - predict(instance);
     
-    w.mul(1.0 - 1.0 / age);
-    w.add(instance, - nu * err);
-    bias -= nu * err;
+    //double nu = (1.0 / age) * 0.00001;
+    double nu = 1.0 / (lambda * age);
+    w.mul(1.0 - nu * lambda);
+    w.add(instance, nu * err);
+    bias += nu * err;
   }
 
   /**
@@ -100,6 +103,11 @@ public class LinearRegression implements Model, Mergeable<LinearRegression>, Sim
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
     this.numberOfClasses = numberOfClasses;
+  }
+  
+  @Override
+  public String toString() {
+    return w.toString() + "\t" + bias;
   }
 
 }

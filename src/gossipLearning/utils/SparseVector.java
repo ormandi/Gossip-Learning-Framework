@@ -28,8 +28,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   private double[] values;
   private int size;
   
-  private int index;
-  
   /**
    * Constructs a SparseVector instance with capacity 16, growing factor 1.5.
    */
@@ -56,7 +54,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     indices = new int[capacity];
     values = new double[capacity];
     size = 0;
-    index = Integer.MIN_VALUE;
     this.growFactor = growFactor;
   }
   
@@ -69,7 +66,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     size = vector.size;
     System.arraycopy(vector.indices, 0, indices, 0, size);
     System.arraycopy(vector.values, 0, values, 0, size);
-    index = vector.index;
   }
   
   /**
@@ -140,8 +136,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   
   @Override
   public Iterator<VectorEntry> iterator() {
-    index = -1;
-    return new SparseVectorIterator();
+    return new SparseVectorIterator(this);
   }
 
   /**
@@ -421,7 +416,52 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     }
     return result;
   }
-
+  
+  /**
+   * Point-wise divides the current vector by the non 0 elements of the specified sparse vector.
+   * @param vector to divide with
+   * @return this
+   */
+  public SparseVector div(SparseVector vector) {
+    int idx = 0;
+    int idx2 = 0;
+    while (idx < size && idx2 < vector.size) {
+      if (indices[idx] == vector.indices[idx2]) {
+        values[idx] = vector.values[idx2] == 0.0 ? 0.0 : values[idx] / vector.values[idx2];
+        idx ++;
+        idx2 ++;
+      } else if (indices[idx] < vector.indices[idx2]) {
+        idx ++;
+      } else {
+        idx2 ++;
+      }
+    }
+    return this;
+  }
+  
+  /**
+   * Point-wise divides the current vector by the non 0 elements of the specified dense vector.
+   * @param vector to divide with
+   * @return this
+   */
+  public SparseVector div(DenseVector vector) {
+    for (int i = 0; i < size && indices[i] < vector.size(); i++) {
+      values[i] = vector.get(indices[i]) == 0.0 ? 0.0 : values[i] / vector.get(indices[i]);
+    }
+    return this;
+  }
+  
+  /**
+   * Point-wise inverts the non 0 vector elements.
+   * @return this
+   */
+  public SparseVector inv() {
+    for (int i = 0; i < size; i++) {
+      values[i] = 1.0 / values[i];
+    }
+    return this;
+  }
+  
   /**
    * Computes the cosine similarity between the specified SparseVector and this.
    * @param vector
@@ -521,6 +561,15 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   }
   
   /**
+   * Performs squared root on every values in the vector;
+   */
+  public void sqrt() {
+    for (int i = 0; i < size; i++) {
+      values[i] = Math.sqrt(values[i]);
+    }
+  }
+  
+  /**
    * Returns the String, java Map like, representation of the current object.
    */
   public String toString() {
@@ -577,15 +626,23 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    */
   private class SparseVectorIterator implements Iterator<VectorEntry> {
     
+    private final SparseVector vector;
+    private int index;
+    
+    public SparseVectorIterator(SparseVector vector) {
+      this.vector = vector;
+      index = -1;
+    }
+    
     @Override
     public boolean hasNext() {
-      return index < size-1;
+      return index < vector.size-1;
     }
 
     @Override
     public VectorEntry next() {
       index ++;
-      return new VectorEntry(indices[index], values[index]);
+      return new VectorEntry(vector.indices[index], vector.values[index]);
     }
 
     @Override
@@ -593,7 +650,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
       if (index == -1) {
         throw new IllegalStateException();
       }
-      delete(indices[index]);
+      vector.delete(vector.indices[index]);
     }
     
   }

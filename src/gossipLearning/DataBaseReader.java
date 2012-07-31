@@ -1,5 +1,6 @@
 package gossipLearning;
 
+import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.utils.SparseVector;
 
 import java.io.BufferedReader;
@@ -26,23 +27,45 @@ public class DataBaseReader {
   /** @hidden */
   private InstanceHolder evalSet;
   
+  private int numberOfClasses;
+  private int numberOfFeatures;
+  
+  private SparseVector means;
+  private SparseVector devs;
+  private boolean isStandardized;
+  
   protected DataBaseReader(final File tFile, final File eFile) throws IOException{
+    means = new SparseVector();
+    devs = new SparseVector();
+    isStandardized = false;
+    
     // reading training file
     trainingSet = parseFile(tFile);
+    
+    // compute means and standard deviations on training set for standardization
+    for (int i = 0; i < trainingSet.size(); i++) {
+      means.add(trainingSet.getInstance(i));
+      for (VectorEntry e : trainingSet.getInstance(i)) {
+        devs.put(e.index, devs.get(e.index) + (e.value * e.value));
+      }
+    }
+    means.mul(1.0 / (double)trainingSet.size());
+    devs.mul(1.0 / (double)trainingSet.size());
+    for (VectorEntry e : means) {
+      devs.put(e.index, devs.get(e.index) - (e.value * e.value));
+    }
+    devs.sqrt();
+    
     // reading evaluation file
     evalSet = parseFile(eFile);
     
-    // some basic database checks
-    /*
-    // it does not work with recsys reader
-    if ((trainingSet.getNumberOfClasses() == Integer.MAX_VALUE && evalSet.getNumberOfClasses() != Integer.MAX_VALUE) ||
-        (trainingSet.getNumberOfClasses() != Integer.MAX_VALUE && evalSet.getNumberOfClasses() == Integer.MAX_VALUE) ||
-        (trainingSet.getNumberOfClasses() < evalSet.getNumberOfClasses()) ||
-        (trainingSet.getNumberOfClasses() == 0 && evalSet.getNumberOfClasses() != 0) ||
-        (trainingSet.getNumberOfClasses() != 0 && evalSet.getNumberOfClasses() == 0)) {
-      throw new RuntimeException("Trainig and evaluation databas mismatch. Possible cases: regression <-> non-regression, custering<->non-clustering, unknown label in the eval set.");
+    if (trainingSet.getNumberOfFeatures() != evalSet.getNumberOfFeatures() || 
+        trainingSet.getNumberOfClasses() != evalSet.getNumberOfClasses()) {
+      numberOfFeatures = Math.max(trainingSet.getNumberOfFeatures(), evalSet.getNumberOfFeatures());
+      numberOfClasses = Math.max(trainingSet.getNumberOfClasses(), evalSet.getNumberOfClasses());
+      trainingSet = new InstanceHolder(trainingSet.getInstances(), trainingSet.getLabels(), numberOfClasses, numberOfFeatures);
+      evalSet = new InstanceHolder(evalSet.getInstances(), evalSet.getLabels(), numberOfClasses, numberOfFeatures);
     }
-    */
   }
   
   /**
@@ -139,6 +162,22 @@ public class DataBaseReader {
    */
   public InstanceHolder getEvalSet() {
     return evalSet;
+  }
+  
+  /**
+   * Standardizes the training and test data sets based on the training data.
+   */
+  public void standardize() {
+    if (isStandardized) {
+      return;
+    }
+    isStandardized = true;
+    for (int i = 0; i < trainingSet.size(); i++) {
+      trainingSet.getInstance(i).add(means, -1.0).div(devs);
+    }
+    for (int i = 0; i < evalSet.size(); i++) {
+      evalSet.getInstance(i).add(means, -1.0).div(devs);
+    }
   }
   
   /**
