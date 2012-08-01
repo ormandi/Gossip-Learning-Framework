@@ -4,7 +4,7 @@ import gossipLearning.utils.MultiBloomFilter;
 
 import java.io.Serializable;
 
-import peersim.core.CommonState;
+//import peersim.core.CommonState;
 
 /**
  * Space efficient item frequency and likeability estimator class based on counting Bloom Filter implementation.
@@ -17,7 +17,7 @@ public class ItemFrequencies implements Serializable {
   private MultiBloomFilter[] likeabilitySet;
   
   private final int q;
-  private int counter;
+  private double counter;
   private int prevNodeId;
   
   private int m;
@@ -81,17 +81,18 @@ public class ItemFrequencies implements Serializable {
    * @param userAvgRating average rating value of the user who adds the item (this is necessary for computing likeability)
    */
   public void add(int itemID, double rating, double userAvgRating) {
-    if (counter >= q) {
+    /*if (counter >= q) {
       return;
-    }
+    }*/
     //int userID = (int)CommonState.getNode().getID();
     //if (itemID == 0) {
     //  System.out.println("========== SET UPDATE =============: r(" + userID + "," + itemID + ")=" + rating); 
     
-    if (prevNodeId != CommonState.getNode().getID()) {
+    /*if (prevNodeId != CommonState.getNode().getID()) {
       counter ++;
       prevNodeId = (int)CommonState.getNode().getID();
-    }
+    }*/
+    counter ++;
     // get rating ID
     int rateID = (int)rating - 1;
     
@@ -200,6 +201,10 @@ public class ItemFrequencies implements Serializable {
     //System.err.println("RESET");
     counter = 0;
     prevNodeId = -1;
+  }
+  
+  public double numOfUpdates() {
+    return counter;
   }
   
   @Override

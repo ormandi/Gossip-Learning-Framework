@@ -15,11 +15,17 @@
 
 package gossipLearning.utils;
 
+import gossipLearning.DataBaseReader;
+import gossipLearning.interfaces.VectorEntry;
+
+import java.io.File;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.TreeMap;
 
 /**
  * Implementation of a Bloom-filter, as described here:
@@ -318,9 +324,9 @@ public class MultiBloomFilter implements Serializable {
    *
    * @return number of elements added to the Bloom filter.
    */
-  /*public double count() {
+  public double count() {
     return this.numberOfAddedElements;
-  }*/
+  }
   
   /**
    * Returns the number of unique elements added to the Bloom filter after it
@@ -328,9 +334,9 @@ public class MultiBloomFilter implements Serializable {
    *
    * @return number of unique elements added to the Bloom filter.
    */
-  /*public double uniqueCount() {
+  public double uniqueCount() {
     return this.numberOfDifferentElements;
-  }*/
+  }
   
   /**
    * Calculate the probability of a false positive given the
@@ -338,10 +344,10 @@ public class MultiBloomFilter implements Serializable {
    *
    * @return probability of a false positive.
    */
-  /*public double getFalsePositiveProbability() {
+  public double getFalsePositiveProbability() {
     // (1 - e^(-k * n / m)) ^ k
     return Math.pow((1 - Math.exp(-k * numberOfDifferentElements / (double) size)), k);
-  }*/
+  }
 
   /**
    * Java Map like string representation.
@@ -365,6 +371,51 @@ public class MultiBloomFilter implements Serializable {
     }
     sb.append('}');
     return sb.toString();
+  }
+  
+  public static void main(String[] args) throws Exception{
+    File tFile = new File("../res/db/bookcrossing.train");
+    File eFile = new File("../res/db/bookcrossing.test");
+    DataBaseReader reader = DataBaseReader.createDataBaseReader("gossipLearning.RecSysDataBaseReader", tFile, eFile);
+    
+    int m = 1000000;
+    int k = 4;
+    
+    int printSteps = 100;
+    int maxiter = 50000;
+    //Random r = new Random(1234567890);
+    Random r = new Random(System.currentTimeMillis());
+    
+    MultiBloomFilter f = new MultiBloomFilter(m, k);
+    TreeMap<Integer, Integer> map = new TreeMap<Integer, Integer>();
+    
+    System.out.println("#iter\tuid\tmultiC\tuniqueC\tfMultiC\tfUniqueC\tmultiErr\tuniqueErr\tfErrProb");
+    double numUniqValues = 0.0;
+    double numOfValues = 0.0;
+    
+    for (int iter = 0; iter < maxiter; iter ++) {
+    //for (int uid = 0, iter = 0; uid < reader.getTrainingSet().size(); uid++, iter++) {
+      int uid = r.nextInt(reader.getTrainingSet().size());
+      double uniqueErrCounter = 0.0;
+      double multiErrCounter = 0.0;
+      for (VectorEntry e : reader.getTrainingSet().getInstance(uid)) {
+        if (!map.containsKey(e.index)) {
+          map.put(e.index, 0);
+        }
+        map.put(e.index, map.get(e.index) + 1);
+        f.add(e.index);
+        numOfValues ++;
+      }
+      
+      numUniqValues = map.size();
+      if (iter % printSteps == 0) {
+        for (int index : map.keySet()) {
+          multiErrCounter += f.contains(index) - map.get(index);
+        }
+        System.out.println(iter + "\t" + uid + "\t" + numOfValues + "\t" + numUniqValues + "\t" + f.count() + "\t" + f.uniqueCount() + "\t" + (multiErrCounter/numOfValues + 1.0) + "\t" + uniqueErrCounter/numUniqValues);// + "\t" + f.getFalsePositiveProbability() + "\t" + f);
+      }
+    }
+    
   }
   
 }
