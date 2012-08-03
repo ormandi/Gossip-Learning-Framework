@@ -56,10 +56,10 @@ public class RecSysDataBaseReader extends DataBaseReader {
       itemId = Integer.parseInt(split[1]) - 1;
       rate = Double.parseDouble(split[2]);
       
-      if (numberOfClasses != Integer.MAX_VALUE && (rate <= 0.0 || rate != (int)rate)) {
+      /*if (numberOfClasses != Integer.MAX_VALUE && (rate <= 0.0 || rate != (int)rate)) {
         // not a regression problem => the label has to be an integer which is greater or equal than 0 
         throw new RuntimeException("The rate value has to be integer and greater than 0, line " + c);
-      }
+      }*/
       if (userId < 0.0) {
         throw new RuntimeException("The user ID has to be integer and greater than or equal to 0, line " + c);
       }

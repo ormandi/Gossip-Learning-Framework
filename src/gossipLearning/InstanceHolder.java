@@ -192,7 +192,8 @@ public class InstanceHolder implements Serializable{
   }
   
   /**
-   * Returns the string representation of this object in Joachims' format.
+   * Returns the string representation of this object in Joachims' format 
+   * with 6 floating value precision.
    */
   public String toString(){
     StringBuffer sb = new StringBuffer();
@@ -202,7 +203,7 @@ public class InstanceHolder implements Serializable{
         sb.append(' ');
         sb.append(e.index + 1);
         sb.append(':');
-        sb.append(e.value);
+        sb.append(String.format("%.6g", e.value));
       }
       sb.append('\n');
     }

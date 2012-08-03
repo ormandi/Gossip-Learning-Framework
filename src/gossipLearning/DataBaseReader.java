@@ -113,10 +113,10 @@ public class DataBaseReader {
         throw new RuntimeException("The file \"" + file.toString() + "\" has invalid structure at line " + c);
       }
       label = Double.parseDouble(split[0]);
-      if (numberOfClasses != Integer.MAX_VALUE && (label < 0.0 || label != (int)label)) {
+      /*if (numberOfClasses != Integer.MAX_VALUE && (label < 0.0 || label != (int)label)) {
         // not a regression problem => the label has to be an integer which is greater or equal than 0 
         throw new RuntimeException("The class label has to be integer and greater than or equal to 0, line " + c);
-      }
+      }*/
       instance = new SparseVector(split.length >>> 1);
       for (int i = 1; i < split.length; i += 2){
         key = Integer.parseInt(split[i]) - 1; // index from 0

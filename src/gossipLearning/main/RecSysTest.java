@@ -7,8 +7,10 @@ import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.models.clusterer.KMeans;
 import gossipLearning.utils.SparseVector;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.Random;
 
 import peersim.config.Configuration;
@@ -184,7 +186,7 @@ public class RecSysTest {
       MAError += Math.abs(expected - predicted);
       RMSError += Math.pow(((expected - predicted)/divErr),2);
     }
-    MAError /= testInstances.numInstances();
+    MAError /= testInstances.numInstances() * divErr;
     RMSError /= testInstances.numInstances();
     RMSError = Math.sqrt(RMSError);
     System.out.println("Weka MAE: " + MAError);
@@ -231,7 +233,7 @@ public class RecSysTest {
       int index = r.nextInt(trainingSet.size());
       int clusterID = (int)kMeans.predict(filteredTrain.getInstance(index));
       models[clusterID].update(trainingSet.getInstance(index), trainingSet.getLabel(index));
-      //if (i%100 == 0) System.out.println(evaluate(models[clusterID], trainingSet) + "\t" + evaluate(models[clusterID], testSet) + "\t" + models[clusterID]);
+      //if (i%100 == 0) System.out.println(i + "\t" + evaluate(models[clusterID], trainingSet) + "\t" + evaluate(models[clusterID], testSet));// + "\t" + models[clusterID]);
     }
     
     double MAError = 0.0;
@@ -244,7 +246,7 @@ public class RecSysTest {
       MAError += Math.abs(expected - predicted);
       RMSError += Math.pow(((expected - predicted)/divErr),2);
     }
-    MAError /= testSet.size();
+    MAError /= testSet.size() * divErr;
     RMSError /= testSet.size();
     RMSError = Math.sqrt(RMSError);
     System.out.println("GoLF MAE: " + MAError);
@@ -263,7 +265,7 @@ public class RecSysTest {
       MAError += Math.abs(expected - predicted);
       RMSError += Math.pow(((expected - predicted)/divErr),2);
     }
-    MAError /= evalSet.size();
+    MAError /= evalSet.size() * divErr;
     RMSError /= evalSet.size();
     RMSError = Math.sqrt(RMSError);
     //System.out.print("\tMAE: " + MAError);
@@ -289,6 +291,8 @@ public class RecSysTest {
     
     prefix = "model";
     modelName = Configuration.getString(prefix, null);
+    
+    boolean isNormalize = Configuration.getBoolean("normalize");
     
     DataBaseReader dbReader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
     
@@ -342,15 +346,33 @@ public class RecSysTest {
       }
     }
     
-    if (classifierName != null) {
-      weka(trainingSet, testSet);
+    File tout = new File("tr.dat");
+    File eout = new File("ev.dat");
+    
+    BufferedWriter w = new BufferedWriter(new FileWriter(tout));
+    w.write(trainingSet.toString());
+    w.close();
+    w = new BufferedWriter(new FileWriter(eout));
+    w.write(testSet.toString());
+    w.close();
+    
+    DataBaseReader dbr = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", tout, eout);
+    if (isNormalize) {
+      dbr.standardize();
     }
     
-    //DataBaseReader dbr = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File("movielens_small_train_std.dat"), new File("movielens_small_test_std.dat"));
-    if (modelName != null) {
-      //golf(dbr.getTrainingSet(), dbr.getEvalSet());
-      golf(trainingSet, testSet);
+    if (classifierName != null) {
+      weka(dbr.getTrainingSet(), dbr.getEvalSet());
+      //weka(trainingSet, testSet);
     }
+    
+    if (modelName != null) {
+      golf(dbr.getTrainingSet(), dbr.getEvalSet());
+      //golf(trainingSet, testSet);
+    }
+    
+    tout.deleteOnExit();
+    eout.deleteOnExit();
   }
 
 }
