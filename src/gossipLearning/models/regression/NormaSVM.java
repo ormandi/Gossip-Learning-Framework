@@ -356,7 +356,7 @@ public class NormaSVM implements Model {
       DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File(args[0]), new File(args[1]));
       
       InstanceHolder train = r.getTrainingSet();
-      InstanceHolder eval = r.getTrainingSet();
+      InstanceHolder eval = r.getEvalSet();
       
       for (int iter = 0; iter < iters*train.size(); iter ++) {
         int i = rand.nextInt(train.size());
