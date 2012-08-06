@@ -337,23 +337,23 @@ public class NormaSVM implements Model {
   }
   
   public static void main(String[] args) throws Exception {
-    if (args.length == 3 || args.length == 4 || args.length == 5) {
+    if (args.length == 5 || args.length == 6 || args.length == 7) {
       NormaSVM svm = new NormaSVM();
-      svm.setLambda(Double.parseDouble(args[0]));
-      Kernel kernel = (Kernel) Class.forName(args[1]).newInstance();
+      svm.setLambda(Double.parseDouble(args[2]));
+      Kernel kernel = (Kernel) Class.forName(args[3]).newInstance();
       svm.setKernel(kernel);
       
-      int iters = Integer.parseInt(args[2]);
-      long seed = (args.length >= 4) ? Long.parseLong(args[3]) : 1234567890;
+      int iters = Integer.parseInt(args[4]);
+      long seed = (args.length >= 6) ? Long.parseLong(args[5]) : 1234567890;
       Random rand = new Random(seed);
       
-      if (kernel instanceof RBFKernel && args.length >= 5) {
-        ((RBFKernel)kernel).setSigma(Double.parseDouble(args[4]));
+      if (kernel instanceof RBFKernel && args.length >= 7) {
+        ((RBFKernel)kernel).setSigma(Double.parseDouble(args[6]));
       }
       
-      System.err.println("Applying NormaSVM with\n  lambda=" + svm.getLambda() + "\n  kernel=" + svm.getKernel().getClass().getCanonicalName() + "\n  iters=" + iters + "\n  seed=" + seed + ((kernel instanceof RBFKernel) ? "\n  " + ((RBFKernel)kernel).getSigma() : "" ));
+      System.err.println("Applying NormaSVM with\n  lambda=" + svm.getLambda() + "\n  kernel=" + svm.getKernel().getClass().getCanonicalName() + "\n  iters=" + iters + "\n  seed=" + seed + ((kernel instanceof RBFKernel) ? "\n  sigma=" + ((RBFKernel)kernel).getSigma() : "" ));
       
-      DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File("movielens_small_train_std.dat"), new File("movielens_small_test_std.dat"));
+      DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File(args[0]), new File(args[1]));
       
       InstanceHolder train = r.getTrainingSet();
       InstanceHolder eval = r.getTrainingSet();
@@ -368,7 +368,7 @@ public class NormaSVM implements Model {
         System.out.println(iter + "\t" + evaluate(svm, train) + "\t" + evaluate(svm, eval));
       }
     } else {
-      System.err.println("Usage: java -cp ... gossipLearning.models.regression.NormaSVM lambda kernel iters [seed]");
+      System.err.println("Usage: java -cp ... gossipLearning.models.regression.NormaSVM train test lambda kernel iters [seed]");
     }
   }
 }
