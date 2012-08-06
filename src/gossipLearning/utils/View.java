@@ -14,7 +14,7 @@ import java.util.Iterator;
  * real constraint or drawback.
  * The real advantage of this implementation is the implementation of get operator which works in O(1).
  * 
- * @author ormandi
+ * @author Róbert Ormándi
  *
  * @param <T> T is the type of state which has to implement Serializable (for cloning, see details at the description of
  * clone method) and Comparable<? super T>. 

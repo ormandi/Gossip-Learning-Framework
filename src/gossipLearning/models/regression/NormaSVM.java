@@ -4,6 +4,7 @@ import gossipLearning.DataBaseReader;
 import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.Model;
 import gossipLearning.models.kernels.Kernel;
+import gossipLearning.models.kernels.RBFKernel;
 import gossipLearning.models.losses.Loss;
 import gossipLearning.utils.SparseVector;
 
@@ -62,7 +63,7 @@ public class NormaSVM implements Model {
   
   public NormaSVM() {
     try {
-      // read parameters
+      // initialize parameters using their default values
       kernel = (Kernel) Class.forName(kernelClassName).newInstance();
       loss = (Loss) Class.forName(lossClassName).newInstance();
       
@@ -127,18 +128,20 @@ public class NormaSVM implements Model {
     // create multiplier
     final double d = (1.0 - nu * lambda);
     
+    // provide prediction and gradient of loss
+    final double pred = predict(x);
+    final double lossGrad = loss.lossGrad(pred, y);
+    
     // update elementary model parts
     for (ElementaryModel p : q) {
       p.update(d);
     }
     
     // add new elementary model part
-    final double lossGrad = loss.lossGrad(predict(x), y);
     q.offer(new ElementaryModel(age, x, - nu * lossGrad));
     
     // update bias
     b -= nu * lossGrad;
-    
   }
   
   /**
@@ -306,6 +309,21 @@ public class NormaSVM implements Model {
     }
   }
   
+  public void setLambda(double lambda) {
+    this.lambda = lambda;
+  }
+  
+  public double getLambda() {
+    return this.lambda;
+  }
+  
+  public void setKernel(Kernel kernel) {
+    this.kernel = kernel;
+  }
+  
+  public Kernel getKernel() {
+    return this.kernel;
+  }
   
   private static double evaluate(Model model, InstanceHolder evalSet) {
     double MAError = 0.0;
@@ -319,59 +337,38 @@ public class NormaSVM implements Model {
   }
   
   public static void main(String[] args) throws Exception {
-    Random rand = new Random(1234567890);
-    NormaSVM svm = new NormaSVM();
-    
-    DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File("movielens_small_train_std.dat"), new File("movielens_small_test_std.dat"));
-    
-    InstanceHolder train = r.getTrainingSet();
-    InstanceHolder eval = r.getTrainingSet();
-    
-    for (int iter = 0; iter < 10*train.size(); iter ++) {
-      int i = rand.nextInt(train.size());
-      SparseVector x = train.getInstance(i);
-      double y = train.getLabel(i);
+    if (args.length == 3 || args.length == 4 || args.length == 5) {
+      NormaSVM svm = new NormaSVM();
+      svm.setLambda(Double.parseDouble(args[0]));
+      Kernel kernel = (Kernel) Class.forName(args[1]).newInstance();
+      svm.setKernel(kernel);
       
-      svm.update(x, y);
+      int iters = Integer.parseInt(args[2]);
+      long seed = (args.length >= 4) ? Long.parseLong(args[3]) : 1234567890;
+      Random rand = new Random(seed);
       
-      System.out.println(iter + "\t" + evaluate(svm, train) + "\t" + evaluate(svm, eval));
+      if (kernel instanceof RBFKernel && args.length >= 5) {
+        ((RBFKernel)kernel).setSigma(Double.parseDouble(args[4]));
+      }
       
+      System.err.println("Applying NormaSVM with\n  lambda=" + svm.getLambda() + "\n  kernel=" + svm.getKernel().getClass().getCanonicalName() + "\n  iters=" + iters + "\n  seed=" + seed + ((kernel instanceof RBFKernel) ? "\n  " + ((RBFKernel)kernel).getSigma() : "" ));
       
+      DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File("movielens_small_train_std.dat"), new File("movielens_small_test_std.dat"));
+      
+      InstanceHolder train = r.getTrainingSet();
+      InstanceHolder eval = r.getTrainingSet();
+      
+      for (int iter = 0; iter < iters*train.size(); iter ++) {
+        int i = rand.nextInt(train.size());
+        SparseVector x = train.getInstance(i);
+        double y = train.getLabel(i);
+        
+        svm.update(x, y);
+        
+        System.out.println(iter + "\t" + evaluate(svm, train) + "\t" + evaluate(svm, eval));
+      }
+    } else {
+      System.err.println("Usage: java -cp ... gossipLearning.models.regression.NormaSVM lambda kernel iters [seed]");
     }
-    
-    
-    /*
-    BoundedQueue q = svm.new BoundedQueue(3);
-    
-    
-    
-    ElementaryModel p = svm.new ElementaryModel(2, null, 0.0);
-    q.offer(p);
-    System.out.println(q);  // 2
-    
-    p = svm.new ElementaryModel(1, null, 0.0);
-    q.offer(p);
-    System.out.println(q); // 2, 1
-    
-    p = svm.new ElementaryModel(3, null, 0.0);
-    q.offer(p);
-    System.out.println(q); // 2, 1, 3
-    
-    p = svm.new ElementaryModel(4, null, 0.0);
-    q.offer(p); // 1, 3, 4
-    System.out.println(q);
-    
-    p = svm.new ElementaryModel(7, null, 0.0);
-    q.offer(p); // 3, 4, 7
-    System.out.println(q);
-    
-    
-    BoundedQueue qq = (BoundedQueue) q.clone();
-    p = svm.new ElementaryModel(100, null, 0.0);
-    q.offer(p);
-    System.out.println(q);
-    System.out.println(qq);
-    */
-    
   }
 }
