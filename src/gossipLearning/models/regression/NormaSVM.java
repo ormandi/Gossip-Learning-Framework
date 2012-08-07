@@ -24,7 +24,7 @@ public class NormaSVM implements Model {
    * Parameter Tau - shrinking constant
    */
   protected static final String PAR_TAU = "normasvm.tau";
-  protected static final int DEFAULT_TAU = 100;
+  protected static final int DEFAULT_TAU = 50;
   protected int tau = DEFAULT_TAU;
   
   /**
@@ -358,7 +358,7 @@ public class NormaSVM implements Model {
       InstanceHolder train = r.getTrainingSet();
       InstanceHolder eval = r.getEvalSet();
       
-      for (int iter = 0; iter < iters*train.size(); iter ++) {
+      for (int iter = 0; iter < iters/**train.size()*/; iter ++) {
         int i = rand.nextInt(train.size());
         SparseVector x = train.getInstance(i);
         double y = train.getLabel(i);
