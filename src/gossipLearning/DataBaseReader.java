@@ -224,6 +224,17 @@ public class DataBaseReader {
   }
   
   /**
+   * Writes the stored data sets to the specified files.
+   * @param trainFile writes the training set to this file
+   * @param testFile writes the evaluation set to this file
+   * @throws IOException if file write error occurs.
+   */
+  public void writeToFile(File trainFile, File testFile) throws IOException{
+    trainingSet.writeToFile(trainFile);
+    evalSet.writeToFile(testFile);
+  }
+  
+  /**
    * Returns the String representation of the class.
    */
   public String toString() {

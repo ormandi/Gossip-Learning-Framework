@@ -3,6 +3,11 @@ package gossipLearning;
 import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.utils.SparseVector;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Vector;
 
@@ -189,6 +194,25 @@ public class InstanceHolder implements Serializable{
     instances.clear();
     labels.clear();
     size = 0;
+  }
+  /**
+   * Writes the stored dataset to the specified file in Joachim's format
+   * @param outFile the file to write
+   * @throws IOException if file write error occurs.
+   */
+  public void writeToFile(File outFile) throws IOException{
+    PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(outFile)));
+    for (int i = 0; i < instances.size(); i++){
+      pw.print(labels.get(i));
+      for (VectorEntry e : instances.get(i)){
+        pw.print(' ');
+        pw.print(e.index + 1);
+        pw.print(':');
+        pw.print(e.value);
+      }
+      pw.println();
+    }
+    pw.close();
   }
   
   /**
