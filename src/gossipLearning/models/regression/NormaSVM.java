@@ -24,7 +24,7 @@ public class NormaSVM implements Model {
    * Parameter Tau - shrinking constant
    */
   protected static final String PAR_TAU = "normasvm.tau";
-  protected static final int DEFAULT_TAU = 50;
+  protected static final int DEFAULT_TAU = 1000;
   protected int tau = DEFAULT_TAU;
   
   /**
@@ -138,10 +138,10 @@ public class NormaSVM implements Model {
     }
     
     // add new elementary model part
-    q.offer(new ElementaryModel(age, x, - nu * lossGrad));
+    q.offer(new ElementaryModel(age, x, nu * lossGrad));
     
     // update bias
-    b -= nu * lossGrad;
+    b += nu * lossGrad;
   }
   
   /**
@@ -365,7 +365,9 @@ public class NormaSVM implements Model {
         
         svm.update(x, y);
         
-        System.out.println(iter + "\t" + evaluate(svm, train) + "\t" + evaluate(svm, eval));
+        if (iter % 1000 == 0) {
+          System.out.println(iter + "\t" + evaluate(svm, train) + "\t" + evaluate(svm, eval));
+        }
       }
     } else {
       System.err.println("Usage: java -cp ... gossipLearning.models.regression.NormaSVM train test lambda kernel iters [seed]");

@@ -18,7 +18,7 @@ public class SquaredLoss implements Loss {
    */
   @Override
   public double lossGrad(double fx, double y) {
-    return fx - y;
+    return y - fx;
   }
 
 }

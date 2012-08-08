@@ -2,6 +2,7 @@ package gossipLearning;
 
 import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -178,6 +179,45 @@ public class DataBaseReader {
     for (int i = 0; i < evalSet.size(); i++) {
       evalSet.getInstance(i).add(means, -1.0).div(devs);
     }
+  }
+  
+  /**
+   * Transform the training and evaluation databases applying an at most n-degree polynomial radial
+   * basis function I.e. when n=2 and the original database contains two dimensions (x,y), the mapping 
+   * produce a new database containing five dimensions (x,y,x^2,xy,y^2). 
+   */
+  public void polynomize(int n) {
+    Vector<Vector<Integer>> mapping = Utils.polyGen(this.numberOfFeatures, n);
+    trainingSet = convert(trainingSet, mapping);
+    evalSet = convert(evalSet, mapping);
+  }
+  
+  private InstanceHolder convert(InstanceHolder origSet, Vector<Vector<Integer>> mapping) {
+    // create the new instance set
+    InstanceHolder newSet = new InstanceHolder(origSet.getNumberOfClasses(), mapping.size());
+    
+    for (int i = 0; i < origSet.size(); i++) {
+      // get original instance and create mapped one
+      SparseVector origInstance = origSet.getInstance(i);
+      SparseVector newInstance = new SparseVector(mapping.size());
+      
+      // for each new dimension
+      for (int j = 0; j < mapping.size(); j++) {
+        // perform mapping based on the original values
+        double newValue = 1.0;
+        for (int k = 0; k < mapping.get(j).size(); k ++) {
+          newValue *= origInstance.get(mapping.get(j).get(k));
+        }
+        // store new value of dimension j
+        newInstance.put(j, newValue);
+      }
+      
+      // store mapped instance
+      newSet.add(newInstance, origSet.getLabel(i));
+    }
+    
+    // return new instance set
+    return newSet;
   }
   
   /**

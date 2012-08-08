@@ -3,9 +3,35 @@ package gossipLearning.utils;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
+import java.util.Stack;
 import java.util.TreeMap;
+import java.util.Vector;
 
 public class Utils {
+  
+  private static void polyGen(int d, int n, Stack<Integer> s, Vector<Vector<Integer>> result) {
+    if (s.size() > 0) {
+      Stack<Integer> retS = new Stack<Integer>();
+      retS.addAll(s);
+      result.add(retS);
+    }
+    if (n <= 0) {
+      return;
+    }
+    for (int i = (s.size() > 0) ? s.peek() : 0; i < d; i ++) {
+      s.push(i);
+      polyGen(d, n-1, s, result);
+      s.pop();
+    }
+  }
+  
+  public static Vector<Vector<Integer>> polyGen(int d, int n) {
+    Vector<Vector<Integer>> result = new Vector<Vector<Integer>>();
+    Stack<Integer> stack = new Stack<Integer>();
+    polyGen(d, n, stack, result);
+    return result;
+  }
+  
   public static boolean isPower2(double t) {
     final long tl = (long) t;
     return (tl & (tl - 1)) == 0;
