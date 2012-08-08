@@ -105,6 +105,14 @@ public class LinearRegression implements Model, Mergeable<LinearRegression>, Sim
     this.numberOfClasses = numberOfClasses;
   }
   
+  public double getLambda() {
+    return lambda;
+  }
+
+  public void setLambda(double lambda) {
+    this.lambda = lambda;
+  }
+
   @Override
   public String toString() {
     return w.toString() + "\t" + bias;

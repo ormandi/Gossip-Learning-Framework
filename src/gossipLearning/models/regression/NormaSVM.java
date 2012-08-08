@@ -3,6 +3,7 @@ package gossipLearning.models.regression;
 import gossipLearning.DataBaseReader;
 import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.Model;
+import gossipLearning.models.LinearRegression;
 import gossipLearning.models.kernels.Kernel;
 import gossipLearning.models.kernels.RBFKernel;
 import gossipLearning.models.losses.Loss;
@@ -338,10 +339,13 @@ public class NormaSVM implements Model {
   
   public static void main(String[] args) throws Exception {
     if (args.length == 5 || args.length == 6 || args.length == 7) {
-      NormaSVM svm = new NormaSVM();
-      svm.setLambda(Double.parseDouble(args[2]));
+      
       Kernel kernel = (Kernel) Class.forName(args[3]).newInstance();
-      svm.setKernel(kernel);
+      
+      LinearRegression svm = new LinearRegression();
+      /*NormaSVM svm = new NormaSVM();
+      svm.setKernel(kernel);*/
+      svm.setLambda(Double.parseDouble(args[2]));
       
       int iters = Integer.parseInt(args[4]);
       long seed = (args.length >= 6) ? Long.parseLong(args[5]) : 1234567890;
@@ -351,7 +355,7 @@ public class NormaSVM implements Model {
         ((RBFKernel)kernel).setSigma(Double.parseDouble(args[6]));
       }
       
-      System.err.println("Applying NormaSVM with\n  lambda=" + svm.getLambda() + "\n  kernel=" + svm.getKernel().getClass().getCanonicalName() + "\n  iters=" + iters + "\n  seed=" + seed + ((kernel instanceof RBFKernel) ? "\n  sigma=" + ((RBFKernel)kernel).getSigma() : "" ));
+      //System.err.println("Applying NormaSVM with\n  lambda=" + svm.getLambda() + "\n  kernel=" + svm.getKernel().getClass().getCanonicalName() + "\n  iters=" + iters + "\n  seed=" + seed + ((kernel instanceof RBFKernel) ? "\n  sigma=" + ((RBFKernel)kernel).getSigma() : "" ));
       
       DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File(args[0]), new File(args[1]));
       
@@ -365,7 +369,7 @@ public class NormaSVM implements Model {
         
         svm.update(x, y);
         
-        if (iter % 1000 == 0) {
+        if (iter % 100 == 0) {
           System.out.println(iter + "\t" + evaluate(svm, train) + "\t" + evaluate(svm, eval));
         }
       }
