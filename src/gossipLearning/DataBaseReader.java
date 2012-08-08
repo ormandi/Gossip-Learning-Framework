@@ -190,6 +190,8 @@ public class DataBaseReader {
     Vector<Vector<Integer>> mapping = Utils.polyGen(this.numberOfFeatures, n);
     trainingSet = convert(trainingSet, mapping);
     evalSet = convert(evalSet, mapping);
+    
+    System.out.println(trainingSet.getInstance(0).size());
   }
   
   private InstanceHolder convert(InstanceHolder origSet, Vector<Vector<Integer>> mapping) {
