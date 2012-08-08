@@ -356,6 +356,7 @@ public class NormaSVM implements Model {
       }
       
       //System.err.println("Applying NormaSVM with\n  lambda=" + svm.getLambda() + "\n  kernel=" + svm.getKernel().getClass().getCanonicalName() + "\n  iters=" + iters + "\n  seed=" + seed + ((kernel instanceof RBFKernel) ? "\n  sigma=" + ((RBFKernel)kernel).getSigma() : "" ));
+      System.err.println("Applying NormaSVM with\n  lambda=" + svm.getLambda() + "\n  iters=" + iters + "\n  seed=" + seed + ((kernel instanceof RBFKernel) ? "\n  sigma=" + ((RBFKernel)kernel).getSigma() : "" ));
       
       DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", new File(args[0]), new File(args[1]));
       
