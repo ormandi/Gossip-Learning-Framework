@@ -60,13 +60,12 @@ public class DataBaseReader {
     // reading evaluation file
     evalSet = parseFile(eFile);
     
-    if (trainingSet.getNumberOfFeatures() != evalSet.getNumberOfFeatures() || 
-        trainingSet.getNumberOfClasses() != evalSet.getNumberOfClasses()) {
-      numberOfFeatures = Math.max(trainingSet.getNumberOfFeatures(), evalSet.getNumberOfFeatures());
-      numberOfClasses = Math.max(trainingSet.getNumberOfClasses(), evalSet.getNumberOfClasses());
-      trainingSet = new InstanceHolder(trainingSet.getInstances(), trainingSet.getLabels(), numberOfClasses, numberOfFeatures);
-      evalSet = new InstanceHolder(evalSet.getInstances(), evalSet.getLabels(), numberOfClasses, numberOfFeatures);
-    }
+    // set the correct number of features and classes for both sets
+    numberOfFeatures = Math.max(trainingSet.getNumberOfFeatures(), evalSet.getNumberOfFeatures());
+    numberOfClasses = Math.max(trainingSet.getNumberOfClasses(), evalSet.getNumberOfClasses());
+    trainingSet = new InstanceHolder(trainingSet.getInstances(), trainingSet.getLabels(), numberOfClasses, numberOfFeatures);
+    evalSet = new InstanceHolder(evalSet.getInstances(), evalSet.getLabels(), numberOfClasses, numberOfFeatures);
+  
   }
   
   /**
@@ -146,7 +145,7 @@ public class DataBaseReader {
       numberOfClasses = classes.size();
     }
     
-    return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses, numberOfFeatures); // 1-> indicating clustering
+    return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses, numberOfFeatures + 1); // 1-> indicating clustering
   }
   
   /**
@@ -187,11 +186,9 @@ public class DataBaseReader {
    * produce a new database containing five dimensions (x,y,x^2,xy,y^2). 
    */
   public void polynomize(int n) {
-    Vector<Vector<Integer>> mapping = Utils.polyGen(this.numberOfFeatures, n);
+    Vector<Vector<Integer>> mapping = Utils.polyGen(numberOfFeatures, n);
     trainingSet = convert(trainingSet, mapping);
-    evalSet = convert(evalSet, mapping);
-    
-    System.out.println(trainingSet.getInstance(0).size());
+    evalSet = convert(evalSet, mapping);    
   }
   
   private InstanceHolder convert(InstanceHolder origSet, Vector<Vector<Integer>> mapping) {
