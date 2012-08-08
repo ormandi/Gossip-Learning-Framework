@@ -7,10 +7,8 @@ import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.models.clusterer.KMeans;
 import gossipLearning.utils.SparseVector;
 
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.Random;
 
 import peersim.config.Configuration;
@@ -19,6 +17,7 @@ import weka.classifiers.Classifier;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instances;
 import weka.core.converters.LibSVMLoader;
+import weka.core.Utils;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
 
@@ -33,6 +32,7 @@ public class RecSysTest {
   protected static String classifierName = null;
   protected static String modelName = null;
   protected static String prefix;
+  protected static String wekaOptions = null;
   
   protected static double[] getNumberOfUsers;
   protected static double[] getAverageRating;
@@ -170,6 +170,9 @@ public class RecSysTest {
     for (int i = 0; i < numOfClusters; i++) {
       //System.err.print("\t" + i);
       classifier[i] = (Classifier)Class.forName(classifierName).newInstance();
+      if (wekaOptions != null) {
+        classifier[i].setOptions(Utils.splitOptions(wekaOptions));
+      }
       classifier[i].buildClassifier(trainings[i]);
     }
     //System.err.println();
@@ -288,11 +291,13 @@ public class RecSysTest {
     numberOfAllUsers = Configuration.getDouble("numOfAllUsers");
     
     classifierName = Configuration.getString("classifier", null);
+    wekaOptions = Configuration.getString("wekaOptions", null);
     
     prefix = "model";
     modelName = Configuration.getString(prefix, null);
     
     boolean isNormalize = Configuration.getBoolean("normalize");
+    int polyDegree = Configuration.getInt("polyDegree");
     
     DataBaseReader dbReader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
     
@@ -349,14 +354,15 @@ public class RecSysTest {
     File tout = new File("tr.dat");
     File eout = new File("ev.dat");
     
-    BufferedWriter w = new BufferedWriter(new FileWriter(tout));
-    w.write(trainingSet.toString());
-    w.close();
-    w = new BufferedWriter(new FileWriter(eout));
-    w.write(testSet.toString());
-    w.close();
+    trainingSet.writeToFile(tout);
+    testSet.writeToFile(eout);
     
     DataBaseReader dbr = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", tout, eout);
+    
+    dbr.polynomize(polyDegree);
+    //dbr.writeToFile(new File("tr_poly4.dat"), new File("ev_poly4.dat"));
+    //System.exit(0);
+
     if (isNormalize) {
       dbr.standardize();
     }
