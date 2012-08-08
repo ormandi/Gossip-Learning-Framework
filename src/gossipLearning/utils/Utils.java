@@ -9,8 +9,8 @@ import java.util.Vector;
 
 public class Utils {
   
-  private static void polyGen(int d, int n, Stack<Integer> s, Vector<Vector<Integer>> result) {
-    if (s.size() > 0) {
+  private static void polyGen(int d, int n, Stack<Integer> s, Vector<Vector<Integer>> result, boolean generateAll) {
+    if ((generateAll || n == 0) && s.size() > 0) {
       Stack<Integer> retS = new Stack<Integer>();
       retS.addAll(s);
       result.add(retS);
@@ -20,15 +20,15 @@ public class Utils {
     }
     for (int i = (s.size() > 0) ? s.peek() : 0; i < d; i ++) {
       s.push(i);
-      polyGen(d, n-1, s, result);
+      polyGen(d, n-1, s, result, generateAll);
       s.pop();
     }
   }
   
-  public static Vector<Vector<Integer>> polyGen(int d, int n) {
+  public static Vector<Vector<Integer>> polyGen(int d, int n, boolean generateAll) {
     Vector<Vector<Integer>> result = new Vector<Vector<Integer>>();
     Stack<Integer> stack = new Stack<Integer>();
-    polyGen(d, n, stack, result);
+    polyGen(d, n, stack, result, generateAll);
     return result;
   }
   

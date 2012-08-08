@@ -370,7 +370,7 @@ public class NormaSVM implements Model {
         
         svm.update(x, y);
         
-        if (iter % 100 == 0) {
+        if (iter % 100000 == 0) {
           System.out.println(iter + "\t" + evaluate(svm, train) + "\t" + evaluate(svm, eval));
         }
       }

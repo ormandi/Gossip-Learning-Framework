@@ -186,7 +186,11 @@ public class DataBaseReader {
    * produce a new database containing five dimensions (x,y,x^2,xy,y^2). 
    */
   public void polynomize(int n) {
-    Vector<Vector<Integer>> mapping = Utils.polyGen(numberOfFeatures, n);
+    polynomize(n, true);
+  }
+  
+  public void polynomize(int n, boolean generateAll) {
+    Vector<Vector<Integer>> mapping = Utils.polyGen(numberOfFeatures, n, generateAll);
     trainingSet = convert(trainingSet, mapping);
     evalSet = convert(evalSet, mapping);    
   }
