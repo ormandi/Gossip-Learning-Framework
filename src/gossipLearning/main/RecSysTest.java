@@ -359,9 +359,11 @@ public class RecSysTest {
     
     DataBaseReader dbr = DataBaseReader.createDataBaseReader("gossipLearning.DataBaseReader", tout, eout);
     
-    dbr.polynomize(polyDegree);
-    //dbr.writeToFile(new File("tr_poly4.dat"), new File("ev_poly4.dat"));
-    //System.exit(0);
+    if (polyDegree > 1) {
+      //dbr.polynomize(polyDegree);
+      //dbr.writeToFile(new File("bookcrossing_fn_" + polyDegree + ".train"), new File("bookcrossing_fn_" + polyDegree + ".test"));
+      //System.exit(0);
+    }
 
     if (isNormalize) {
       dbr.standardize();
