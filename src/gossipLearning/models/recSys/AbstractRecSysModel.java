@@ -306,7 +306,8 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       numberOfRatings = numberOfClasses;
       
       // reinitialize set structure
-      itemFreqs = (itemFreqs == null) ? new ItemFrequencies(numberOfRatings, numberOfCounters, numberOfHashFunctions, numberOfMaxUpdates) : itemFreqs;
+      //itemFreqs = (itemFreqs == null) ? new ItemFrequencies(numberOfRatings, numberOfCounters, numberOfHashFunctions, numberOfMaxUpdates) : itemFreqs;
+      itemFreqs = (itemFreqs == null) ? new ItemFrequencies(numberOfCounters, numberOfHashFunctions) : itemFreqs;
       
       // reinitialize model structure
       initializeModels(numberOfClusters, numberOfRatings);

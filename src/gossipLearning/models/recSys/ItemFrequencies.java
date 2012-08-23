@@ -3,6 +3,7 @@ package gossipLearning.models.recSys;
 import gossipLearning.utils.MultiBloomFilter;
 
 import java.io.Serializable;
+import java.util.TreeMap;
 
 //import peersim.core.CommonState;
 
@@ -13,10 +14,9 @@ import java.io.Serializable;
  */
 public class ItemFrequencies implements Serializable {
   private static final long serialVersionUID = 1348239L;
-  private MultiBloomFilter[] ratingSet;
-  private MultiBloomFilter[] likeabilitySet;
+  private TreeMap<Double, MultiBloomFilter> ratingSet;
+  private TreeMap<Double, MultiBloomFilter> likeabilitySet;
   
-  private final int q;
   private double counter;
   private int prevNodeId;
   
@@ -26,18 +26,16 @@ public class ItemFrequencies implements Serializable {
   /**
    * Creates a new instance.
    * 
-   * @param numberOfRatings defines how many ratings are possible in the recommender task
    * @param m number of counters applied by the wrapped bloom filters
    * @param k number of hash functions applied by the inner bloom filters
    */
-  public ItemFrequencies(int numberOfRatings, int m, int k, int q) {
+  public ItemFrequencies(int m, int k) {
     this.m = m;
     this.k = k;
-    this.q = q;
     counter = 0;
     prevNodeId = -1;
-    ratingSet = new MultiBloomFilter[numberOfRatings];
-    likeabilitySet = new MultiBloomFilter[numberOfRatings];
+    ratingSet = new TreeMap<Double, MultiBloomFilter>();
+    likeabilitySet = new TreeMap<Double, MultiBloomFilter>();
   }
   
   /**
@@ -49,21 +47,30 @@ public class ItemFrequencies implements Serializable {
     // copy simple fields
     m = other.m;
     k = other.k;
-    q = other.q;
     counter = other.counter;
     prevNodeId = other.prevNodeId;
     
     // deep copy of rating set
-    ratingSet = (other.ratingSet == null) ? null : new MultiBloomFilter[other.ratingSet.length];
-    for (int i = 0; other.ratingSet != null && i < other.ratingSet.length; i ++) {
-      ratingSet[i] = (other.ratingSet[i] != null) ? (MultiBloomFilter) other.ratingSet[i].clone() : null;
+    ratingSet = (other.ratingSet == null) ? null : new TreeMap<Double, MultiBloomFilter>();
+    if (other.ratingSet != null) {
+      for (double key : other.ratingSet.keySet()) {
+        ratingSet.put(key, (MultiBloomFilter)other.ratingSet.get(key).clone());
+      }
     }
+    //for (int i = 0; other.ratingSet != null && i < other.ratingSet.length; i ++) {
+    //  ratingSet.put = (other.ratingSet[i] != null) ? (MultiBloomFilter) other.ratingSet[i].clone() : null;
+    //}
     
     // deep copy of likeability set
-    likeabilitySet = (other.likeabilitySet == null) ? null : new MultiBloomFilter[other.ratingSet.length];
-    for (int i = 0; other.likeabilitySet != null && i < other.likeabilitySet.length; i ++) {
-      likeabilitySet[i] = (other.likeabilitySet[i] != null) ? (MultiBloomFilter) other.likeabilitySet[i].clone() : null;
+    likeabilitySet = (other.likeabilitySet == null) ? null : new TreeMap<Double, MultiBloomFilter>();
+    if (other.likeabilitySet != null) {
+      for (double key : other.likeabilitySet.keySet()) {
+        likeabilitySet.put(key, (MultiBloomFilter)other.likeabilitySet.get(key));
+      }
     }
+    //for (int i = 0; other.likeabilitySet != null && i < other.likeabilitySet.length; i ++) {
+    //  likeabilitySet[i] = (other.likeabilitySet[i] != null) ? (MultiBloomFilter) other.likeabilitySet[i].clone() : null;
+    //}
   }
   
   /**
@@ -94,33 +101,43 @@ public class ItemFrequencies implements Serializable {
     }*/
     counter ++;
     // get rating ID
-    int rateID = (int)rating - 1;
-    
+    //int rateID = (int)rating - 1;
+
     // add to rate set
-    if (0 <= rateID && rateID < ratingSet.length) {
-      // initialize bloom filter if necessary
-      if (ratingSet[rateID] == null) {
-        ratingSet[rateID] = new MultiBloomFilter(m, k);
-      }
-      // add item
-      ratingSet[rateID].add(itemID);
-    } else {
-      throw new RuntimeException("Rating " + rating + " out of range in item set with length " + ratingSet.length);
+    if (!ratingSet.containsKey(rating)) {
+      ratingSet.put(rating, new MultiBloomFilter(m, k));
     }
+    ratingSet.get(rating).add(itemID);
+    //if (0 <= rateID && rateID < ratingSet.length) {
+      // initialize bloom filter if necessary
+      //if (ratingSet[rateID] == null) {
+        //ratingSet[rateID] = new MultiBloomFilter(m, k);
+      //}
+      // add item
+      //ratingSet[rateID].add(itemID);
+    //} else {
+      //throw new RuntimeException("Rating " + rating + " out of range in item set with length " + ratingSet.length);
+    //}
     
     // add to likeability
-    if (0 <= rateID && rateID < ratingSet.length) {
-      // initialize if necessary
-      if (likeabilitySet[rateID] == null) {
-        likeabilitySet[rateID] = new MultiBloomFilter(m, k);
-      }
-      // add item if necessary
-      if (rating > userAvgRating) {
-        likeabilitySet[rateID].add(itemID);
-      }
-    } else {
-      throw new RuntimeException("Rating " + rating + " out of range in likeability set with length " + likeabilitySet.length);
+    if (!likeabilitySet.containsKey(rating)) {
+      likeabilitySet.put(rating, new MultiBloomFilter(m, k));
     }
+    if (rating > userAvgRating) {
+      likeabilitySet.get(rating).add(itemID);
+    }
+    //if (0 <= rateID && rateID < ratingSet.length) {
+      // initialize if necessary
+      //if (likeabilitySet[rateID] == null) {
+        //likeabilitySet[rateID] = new MultiBloomFilter(m, k);
+      //}
+      // add item if necessary
+      //if (rating > userAvgRating) {
+        //likeabilitySet[rateID].add(itemID);
+      //}
+    //} else {
+      //throw new RuntimeException("Rating " + rating + " out of range in likeability set with length " + likeabilitySet.length);
+    //}
   }
   
   /**
@@ -142,12 +159,17 @@ public class ItemFrequencies implements Serializable {
   public double getAverageRating(int itemID) {
     double avg = 0.0;
     double sum = 0.0;
-    for (int i = 0; i < ratingSet.length; i ++) {
-      if (ratingSet[i] != null) {
-        avg += ratingSet[i].contains(itemID) * (double)(i+1);
-        sum += ratingSet[i].contains(itemID);
-      }
+    for (double rating : ratingSet.keySet()) {
+      double occurs = ratingSet.get(rating).contains(itemID);
+      avg += occurs * rating;
+      sum += occurs;
     }
+    //for (int i = 0; i < ratingSet.length; i ++) {
+      //if (ratingSet[i] != null) {
+        //avg += ratingSet[i].contains(itemID) * (double)(i+1);
+        //sum += ratingSet[i].contains(itemID);
+      //}
+    //}
     return (sum > 0.0) ? avg/sum : 0.0;
   }
   
@@ -170,13 +192,16 @@ public class ItemFrequencies implements Serializable {
    * @param itemID item ID
    * @return sum of occurrences
    */
-  private int sumOccurrences(MultiBloomFilter[] sets, int itemID) {
+  private int sumOccurrences(TreeMap<Double, MultiBloomFilter> sets, int itemID) {
     int sum = 0;
-    for (int i = 0; i < sets.length; i ++) {
-      if (sets[i] != null) {
-        sum += sets[i].contains(itemID);
-      }
+    for (double rating : sets.keySet()) {
+      sum += sets.get(rating).contains(itemID);
     }
+    //for (int i = 0; i < sets.length; i ++) {
+      //if (sets[i] != null) {
+        //sum += sets[i].contains(itemID);
+      //}
+    //}
     return sum;
   }
   
@@ -186,15 +211,16 @@ public class ItemFrequencies implements Serializable {
    * @return this
    */
   public ItemFrequencies merge(ItemFrequencies a) {
-    if (ratingSet != null && likeabilitySet != null && a.ratingSet != null && a.likeabilitySet != null) {
-      for (int i = 0; i < a.ratingSet.length; i++) {
-        if (ratingSet[i] != null && likeabilitySet[i] != null && a.ratingSet[i] != null && a.likeabilitySet[i] != null) {
-          ratingSet[i].merge(a.ratingSet[i]);
-          likeabilitySet[i].merge(a.likeabilitySet[i]);
-        }
-      }
-    }
-    return this;
+    throw new RuntimeException("Does not work yet!!!");
+    //if (ratingSet != null && likeabilitySet != null && a.ratingSet != null && a.likeabilitySet != null) {
+      //for (int i = 0; i < a.ratingSet.length; i++) {
+        //if (ratingSet[i] != null && likeabilitySet[i] != null && a.ratingSet[i] != null && a.likeabilitySet[i] != null) {
+          //ratingSet[i].merge(a.ratingSet[i]);
+          //likeabilitySet[i].merge(a.likeabilitySet[i]);
+        //}
+      //}
+    //}
+    //return this;
   }
   
   public void resetCounter() {
@@ -212,10 +238,14 @@ public class ItemFrequencies implements Serializable {
     StringBuffer br = new StringBuffer();
     br.append("rating: ");
     StringBuffer bl = new StringBuffer();
-    for (int i = 0; i < ratingSet.length; i++) {
-      br.append(i + ": " +ratingSet[i] + "\t");
-      bl.append(i + ": " + likeabilitySet[i] + "\t");
+    for (double rating : ratingSet.keySet()) {
+      br.append(rating + ": " + ratingSet.get(rating) + "\t");
+      bl.append(rating + ": " + likeabilitySet.get(rating) + "\t");
     }
+    //for (int i = 0; i < ratingSet.length; i++) {
+      //br.append(i + ": " +ratingSet[i] + "\t");
+      //bl.append(i + ": " + likeabilitySet[i] + "\t");
+    //}
     return br.append(", like: ").append(bl).toString();
   }
 }

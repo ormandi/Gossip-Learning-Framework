@@ -51,14 +51,15 @@ public class RecSysTest2 {
     
     Random r = new Random(seed);
     DataBaseReader dbReader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
-    ItemFrequencies freqs = new ItemFrequencies((int)numberOfRatings, m, k, Integer.MAX_VALUE);
+    //ItemFrequencies freqs = new ItemFrequencies((int)numberOfRatings, m, k, Integer.MAX_VALUE);
+    ItemFrequencies freqs = new ItemFrequencies(m, k);
     
     KMeans kMeans = new KMeans(numOfClusters);
     Model[] models = new Model[numOfClusters];
     for (int i = 0; i < numOfClusters; i++) {
       models[i] = (Model)Class.forName(modelName).newInstance();
       models[i].init(prefix);
-      models[i].setNumberOfClasses((int)numberOfRatings);
+      //models[i].setNumberOfClasses((int)numberOfRatings);
     }
     
     System.out.println("#iter\tMAE\tRMSE");
@@ -149,7 +150,8 @@ public class RecSysTest2 {
       userAvgRating += itemRating.value;
       userNumberOfRatings ++;
     }
-    userAvgRating = (userNumberOfRatings > 0.0) ? userAvgRating / userNumberOfRatings : (numberOfRatings + 1.0) / 2.0; // when no rating for a user, use the mean of rating range
+    //userAvgRating = (userNumberOfRatings > 0.0) ? userAvgRating / userNumberOfRatings : (numberOfRatings + 1.0) / 2.0; // when no rating for a user, use the mean of rating range
+    userAvgRating = (userNumberOfRatings > 0.0) ? userAvgRating / userNumberOfRatings : 0.0; // when no rating for a user, use 0.0
     
     featureVectorA[0] = userAvgRating / numberOfRatings;
     featureVectorA[1] = userNumberOfRatings / numberOfAllUsers;
