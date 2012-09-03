@@ -62,7 +62,7 @@ public class RecSysTest2 {
       //models[i].setNumberOfClasses((int)numberOfRatings);
     }
     
-    System.out.println("#iter\tMAE\tRMSE");
+    System.err.println("#iter\tMAE\tRMSE");
     for (int i = 1; i <= iter; i++) {
       int userID = r.nextInt(dbReader.getTrainingSet().size());
       SparseVector ratings = dbReader.getTrainingSet().getInstance(userID);
@@ -99,13 +99,14 @@ public class RecSysTest2 {
       
       // evaluate on test set
       if (i % printFreq == 0) {
-        double[] errors = evaluate(models, kMeans, freqs, dbReader.getEvalSet());
-        System.out.println(i + "\t" + errors[0] + "\t" + errors[1]);
+        double[] errors = evaluate(models, kMeans, freqs, dbReader.getEvalSet(), false);
+        System.err.println(i + "\t" + errors[0] + "\t" + errors[1]);
       }
     }
+    evaluate(models, kMeans, freqs, dbReader.getEvalSet(), true);
   }
   
-  public static double[] evaluate(Model[] model, KMeans kMeans, ItemFrequencies freqs, InstanceHolder evalSet) {
+  public static double[] evaluate(Model[] model, KMeans kMeans, ItemFrequencies freqs, InstanceHolder evalSet, boolean printPred) {
     double MAError = 0.0;
     double RMSError = 0.0;
     double counter = 0.0;
@@ -131,6 +132,9 @@ public class RecSysTest2 {
         MAError += Math.abs(expected - predicted);
         RMSError += Math.pow(((expected - predicted)/divErr),2);
         counter ++;
+        if (printPred) {
+          System.out.println(i + "\t" + itemID + "\t" + predicted + "\t" + expected);
+        }
       }
     }
     MAError /= counter * divErr;
