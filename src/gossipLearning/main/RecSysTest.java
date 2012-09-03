@@ -17,7 +17,6 @@ import weka.classifiers.Classifier;
 import weka.clusterers.SimpleKMeans;
 import weka.core.Instances;
 import weka.core.converters.LibSVMLoader;
-import weka.core.Utils;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
 
@@ -32,7 +31,6 @@ public class RecSysTest {
   protected static String classifierName = null;
   protected static String modelName = null;
   protected static String prefix;
-  protected static String wekaOptions = null;
   
   protected static double[] getNumberOfUsers;
   protected static double[] getAverageRating;
@@ -170,9 +168,6 @@ public class RecSysTest {
     for (int i = 0; i < numOfClusters; i++) {
       //System.err.print("\t" + i);
       classifier[i] = (Classifier)Class.forName(classifierName).newInstance();
-      if (wekaOptions != null) {
-        classifier[i].setOptions(Utils.splitOptions(wekaOptions));
-      }
       classifier[i].buildClassifier(trainings[i]);
     }
     //System.err.println();
@@ -291,7 +286,6 @@ public class RecSysTest {
     numberOfAllUsers = Configuration.getDouble("numOfAllUsers");
     
     classifierName = Configuration.getString("classifier", null);
-    wekaOptions = Configuration.getString("wekaOptions", null);
     
     prefix = "model";
     modelName = Configuration.getString(prefix, null);
