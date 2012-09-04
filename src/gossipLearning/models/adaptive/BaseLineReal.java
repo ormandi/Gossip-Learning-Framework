@@ -9,14 +9,12 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import peersim.config.Configuration;
-
 /**
  * This class models the problem of drifting concepts using a real dataset 
  * and measures the performance of some baseline algorithms.
  * The drift is modeled by changing the class labels cyclically.
  * @author István Hegedűs
- *
+ * @hidden
  */
 public class BaseLineReal extends BaseLine {
   

@@ -17,7 +17,7 @@ import java.util.Random;
  * between these hyperplanes periodically and specifies the labelling of the samples. 
  * The move of the hyperplane can be sudden of incremental.
  * @author István Hegedűs
- *
+ * @hidden
  */
 public class BaseLine {
   protected static final long seed = 1234567890;

@@ -13,7 +13,17 @@ import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 
-/** @hidden */
+/**
+ * This class models the problem of drifting concepts using the moving hyperplane 
+ * approach and measures the performance by calls the execute procedure of the 
+ * defined observers.</br>
+ * Defines samples in the d dimensional unit hypercube and two hypesrplanes 
+ * , go through the origin, that are orthogonal to each other. The concept moves 
+ * between these hyperplanes periodically and specifies the labelling of the samples. 
+ * The move of the hyperplane can be sudden of incremental.
+ * @author István Hegedűs
+ * @hidden
+ */
 public class BaseLineControl implements Control {
   
   private static final String PAR_PID = "protocol";
