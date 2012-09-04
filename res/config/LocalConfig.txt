@@ -1,0 +1,9 @@
+ITER ${ITERATIONS}
+SEED 1234567890
+
+dbReader gossipLearning.DataBaseReader
+trainingFile ${TRAINING_DATABASE}
+evaluationFile ${EVALUATION_DATABASE}
+
+learner gossipLearning.models.LogisticRegression
+learner.LogisticRegression.lambda 0.01

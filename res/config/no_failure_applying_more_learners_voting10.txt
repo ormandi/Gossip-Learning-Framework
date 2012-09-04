@@ -16,7 +16,6 @@ NEWSCAST_CACHESIZE 5
 NEWSCAST_FREQ ONLINESIZE/10.0
 
 # Learner parameters
-LAMBDA 0.0001
 CAPACITY 10
 DELAY_MEAN ONLINESIZE
 DELAY_VAR ONLINESIZE/10.0
@@ -50,12 +49,18 @@ protocol.learningProtocol.delayMean DELAY_MEAN
 protocol.learningProtocol.delayVar DELAY_VAR
 protocol.learningProtocol.modelHolderName gossipLearning.modelHolders.BoundedModelHolder
 protocol.learningProtocol.capacity CAPACITY
-protocol.learningProtocol.modelNames gossipLearning.models.P2Pegasos,gossipLearning.models.MergeablePegasos,gossipLearning.models.LogisticRegression,gossipLearning.models.MergeableLogisticRegression,gossipLearning.models.multiClassLearners.ANN,gossipLearning.models.AdalinePerceptron
-protocol.learningProtocol.lambda LAMBDA
+protocol.learningProtocol.modelNames gossipLearning.models.P2Pegasos,gossipLearning.models.MergeablePegasos,gossipLearning.models.LogisticRegression,gossipLearning.models.MergeableLogisticRegression,gossipLearning.models.AdalinePerceptron
 
-protocol.learningProtocol.ann.hiddenLayers 10
-protocol.learningProtocol.ann.lambda 0.0001            # regularization lambda!
-protocol.learningProtocol.ann.learningRate 0.01
+protocol.learningProtocol.P2Pegasos.lambda 0.0001
+protocol.learningProtocol.MergeablePegasos.lambda 0.0001
+protocol.learningProtocol.LogisticRegression.lambda 0.01
+protocol.learningProtocol.MergeableLogisticRegression.lambda 0.01
+protocol.learningProtocol.LinearRegression.lambda 0.01
+protocol.learningProtocol.AdalinePerceptron.lambda 10.0
+protocol.learningProtocol.MultiLogReg.lambda 0.01
+protocol.learningProtocol.MergeableMultiLogReg.lambda 0.01
+protocol.learningProtocol.P2Winnow.eta 1.0
+protocol.learningProtocol.P2Winnow.theta 0.5
 
 
 #-------------------- Initializers --------------------
@@ -81,7 +86,7 @@ init.learningProtocolStart.delay 0
 
 
 #-------------------- Define Init Sequence --------------------
-include.init overlayInit overlayStart instanceLoader learningProtocolStart
+include.init overlayInit overlayStart instanceLoader setNumberOfClassesForModels learningProtocolStart
 
 
 #-------------------- Observers --------------------
