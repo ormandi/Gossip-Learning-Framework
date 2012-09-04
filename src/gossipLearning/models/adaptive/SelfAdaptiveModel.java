@@ -23,17 +23,46 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
   private static final double wsize = 100;
   private static final double alpha = 2.0/(wsize);
   private static LogNormalRandom r;
+  /** @hidden */
   protected String prefix;
+  /**
+   * The number of classes of the classification problem.
+   */
   protected int numberOfClasses;
   
+  /**
+   * The classification model.
+   */
   protected Model model;
+  /**
+   * The maximal living age of the model.
+   */
   protected double maximalAge;
+  /**
+   * The current age of the model.
+   */
   protected double age;
+  /**
+   * The canonical name of the model.
+   * @hidden
+   */
   protected String modelName;
+  /**
+   * The estimated mean error of the model.
+   */
   protected double meanError;
+  /**
+   * The estimated squared mean error of the model.
+   */
   protected double sqMeanError;
+  /**
+   * The expected confidence of the estimated error.
+   */
   protected double confidence;
 
+  /**
+   * Constructs an initial object, call of init(prefix) function is required.
+   */
   public SelfAdaptiveModel() {
     age = 2.0;
     meanError = 0.5;
@@ -41,6 +70,10 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
     confidence = 0.0;
   }
   
+  /**
+   * Constructs an object that is a deep copy of the specified object.
+   * @param a to be clone.
+   */
   public SelfAdaptiveModel(SelfAdaptiveModel a) {
     if (a.model != null) {
       model = (Model)a.model.clone();
@@ -122,10 +155,17 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
     model.setNumberOfClasses(numberOfClasses);
   }
   
+  /**
+   * Returns the estimated error plus the confidence.
+   */
   public double getError() {
     return meanError + confidence;
   }
   
+  /**
+   * Returns the age of the model.
+   * @return the age of the model.
+   */
   public double getAge() {
     return age;
   }

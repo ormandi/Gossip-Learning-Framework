@@ -29,7 +29,9 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
   
   private int numberOfClasses;
   private ModelHolder classifiers;
+  /** @hidden */
   private String baseLearnerName;
+  /** @hidden */
   private String prefix;
 
   /**

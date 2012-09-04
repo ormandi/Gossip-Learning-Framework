@@ -48,17 +48,22 @@ public class BaseLineControl implements Control {
   private final double driftLength1;
   
   private final int dimension;
-  protected final int numOfInstances;
+  private final int numOfInstances;
   private final boolean isSudden;
   private final boolean isNoise;
   
-  protected InstanceHolder training;
-  protected InstanceHolder evaluation;
+  private InstanceHolder training;
+  private InstanceHolder evaluation;
   
   private double[] from;
   private double[] to;
-  protected DenseVector w;
+  private DenseVector w;
   
+  /**
+   * Constructor that initializes the parameters from the configuration file based on 
+   * the specified prefix.
+   * @param prefix
+   */
   public BaseLineControl(String prefix){
     pid = Configuration.getPid(prefix + "." + PAR_PID);
     observers = new Vector<PredictionObserver>();
@@ -171,6 +176,10 @@ public class BaseLineControl implements Control {
     //System.err.println("NUMOFLABELCHANGES=" + numOfChanges + "\tSIMILARITY=" + Utils.computeSimilarity(wOld, w) + "\tPOSITIVERATIO=" + numOfPosLabels/numOfInstances);
   }
   
+  /**
+   * Adds the specified number of new training instances to the nodes in the network.
+   * @param n number of samples to be added
+   */
   protected void changeInstances(double n){
     InstanceHolder instanceHolder;
     int sampleIndex;
@@ -197,13 +206,24 @@ public class BaseLineControl implements Control {
     }
   }
   
+  /**
+   * Class the execute procedure of the observers, defined in the configuration file.
+   */
   protected void eval(){
     for (PredictionObserver observer : observers) {
       observer.execute();
     }
   }
   
+  /**
+   * Collection of the used observers.
+   * @hidden
+   */
   protected Vector<PredictionObserver> observers;
+  /**
+   * Adds to the collection of the observers the specified observer.
+   * @param observer to be stored
+   */
   public void setPredictionObserver(PredictionObserver observer) {
     observers.add(observer);
   }

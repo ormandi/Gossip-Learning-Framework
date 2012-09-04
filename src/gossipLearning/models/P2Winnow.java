@@ -55,6 +55,7 @@ public class P2Winnow implements Model  {
 	 * The weight vector, which will be modified through 
 	 * the learning process. Because of the multiplicative
 	 * model, we have to set it to 1.0.
+	 * @hidden
 	 */
 	private SparseVector w;
 
@@ -63,6 +64,7 @@ public class P2Winnow implements Model  {
 	 * ith coordinate of the weight vector was
 	 * initialized. If yes, this coordinate will not
 	 * set directly to 1.0.
+	 * @hidden
 	 */
 	private SparseVector initialized;
 	
@@ -75,12 +77,14 @@ public class P2Winnow implements Model  {
 	 * Value of eta, the learning constant.
 	 */
 	protected double eta = 1.0;
+	/** @hidden*/
 	protected static final String PAR_ETA = "P2Winnow.eta";
 	
 	/**
 	 * Value of theta, the threshold by prediction.
 	 */
 	protected double theta = 0.5;
+	/** @hidden*/
 	protected static final String PAR_THETA = "P2Winnow.theta";
 	
 	/**

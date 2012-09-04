@@ -19,6 +19,7 @@ public class KMeans implements Model {
   private static final double wSize = 100.0;
   
   private int K;
+  /** @hidden*/
   private SparseVector[] centroids = null;
   private boolean[] isInitialized = null;
   

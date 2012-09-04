@@ -3,6 +3,7 @@ package gossipLearning.models.adaptive;
 import gossipLearning.interfaces.Model;
 import gossipLearning.utils.BoundedQueue;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
@@ -30,6 +31,10 @@ public class SelfAdaptiveModelTH implements Model {
     age = 0;
   }
   
+  /**
+   * Constructs an object that is a deep copy of the specified object.
+   * @param a to be clone.
+   */
   @SuppressWarnings("unchecked")
   protected SelfAdaptiveModelTH(SelfAdaptiveModelTH a) {
     this();
@@ -139,7 +144,7 @@ public class SelfAdaptiveModelTH implements Model {
       error += history.get(i);
     }
     error /= history.size();
-    ab = regression(errors);
+    ab = Utils.regression(errors);
     if (ab[0] < 0.0) {
       return false;
     }
@@ -147,24 +152,6 @@ public class SelfAdaptiveModelTH implements Model {
     double d = 0.5;
     double val = 1.0/(1.0 + Math.exp(-c*(ab[0] - d)));
     return CommonState.r.nextDouble() < val;
-  }
-  
-  public static double[] regression(double[] array) {
-    double a = 0.0;
-    double b = 0.0;
-    double cov = 0.0;
-    double sumx = 0.0;
-    double sumy = 0.0;
-    double sum2x = 0.0;
-    for (int i = 0; i < array.length; i++) {
-      cov += (i+1)*array[i];
-      sumx += (i+1);
-      sumy += array[i];
-      sum2x += (i+1)*(i+1);
-    }
-    a = (array.length * cov - (sumx * sumy)) / (array.length * sum2x - (sumx * sumx));
-    b = sumy / array.length - a * sumx / array.length;
-    return new double[]{a*array.length, b};
   }
 
   @Override
@@ -183,6 +170,10 @@ public class SelfAdaptiveModelTH implements Model {
     this.numOfClasses = numberOfClasses;
   }
   
+  /**
+   * Returns true if the model is restarted.
+   * @return the model is restarted.
+   */
   public boolean isNewModel() {
     return isNewModel;
   }

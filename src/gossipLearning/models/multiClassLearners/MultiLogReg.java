@@ -24,11 +24,27 @@ public class MultiLogReg extends ProbabilityModel {
    * The learning parameter is 0.0001 by default.
    */
   protected static final String PAR_LAMBDA = "MultiLogReg.lambda";
+  /**
+   * Learning parameter.
+   */
   protected double lambda = 0.0001;
   
+  /**
+   * The hyperplanes of the model.
+   * @hidden
+   */
   protected SparseVector[] w;
+  /**
+   * The biases of the model.
+   */
   protected double[] bias;
+  /**
+   * The age of the model.
+   */
   protected double age;
+  /**
+   * The number of classes of the current classification problem.
+   */
   protected int numberOfClasses = 2;
 
   /**

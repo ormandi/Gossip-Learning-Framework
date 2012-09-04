@@ -17,15 +17,34 @@ import peersim.config.Configuration;
  */
 public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
   
+  /**
+   * Parameter name in the config file.
+   * @hidden
+   */
   public static final String PAR_WAIT = "numOfWaitingPeriods";
+  /**
+   * The number of periods without received model before send the current model.
+   */
   protected long numOfWaitingPeriods;
   
+  /**
+   * The number of incoming models in a period.
+   */
   protected int numberOfIncomingModels = 0;
+  /**
+   * Initializes the object and its ancestor based on the configuration file 
+   * and the specified prefix.
+   * @param prefix
+   */
   public KeepDiversityLearningProtocol (String prefix) {
     super(prefix);
     numberOfIncomingModels = 0;
   }
   
+  /**
+   * Deep copy constructor.
+   * @param a to be copied
+   */
   protected KeepDiversityLearningProtocol (KeepDiversityLearningProtocol a) {
     super(a);
     numberOfIncomingModels = a.numberOfIncomingModels;

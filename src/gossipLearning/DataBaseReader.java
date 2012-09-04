@@ -31,7 +31,9 @@ public class DataBaseReader {
   private int numberOfClasses;
   private int numberOfFeatures;
   
+  /** @hidden */
   private SparseVector means;
+  /** @hidden */
   private SparseVector devs;
   private boolean isStandardized;
   

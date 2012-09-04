@@ -9,6 +9,30 @@ import java.util.Vector;
 
 public class Utils {
   
+  /**
+   * Computes the liner regression line for the values of the specified double array.</br>
+   * a * x + b
+   * @param array array of values to be approximated
+   * @return double[]{a,b}
+   */
+  public static double[] regression(double[] array) {
+    double a = 0.0;
+    double b = 0.0;
+    double cov = 0.0;
+    double sumx = 0.0;
+    double sumy = 0.0;
+    double sum2x = 0.0;
+    for (int i = 0; i < array.length; i++) {
+      cov += (i+1)*array[i];
+      sumx += (i+1);
+      sumy += array[i];
+      sum2x += (i+1)*(i+1);
+    }
+    a = (array.length * cov - (sumx * sumy)) / (array.length * sum2x - (sumx * sumx));
+    b = sumy / array.length - a * sumx / array.length;
+    return new double[]{a*array.length, b};
+  }
+  
   private static void polyGen(int d, int n, Stack<Integer> s, Vector<Vector<Integer>> result, boolean generateAll) {
     if ((generateAll || n == 0) && s.size() > 0) {
       Stack<Integer> retS = new Stack<Integer>();
@@ -32,6 +56,11 @@ public class Utils {
     return result;
   }
   
+  /**
+   * Returns true if the specified number is the power of the 2.
+   * @param t to be checked
+   * @return is power of 2
+   */
   public static boolean isPower2(double t) {
     final long tl = (long) t;
     return (tl & (tl - 1)) == 0;
@@ -203,11 +232,24 @@ public class Utils {
     return ret;
   }
   
-  public static void arraySuffle(Random r, int[] array) {
-    arraySuffle(r, array, 0, array.length);
+  /**
+   * Shuffles the specified array using the specified random object.
+   * @param r used for shuffling
+   * @param array to be shuffled
+   */
+  public static void arrayShuffle(Random r, int[] array) {
+    arrayShuffle(r, array, 0, array.length);
   }
   
-  public static void arraySuffle(Random r, int[] array, int from, int to) {
+  /**
+   * Shuffles the specified array using the specified random object from 
+   * the specified position to the spefified position.
+   * @param r used for shuffling
+   * @param array to be shuffled
+   * @param from from index
+   * @param to to index
+   */
+  public static void arrayShuffle(Random r, int[] array, int from, int to) {
     for (int i=from; i<to; i++) {
       int randomPosition = from + r.nextInt(to - from);
       int temp = array[i];
@@ -216,6 +258,11 @@ public class Utils {
     }
   }
   
+  /**
+   * Returns the auto-correlation of the specified array.
+   * @param array compute on
+   * @return auto-correlation
+   */
   public static double[] autoCorrelate(double[] array) {
     double[] result = new double[array.length];
     Arrays.fill(result, 0.0);
@@ -230,6 +277,12 @@ public class Utils {
     return result;
   }
   
+  /**
+   * Returns the auto-correlation of the specified array, the values are 
+   * divided by the length of the specified array.
+   * @param array compute on
+   * @return auto-correlation
+   */
   public static double[] autoCorrelate2(double[] array) {
     double[] result = new double[array.length];
     Arrays.fill(result, 0.0);
@@ -243,35 +296,13 @@ public class Utils {
     }
     return result;
   }
-  /*
-  public static double[] autoCorrelate(BoundedQueue<Double> array) {
-    double[] result = new double[array.size()];
-    Arrays.fill(result, 0.0);
-    for (int i = 0; i < array.size(); i++) {
-      for (int j = 0; i + j < array.size(); j++) {
-        result[j] += array.get(i) * array.get(i + j);
-      }
-    }
-    for (int i = array.size() -1; i >= 0; i--) {
-      result[i] /= result[0];
-    }
-    return result;
-  }
   
-  public static double[] autoCorrelate2(BoundedQueue<Double> array) {
-    double[] result = new double[array.size()];
-    Arrays.fill(result, 0.0);
-    for (int i = 0; i < array.size(); i++) {
-      for (int j = 0; j < array.size(); j++) {
-        result[j] += array.get(i) * array.get((i + j)%array.size());
-      }
-    }
-    for (int i = array.size() -1; i >= 0; i--) {
-      result[i] /= result[0];
-    }
-    return result;
-  }
-  */
+  /**
+   * Returns the cosine similarity of the specified vectors.
+   * @param a first vector
+   * @param b second vector
+   * @return cosine similarity
+   */
   public static double computeSimilarity(double[] a, double[] b) {
     if (a.length != b.length) {
       throw new RuntimeException("Parameters have different sizes:" + a.length + " and " + b.length);

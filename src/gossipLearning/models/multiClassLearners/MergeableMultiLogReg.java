@@ -4,15 +4,28 @@ import peersim.config.Configuration;
 import gossipLearning.interfaces.Mergeable;
 import gossipLearning.utils.SparseVector;
 
+/**
+ * This class represents a multi-class logistic regression classifier 
+ * that can be merged to an other mergeable multi-class logistic regression classifier.
+ * @author István Hegedűs
+ *
+ */
 public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<MergeableMultiLogReg> {
   private static final long serialVersionUID = -7800995106591726828L;
 
   protected static final String PAR_LAMBDA = "MergeableMultiLogReg.lambda";
   
+  /**
+   * Default constructor that calls the super();
+   */
   public MergeableMultiLogReg() {
     super();
   }
   
+  /**
+   * Constructs an object by clones (deep copy) the specified object.
+   * @param a to be cloned.
+   */
   public MergeableMultiLogReg(MergeableMultiLogReg a) {
     lambda = a.lambda;
     age = a.age;

@@ -43,6 +43,9 @@ public class FilterBoost extends ProbabilityModel {
   protected int T = 1;
   private int C = 1;
   
+  /**
+   * The number of stored weak learners.
+   */
   protected int t = 0;
   private int c = 1;
   private double weakEdge;
@@ -51,7 +54,8 @@ public class FilterBoost extends ProbabilityModel {
   private double constantWeights;
   private int ct;
   
-  protected Map<SparseVector, double[]> cacheDist;
+  /** @hidden */
+  private Map<SparseVector, double[]> cacheDist;
   
   /**
    * Constructs an initial model.<br/>
@@ -114,9 +118,9 @@ public class FilterBoost extends ProbabilityModel {
   }
 
   private double[] losses;
-  protected double[] sWeigths;
-  protected double counter = 0.0;
-  protected double cumulativeError = 1.0;
+  private double[] sWeigths;
+  private double counter = 0.0;
+  private double cumulativeError = 1.0;
   @Override
   public void update(SparseVector instance, double label) {
     if (c == 1){

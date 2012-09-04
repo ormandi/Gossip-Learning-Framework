@@ -49,7 +49,7 @@ public class SamplingBasedPredictionObserver extends PredictionObserver {
       return super.generateIndices();
     }
     TreeSet<Integer> result = new TreeSet<Integer>();
-    Utils.arraySuffle(r, indices);
+    Utils.arrayShuffle(r, indices);
     for (int i = 0; i < samples; i++) {
       result.add(indices[i]);
     }
