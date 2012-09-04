@@ -18,9 +18,20 @@ import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
 import peersim.core.CommonState;
 
-
+/**
+ * Main file for running algorithms in centralized way.</br>
+ * The name of the configuration file is required as the 1st argument.
+ * The model building is based on this file, the results are printed to 
+ * the standard output.
+ * 
+ * @author István Hegedűs
+ */
 public class Main {
   public static void main(String[] args) throws Exception {
+    if (args.length != 1) {
+      System.err.println("Using: Main configFileName");
+      System.exit(0);
+    }
     String configName = args[0];
     Configuration.setConfig(new ParsedProperties(configName));
     File tFile = new File(Configuration.getString("trainingFile"));
@@ -47,7 +58,7 @@ public class Main {
     SparseVector instance;
     double label;
     int prevt = -1;
-    System.out.println("#iter\t" + modelName);
+    System.out.println("#iter\ttrainingError\ttestErrot\t" + modelName);
     for (int iter = 0; iter < numIters; iter++) {
       
       // training
@@ -60,15 +71,13 @@ public class Main {
           ((model instanceof FilterBoost) && ((FilterBoost)model).getSmallT() != prevt)) {
         // evaluation
         double trainErr = trainErrorComputator.computeError(modelHolder)[0];
-        double expTrainErr = 0.0;
         double testErr = testErrorComputator.computeError(modelHolder)[0];
         
         // evaluation
         if (model instanceof FilterBoost) {
           prevt = ((FilterBoost)model).getSmallT();
-          expTrainErr = ((FilterBoost)model).getComulativeErr();
         }
-        System.out.println(iter + "\t" + trainErr + "\t" + expTrainErr + "\t" + testErr);
+        System.out.println(iter + "\t" + trainErr + "\t" + testErr);
       }
     }
   }
