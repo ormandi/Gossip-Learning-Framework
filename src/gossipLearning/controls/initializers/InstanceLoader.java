@@ -35,7 +35,9 @@ public class InstanceLoader implements Control {
   protected final int pid;
   /** @hidden */
   protected final File tFile;
+  /** @hidden */
   protected Vector<PredictionObserver> observers;
+  /** @hidden */
   protected String readerClassName;
   protected DataBaseReader reader;
   /** @hidden */

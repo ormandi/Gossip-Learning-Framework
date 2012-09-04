@@ -13,6 +13,7 @@ import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 
+/** @hidden */
 public class BaseLineControl implements Control {
   
   private static final String PAR_PID = "protocol";

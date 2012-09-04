@@ -5,10 +5,18 @@ import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.reports.GraphObserver;
 
+/**
+ * This observer class is usable for computing the number of 
+ * messages that go through the transport of the specified protocol. 
+ * This transport layer should can count the transit messages.
+ * @author István Hegedűs
+ *
+ */
 public class MessageCounterObserver extends GraphObserver {
   private static final String PAR_TRANSPORT = "protocol";
   private final int pid;
   private static final String PAR_FORMAT = "format";
+  /** @hidden */
   protected final String format;
   
   public MessageCounterObserver(String prefix) {

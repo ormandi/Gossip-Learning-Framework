@@ -1,5 +1,11 @@
 package gossipLearning.controls.observers.errorComputation;
 
+/**
+ * This class computes the 0-1 error of the specified expected 
+ * and predicted values and can make the post process step.
+ * @author István Hegedűs
+ *
+ */
 public class ZeroOneError implements ErrorFunction {
 
   @Override

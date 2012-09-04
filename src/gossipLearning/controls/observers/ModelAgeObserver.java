@@ -9,6 +9,7 @@ import peersim.core.Control;
 import peersim.core.Network;
 
 public class ModelAgeObserver implements Control {
+  /** @hidden */
   private static final String PAR_PID = "protocol";
   private final int pid;
   

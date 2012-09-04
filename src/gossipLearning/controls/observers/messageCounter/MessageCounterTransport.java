@@ -9,11 +9,19 @@ import peersim.config.Configuration;
 import peersim.core.Node;
 import peersim.transport.Transport;
 
+/**
+ * This class represents a transport layer that can count the 
+ * transit predefined type of messages.
+ * @author István Hegedűs
+ *
+ */
 public class MessageCounterTransport  implements Transport {
   private static final String PAR_TRANSPORT = "transport";
   private final int transport;
   private static final String PAR_MSGCLASS = "msgClass";
+  /** @hidden */
   private final Class<? extends Message> msgClass;
+  /** @hidden */
   private Map<Long,Integer> messageCounter = new TreeMap<Long,Integer>();
   private int sum = 0;
 
@@ -32,19 +40,34 @@ public class MessageCounterTransport  implements Transport {
     return this;
   }
   
+  /**
+   * Resets the counter.
+   */
   public void resetCounters() {
     sum = 0;
     messageCounter.clear();
   }
   
+  /**
+   * Returns the number of incoming messages.
+   * @return number of all of the received messages
+   */
   public int numberOfAllIncommingMessages() {
     return sum;
   }
   
+  /**
+   * Returns the mapping of nodeID and the number of received messages.
+   * @return nodeID, received messages mapping
+   */
   public Map<Long,Integer> numberOfIncommingMessages() {
     return messageCounter;
   }
   
+  /**
+   * Returns the type of the observed messages.
+   * @return type of observed messages
+   */
   public Class<? extends Message> getFilterClass() {
     return msgClass;
   }

@@ -16,6 +16,7 @@ import peersim.core.Node;
 import peersim.core.Protocol;
 
 public class MinTrainingErrorObserver extends SamplingBasedPredictionObserver {
+  /** @hidden */
   protected static final String PAR_NUM_OF_MINS = "numberOfMinimum";
   protected final int k;
   protected final long logtime;

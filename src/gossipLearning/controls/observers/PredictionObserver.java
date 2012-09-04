@@ -58,6 +58,7 @@ public class PredictionObserver extends GraphObserver {
   protected InstanceHolder eval;
   /** @hidden */
   private static final String PAR_SUFFIX = "suffix";
+  /** @hidden */
   protected String printSuffix = "";
     
   @SuppressWarnings("unchecked")

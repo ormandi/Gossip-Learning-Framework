@@ -21,6 +21,7 @@ public class SamplingBasedPredictionObserver extends PredictionObserver {
    * Number of selected nodes to compute for prediction
    */
   protected final int samples;
+  /** @hidden */
   protected final Random r;
   protected int[] indices; 
 
