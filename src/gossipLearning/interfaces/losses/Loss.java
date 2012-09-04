@@ -1,4 +1,4 @@
-package gossipLearning.models.losses;
+package gossipLearning.interfaces.losses;
 
 public interface Loss {
   public double loss(double fx, double y);

@@ -1,4 +1,4 @@
-package gossipLearning.models.weakLearners;
+package gossipLearning.models.boosting.weakLearners;
 
 import gossipLearning.interfaces.VectorEntry;
 import gossipLearning.interfaces.WeakLearner;

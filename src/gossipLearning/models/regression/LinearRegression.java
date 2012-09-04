@@ -1,4 +1,4 @@
-package gossipLearning.models;
+package gossipLearning.models.regression;
 
 import gossipLearning.interfaces.Mergeable;
 import gossipLearning.interfaces.Model;

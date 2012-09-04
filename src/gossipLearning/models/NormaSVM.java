@@ -1,12 +1,12 @@
-package gossipLearning.models.regression;
+package gossipLearning.models;
 
 import gossipLearning.DataBaseReader;
 import gossipLearning.InstanceHolder;
 import gossipLearning.interfaces.Model;
-import gossipLearning.models.LinearRegression;
-import gossipLearning.models.kernels.Kernel;
-import gossipLearning.models.kernels.RBFKernel;
-import gossipLearning.models.losses.Loss;
+import gossipLearning.interfaces.kernels.Kernel;
+import gossipLearning.interfaces.kernels.RBFKernel;
+import gossipLearning.interfaces.losses.Loss;
+import gossipLearning.models.regression.LinearRegression;
 import gossipLearning.utils.SparseVector;
 
 import java.io.File;

@@ -1,4 +1,4 @@
-package gossipLearning.models.kernels;
+package gossipLearning.interfaces.kernels;
 
 import gossipLearning.utils.SparseVector;
 

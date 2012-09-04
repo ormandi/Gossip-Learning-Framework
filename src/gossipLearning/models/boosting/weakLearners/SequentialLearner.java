@@ -1,4 +1,4 @@
-package gossipLearning.models.weakLearners;
+package gossipLearning.models.boosting.weakLearners;
 
 import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.utils.SparseVector;
@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 import peersim.config.Configuration;
 
-public class ProductLearner extends WeakLearner {
+public class SequentialLearner extends WeakLearner {
   private static final long serialVersionUID = 6400546153303842520L;
   
   private static final String PAR_NUMLEARNERS = "numLearners";
@@ -20,10 +20,10 @@ public class ProductLearner extends WeakLearner {
   private String baseLearnerName;
   private WeakLearner[] baseLearners;
   
-  public ProductLearner() {
+  public SequentialLearner() {
   }
   
-  public ProductLearner(ProductLearner a) {
+  public SequentialLearner(SequentialLearner a) {
     numberOfClasses = a.numberOfClasses;
     numberOfLearners = a.numberOfLearners;
     baseLearnerName = a.baseLearnerName;
@@ -65,42 +65,20 @@ public class ProductLearner extends WeakLearner {
 
   @Override
   public Object clone() {
-    return new ProductLearner(this);
+    return new SequentialLearner(this);
   }
 
   @Override
   public void update(SparseVector instance, double label, double[] weight) {
     double[] dist;
-    double[] distribution = new double[numberOfClasses];
-    Arrays.fill(distribution, 1.0);
-    
-    // get distributions
     for (int i = 0; i < numberOfLearners; i++) {
+      baseLearners[i].update(instance, label, weight);
       dist = baseLearners[i].distributionForInstance(instance);
       for (int j = 0; j < numberOfClasses; j++) {
-        distribution[j] *= dist[j];
-      }
-    }
-    
-    // update learners
-    double[] labels = new double[numberOfClasses];
-    for (int i = 0; i < numberOfClasses; i++) {
-      if (i == label) {
-        labels[i] = 1.0;
-      } else {
-        labels[i] = -1.0;
-      }
-    }
-    for (int i = 0; i < numberOfLearners; i++) {
-      dist = baseLearners[i].distributionForInstance(instance);
-      for (int l = 0; l < numberOfClasses; l++) {
-        double val = labels[l] * distribution[l] * dist[l];
-        if (val < 0.0) {
-          weight[l] *= -1.0;
-          labels[l] *= -1.0;
+        if (dist[j] < 0.0) {
+          weight[j] *= -1.0;
         }
       }
-      baseLearners[i].update(instance, label, weight);
     }
   }
 

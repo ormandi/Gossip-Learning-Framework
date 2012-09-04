@@ -1,4 +1,4 @@
-package gossipLearning.models.losses;
+package gossipLearning.interfaces.losses;
 
 public class SquaredLoss implements Loss {
   

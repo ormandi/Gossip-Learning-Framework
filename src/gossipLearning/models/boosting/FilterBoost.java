@@ -4,7 +4,7 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.ProbabilityModel;
 import gossipLearning.interfaces.WeakLearner;
 import gossipLearning.modelHolders.BoundedModelHolder;
-import gossipLearning.models.weakLearners.ConstantLearner;
+import gossipLearning.models.boosting.weakLearners.ConstantLearner;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Arrays;
