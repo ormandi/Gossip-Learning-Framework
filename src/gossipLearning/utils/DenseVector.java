@@ -24,7 +24,6 @@ public class DenseVector implements Serializable, Iterable<VectorEntry>, Compara
   private final double growFactor;
 
   private double[] values;
-  private int index;
   
   /**
    * Constructs a DenseVector instance with capacity 16, growing factor 1.5.
@@ -52,7 +51,6 @@ public class DenseVector implements Serializable, Iterable<VectorEntry>, Compara
     this.growFactor = growFactor;
     values = new double[capacity];
     Arrays.fill(values, 0.0);
-    index = Integer.MIN_VALUE;
   }
   
   /**
@@ -62,7 +60,6 @@ public class DenseVector implements Serializable, Iterable<VectorEntry>, Compara
   public DenseVector(DenseVector vector) {
     this(vector.values.length, vector.growFactor);
     System.arraycopy(vector.values, 0, values, 0, vector.values.length);
-    index = vector.index;
   }
   
   /**
@@ -132,8 +129,7 @@ public class DenseVector implements Serializable, Iterable<VectorEntry>, Compara
   
   @Override
   public Iterator<VectorEntry> iterator() {
-    index = -1;
-    return new DenseVectorIterator();
+    return new DenseVectorIterator(this);
   }
 
   /**
@@ -454,6 +450,14 @@ public class DenseVector implements Serializable, Iterable<VectorEntry>, Compara
    */
   private class DenseVectorIterator implements Iterator<VectorEntry> {
     
+    private final DenseVector vector;
+    private int index;
+    
+    public DenseVectorIterator(DenseVector vector) {
+      this.vector = vector;
+      this.index = -1;
+    }
+    
     @Override
     public boolean hasNext() {
       return index < values.length-1;
@@ -462,7 +466,7 @@ public class DenseVector implements Serializable, Iterable<VectorEntry>, Compara
     @Override
     public VectorEntry next() {
       index ++;
-      return new VectorEntry(index, values[index]);
+      return new VectorEntry(index, vector.values[index]);
     }
 
     @Override
@@ -470,7 +474,7 @@ public class DenseVector implements Serializable, Iterable<VectorEntry>, Compara
       if (index == -1) {
         throw new IllegalStateException();
       }
-      values[index] = 0.0;
+      vector.values[index] = 0.0;
     }
     
   }
