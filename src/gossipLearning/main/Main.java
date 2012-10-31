@@ -4,7 +4,6 @@ import gossipLearning.DataBaseReader;
 import gossipLearning.controls.observers.errorComputation.AbstractErrorComputator;
 import gossipLearning.controls.observers.errorComputation.ErrorComputator;
 import gossipLearning.controls.observers.errorComputation.ErrorFunction;
-import gossipLearning.controls.observers.errorComputation.ZeroOneError;
 import gossipLearning.interfaces.Model;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.modelHolders.BoundedModelHolder;
@@ -27,6 +26,7 @@ public class Main {
     File eFile = new File(Configuration.getString("evaluationFile"));
     String modelName = Configuration.getString("learner");
     String dbReaderName = Configuration.getString("dbReader");
+    String errorFunctionName = Configuration.getString("errorFunction");
     long seed = Configuration.getLong("SEED");
     Random r = new Random(seed);
     int numIters = Configuration.getInt("ITER");
@@ -40,14 +40,14 @@ public class Main {
     ModelHolder modelHolder = new BoundedModelHolder(1);
     modelHolder.add(model);
     
-    ErrorFunction errorFunction = new ZeroOneError();
+    ErrorFunction errorFunction = (ErrorFunction)Class.forName(errorFunctionName).newInstance();
     AbstractErrorComputator testErrorComputator = new ErrorComputator(reader.getEvalSet(), errorFunction);
     AbstractErrorComputator trainErrorComputator = new ErrorComputator(reader.getTrainingSet(), errorFunction);
     
     SparseVector instance;
     double label;
     int prevt = -1;
-    System.out.println("#iter\t" + modelName);
+    System.out.println("#iter\tTrainErr\tTestErr\t" + modelName + "\t" + errorFunctionName);
     for (int iter = 0; iter < numIters; iter++) {
       
       // training
@@ -68,7 +68,7 @@ public class Main {
           prevt = ((FilterBoost)model).getSmallT();
           expTrainErr = ((FilterBoost)model).getComulativeErr();
         }
-        System.out.println(iter + "\t" + trainErr + "\t" + expTrainErr + "\t" + testErr);
+        System.out.println(iter + "\t" + trainErr + "\t" + testErr);
       }
     }
   }
