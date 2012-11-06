@@ -16,11 +16,11 @@ public class KMeans implements Model {
   private static final long serialVersionUID = -1382541535383273679L;
   
   private static final String PAR_K = "KMeans.K";
-  private static final double wSize = 100.0;
+  private static final double wSize = 20.0;
   
-  private int K;
-  private SparseVector[] centroids = null;
-  private boolean[] isInitialized = null;
+  protected int K;
+  protected SparseVector[] centroids = null;
+  protected boolean[] isInitialized = null;
   
   /**
    * Constructs a KMeans object. Should not use without init(String prefix) function.

@@ -51,7 +51,7 @@ public class NMI extends ConfusionMtxFunction {
       }
       entropy -= (0.5 * pi * Math.log(pi) * M_LOG2E) + (0.5 * pj * Math.log(pj) * M_LOG2E);
     }
-    return N == 0.0 ? 0.0 : nmi / entropy;
+    return (N == 0.0 || Double.isNaN(entropy)) ? 0.0 : nmi / entropy;
   }
 
 }
