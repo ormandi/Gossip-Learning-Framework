@@ -27,7 +27,7 @@ public class ErrorComputator extends AbstractErrorComputator {
   public double[] computeError(ModelHolder modelHolder) {
     double meanErrorOfNodeI = 0.0;
     for (int j = 0; j < eval.size(); j ++) {
-      double predictedValue = modelHolder.getModel(modelHolder.size() -1).predict(eval.getInstance(j));
+      double predictedValue = modelHolder.size() <= 0 ? 0.0 : modelHolder.getModel(modelHolder.size() -1).predict(eval.getInstance(j));
       double expectedValue = eval.getLabel(j);
       meanErrorOfNodeI += errorFunction.computeError(expectedValue, predictedValue);
     }
