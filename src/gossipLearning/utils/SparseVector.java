@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * This class implements a sparse vector by arrays and sparse for the 0.0 value. <br/>
+ * This class implements a sparse vector by arrays and sparse for the 0.0 value. </br>
  * For get, put and remove methods uses O(log(n)) time. The iteration is 
- * linear time and enumerates the indices in ascendant order. <br/>
+ * linear time and enumerates the indices in ascendant order. </br>
  * The default size of this container is 16. If the container is full, it grows 
  * automatically by a factor, that is 1.5 by default.
  * @author István Hegedűs
@@ -141,6 +141,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
 
   /**
    * Returns the position of the specified index in the array.
+   * @note This method needs logarithmic time!
    * @param index index to looking for
    * @return the position of the specified index
    */
@@ -162,6 +163,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   
   /**
    * Returns the value that is stored at the specified index.
+   * @note This method needs logarithmic time!
    * @param index index of the value to be returned
    * @return value at the specified index
    */
@@ -418,6 +420,28 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   }
   
   /**
+   * Point-wise multiplies the current vector by the non 0 elements of the specified sparse vector.
+   * @param vector to multiply with
+   * @return this
+   */
+  public SparseVector pointMul(SparseVector vector) {
+    int idx = 0;
+    int idx2 = 0;
+    while (idx < size && idx2 < vector.size) {
+      if (indices[idx] == vector.indices[idx2]) {
+        values[idx] = vector.values[idx2] * values[idx];
+        idx ++;
+        idx2 ++;
+      } else if (indices[idx] < vector.indices[idx2]) {
+        idx ++;
+      } else {
+        idx2 ++;
+      }
+    }
+    return this;
+  }
+  
+  /**
    * Point-wise divides the current vector by the non 0 elements of the specified sparse vector.
    * @param vector to divide with
    * @return this
@@ -558,6 +582,28 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    */
   public int maxIndex() {
     return size == 0 ? -1 : indices[size -1];
+  }
+  
+  /**
+   * Returns the index that is stored at the specified position.</br>
+   * The position should be smaller the the size of the vector and greater
+   * than 0.
+   * @param position position of the index
+   * @return index
+   */
+  public int getIndexAt(int position) {
+    return indices[position];
+  }
+  
+  /**
+   * Returns the value that is stored at the specified position.</br>
+   * The position should be smaller the the size of the vector and greater
+   * than 0.
+   * @param position position of the value
+   * @return value
+   */
+  public double getValueAt(int position) {
+    return values[position];
   }
   
   /**
