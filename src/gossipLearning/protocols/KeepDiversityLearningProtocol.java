@@ -55,7 +55,9 @@ public class KeepDiversityLearningProtocol extends MultipleOneLearningProtocol {
       }
     } else {
       for (int i = 0; i < modelHolders.length; i++) {
-        modelHolders[i].remove(0);
+        if (modelHolders[i].size() > numberOfIncomingModels) {
+          modelHolders[i].remove(0);
+        }
       }
       clocal = 0;
     }
