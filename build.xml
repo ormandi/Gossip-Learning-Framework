@@ -102,7 +102,7 @@
     <!-- <taskdef name="scp" classname="org.apache.tools.ant.taskdefs.optional.ssh.Scp" classpath="${lib}/build/jsch-0.1.44.jar;${lib}/build/ant-jsch-1.8.2.jar"/>-->
     <scp file="${bin}/${jarName}" todir="${env.USER}@${remoteRunHost}:${remoteRunDir}" keyfile="${sshKeyFile}"/>
     <!--<taskdef name="sshexec" classname="org.apache.tools.ant.taskdefs.optional.ssh.SSHExec" classpath="${lib}/build/jsch-0.1.44.jar;${lib}/build/ant-jsch-1.8.2.jar"/>-->
-    <sshexec host="${remoteRunHost}" username="${env.USER}" keyfile="${sshKeyFile}" command="cd ${remoteRunDir} &amp;&amp; ./${remoteRunScript}"/>
+    <sshexec host="${remoteRunHost}" username="${env.USER}" keyfile="${sshKeyFile}" command="cd ${remoteRunDir} &amp;&amp; ${remoteRunScript}"/>
   </target>
   
   <target name="package" depends="doc,test,dist" description="create package">
