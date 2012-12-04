@@ -51,6 +51,12 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @param growFactor the factor of the growth
    */
   public SparseVector(int capacity, double growFactor) {
+    if (capacity < 1) {
+      capacity = 1;
+    }
+    if (growFactor <= 1.0) {
+      growFactor = defaultGrowFactor;
+    }
     indices = new int[capacity];
     values = new double[capacity];
     size = 0;
@@ -140,6 +146,19 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   }
 
   /**
+   * Resizes the vector by the factor of growth.
+   */
+  private void grow() {
+    int capacity = Math.max((int)(indices.length * growFactor), indices.length + 1);
+    int[] newIndices = new int[capacity];
+    double[] newValues = new double[capacity];
+    System.arraycopy(indices, 0, newIndices, 0, size);
+    System.arraycopy(values, 0, newValues, 0, size);
+    indices = newIndices;
+    values = newValues;
+  }
+  
+  /**
    * Returns the position of the specified index in the array.
    * @note This method needs logarithmic time!
    * @param index index to looking for
@@ -162,6 +181,59 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   }
   
   /**
+   * Removes and returns the value at the specified index.
+   * @param index index of value to be removed
+   * @return the value that was removed
+   */
+  private double delete(int index) {
+    return remove(index);
+  }
+  
+  /**
+   * Shifts the values forward to fill the space of the specified unnecessary index.
+   * @param idx index to be removed
+   */
+  private void removeIdx(int idx) {
+    for (int i = idx; i < size -1; i++) {
+      indices[i] = indices[i + 1];
+      values[i] = values[i + 1];
+    }
+  }
+  
+  /**
+   * Adds the specified value to the value at the specified index.
+   * @param index index of value to add to
+   * @param value value to be added
+   */
+  private void add(int index, double value) {
+    int idx = getIdx(index);
+    if (idx >= 0) {
+      if (value != sparseValue) {
+        values[idx] += value;
+      }
+      if (values[idx] == sparseValue) {
+        removeIdx(idx);
+        size --;
+      }
+    } else {
+      if (value == sparseValue) {
+        return;
+      }
+      if (size >= indices.length) {
+        grow();
+      }
+      idx = -idx - 1;
+      for (int i = size -1; i >= idx; i--) {
+        indices[i + 1] = indices[i];
+        values[i + 1] = values[i];
+      }
+      indices[idx] = index;
+      values[idx] = value;
+      size ++;
+    }
+  }
+
+  /**
    * Returns the value that is stored at the specified index.
    * @note This method needs logarithmic time!
    * @param index index of the value to be returned
@@ -172,19 +244,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     return idx < 0 ? 0.0 : values[idx];
   }
 
-  /**
-   * Resizes the vector by the factor of growth.
-   */
-  private void grow() {
-    int capacity = Math.max((int)(indices.length * growFactor), indices.length + 1);
-    int[] newIndices = new int[capacity];
-    double[] newValues = new double[capacity];
-    System.arraycopy(indices, 0, newIndices, 0, size);
-    System.arraycopy(values, 0, newValues, 0, size);
-    indices = newIndices;
-    values = newValues;
-  }
-  
   /**
    * Stores the specified value at the specified index. The value, that is stored, at 
    * the specified index will be overridden.
@@ -233,16 +292,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @param index index of value to be removed
    * @return the value that was removed
    */
-  private double delete(int index) {
-    return remove(index);
-  }
-  
-  
-  /**
-   * Removes and returns the value at the specified index.
-   * @param index index of value to be removed
-   * @return the value that was removed
-   */
   public double remove(int index) {
     int idx = getIdx(index);
     if (idx >= 0) {
@@ -272,50 +321,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     return add(vector, 1.0);
   }
   
-  /**
-   * Shifts the values forward to fill the space of the specified unnecessary index.
-   * @param idx index to be removed
-   */
-  private void removeIdx(int idx) {
-    for (int i = idx; i < size -1; i++) {
-      indices[i] = indices[i + 1];
-      values[i] = values[i + 1];
-    }
-  }
-  
-  /**
-   * Adds the specified value to the value at the specified index.
-   * @param index index of value to add to
-   * @param value value to be added
-   */
-  private void add(int index, double value) {
-    int idx = getIdx(index);
-    if (idx >= 0) {
-      if (value != sparseValue) {
-        values[idx] += value;
-      }
-      if (values[idx] == sparseValue) {
-        removeIdx(idx);
-        size --;
-      }
-    } else {
-      if (value == sparseValue) {
-        return;
-      }
-      if (size >= indices.length) {
-        grow();
-      }
-      idx = -idx - 1;
-      for (int i = size -1; i >= idx; i--) {
-        indices[i + 1] = indices[i];
-        values[i + 1] = values[i];
-      }
-      indices[idx] = index;
-      values[idx] = value;
-      size ++;
-    }
-  }
-
   /**
    * Adds the specified SparseVector to the vector, that is represented by the current 
    * object, by the specified alpha times.

@@ -8,6 +8,8 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 public class Utils {
+  public static final double SQRT2 = Math.sqrt(2.0);
+  public static final double SQRT2PI = Math.sqrt(2.0 * Math.PI);
   
   private static void polyGen(int d, int n, Stack<Integer> s, Vector<Vector<Integer>> result, boolean generateAll) {
     if ((generateAll || n == 0) && s.size() > 0) {
@@ -184,23 +186,32 @@ public class Utils {
    * @param components the number of the Taylor components
    * @return value of the cdf
    */
-  public static double erf(double z, int components) {
-    double ret = z;
-    double delimiter = 1.0;
-    double factorial = 1.0;
+  public static double cdf(double x, double mu, double sigma) {
+    return 0.5 * (1.0 + erf((x - mu) / (SQRT2 * sigma)));
+  }
+  
+  /**
+   * Returns the value of the erf funcition using Taylor approximation
+   * @param z the parameter of the erf
+   * @return erf
+   */
+  public static double erf(double z) {
     double sign = 1.0;
-    double cumZ = z;
-    double z2 = z*z;
-    for (int i = 1; i < components; i++) {
-      sign *= -1.0;
-      factorial *= i;
-      delimiter += 2.0;
-      cumZ *= z2;
-      ret += sign * (cumZ / (delimiter * factorial));
+    if (z < 0) {
+        sign = -1.0;
     }
-    ret /= Math.sqrt(Math.PI);
-    ret += 0.5;
-    return ret;
+    z = Math.abs(z);
+    double a1 =  0.254829592;
+    double a2 = -0.284496736;
+    double a3 =  1.421413741;
+    double a4 = -1.453152027;
+    double a5 =  1.061405429;
+    double p  =  0.3275911;
+    
+    double t = 1.0 / (1.0 + p * z);
+    double y = 1.0 - (((((a5*t + a4)*t) + a3)*t + a2)*t + a1)*t*Math.exp(-z*z);
+
+    return sign * y;
   }
   
   public static void arraySuffle(Random r, int[] array) {
