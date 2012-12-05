@@ -1,3 +1,6 @@
+THIS BRANCH OF THE PROJECT IS IN REFACTORING PHASE!!!
+=====================================================
+
 Gossip Learning Framework (GoLF)
 ================================
 
