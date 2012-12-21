@@ -1,0 +1,34 @@
+package gossipLearning.evaluators;
+
+/**
+ * This class can compute the mean squared error.
+ * 
+ * @author István Hegedűs
+ */
+public class MSError extends ValueBasedEvaluator {
+  private static final long serialVersionUID = 5356691632259042142L;
+  
+  public MSError() {
+    super();
+  }
+  
+  public MSError(MSError a) {
+    super(a);
+  }
+
+  @Override
+  public Object clone() {
+    return new MSError(this);
+  }
+
+  @Override
+  public double getValue(double expected, double predicted) {
+    return (expected - predicted) * (expected - predicted);
+  }
+
+  @Override
+  public double postProcess(double meanValue) {
+    return meanValue;
+  }
+
+}
