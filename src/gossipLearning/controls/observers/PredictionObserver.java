@@ -13,6 +13,7 @@ import java.util.Vector;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
+import peersim.core.Fallible;
 import peersim.core.Node;
 import peersim.core.Protocol;
 import peersim.reports.GraphObserver;
@@ -40,6 +41,9 @@ public class PredictionObserver extends GraphObserver {
   private static final String PAR_EC = "errorComputatorClass";
   private static final String PAR_EF = "errorFunctionClass";
   
+  private static final String PAR_ONLINE = "onlineOnly";
+  protected final boolean onlineOnly;
+  
   /**
    * The error computator class used.
    * @hidden
@@ -66,6 +70,7 @@ public class PredictionObserver extends GraphObserver {
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
     format = Configuration.getString(prefix + "." + PAR_FORMAT, "");
     printSuffix = Configuration.getString(prefix + "." + PAR_SUFFIX, "");
+    onlineOnly = Configuration.getBoolean(prefix + "." + PAR_ONLINE);
     
     // create error computator
     String errorComputatorClassName = Configuration.getString(prefix + "." + PAR_EC);
@@ -108,6 +113,10 @@ public class PredictionObserver extends GraphObserver {
     
     for (int i : idxSet) {
       Protocol p = ((Node) g.getNode(i)).getProtocol(pid);
+      int state = ((Node)g.getNode(i)).getFailState();
+      if (onlineOnly && (state == Fallible.DEAD || state == Fallible.DOWN)) {
+        continue;
+      }
       if (p instanceof LearningProtocol) {
         // evaluating the model(s) of the ith node
         int numOfHolders = ((LearningProtocol)p).size();

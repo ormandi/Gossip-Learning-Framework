@@ -36,7 +36,7 @@ public class ChurnControl implements Control {
   private final int size;
   public static final int INIT_SESSION_LENGTH = 0;
   
-  public static final LogNormalRandom rand  = new LogNormalRandom(Configuration.getLong("random.mu", 0), Configuration.getLong("random.sigma", 1), Configuration.getLong("random.seed", System.currentTimeMillis()));
+  public static final LogNormalRandom rand  = new LogNormalRandom(Configuration.getDouble("churn.mu"), Configuration.getDouble("churn.sigma"), Configuration.getLong("random.seed", System.currentTimeMillis()));
   
   public ChurnControl(String prefix) {
     pid = Configuration.getPid(prefix + "." + PAR_PID);
