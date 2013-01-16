@@ -201,7 +201,7 @@ public class HungarianMethod {
 			}
 		}
 		
-		return differenceTable;
+		return initDiffTable(differenceTable);
 	}
 	
 	private int[] initStarArray(){
