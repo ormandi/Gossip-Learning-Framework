@@ -12,7 +12,6 @@ public class ConstantLearner extends WeakLearner {
   private static final long serialVersionUID = -1090945222157723437L;
   
   private double[] distribution;
-  private double age;
   private int numberOfClasses;
   
   /**

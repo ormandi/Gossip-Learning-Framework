@@ -28,7 +28,6 @@ public class SigmoidStumpLearner extends WeakLearner {
   
   private static final String PAR_LAMBDA = "SigmoidStumpLearner.lambda";
   
-  protected double age;
   protected int bestIndex;
   private double lambda;
   private Random r;

@@ -29,7 +29,6 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   protected SparseVector w;
   protected double bias;
   protected double[] distribution;
-  protected double age;
   protected int numberOfClasses = 2;
   
   /**

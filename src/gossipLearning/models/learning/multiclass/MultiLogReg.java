@@ -41,10 +41,6 @@ public class MultiLogReg extends ProbabilityModel {
   protected double[] distribution;
   protected double[] v;
   /**
-   * The age of the model.
-   */
-  protected double age;
-  /**
    * The number of classes of the current classification problem.
    */
   protected int numberOfClasses = 2;

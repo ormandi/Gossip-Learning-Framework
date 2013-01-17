@@ -16,7 +16,6 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
   
   /** @hidden */
   protected SparseVector w;
-  protected double age;
   protected double[] distribution;
   protected int numberOfClasses = 2;
   

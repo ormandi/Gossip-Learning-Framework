@@ -35,4 +35,8 @@ public interface Evaluator extends Serializable, Cloneable {
    * @return the name of the results
    */
   public String[] getNames();
+  /**
+   * Clears the collected statistics of the evaluator
+   */
+  public void clear();
 }

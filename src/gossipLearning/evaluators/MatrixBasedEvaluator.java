@@ -106,6 +106,14 @@ public class MatrixBasedEvaluator implements Evaluator {
   }
   
   @Override
+  public void clear() {
+    Arrays.fill(values, 0.0);
+    for (int i = 0; i < mtx.size(); i++) {
+      mtx.get(i).clear();
+    }
+  }
+  
+  @Override
   public String toString() {
     StringBuffer s = new StringBuffer();
     s.append("e\\p");

@@ -25,7 +25,7 @@ public interface ModelHolder extends Serializable, Cloneable {
   public int size();
   
   /**
-   * Returns a stored model at the specified position. 
+   * Returns the stored model at the specified position. 
    * @param index index of the model to return
    * @return model at the specified position
    */

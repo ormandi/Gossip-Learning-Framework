@@ -16,7 +16,6 @@ public class AdaLineLearner extends WeakLearner {
   private SparseVector w;
   private double[] v;
   private int numberOfClasses;
-  private double age;
   private double lambda;
   private Random r;
   private long seed;

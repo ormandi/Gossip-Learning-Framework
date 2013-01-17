@@ -22,7 +22,7 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   public ValueBasedEvaluator() {
     values = new double[4];
     names = new String[]{"mean", "dev", "min", "max"};
-    reset();
+    clear();
   }
   
   public ValueBasedEvaluator(ValueBasedEvaluator a) {
@@ -55,7 +55,7 @@ public abstract class ValueBasedEvaluator implements Evaluator {
       values[1] += e.values[0] * e.values[0];
       values[2] = Math.min(values[2], e.values[0]);
       values[3] = Math.max(values[3], e.values[0]);
-      ((ValueBasedEvaluator) evaluator).reset();
+      ((ValueBasedEvaluator) evaluator).clear();
       numOfMerges ++;
     }
   }
@@ -63,12 +63,12 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   @Override
   public double[] getResults() {
     values[0] /= numOfMerges;
-    values[1] = Math.sqrt(values[1] / numOfMerges - values[0] * values[0]);
+    values[1] = Math.sqrt(Math.abs(values[1] / numOfMerges - values[0] * values[0]));
     if (numOfMerges == 0.0) {
       Arrays.fill(values, 1.0);
     }
     double[] res = Arrays.copyOf(values, values.length);
-    reset();
+    clear();
     return res; 
   }
   
@@ -77,7 +77,8 @@ public abstract class ValueBasedEvaluator implements Evaluator {
     return names;
   }
   
-  private void reset() {
+  @Override
+  public final void clear() {
     values[0] = 0.0;
     values[1] = 0.0;
     values[2] = Double.POSITIVE_INFINITY;

@@ -88,6 +88,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
         }
         for (int j = 0; j < evalNames.length; j++) {
           evaluator[i][j] = (Evaluator)evaluators[i][j].clone();
+          evaluator[i][j].clear();
         }
       }
       aggregations.put(pid, evaluator);
@@ -117,7 +118,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     for (Entry<Integer, Evaluator[][]> entry : aggregations.entrySet()) {
       for (int i = 0; i < entry.getValue().length; i++) {
         if (AggregationResult.isPrintAges) {
-          System.out.println("##\t" + entry.getKey() + "\t" + pid2ModelNames.get(entry.getKey())[i] + "\t" + pid2ModelAges.get(entry.getKey())[i]);
+          System.out.println("##Ages\t" + entry.getKey() + "\t" + pid2ModelNames.get(entry.getKey())[i] + "\t" + pid2ModelAges.get(entry.getKey())[i]);
           pid2ModelAges.get(entry.getKey())[i] = new StringBuffer();
         }
         for (int j = 0; j < entry.getValue()[i].length; j++) {

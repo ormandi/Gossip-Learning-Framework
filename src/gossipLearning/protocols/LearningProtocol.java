@@ -137,6 +137,14 @@ public class LearningProtocol extends AbstractProtocol {
    */
   @Override
   public void activeThread() {
+    // evaluate
+    for (int i = 0; i < modelHolders.length; i++) {
+      if (CommonState.r.nextDouble() < evaluationProbability) {
+        resultAggregator.push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
+      }
+    }
+    
+    // send
     if (numberOfIncomingModels == 0) {
       numberOfWaits ++;
     }
@@ -144,20 +152,18 @@ public class LearningProtocol extends AbstractProtocol {
       numberOfIncomingModels = 1;
       numberOfWaits = 0;
     }
-    
     ModelHolder latestModelHolder = new BQModelHolder(modelHolders.length);
     for (int id = Math.min(numberOfIncomingModels, capacity); id > 0; id --) {
+      latestModelHolder.clear();
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
         Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - id);
         latestModelHolder.add(latestModel);
-        if (CommonState.r.nextDouble() < evaluationProbability) {
-          resultAggregator.push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
-        }
       }
-      
-      // send the latest models to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+      if (latestModelHolder.size() == modelHolders.length) {
+        // send the latest models to a random neighbor
+        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+      }
     }
     numberOfIncomingModels = 0;
   }
