@@ -32,9 +32,31 @@ public class MatrixBasedEvaluator implements Evaluator {
     values = Arrays.copyOf(a.values, a.values.length);
     names = a.names;
     mtx = new Vector<SparseVector>();
-    for (int i = 0; i < mtx.size(); i++) {
+    for (int i = 0; i < a.mtx.size(); i++) {
       mtx.add((SparseVector)a.mtx.get(i).clone());
     }
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof MatrixBasedEvaluator)) {
+      return false;
+    }
+    MatrixBasedEvaluator e = (MatrixBasedEvaluator)o;
+    if (values.length != e.values.length || names.length != e.names.length || mtx.size() != e.mtx.size()) {
+      return false;
+    }
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] != e.values[i] || !names[i].equals(e.names[i])) {
+        return false;
+      }
+    }
+    for (int i = 0; i < mtx.size(); i++) {
+      if (!mtx.get(i).equals(e.mtx.get(i))) {
+        return false;
+      }
+    }
+    return true;
   }
   
   public Object clone() {

@@ -4,7 +4,6 @@ import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
 
-import java.util.Arrays;
 import java.util.Vector;
 
 public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
@@ -17,12 +16,7 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
   }
   
   public MatrixBasedClusterEvaluator(MatrixBasedClusterEvaluator a) {
-    values = Arrays.copyOf(a.values, a.values.length);
-    names = a.names;
-    mtx = new Vector<SparseVector>();
-    for (int i = 0; i < mtx.size(); i++) {
-      mtx.add((SparseVector)a.mtx.get(i).clone());
-    }
+    super(a);
   }
   
   public Object clone() {
@@ -76,7 +70,8 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
       mtx.get(i).clear();
     }
     nmi /= normNmi;
-    return new double[] {putiry, nmi, ri};
+    // TODO: use better matching for ri
+    return new double[] {putiry, nmi, 0.0 * ri};
   }
   
   @Override

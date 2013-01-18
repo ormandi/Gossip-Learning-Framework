@@ -9,6 +9,7 @@ public class Utils {
   public static final double SQRT2 = Math.sqrt(2.0);
   public static final double SQRT2PI = Math.sqrt(2.0 * Math.PI);
   public static final double INVLN2 = 1.0 / Math.log(2.0);
+  public static final double EPS = 1E-10;
   
   /**
    * Computes the liner regression line for the values of the specified double array.</br>
