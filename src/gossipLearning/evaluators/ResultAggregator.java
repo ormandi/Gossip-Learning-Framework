@@ -18,18 +18,18 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ResultAggregator implements Serializable, Iterable<AggregationResult> {
   private static final long serialVersionUID = 2242497407807240938L;
-  private static final ReentrantLock lock = new ReentrantLock(true);
+  protected static final ReentrantLock lock = new ReentrantLock(true);
   
-  private static Map<Integer, Evaluator[][]> aggregations;
-  private static Map<Integer, String[]> pid2ModelNames;
-  private static Map<Integer, StringBuffer[]> pid2ModelAges;
-  private static Map<Integer, String[]> pid2EvalNames;
-  private static InstanceHolder evalSet;
+  protected static Map<Integer, Evaluator[][]> aggregations;
+  protected static Map<Integer, String[]> pid2ModelNames;
+  protected static Map<Integer, StringBuffer[]> pid2ModelAges;
+  protected static Map<Integer, String[]> pid2EvalNames;
+  protected static InstanceHolder evalSet;
   
-  private final Evaluator[][] evaluators;
-  private final String[] modelNames;
-  private final double[] modelAges;
-  private final String[] evalNames;
+  protected final Evaluator[][] evaluators;
+  protected final String[] modelNames;
+  protected final double[] modelAges;
+  protected final String[] evalNames;
   
   public ResultAggregator(String[] modelNames, String[] evalNames) {
     try {
@@ -71,7 +71,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     push(pid, index);
   }
   
-  private void push(int pid, int index) {
+  protected void push(int pid, int index) {
     lock.lock();
     Evaluator[][] evaluator = aggregations.get(pid);
     if (!pid2ModelNames.containsKey(pid)) {

@@ -68,7 +68,7 @@ public class RecSysDataBaseReader extends DataBaseReader {
       }
       if (instances.size() <= userId) {
         for (int i = instances.size(); i <= userId; i++) {
-          instances.add(new SparseVector(1));
+          instances.add(new SparseVector(5));
           labels.add(0.0);
         }
       }

@@ -160,6 +160,19 @@ public class Utils {
     }
   }
   
+  public static void arraxShuffle(Random r, Object[] array) {
+    arrayShuffle(r, array, 0, array.length);
+  }
+  
+  public static void arrayShuffle(Random r, Object[] array, int from, int to) {
+    for (int i=from; i<to; i++) {
+      int randomPosition = from + r.nextInt(to - from);
+      Object temp = array[i];
+      array[i] = array[randomPosition];
+      array[randomPosition] = temp;
+    }
+  }
+  
   /**
    * Finds the maximal matching of indices based on the specified matrix.
    * This method applies a greedy technique.

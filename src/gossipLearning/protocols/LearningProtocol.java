@@ -111,7 +111,7 @@ public class LearningProtocol extends AbstractProtocol {
         } catch (NoSuchMethodException e) {
           modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).newInstance();
         }
-        LearningModel model = (LearningModel)Class.forName(modelNames[i]).newInstance();
+        Model model = (Model)Class.forName(modelNames[i]).newInstance();
         model.init(prefix);
         lastSeenMergeableModels.add(model);
         modelHolders[i].add(model);
