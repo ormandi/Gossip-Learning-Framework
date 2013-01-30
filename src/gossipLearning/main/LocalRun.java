@@ -86,8 +86,10 @@ public class LocalRun {
       for (int i = 0; i < models.length; i++) {
         models[i].update(instance, label);
         modelHolder.add(models[i]);
-        resultAggregator.push(-1, i, modelHolder, extractor);
       }
+    }
+    for (int i = 0; i < models.length; i++) {
+      resultAggregator.push(-1, i, modelHolder, extractor);
     }
     System.out.println(resultAggregator);
   }
