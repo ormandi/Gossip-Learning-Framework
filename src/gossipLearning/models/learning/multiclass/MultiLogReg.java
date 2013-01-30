@@ -43,7 +43,7 @@ public class MultiLogReg extends ProbabilityModel {
   /**
    * The number of classes of the current classification problem.
    */
-  protected int numberOfClasses = 2;
+  protected int numberOfClasses = 0;
 
   /**
    * Constructs a default multi-class logistic regression. <br/>
