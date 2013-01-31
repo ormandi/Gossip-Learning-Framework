@@ -13,7 +13,8 @@ public class Utils {
   
   /**
    * Computes the liner regression line for the values of the specified double array.</br>
-   * a * x + b
+   * a * x + b </br>
+   * The slope variable (a) is multiplied by the length of the input vector.
    * @param array array of values to be approximated
    * @return double[]{a,b}
    */
@@ -144,8 +145,8 @@ public class Utils {
   }
   
   /**
-   * Shuffles the specified array using the specified random object from 
-   * the specified position to the spefified position.
+   * Shuffles the specified array using the specified random object between 
+   * the specified positions.
    * @param r used for shuffling
    * @param array to be shuffled
    * @param from from index
@@ -160,7 +161,7 @@ public class Utils {
     }
   }
   
-  public static void arraxShuffle(Random r, Object[] array) {
+  public static void arrayShuffle(Random r, Object[] array) {
     arrayShuffle(r, array, 0, array.length);
   }
   
