@@ -17,7 +17,7 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor> 
   }
   
   protected NodeDescriptor(NodeDescriptor a) {
-    node = (Node)a.node.clone();
+    node = a.node;
     descriptor = (SparseVector)a.descriptor.clone();
     similarity = a.similarity;
   }
@@ -54,7 +54,14 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor> 
   }
   
   public double computeSimilarity(NodeDescriptor a) {
-    return descriptor.cosSim(a.descriptor);
+    return 0.0 - descriptor.euclideanDistance(a.descriptor);
+    //return descriptor.cosSim(a.descriptor);
+  }
+  
+  @Override
+  public String toString() {
+    //return node.getID() + ":" + similarity + " - " + descriptor;
+    return node.getID() + "";
   }
   
 }

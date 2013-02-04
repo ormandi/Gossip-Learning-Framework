@@ -9,7 +9,7 @@ public class TManMessage implements Message {
   public final NodeDescriptor[] cache;
 
   public TManMessage(NodeDescriptor srcDesc, NodeDescriptor[] cache, boolean isAnswer) {
-    this.src = (Node)srcDesc.getNode().clone();
+    this.src = srcDesc.getNode();
     this.isAnswer = isAnswer;
     this.cache = new NodeDescriptor[cache.length];
     for (int i = 0; i < cache.length -1 && cache[i] != null; i++) {

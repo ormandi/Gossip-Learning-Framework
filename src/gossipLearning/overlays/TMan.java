@@ -46,9 +46,16 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
   }
   
   protected TMan(TMan a) {
+    if (a.me == null) {
+      me = a.me;
+    } else {
+      me = (NodeDescriptor)a.me.clone();
+    }
     baseFreq = a.baseFreq;
     cache = new NodeDescriptor[a.cache.length];
-    System.arraycopy(a.cache, 0, cache, 0, a.cache.length);
+    for (int i = 0; i < a.degree(); i++) {
+      cache[i] = (NodeDescriptor)a.cache[i].clone();
+    }
     size = a.size;
   }
   
@@ -82,7 +89,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
     if (size < cache.length) {
       // add new neighbor
       cache[size] = new NodeDescriptor(neighbour, new SparseVector(1));
-      cache[size].setSimilarity(0.0);
+      cache[size].setSimilarity(Double.NEGATIVE_INFINITY);
       // find its position
       for (int j = size; j > 0 && cache[j].compareTo(cache[j-1]) > 0; j--) {
         NodeDescriptor tmp = cache[j-1];
@@ -98,7 +105,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
 
   @Override
   public boolean contains(Node neighbor) {
-    for (int i = 0; i < cache.length; i++) {
+    for (int i = 0; i < size; i++) {
       if (cache[i].getNode().getID() == neighbor.getID())
         return true;
     }
@@ -112,17 +119,18 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
   @Override
   public void processEvent(Node node, int pid, Object event) {
     if (event instanceof TManMessage) {
-      
       final TManMessage msg = (TManMessage) event;
+      // merge the received descriptors to the local cache
       merge(msg.cache);
       
+      // send the answer message
       if (!msg.isAnswer) {
         ((Transport) node.getProtocol(FastConfig.getTransport(pid))).send(node, msg.src, new TManMessage(me, cache, true), pid);
       }
     }
 
     if (event instanceof CycleMessage) {
-      // sending the cache
+      // get peer from the cache uniformly
       final Node peern = getPeer();
 
       // send my descriptor and neighbors to the selected node
@@ -156,23 +164,52 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
     EDSimulator.add(0, CycleMessage.inst, node, protocol);
   }
   
-  public void initializeDescriptor(Node node, SparseVector descriptor) {
-    me = new NodeDescriptor(node, descriptor);
-    me.setSimilarity(1.0);
+  /**
+   * Returns the descriptor that is at the specified position.
+   * @param i position of the descriptor to be returned
+   * @return the ith descriptor
+   */
+  public NodeDescriptor getDescriptor(int i) {
+    return cache[i];
   }
   
+  /**
+   * Initializes the local descriptor based on the specified node and vector.
+   * @param node the local node.
+   * @param descriptor descriptor of the local node.
+   */
+  public void initializeDescriptor(Node node, SparseVector descriptor) {
+    me = new NodeDescriptor(node, descriptor);
+    me.setSimilarity(me.computeSimilarity(me));
+  }
+  
+  /**
+   * Merges the specified array of descriptors to the local cache.
+   * @param cache to be merged
+   */
   private void merge(NodeDescriptor[] cache) {
-    for (int i = 0; i < cache.length; i++) {
+    for (int i = 0; i < cache.length && cache[i] != null; i++) {
       NodeDescriptor desc = cache[i];
       desc.setSimilarity(desc.computeSimilarity(me));
       insert(desc);
     }
   }
   
+  /**
+   * Inserts the specified descriptor to the cache if it belongs to a 
+   * different node than the current, and the cache has free space or 
+   * the specified descriptor is higher than the last one in the cache.
+   * And returns true if the insertion is succeeded.
+   * @param desc to be stored
+   * @return true if the insertion is succeeded
+   */
   private boolean insert(NodeDescriptor desc) {
+    if (desc.getNode().getID() == me.getNode().getID()) {
+      return false;
+    }
     boolean repair = false;
     int index = containsNode(desc.getNode());
-    if (index > 0) {
+    if (index >= 0) {
       cache[index] = desc;
       if (index < size -1 && cache[index].compareTo(cache[index +1]) < 0) {
         for (int i = index; i < size -1 && cache[index].compareTo(cache[index +1]) < 0; i++) {
@@ -203,14 +240,25 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
     return repair;
   }
   
+  /**
+   * Checks that the specified node is in the cache and returns its position 
+   * if it is in and -1 otherwise.
+   * @param neighbor to be checked
+   * @return position of the specified node or -1
+   */
   private int containsNode(Node neighbor) {
     for (int i = 0; i < cache.length; i++) {
-      if (cache[i].getNode().getID() == neighbor.getID())
+      if (cache[i].getNode().getID() == neighbor.getID()) {
         return i;
+      }
     }
     return -1;
   }
   
+  /**
+   * Returns a node, selected uniform randomly from the cache.
+   * @return uniform randomly selected node
+   */
   private Node getPeer() {
     final int d = degree();
     if (d == 0) {
