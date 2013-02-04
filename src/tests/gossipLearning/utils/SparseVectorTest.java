@@ -196,5 +196,25 @@ public class SparseVectorTest extends TestCase implements Serializable {
     SparseVector v = new SparseVector(new double[]{0.5,0,0,0.25,0});
     assertEquals(v.sum(), 0.75);
   }
+  
+  public void testCosSim() {
+    SparseVector v = new SparseVector(new double[]{1.0,0,0,1.0});
+    SparseVector v2 = new SparseVector(new double[]{1.0,0,0,1.0});
+    assertEquals(1.0, v.cosSim(v2), 1E-5);
+    v2 = new SparseVector(new double[]{0.0,1.0,1.0,0.0});
+    assertEquals(0.0, v.cosSim(v2), 1E-5);
+    v2 = new SparseVector(new double[]{-1.0,0,0,-1.0});
+    assertEquals(-1.0, v.cosSim(v2), 1E-5);
+  }
+  
+  public void testEuclideanDistance() {
+    SparseVector v = new SparseVector(new double[]{1.0,0,0,1.0});
+    SparseVector v2 = new SparseVector(new double[]{1.0,0,0,1.0});
+    assertEquals(0.0, v.euclideanDistance(v2), 1E-5);
+    v2 = new SparseVector(new double[]{0.0,1.0,1.0,0.0});
+    assertEquals(2.0, v.euclideanDistance(v2), 1E-5);
+    v2 = new SparseVector(new double[]{-1.0,0,0,-1.0});
+    assertEquals(Math.sqrt(8), v.euclideanDistance(v2), 1E-5);
+  }
 
 }
