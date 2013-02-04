@@ -3,7 +3,7 @@ package gossipLearning.main;
 import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.models.extraction.DummyExtractor;
-import gossipLearning.models.recsys.RecSysModel;
+import gossipLearning.models.recsys.LowRankDecomposition;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
@@ -48,10 +48,10 @@ public class RecSysRun {
     
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
-    RecSysModel[] models = new RecSysModel[modelNames.length];
+    LowRankDecomposition[] models = new LowRankDecomposition[modelNames.length];
     SparseVector userModels[][] = new SparseVector[modelNames.length][reader.getTrainingSet().size()];
     for (int i = 0; i < modelNames.length; i++) {
-      models[i] = (RecSysModel)Class.forName(modelNames[i]).newInstance();
+      models[i] = (LowRankDecomposition)Class.forName(modelNames[i]).newInstance();
       models[i].init("learners");
     }
     RecSysResultAggregator resultAggregator = new RecSysResultAggregator(modelNames, evalNames);

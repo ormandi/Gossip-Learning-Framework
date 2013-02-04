@@ -21,7 +21,7 @@ public class MergeableRecSysModel extends RecSysModel {
   }
 
   @Override
-  public MergeableRecSysModel merge(RecSysModel model) {
+  public MergeableRecSysModel merge(LowRankDecomposition model) {
     for (Entry<Integer, SparseVector> e : model.itemModels.entrySet()) {
       SparseVector vector = itemModels.get(e.getKey());
       if (vector == null) {

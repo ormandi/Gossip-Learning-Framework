@@ -1,47 +1,25 @@
 package gossipLearning.models.recsys;
 
-import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 
-import java.util.HashMap;
 import java.util.Map.Entry;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-public class RecSysModel implements Model, Mergeable<RecSysModel> {
+public class RecSysModel extends LowRankDecomposition {
   private static final long serialVersionUID = 237945358449513368L;
   private static final String PAR_DIMENSION = "RecSysModel.dimension";
   private static final String PAR_LAMBDA = "RecSysModel.lambda";
   private static final String PAR_ALPHA = "RecSysModel.alpha";
   
-  protected double age;
-  protected HashMap<Integer, SparseVector> itemModels;
-  protected int dimension;
-  // learning rate
-  protected double lambda;
-  // regularization parameter
-  protected double alpha;
-  
   public RecSysModel() {
-    age = 0.0;
-    itemModels = new HashMap<Integer, SparseVector>();
-    dimension = 10;
-    lambda = 0.005;
-    alpha = 0.0;
+    super();
   }
   
   public RecSysModel(RecSysModel a) {
-    age = a.age;
-    itemModels = new HashMap<Integer, SparseVector>();
-    for (Entry<Integer, SparseVector> e : a.itemModels.entrySet()) {
-      itemModels.put(e.getKey(), (SparseVector)e.getValue().clone());
-    }
-    dimension = a.dimension;
-    lambda = a.lambda;
-    alpha = a.alpha;
+    super(a);
   }
   
   public Object clone() {
@@ -64,7 +42,6 @@ public class RecSysModel implements Model, Mergeable<RecSysModel> {
       }
       userModel = new SparseVector(newVector);
     }
-    
     SparseVector newUserModel = (SparseVector)userModel.clone();
     age ++;
     
@@ -94,67 +71,12 @@ public class RecSysModel implements Model, Mergeable<RecSysModel> {
     return newUserModel;
   }
   
-  public double predict(int itemId, SparseVector userModel) {
-    SparseVector itemModel = itemModels.get(itemId);
-    if (itemModel == null || userModel == null) {
-      return 0.0;
-    }
-    return itemModel.mul(userModel);
-  }
-
   @Override
-  public double getAge() {
-    return age;
-  }
-  
-  public RecSysModel getModelPart(SparseVector rates, int numRandToGen) {
-    RecSysModel result = new RecSysModel();
-    result.age = age;
-    result.dimension = dimension;
-    for (VectorEntry e : rates) {
-      SparseVector v = itemModels.get(e.index);
-      if (v != null) {
-        result.itemModels.put(e.index, v);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public RecSysModel merge(RecSysModel model) {
+  public RecSysModel merge(LowRankDecomposition model) {
     for (Entry<Integer, SparseVector> e : model.itemModels.entrySet()) {
       itemModels.put(e.getKey(), e.getValue());
     }
     return this;
-  }
-  
-  public void setDimension(int dimension) {
-    this.dimension = dimension;
-  }
-  
-  public SparseVector extract(SparseVector instance) {
-    SparseVector result = new SparseVector(itemModels.size());
-    for (int i = 0; i < dimension; i++) {
-      for (Entry<Integer, SparseVector> e : itemModels.entrySet()) {
-        result.add(i, instance.get(e.getKey())*e.getValue().get(i));
-      }
-    }
-    return result;
-  }
-  
-  public String toString() {
-    return itemModels.toString();
-  }
-  
-  public SparseVector[] getVectors() {
-    SparseVector[] result = new SparseVector[dimension];
-    for (int i = 0; i < dimension; i++) {
-      result[i] = new SparseVector();
-      for (Entry<Integer, SparseVector> e : itemModels.entrySet()) {
-        result[i].put(e.getKey(), e.getValue().get(i));
-      }
-    }
-    return result;
   }
 
 }
