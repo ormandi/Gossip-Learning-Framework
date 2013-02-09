@@ -96,6 +96,32 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   }
   
   /**
+   * Constructs a SparseVector from the specified indices and corresponding values
+   * vectors.
+   * @param indices indices to store
+   * @param values values to be stored
+   */
+  public SparseVector(int[] indices, double[] values) {
+    if (indices.length != values.length) {
+      throw new RuntimeException("Can not create vector with different size of indices and values: " + indices.length + "<->" + values.length);
+    }
+    this.growFactor = defaultGrowFactor;
+    this.indices = new int[indices.length];
+    this.values = new double[values.length];
+    this.size = 0;
+    for (int i = 0; i < indices.length; i++) {
+      if (values[i] != sparseValue) {
+        if (i > 0 && indices[i] <= indices[i - 1]) {
+          throw new RuntimeException("The indices have to be in ascendent order.");
+        }
+        this.indices[size] = indices[size];
+        this.values[size] = values[size];
+        size ++;
+      }
+    }
+  }
+  
+  /**
    * Constructs a SparseVector from the specified Map<Integer, Double> vector.
    * @param vector array to be stored
    */

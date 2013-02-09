@@ -79,7 +79,6 @@ public class DataBaseReader {
     if (file == null || !file.exists()){
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
     }
-    //InstanceHolder holder = new InstanceHolder();
     Vector<SparseVector> instances = new Vector<SparseVector>();
     Vector<Double> labels = new Vector<Double>();
     BufferedReader br = new BufferedReader(new FileReader(file));
@@ -92,8 +91,11 @@ public class DataBaseReader {
     double label;
     int key;
     double value;
-    SparseVector instance;
+    int[] indices;
+    double[] values;
+    int size;
     while ((line = br.readLine()) != null){
+      try {
       c++;
       // checking whether it is a regression problem or not
       if (c == 1 && line.matches("#\\s([Rr]egression|REGRESSION)")) {
@@ -114,13 +116,12 @@ public class DataBaseReader {
         throw new RuntimeException("The file \"" + file.toString() + "\" has invalid structure at line " + c);
       }
       label = Double.parseDouble(split[0]);
-      /*if (numberOfClasses != Integer.MAX_VALUE && (label < 0.0 || label != (int)label)) {
-        // not a regression problem => the label has to be an integer which is greater or equal than 0 
-        throw new RuntimeException("The class label has to be integer and greater than or equal to 0, line " + c);
-      }*/
-      instance = new SparseVector(split.length >>> 1);
+      indices = new int[split.length >>> 1];
+      values = new double[split.length >>> 1];
+      size = 0;
       for (int i = 1; i < split.length; i += 2){
-        key = Integer.parseInt(split[i]) - 1; // index from 0
+        // index from 0
+        key = Integer.parseInt(split[i]) - 1;
         if (key < 0){
           throw new RuntimeException("The index of the features must be non-negative integer, line " + c);
         }
@@ -128,15 +129,20 @@ public class DataBaseReader {
           numberOfFeatures = key;
         }
         value = Double.parseDouble(split[i + 1]);
-        instance.put(key, value);
+        indices[size] = key;
+        values[size] = value;
+        size ++;
       }
       // storing parsed instance
-      instances.add(instance);
+      instances.add(new SparseVector(indices, values));
       labels.add(label);
       
       // calculating the number of classes if it is not a regression
       if (numberOfClasses != Integer.MAX_VALUE) {
         classes.add(label);
+      }
+      } catch (Exception e) {
+        throw new RuntimeException("Exceprion was caught while parsing file " + file.toString() + " at line " + c, e);
       }
     }
     br.close();

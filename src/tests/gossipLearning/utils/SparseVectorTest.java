@@ -26,6 +26,10 @@ public class SparseVectorTest extends TestCase implements Serializable {
     assertEquals(v0, v2);
     SparseVector v3 = new SparseVector(v0);
     assertEquals(v0, v3);
+    int[] indices = new int[]{2, 5, 6};
+    double[] values = new double[]{0.5, 2.3, 0};
+    SparseVector v4 = new SparseVector(indices, values);
+    assertEquals(v4, new SparseVector(new double[]{0, 0, 0.5, 0, 0, 2.3}));
   }
   
   public void testClone() {
