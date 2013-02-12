@@ -39,19 +39,31 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
   /**
    * Makes a deep copy of this object.
    */
+  @SuppressWarnings("unchecked")
+  @Override
   public Object clone() {
-    Object ret = null;
-    try {
-      ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-      ObjectOutputStream out = new ObjectOutputStream(byteOut);
-      out.writeObject(this);
-      ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
-      ret = in.readObject();
-      in.close();
-      out.close();
-    } catch (Exception e) {
-      // it throws out transparently the caught IOException
-      throw new RuntimeException(e);
+    BoundedQueue<T> ret = new BoundedQueue<T>(bound);
+    ret.size = size;
+    ret.startPosition = startPosition;
+    System.arraycopy(queue, 0, ret.queue, 0, queue.length);
+    for (int i = 0; i < size; i++) {
+      try {
+        ret.queue[(i + startPosition) % bound] = (T)queue[(i + startPosition) % bound].getClass().getMethod("clone").invoke(queue[(i + startPosition) % bound]);
+      } catch (NoSuchMethodException e) {
+        try {
+          ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+          ObjectOutputStream out = new ObjectOutputStream(byteOut);
+          out.writeObject(queue[(i + startPosition) % bound]);
+          ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+          ret.queue[(i + startPosition) % bound] = (T)in.readObject();
+          in.close();
+          out.close();
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
     return ret;
   }
