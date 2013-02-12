@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import peersim.core.Node;
 
-public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor> {
+public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>, Cloneable {
   private static final long serialVersionUID = -8582247148380060765L;
   
   private final Node node;
@@ -25,6 +25,18 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor> 
   @Override
   public Object clone() {
     return new NodeDescriptor(this);
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof NodeDescriptor)) {
+      return false;
+    }
+    NodeDescriptor a = (NodeDescriptor)o;
+    if (node.getID() != a.node.getID()) {
+      return false;
+    }
+    return true;
   }
   
   public Node getNode() {
