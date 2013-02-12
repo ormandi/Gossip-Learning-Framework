@@ -31,7 +31,7 @@ public class LowRankDecomposition implements Model, Mergeable<LowRankDecompositi
     age = 0.0;
     itemModels = new HashMap<Integer, SparseVector>();
     dimension = 10;
-    lambda = 0.05;
+    lambda = 0.001;
     alpha = 0.0;
     maxindex = 0;
   }
@@ -92,7 +92,6 @@ public class LowRankDecomposition implements Model, Mergeable<LowRankDecompositi
           entry = null;
         }
       }
-      // get the prediction and the error
       SparseVector itemModel = itemModels.get(index);
       // initialize a new item-model by uniform random numbers [0,1]
       if (itemModel == null) {
@@ -103,6 +102,7 @@ public class LowRankDecomposition implements Model, Mergeable<LowRankDecompositi
         itemModel = new SparseVector(newVector);
         itemModels.put(index, itemModel);
       }
+      // get the prediction and the error
       double prediction = itemModel.mul(userModel);
       double error = value - prediction;
       
@@ -155,10 +155,12 @@ public class LowRankDecomposition implements Model, Mergeable<LowRankDecompositi
   }
   
   public SparseVector extract(SparseVector instance) {
-    SparseVector result = new SparseVector(itemModels.size());
-    for (int i = 0; i < dimension; i++) {
-      for (Entry<Integer, SparseVector> e : itemModels.entrySet()) {
-        result.add(i, instance.get(e.getKey())*e.getValue().get(i));
+    SparseVector result = new SparseVector(dimension);
+    for (Entry<Integer, SparseVector> e : itemModels.entrySet()) {
+      double value = instance.get(e.getKey());
+      for (int i = 0; i < dimension; i++) {
+        double mvalue = e.getValue().get(i);
+        result.add(i, value * mvalue);
       }
     }
     return result;
