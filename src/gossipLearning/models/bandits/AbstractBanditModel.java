@@ -5,9 +5,7 @@ import gossipLearning.utils.SparseVector;
 public abstract class AbstractBanditModel implements BanditModel {
   private static final long serialVersionUID = -9190698187706416829L;
   
-  public Object clone() {
-    return this;
-  }
+  public abstract Object clone();
   
   @Override
   public final void update(SparseVector instance, double label) {

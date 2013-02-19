@@ -1,6 +1,7 @@
 package gossipLearning.models.bandits;
 
 import java.util.Arrays;
+import java.util.Vector;
 
 import peersim.core.CommonState;
 import peersim.core.Network;
@@ -15,9 +16,10 @@ public class EGreedyModel extends AbstractBanditModel {
   
   public static double K = (double) GlobalArmModel.numberOfArms();
   public static double d = GlobalArmModel.getDValue();
-  public static double c = 0.2; 
+  public static double c = 0.1; 
   
   public EGreedyModel() {
+    bestArmIndices = new Vector<Integer>();
   }
   
   protected EGreedyModel(EGreedyModel a) {
@@ -25,6 +27,7 @@ public class EGreedyModel extends AbstractBanditModel {
     rewards = a.rewards.clone();
     sum = a.sum;
     age = a.age;
+    bestArmIndices = new Vector<Integer>();
   }
   
   public Object clone() {
@@ -80,7 +83,8 @@ public class EGreedyModel extends AbstractBanditModel {
     return I;
   }
   
-  private int bestArmIdx() {
+  protected Vector<Integer> bestArmIndices;
+  protected int bestArmIdx() {
     int max = -1;
     double maxV = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < n.length; i ++) {
@@ -88,9 +92,14 @@ public class EGreedyModel extends AbstractBanditModel {
       if (v > maxV) {
         max = i;
         maxV = v;
+        bestArmIndices.clear();
+        bestArmIndices.add(i);
+      } else if (v == maxV) {
+        bestArmIndices.add(i);
       }
     }
-    return max;
+    //return max;
+    return bestArmIndices.get(CommonState.r.nextInt(bestArmIndices.size()));
   }
 
   @Override

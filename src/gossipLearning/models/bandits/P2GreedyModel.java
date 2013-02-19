@@ -4,6 +4,7 @@ import gossipLearning.interfaces.Mergeable;
 import gossipLearning.utils.Utils;
 
 import java.util.Arrays;
+import java.util.Vector;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -33,6 +34,7 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
   public double c; 
   
   public P2GreedyModel() {
+    bestArmIndices = new Vector<Integer>();
   }
   
   protected P2GreedyModel(long age, double[] n, double sumN, double[] s, double[] w, double[] r, double[] q, double[] f, double[] g, double c){
@@ -53,6 +55,8 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     
     // parameter
     this.c = c;
+    
+    bestArmIndices = new Vector<Integer>();
   }
 
   @Override
@@ -131,7 +135,7 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     return I;
   }
   
-  private static void addAndSetTo0(double[] first, double[] second) {
+  protected static void addAndSetTo0(double[] first, double[] second) {
     final boolean init = first != null && second != null && first.length == second.length;
     for (int i = 0; init && i < first.length && i < second.length; i ++) {
       first[i] += second[i];
@@ -139,7 +143,8 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
     }
   }
   
-  private int bestArmIdx() {
+  protected Vector<Integer> bestArmIndices;
+  protected int bestArmIdx() {
     int max = -1;
     double maxV = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < s.length; i ++) {
@@ -147,9 +152,14 @@ public class P2GreedyModel extends AbstractBanditModel implements Mergeable<P2Gr
       if (v > maxV) {
         max = i;
         maxV = v;
+        bestArmIndices.clear();
+        bestArmIndices.add(i);
+      } else if (v == maxV) {
+        bestArmIndices.add(i);
       }
     }
-    return max;
+    //return max;
+    return bestArmIndices.get(CommonState.r.nextInt(bestArmIndices.size()));
   }
 
   @Override
