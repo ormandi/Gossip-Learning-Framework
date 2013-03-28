@@ -4,7 +4,6 @@ import gossipLearning.controls.ChurnControl;
 import gossipLearning.interfaces.protocols.Churnable;
 import gossipLearning.messages.TManMessage;
 import gossipLearning.utils.NodeDescriptor;
-import gossipLearning.utils.SparseVector;
 
 import java.io.Serializable;
 import java.security.InvalidParameterException;
@@ -21,6 +20,14 @@ import peersim.edsim.EDSimulator;
 import peersim.extras.mj.ednewscast.CycleMessage;
 import peersim.transport.Transport;
 
+/**
+ * Stores the descriptors of the nodes in descendant order based on the 
+ * similarity defined in the NodeDescriptor class computeSimilarity 
+ * function, so the higher is better. The similarity for a stored descriptor 
+ * is set as the similarity between the data of the stored node and the data 
+ * of the current node.
+ * @author István Hegedűs
+ */
 public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
   private static final long serialVersionUID = 5481011536830137165L;
   private static final String PAR_CACHE = "cache";
@@ -88,7 +95,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
 
     if (size < cache.length) {
       // add new neighbor
-      cache[size] = new NodeDescriptor(neighbour, new SparseVector(1));
+      cache[size] = new NodeDescriptor(neighbour, null);
       cache[size].setSimilarity(Double.NEGATIVE_INFINITY);
       // find its position
       for (int j = size; j > 0 && cache[j].compareTo(cache[j-1]) > 0; j--) {
@@ -118,15 +125,18 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
 
   @Override
   public void processEvent(Node node, int pid, Object event) {
+    if (me == null) {
+      me = new NodeDescriptor(node, null);
+    }
     if (event instanceof TManMessage) {
       final TManMessage msg = (TManMessage) event;
-      // merge the received descriptors to the local cache
-      merge(msg.cache);
-      
       // send the answer message
       if (!msg.isAnswer) {
         ((Transport) node.getProtocol(FastConfig.getTransport(pid))).send(node, msg.src, new TManMessage(me, cache, true), pid);
       }
+      // merge the received descriptors to the local cache
+      merge(msg.cache);
+      
     }
 
     if (event instanceof CycleMessage) {
@@ -174,13 +184,19 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
   }
   
   /**
-   * Initializes the local descriptor based on the specified node and vector.
-   * @param node the local node.
-   * @param descriptor descriptor of the local node.
+   * Returns the descriptor of the current node.
+   * @return the descriptor of the current node
    */
-  public void initializeDescriptor(Node node, SparseVector descriptor) {
-    me = new NodeDescriptor(node, descriptor);
-    me.setSimilarity(me.computeSimilarity(me));
+  public NodeDescriptor getDescriptor() {
+    return me;
+  }
+  
+  /**
+   * Sets the specified descriptor for the local descriptor of the current node.
+   * @param descriptor descriptor to be set.
+   */
+  public void setDescriptor(NodeDescriptor descriptor) {
+    me = descriptor;
   }
   
   /**
@@ -190,7 +206,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
   private void merge(NodeDescriptor[] cache) {
     for (int i = 0; i < cache.length && cache[i] != null; i++) {
       NodeDescriptor desc = cache[i];
-      desc.setSimilarity(desc.computeSimilarity(me));
+      desc.setSimilarity(me.computeSimilarity(desc));
       insert(desc);
     }
   }

@@ -1,6 +1,7 @@
 package gossipLearning.controls;
 
 import gossipLearning.overlays.TMan;
+import gossipLearning.utils.NodeDescriptor;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 import peersim.core.Control;
@@ -20,8 +21,9 @@ public class TManInit implements Control {
   public boolean execute() {
     for (int i = 0; i < Network.size(); i++) {
       Node node = Network.get(i);
-      SparseVector descriptor = new SparseVector(new double[]{node.getID() + 1});
-      ((TMan)node.getProtocol(pid)).initializeDescriptor(node, descriptor);
+      SparseVector vector = new SparseVector(new double[]{node.getID() + 1});
+      NodeDescriptor descriptor = new NodeDescriptor(node, vector);
+      ((TMan)node.getProtocol(pid)).setDescriptor(descriptor);
     }
     return false;
   }

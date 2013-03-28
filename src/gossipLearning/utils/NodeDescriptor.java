@@ -8,7 +8,7 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   private static final long serialVersionUID = -8582247148380060765L;
   
   private final Node node;
-  private final SparseVector descriptor;
+  private SparseVector descriptor;
   private double similarity;
   
   public NodeDescriptor(Node node, SparseVector descriptor) {
@@ -18,7 +18,11 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   
   protected NodeDescriptor(NodeDescriptor a) {
     node = a.node;
-    descriptor = (SparseVector)a.descriptor.clone();
+    if (a.descriptor != null) {
+      descriptor = (SparseVector)a.descriptor.clone();
+    } else {
+      descriptor = null;
+    }
     similarity = a.similarity;
   }
   
@@ -43,9 +47,13 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
     return node;
   }
   
-   public SparseVector getDescriptor() {
-     return descriptor;
-   }
+  public void setDecriptor(SparseVector descriptor) {
+    this.descriptor = descriptor;
+  }
+  
+  public SparseVector getDescriptor() {
+    return descriptor;
+  }
   
   public void setSimilarity(double similarity) {
     this.similarity = similarity;
@@ -65,9 +73,19 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
     return 0;
   }
   
+  /**
+   * Computes the similarity between the current descriptor and the 
+   * specified descriptor. The similarity of a null is Double.NEGATIVE_INFINITY!
+   * @param a compute similarity for
+   * @return similarity
+   */
   public double computeSimilarity(NodeDescriptor a) {
-    return 0.0 - descriptor.euclideanDistance(a.descriptor);
-    //return descriptor.cosSim(a.descriptor);
+    if (a.descriptor == null) {
+      //return Double.NEGATIVE_INFINITY;
+      return 0.0;
+    }
+    //return -descriptor.euclideanDistance(a.descriptor);
+    return descriptor.cosSim(a.descriptor);
   }
   
   @Override
