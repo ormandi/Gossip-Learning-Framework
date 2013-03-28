@@ -6,8 +6,11 @@ import gossipLearning.interfaces.models.FeatureExtractorModel;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.protocols.AbstractProtocol;
 import gossipLearning.messages.ModelMessage;
+import gossipLearning.overlays.TMan;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
+import gossipLearning.utils.NodeDescriptor;
+import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
 /**
@@ -28,6 +31,7 @@ public class ExtractionProtocol extends AbstractProtocol {
   private static final String PAR_MODELNAMES = "modelName";
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
+  private static final String PAR_ISUSETMAN = "isUseTMan";
   
   protected final int capacity;
   /** @hidden */
@@ -37,6 +41,8 @@ public class ExtractionProtocol extends AbstractProtocol {
   protected ModelHolder modelHolder;
   /** @hidden */
   protected ModelHolder lastSeenMergeableModels;
+  protected boolean isUseTMan;
+  protected NodeDescriptor descriptor;
   
   protected InstanceHolder instances;
   
@@ -49,6 +55,8 @@ public class ExtractionProtocol extends AbstractProtocol {
     capacity = Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY);
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     modelName = Configuration.getString(prefix + "." + PAR_MODELNAMES);
+    isUseTMan = Configuration.getBoolean(prefix + "." + PAR_ISUSETMAN);
+    descriptor = null;
     init(prefix);
   }
   
@@ -64,6 +72,10 @@ public class ExtractionProtocol extends AbstractProtocol {
     capacity = a.capacity;
     modelHolderName = a.modelHolderName;
     modelName = a.modelName;
+    isUseTMan = a.isUseTMan;
+    if (a.descriptor != null) {
+      descriptor = (NodeDescriptor)a.descriptor.clone();
+    }
     init(prefix);
   }
   
@@ -113,6 +125,21 @@ public class ExtractionProtocol extends AbstractProtocol {
     
     // send the latest models to a random neighbor
     sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+    
+    // initialize or update descriptor
+    SparseVector v = new SparseVector();
+    for (int i = 0; i < instances.size(); i++) {
+      v.add(instances.getInstance(i), 1.0 / instances.size());
+    }
+    if (descriptor == null) {
+      descriptor = new NodeDescriptor(currentNode, v);
+    } else {
+      descriptor.setDecriptor(v);
+    }
+    descriptor.setSimilarity(descriptor.computeSimilarity(descriptor));
+    if (isUseTMan) {
+      ((TMan)getOverlay()).setDescriptor(descriptor);
+    }
   }
 
   /**
