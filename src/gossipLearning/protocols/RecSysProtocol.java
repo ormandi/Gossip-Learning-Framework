@@ -2,11 +2,10 @@ package gossipLearning.protocols;
 
 import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.interfaces.ModelHolder;
+import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.messages.ModelMessage;
-import gossipLearning.models.recsys.MergeableRecSysModel;
-import gossipLearning.models.recsys.RecSysModel;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
@@ -75,18 +74,18 @@ public class RecSysProtocol extends LearningProtocol {
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
-      RecSysModel model = (RecSysModel)modelHolder.getModel(i);
+      MatrixBasedModel model = (MatrixBasedModel)modelHolder.getModel(i);
       // if it is a mergeable model, them merge them
-      if (model instanceof MergeableRecSysModel){
-        RecSysModel lastSeen = (RecSysModel)lastSeenMergeableModels.getModel(i);
-        lastSeenMergeableModels.setModel(i, (RecSysModel) model.clone());
-        model = (RecSysModel)((Mergeable) model).merge(lastSeen);
+      if (model instanceof Mergeable){
+        MatrixBasedModel lastSeen = (MatrixBasedModel)lastSeenMergeableModels.getModel(i);
+        lastSeenMergeableModels.setModel(i, (MatrixBasedModel) model.clone());
+        model = (MatrixBasedModel)((Mergeable) model).merge(lastSeen);
       }
       // updating the model with the local training samples
       for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
         // we use each samples for updating the currently processed model
         SparseVector x = instances.getInstance(sampleID);
-        userModel = model.update(x, userModel);
+        userModel = model.update((int)currentNode.getID(), userModel, x);
       }
       // stores the updated model
       modelHolders[i].add(model);

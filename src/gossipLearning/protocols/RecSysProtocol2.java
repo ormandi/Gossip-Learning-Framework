@@ -2,13 +2,18 @@ package gossipLearning.protocols;
 
 import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.interfaces.ModelHolder;
+import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.messages.ModelMessage;
-import gossipLearning.models.recsys.RecSysModel;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.VectorEntry;
+
+import java.util.Set;
+import java.util.TreeSet;
+
 import peersim.core.CommonState;
 
 public class RecSysProtocol2 extends LearningProtocol {
@@ -62,12 +67,21 @@ public class RecSysProtocol2 extends LearningProtocol {
       }
     }
     
+    // get indices of rated items
+    Set<Integer> indices = new TreeSet<Integer>();
+    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    for (int i = 0; i < instances.size(); i++) {
+      for (VectorEntry e : instances.getInstance(i)) {
+        indices.add(e.index);
+      }
+    }
+    
     // send
     for (int id = 1; id > 0; id --) {
       latestModelHolder.clear();
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
-        RecSysModel latestModel = ((RecSysModel)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances().getInstance(0), 0);
+        MatrixBasedModel latestModel = ((MatrixBasedModel)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
         latestModelHolder.add(latestModel);
       }
       if (latestModelHolder.size() == modelHolders.length) {
@@ -87,20 +101,20 @@ public class RecSysProtocol2 extends LearningProtocol {
     }
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
-      RecSysModel recvModel = (RecSysModel)modelHolder.getModel(i);
-      RecSysModel currModel = (RecSysModel)modelHolders[i].getModel(0);
+      MatrixBasedModel recvModel = (MatrixBasedModel)modelHolder.getModel(i);
+      MatrixBasedModel currModel = (MatrixBasedModel)modelHolders[i].getModel(0);
       // if it is a mergeable model, them merge them
       if (currModel instanceof Mergeable){
-        currModel = (RecSysModel)((Mergeable) currModel).merge(recvModel);
+        currModel = (MatrixBasedModel)((Mergeable) currModel).merge(recvModel);
       }
       // updating the model with the local training samples
       for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
         // we use each samples for updating the currently processed model
         SparseVector x = instances.getInstance(sampleID);
-        userModel = currModel.update(x, userModel);
+        userModel = currModel.update((int)currentNode.getID(), userModel, x);
       }
       // stores the updated model
-      //modelHolders[i].add(model);
+      modelHolders[i].add(currModel);
     }
   }
   

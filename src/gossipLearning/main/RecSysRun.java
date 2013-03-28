@@ -84,7 +84,7 @@ public class RecSysRun {
       int instanceIndex = r.nextInt(reader.getTrainingSet().size());
       instance = reader.getTrainingSet().getInstance(instanceIndex);
       for (int i = 0; i < models.length; i++) {
-        userModels[i][instanceIndex] = models[i].update(instance, userModels[i][instanceIndex]);
+        userModels[i][instanceIndex] = models[i].update(instanceIndex, userModels[i][instanceIndex], instance);
         modelHolder.add(models[i]);
       }
     }

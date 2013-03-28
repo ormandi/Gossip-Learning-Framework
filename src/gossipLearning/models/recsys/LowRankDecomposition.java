@@ -1,18 +1,21 @@
 package gossipLearning.models.recsys;
 
+import gossipLearning.interfaces.models.FeatureExtractor;
+import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Model;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-public class LowRankDecomposition implements Model, Mergeable<LowRankDecomposition> {
+public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Mergeable<LowRankDecomposition> {
   private static final long serialVersionUID = -6695974880876825151L;
   private static final String PAR_DIMENSION = "LowRankDecomposition.dimension";
   private static final String PAR_LAMBDA = "LowRankDecomposition.lambda";
@@ -59,26 +62,29 @@ public class LowRankDecomposition implements Model, Mergeable<LowRankDecompositi
     alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
   }
 
-  public SparseVector update(SparseVector ratings, SparseVector userModel) {
+  public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
+    // rowIndex - userID
+    // rowModel - userModel
+    // instance - userRatings
     double[] newVector;
-    if (userModel == null) {
+    if (rowModel == null) {
       newVector = new double[dimension];
       for (int i = 0; i < dimension; i++) {
         newVector[i] = CommonState.r.nextDouble();
       }
-      userModel = new SparseVector(newVector);
+      rowModel = new SparseVector(newVector);
     }
-    if (maxindex < ratings.maxIndex()) {
-      maxindex = ratings.maxIndex();
+    if (maxindex < instance.maxIndex()) {
+      maxindex = instance.maxIndex();
     }
     
-    SparseVector newUserModel = (SparseVector)userModel.clone();
+    SparseVector newUserModel = (SparseVector)rowModel.clone();
     age ++;
     
     newUserModel.mul(1.0 - alpha);
     double value = 0.0;
     VectorEntry entry = null;
-    Iterator<VectorEntry> iterator = ratings.iterator();
+    Iterator<VectorEntry> iterator = instance.iterator();
     if (iterator.hasNext()) {
       entry = iterator.next();
     }
@@ -103,25 +109,28 @@ public class LowRankDecomposition implements Model, Mergeable<LowRankDecompositi
         itemModels.put(index, itemModel);
       }
       // get the prediction and the error
-      double prediction = itemModel.mul(userModel);
+      double prediction = itemModel.mul(rowModel);
       double error = value - prediction;
       
       // update models
       newUserModel.add(itemModel, lambda * error);
       itemModel.mul(1.0 - alpha);
-      itemModel.add(userModel, lambda * error);
+      itemModel.add(rowModel, lambda * error);
     }
     
     // return new user-model
     return newUserModel;
   }
   
-  public double predict(int itemId, SparseVector userModel) {
-    SparseVector itemModel = itemModels.get(itemId);
-    if (itemModel == null || userModel == null) {
+  public double predict(int rowIndex, SparseVector rowModel, int columnIndex) {
+    // rowIndex - userID
+    // rowModel - userModel
+    // columnIndex - itemID
+    SparseVector itemModel = itemModels.get(columnIndex);
+    if (itemModel == null || rowModel == null) {
       return 0.0;
     }
-    return itemModel.mul(userModel);
+    return itemModel.mul(rowModel);
   }
 
   @Override
@@ -129,14 +138,17 @@ public class LowRankDecomposition implements Model, Mergeable<LowRankDecompositi
     return age;
   }
   
-  public RecSysModel getModelPart(SparseVector rates, int numRandToGen) {
-    RecSysModel result = new RecSysModel();
+  public LowRankDecomposition getModelPart(Set<Integer> indices) {
+    LowRankDecomposition result = new LowRankDecomposition();
     result.age = age;
     result.dimension = dimension;
-    for (VectorEntry e : rates) {
-      SparseVector v = itemModels.get(e.index);
+    result.lambda = lambda;
+    result.alpha = alpha;
+    result.maxindex = maxindex;
+    for (int index : indices) {
+      SparseVector v = itemModels.get(index);
       if (v != null) {
-        result.itemModels.put(e.index, v);
+        result.itemModels.put(index, v);
       }
     }
     return result;
@@ -152,6 +164,14 @@ public class LowRankDecomposition implements Model, Mergeable<LowRankDecompositi
   
   public void setDimension(int dimension) {
     this.dimension = dimension;
+  }
+  
+  public InstanceHolder extract(InstanceHolder instances) {
+    InstanceHolder result = new InstanceHolder(instances.getNumberOfClasses(), dimension);
+    for (int i = 0; i < instances.size(); i++) {
+      result.add(extract(instances.getInstance(i)), instances.getLabel(i));
+    }
+    return result;
   }
   
   public SparseVector extract(SparseVector instance) {

@@ -43,7 +43,7 @@ public class RecSysResultAggregator extends ResultAggregator {
     
     for (VectorEntry entry : eval.getInstance(userIdx)) {
       double expected = entry.value;
-      double predicted = model.predict(entry.index, userModel);
+      double predicted = model.predict(userIdx, userModel, entry.index);
       for (int j = 0; j < evaluator[index].length; j++) {
         evaluator[index][j].evaluate(expected, predicted);
       }
