@@ -64,13 +64,11 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
 
   @Override
   public MergeablePegasos getModelPart(Set<Integer> indices) {
-    /*SparseVector w = new SparseVector(indices.size());
+    SparseVector w = new SparseVector(indices.size());
     for (int index : indices) {
       w.add(index, this.w.get(index));
     }
     return new MergeablePegasos(w, age, Arrays.copyOf(distribution, distribution.length), lambda, numberOfClasses);
-    */
-    return this;
   }
 
 }
