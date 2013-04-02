@@ -41,6 +41,23 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
     numberOfClasses = a.numberOfClasses;
   }
   
+  /**
+   * Constructs an object and sets the specified parameters.
+   * @param w hyperplane
+   * @param age number of updates
+   * @param distribution template variable for the class distribution
+   * @param lambda learning parameter
+   * @param numberOfClasses number of classes
+   */
+  protected P2Pegasos(SparseVector w, double age, double[] distribution, 
+      double lambda, int numberOfClasses) {
+    this.w = w;
+    this.age = age;
+    this.distribution = distribution;
+    this.lambda = lambda;
+    this.numberOfClasses = numberOfClasses;
+  }
+  
   public Object clone(){
     return new P2Pegasos(this);
   }

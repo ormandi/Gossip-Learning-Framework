@@ -5,6 +5,7 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
@@ -57,7 +58,7 @@ public class RecSysProtocol2 extends LearningProtocol {
     }
   }
   
-  ModelHolder latestModelHolder;
+  protected ModelHolder latestModelHolder;
   @Override
   public void activeThread() {
     // evaluate
@@ -81,7 +82,7 @@ public class RecSysProtocol2 extends LearningProtocol {
       latestModelHolder.clear();
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
-        MatrixBasedModel latestModel = ((MatrixBasedModel)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
+        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
         latestModelHolder.add(latestModel);
       }
       if (latestModelHolder.size() == modelHolders.length) {

@@ -1,7 +1,13 @@
 package gossipLearning.models.learning.mergeable;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.LogisticRegression;
+import gossipLearning.utils.SparseVector;
+
+import java.util.Arrays;
+import java.util.Set;
+
 import peersim.config.Configuration;
 
 /**
@@ -14,7 +20,7 @@ import peersim.config.Configuration;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableLogReg extends LogisticRegression implements Mergeable<MergeableLogReg>{
+public class MergeableLogReg extends LogisticRegression implements Mergeable<MergeableLogReg>, Partializable<MergeableLogReg> {
   private static final long serialVersionUID = -4465428750554412761L;
   
   /** @hidden */
@@ -35,6 +41,11 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
     super(a);
   }
   
+  protected MergeableLogReg(double lambda, SparseVector w, double bias, 
+      double[] distribution, double age, int numberOfClasses) {
+    super(lambda, w, bias, distribution, age, numberOfClasses);
+  }
+  
   public Object clone(){
     return new MergeableLogReg(this);
   }
@@ -50,5 +61,14 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
     w.mul(0.5);
     w.add(model.w, 0.5);
     return this;
+  }
+
+  @Override
+  public MergeableLogReg getModelPart(Set<Integer> indices) {
+    SparseVector w = new SparseVector(indices.size());
+    for (int index : indices) {
+      w.add(index, this.w.get(index));
+    }
+    return new MergeableLogReg(lambda, w, bias, Arrays.copyOf(distribution, distribution.length), age, numberOfClasses);
   }
 }

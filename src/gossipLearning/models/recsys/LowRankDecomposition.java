@@ -3,6 +3,7 @@ package gossipLearning.models.recsys;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
@@ -15,7 +16,7 @@ import java.util.Set;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Mergeable<LowRankDecomposition> {
+public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Mergeable<LowRankDecomposition>, Partializable<LowRankDecomposition> {
   private static final long serialVersionUID = -6695974880876825151L;
   private static final String PAR_DIMENSION = "LowRankDecomposition.dimension";
   private static final String PAR_LAMBDA = "LowRankDecomposition.lambda";
@@ -43,7 +44,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     age = a.age;
     itemModels = new HashMap<Integer, SparseVector>();
     for (Entry<Integer, SparseVector> e : a.itemModels.entrySet()) {
-      itemModels.put(e.getKey(), (SparseVector)e.getValue().clone());
+      itemModels.put(e.getKey().intValue(), (SparseVector)e.getValue().clone());
     }
     dimension = a.dimension;
     lambda = a.lambda;
@@ -138,6 +139,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     return age;
   }
   
+  @Override
   public LowRankDecomposition getModelPart(Set<Integer> indices) {
     LowRankDecomposition result = new LowRankDecomposition();
     result.age = age;

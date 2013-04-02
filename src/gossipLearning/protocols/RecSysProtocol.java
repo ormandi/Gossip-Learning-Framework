@@ -5,10 +5,16 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.VectorEntry;
+
+import java.util.Set;
+import java.util.TreeSet;
+
 import peersim.core.CommonState;
 
 public class RecSysProtocol extends LearningProtocol {
@@ -44,6 +50,15 @@ public class RecSysProtocol extends LearningProtocol {
       }
     }
     
+    // get indices of rated items
+    Set<Integer> indices = new TreeSet<Integer>();
+    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    for (int i = 0; i < instances.size(); i++) {
+      for (VectorEntry e : instances.getInstance(i)) {
+        indices.add(e.index);
+      }
+    }
+    
     // send
     if (numberOfIncomingModels == 0) {
       numberOfWaits ++;
@@ -57,7 +72,7 @@ public class RecSysProtocol extends LearningProtocol {
       latestModelHolder.clear();
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
-        Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - id);
+        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - id)).getModelPart(indices);
         latestModelHolder.add(latestModel);
       }
       if (latestModelHolder.size() == modelHolders.length) {

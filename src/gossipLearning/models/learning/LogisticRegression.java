@@ -57,6 +57,25 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   }
   
   /**
+   * Constructs an object and sets the specified parameters.
+   * @param lambda learning parameter
+   * @param w hyperplane
+   * @param bias bias variable
+   * @param distribution template variable for the class distribution
+   * @param age number of updates
+   * @param numberOfClasses number of classes
+   */
+  protected LogisticRegression(double lambda, SparseVector w, double bias, 
+      double[] distribution, double age, int numberOfClasses) {
+    this.lambda = lambda;
+    this.w = w;
+    this.bias = bias;
+    this.distribution = distribution;
+    this.age = age;
+    this.numberOfClasses = numberOfClasses;
+  }
+  
+  /**
    * Clones the object.
    */
   public Object clone(){

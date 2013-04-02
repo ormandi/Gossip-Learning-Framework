@@ -1,10 +1,13 @@
 package gossipLearning.models.learning.mergeable;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.SimpleNaiveBayes;
 import gossipLearning.utils.SparseVector;
 
-public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<MergeableNaiveBayes> {
+import java.util.Set;
+
+public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<MergeableNaiveBayes>, Partializable<MergeableNaiveBayes> {
   private static final long serialVersionUID = 2340506780082847579L;
   
   public MergeableNaiveBayes() {
@@ -15,6 +18,11 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<
     super(a);
   }
   
+  protected MergeableNaiveBayes(SparseVector[] mus, SparseVector[] sigmas, 
+      double[] counts, double age, int numberOfClasses, int maxIndex) {
+    super(mus, sigmas, counts, age, numberOfClasses, maxIndex);
+  }
+  
   public Object clone() {
     return new MergeableNaiveBayes(this);
   }
@@ -23,21 +31,38 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<
   public MergeableNaiveBayes merge(MergeableNaiveBayes model) {
     age = (age + model.age) * 0.5;
     maxIndex = Math.max(maxIndex, model.maxIndex);
-    for (int i = 0; i < model.counts.size(); i++) {
-      if (i < counts.size()) {
-        /*counts.set(i, (counts.get(i) + model.counts.get(i)) * 0.5);
-        mus.set(i, mus.get(i).add(model.mus.get(i)).mul(0.5));
-        sigmas.set(i, sigmas.get(i).add(model.sigmas.get(i)).mul(0.5));*/
-        counts.set(i, (1.0 - 1.0/age) * counts.get(i) + (1.0 / age) * model.counts.get(i));
-        mus.set(i, mus.get(i).mul((1.0 - 1.0/age)).add(model.mus.get(i).mul(1.0 / age)));
-        sigmas.set(i, sigmas.get(i).mul((1.0 - 1.0/age)).add(model.sigmas.get(i).mul(1.0 / age)));
+    for (int i = 0; i < numberOfClasses; i++) {
+      if (counts[i] != 0.0) {
+        counts[i] = (counts[i] + model.counts[i]) * 0.5;
+        mus[i].mul(0.5).add(model.mus[i], 0.5);
+        sigmas[i].mul(0.5).add(model.sigmas[i], 0.5);
       } else {
-        counts.add(model.counts.get(i) * 0.5);
-        mus.add((SparseVector)model.mus.get(i).mul(0.5).clone());
-        sigmas.add((SparseVector)model.sigmas.get(i).mul(0.5).clone());
+        counts[i] = model.counts[i];
+        mus[i] = (SparseVector)model.mus[i].clone();
+        sigmas[i] = (SparseVector)model.sigmas[i].clone();
       }
     }
     return this;
+  }
+
+  @Override
+  public MergeableNaiveBayes getModelPart(Set<Integer> indices) {
+    SparseVector[] mus = new SparseVector[numberOfClasses];
+    SparseVector[] sigmas = new SparseVector[numberOfClasses];
+    double[] counts = new double[numberOfClasses];
+    for (int i = 0; i < numberOfClasses; i++) {
+      mus[i] = new SparseVector(indices.size());
+      sigmas[i] = new SparseVector(indices.size());
+      counts[i] = 0.0;
+    }
+    for (int index : indices) {
+      for (int i = 0; i < numberOfClasses; i++) {
+        mus[i].put(index, this.mus[i].get(index));
+        sigmas[i].put(index, this.sigmas[i].get(index));
+        counts[i] = this.counts[i];
+      }
+    }
+    return new MergeableNaiveBayes(mus, sigmas, counts, serialVersionUID, numberOfClasses, maxIndex);
   }
 
 }

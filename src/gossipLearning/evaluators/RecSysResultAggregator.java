@@ -3,7 +3,7 @@ package gossipLearning.evaluators;
 import gossipLearning.interfaces.Evaluator;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.FeatureExtractor;
-import gossipLearning.models.recsys.LowRankDecomposition;
+import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
@@ -27,7 +27,7 @@ public class RecSysResultAggregator extends ResultAggregator {
       pid2EvalNames.put(pid, evalNames);
     }
     InstanceHolder eval = extractor.extract(evalSet);
-    LowRankDecomposition model = (LowRankDecomposition)modelHolder.getModel(modelHolder.size() - 1);
+    MatrixBasedModel model = (MatrixBasedModel)modelHolder.getModel(modelHolder.size() - 1);
     modelAges[index] = model.getAge();
     StringBuffer[] buffs = pid2ModelAges.get(pid);
     if (AggregationResult.isPrintAges) {

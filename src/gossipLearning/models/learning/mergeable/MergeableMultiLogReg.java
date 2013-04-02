@@ -1,7 +1,13 @@
 package gossipLearning.models.learning.mergeable;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.MultiLogReg;
+import gossipLearning.utils.SparseVector;
+
+import java.util.Arrays;
+import java.util.Set;
+
 import peersim.config.Configuration;
 
 /**
@@ -14,7 +20,7 @@ import peersim.config.Configuration;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<MergeableMultiLogReg> {
+public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<MergeableMultiLogReg>, Partializable<MergeableMultiLogReg> {
   private static final long serialVersionUID = -7800995106591726828L;
 
   /** @hidden */
@@ -35,6 +41,11 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
     super(a);
   }
   
+  protected MergeableMultiLogReg(double lambda, double age, int numberOfClasses, 
+      SparseVector[] w, double[] distribution, double[] v, double[] bias) {
+    super(lambda, age, numberOfClasses, w, distribution, v, bias);
+  }
+  
   public Object clone() {
     return new MergeableMultiLogReg(this);
   }
@@ -52,6 +63,23 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
       bias[i] = (bias[i] + model.bias[i]) / 2.0;
     }
     return this;
+  }
+
+  @Override
+  public MergeableMultiLogReg getModelPart(Set<Integer> indices) {
+    SparseVector[] w = new SparseVector[numberOfClasses];
+    for (int index : indices) {
+      for (int i = 0; i < numberOfClasses; i++) {
+        if (w[i] == null) {
+          w[i] = new SparseVector(indices.size());
+        }
+        w[i].add(index, this.w[i].get(index));
+      }
+    }
+    return new MergeableMultiLogReg(lambda, age, numberOfClasses, w, 
+        Arrays.copyOf(distribution, distribution.length), 
+        Arrays.copyOf(v, v.length), 
+        Arrays.copyOf(bias, bias.length));
   }
 
 }

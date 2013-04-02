@@ -23,6 +23,15 @@ public class RecSysModel extends LowRankDecomposition {
     super(a);
   }
   
+  protected RecSysModel(LowRankDecomposition a) {
+    age = a.age;
+    itemModels = a.itemModels;
+    dimension = a.dimension;
+    lambda = a.lambda;
+    alpha = a.alpha;
+    maxindex = a.maxindex;
+  }
+  
   public Object clone() {
     return new RecSysModel(this);
   }
@@ -74,6 +83,8 @@ public class RecSysModel extends LowRankDecomposition {
   
   @Override
   public RecSysModel merge(LowRankDecomposition model) {
+    //System.out.println(model.itemModels.size());
+    //System.out.println("---merge");
     for (Entry<Integer, SparseVector> e : model.itemModels.entrySet()) {
       // store the new information
       //itemModels.put(e.getKey(), e.getValue());
@@ -85,13 +96,15 @@ public class RecSysModel extends LowRankDecomposition {
         v.mul(0.5).add(e.getValue(), 0.5);
       }
     }
+    
     // only store recv model
     //this.itemModels = model.itemModels;
     return this;
   }
   
+  @Override
   public RecSysModel getModelPart(Set<Integer> indices) {
-    return this;
+    return new RecSysModel(super.getModelPart(indices));
   }
   
 }

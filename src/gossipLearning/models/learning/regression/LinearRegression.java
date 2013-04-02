@@ -2,8 +2,12 @@ package gossipLearning.models.learning.regression;
 
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SimilarityComputable;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Set;
+
 import peersim.config.Configuration;
 
 /**
@@ -15,7 +19,7 @@ import peersim.config.Configuration;
  * </ul>
  * @author István Hegedűs
  */
-public class LinearRegression implements LearningModel, Mergeable<LinearRegression>, SimilarityComputable<LinearRegression> {
+public class LinearRegression implements LearningModel, Mergeable<LinearRegression>,Partializable<LinearRegression> , SimilarityComputable<LinearRegression> {
   private static final long serialVersionUID = -1468280308189482885L;
   
   /** @hidden */
@@ -38,12 +42,29 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
     age = 0.0;
   }
   
-  private LinearRegression(LinearRegression a){
+  protected LinearRegression(LinearRegression a){
     w = (SparseVector)a.w.clone();
     bias = a.bias;
     age = a.age;
     lambda = a.lambda;
     numberOfClasses = a.numberOfClasses;
+  }
+  
+  /**
+   * Constructs an object and sets the specified parameters.
+   * @param w hyperplane
+   * @param bias bias variable
+   * @param age number of updates
+   * @param lambda learning parameter
+   * @param numberOfClasses number of classes
+   */
+  protected LinearRegression(SparseVector w, double bias, double age, 
+      double lambda, int numberOfClasses) {
+    this.w = w;
+    this.bias = bias;
+    this.age = age;
+    this.lambda = lambda;
+    this.numberOfClasses = numberOfClasses;
   }
   
   public Object clone(){
@@ -109,6 +130,15 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   @Override
   public String toString() {
     return w.toString() + "\t" + bias;
+  }
+
+  @Override
+  public LinearRegression getModelPart(Set<Integer> indices) {
+    SparseVector w = new SparseVector(indices.size());
+    for (int index : indices) {
+      w.add(index, this.w.get(index));
+    }
+    return new LinearRegression(w, bias, age, lambda, numberOfClasses);
   }
 
 }

@@ -79,6 +79,27 @@ public class MultiLogReg extends ProbabilityModel {
   }
   
   /**
+   * Constructs an object and sets the specified parameters.
+   * @param lambda learning parameter
+   * @param age number of updates
+   * @param numberOfClasses number of classes
+   * @param w array of hyperplanes
+   * @param distribution template variable for the class distribution
+   * @param v template variable for the class distribution
+   * @param bias array of biases
+   */
+  protected MultiLogReg(double lambda, double age, int numberOfClasses, 
+      SparseVector[] w, double[] distribution, double[] v, double[] bias) {
+    this.lambda = lambda;
+    this.age = age;
+    this.numberOfClasses = numberOfClasses;
+    this.w = w;
+    this.distribution = distribution;
+    this.v = v;
+    this.bias = bias;
+  }
+  
+  /**
    * Deep copy.
    */
   public Object clone() {

@@ -2,8 +2,6 @@ package gossipLearning.interfaces.models;
 
 import gossipLearning.utils.SparseVector;
 
-import java.util.Set;
-
 /**
  * This interface can be used for those models, that used for some kind of 
  * matrix factorization. Where the matrix can be reproduced as M=U*V. In this 
@@ -30,11 +28,4 @@ public interface MatrixBasedModel extends Model {
    * @return the predicted value of m_ij
    */
   public double predict(int rowIndex, SparseVector rowModel, int columnIndex);
-  /**
-   * Returns the model that contains the columns of the current model (V) which 
-   * indices set was specified.
-   * @param indices the indices of the columns of matrix V to be extracted
-   * @return the specified part of the V matrix
-   */
-  public MatrixBasedModel getModelPart(Set<Integer> indices);
 }

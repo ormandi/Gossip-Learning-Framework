@@ -6,7 +6,6 @@ import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
 
 import java.util.Iterator;
-import java.util.Vector;
 
 /**
  * This class represents a Naive Bayes classification algorithm.</br>
@@ -18,27 +17,30 @@ import java.util.Vector;
 public class SimpleNaiveBayes extends ProbabilityModel {
   private static final long serialVersionUID = -1077414909739530823L;
   
-  protected Vector<SparseVector> mus;
-  protected Vector<SparseVector> sigmas;
-  protected Vector<Double> counts;
+  protected SparseVector[] mus;
+  protected SparseVector[] sigmas;
+  protected double[] counts;
   protected double age;
   protected int numberOfClasses;
   protected int maxIndex;
 
   public SimpleNaiveBayes() {
-    mus = new Vector<SparseVector>();
-    sigmas = new Vector<SparseVector>();
-    counts = new Vector<Double>();
+    mus = null;
+    sigmas = null;
+    counts = null;
     age = 0.0;
     maxIndex = 0;
+    numberOfClasses = 0;
   }
   
   public SimpleNaiveBayes(SimpleNaiveBayes a) {
-    this();
-    for (int i = 0; i < a.counts.size(); i++) {
-      mus.add((SparseVector)a.mus.get(i).clone());
-      sigmas.add((SparseVector)a.sigmas.get(i).clone());
-      counts.add(a.counts.get(i));
+    mus = new SparseVector[a.numberOfClasses];
+    sigmas = new SparseVector[a.numberOfClasses];
+    counts = new double[a.numberOfClasses];
+    for (int i = 0; i < a.numberOfClasses; i++) {
+      mus[i] = (SparseVector)a.mus[i].clone();
+      sigmas[i] = (SparseVector)a.sigmas[i].clone();
+      counts[i] = a.counts[i];
     }
     age = a.age;
     numberOfClasses = a.numberOfClasses;
@@ -48,6 +50,16 @@ public class SimpleNaiveBayes extends ProbabilityModel {
   @Override
   public Object clone() {
     return new SimpleNaiveBayes(this);
+  }
+  
+  protected SimpleNaiveBayes(SparseVector[] mus, SparseVector[] sigmas, 
+      double[] counts, double age, int numberOfClasses, int maxIndex) {
+    this.mus = mus;
+    this.sigmas = sigmas;
+    this.counts = counts;
+    this.age = age;
+    this.numberOfClasses = numberOfClasses;
+    this.maxIndex = maxIndex;
   }
 
   @Override
@@ -59,19 +71,12 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     if (instance.maxIndex() > maxIndex) {
       maxIndex = instance.maxIndex() + 1;
     }
-    if (counts.size() <= label) {
-      for (int i = counts.size(); i <= label; i++) {
-        mus.add(new SparseVector());
-        sigmas.add(new SparseVector());
-        counts.add(0.0);
-      }
-    }
     age ++;
-    double count = counts.get((int)label) + 1.0;
-    counts.set((int)label, count);
-    SparseVector v = mus.get((int)label);
+    double count = counts[(int)label] + 1.0;
+    counts[(int)label] =  count;
+    SparseVector v = mus[(int)label];
     v.mul(1.0 - 1.0 / count).add(instance, 1.0 / count);
-    SparseVector vs = sigmas.get((int)label);
+    SparseVector vs = sigmas[(int)label];
     SparseVector copy = new SparseVector(instance);
     vs.mul(1.0 - 1.0 / count).add(copy.pointMul(instance), 1.0 / count);
   }
@@ -84,11 +89,11 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     double p;
     double pc;
     double sum = 0.0;
-    for (int i = 0; i < numberOfClasses && i < counts.size(); i++) {
+    for (int i = 0; i < numberOfClasses; i++) {
       p = 0.0;
-      pc = Math.log(counts.get(i) / age);
-      Iterator<VectorEntry> muIter = mus.get(i).iterator();
-      Iterator<VectorEntry> sigmaIter = sigmas.get(i).iterator();
+      pc = Math.log(counts[i] / age);
+      Iterator<VectorEntry> muIter = mus[i].iterator();
+      Iterator<VectorEntry> sigmaIter = sigmas[i].iterator();
       Iterator<VectorEntry> instIter = instance.iterator();
       VectorEntry muE = muIter.hasNext() ? muIter.next() : new VectorEntry(-1, 0.0);
       VectorEntry sigmaE = sigmaIter.hasNext() ? sigmaIter.next() : new VectorEntry(-1, 0.0);
@@ -155,7 +160,18 @@ public class SimpleNaiveBayes extends ProbabilityModel {
 
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
+    if (numberOfClasses < 2) {
+      throw new RuntimeException("The specified value sould be greater than 1 instead " + numberOfClasses);
+    }
     this.numberOfClasses = numberOfClasses;
+    mus = new SparseVector[numberOfClasses];
+    sigmas = new SparseVector[numberOfClasses];
+    counts = new double[numberOfClasses];
+    for (int i = 0; i < numberOfClasses; i++) {
+      mus[i] = new SparseVector();
+      sigmas[i] = new SparseVector();
+      counts[i] = 0.0;
+    }
   }
 
   private static double logProb(double x, double mu, double sigma) {

@@ -1,9 +1,13 @@
 package gossipLearning.models.learning.multiclass;
 
+import java.util.Arrays;
+import java.util.Set;
+
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.SparseVector;
@@ -23,7 +27,7 @@ import peersim.config.Configuration;
  * @author István Hegedűs
  *
  */
-public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeable<OneVsAllMetaClassifier> {
+public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeable<OneVsAllMetaClassifier>, Partializable<OneVsAllMetaClassifier> {
   private static final long serialVersionUID = 1650527797690827114L;
   /** @hidden */
   private static final String PAR_BNAME = "OVsA";
@@ -55,6 +59,24 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
     } else {
       classifiers = null;
     }
+    this.distribution = Arrays.copyOf(a.distribution, a.distribution.length);
+  }
+  
+  /**
+   * Constructs an object and sets the specified parameters.
+   * @param baseLearnerName name of the used learning algorithm
+   * @param numberOfClasses number of classes
+   * @param prefix
+   * @param classifiers
+   * @param distribution
+   */
+  protected OneVsAllMetaClassifier(String baseLearnerName, int numberOfClasses, 
+      String prefix, ModelHolder classifiers, double[] distribution) {
+    this.baseLearnerName = baseLearnerName;
+    this.numberOfClasses = numberOfClasses;
+    this.prefix = prefix;
+    this.classifiers = classifiers;
+    this.distribution = distribution;
   }
   
   @Override
@@ -113,13 +135,26 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
   @Override
   public OneVsAllMetaClassifier merge(OneVsAllMetaClassifier model) {
     for (int i = 0; i < classifiers.size(); i++) {
-      if (!(classifiers.getModel(i) instanceof Mergeable)) {
-        return this;
-      }
       Model result = ((Mergeable)classifiers.getModel(i)).merge(model.classifiers.getModel(i));
       classifiers.setModel(i, result);
     }
     return this;
+  }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @Override
+  public OneVsAllMetaClassifier getModelPart(Set<Integer> indices) {
+    ModelHolder classifiers = new BQModelHolder(this.classifiers.size());
+    for (int i = 0; i < numberOfClasses; i++) {
+      Model m = ((Partializable)this.classifiers.getModel(i)).getModelPart(indices);
+      classifiers.add(m);
+    }
+    return new OneVsAllMetaClassifier(baseLearnerName, numberOfClasses, prefix, classifiers, Arrays.copyOf(distribution, distribution.length));
+  }
+  
+  @Override
+  public String toString() {
+    return classifiers.toString();
   }
 
 }
