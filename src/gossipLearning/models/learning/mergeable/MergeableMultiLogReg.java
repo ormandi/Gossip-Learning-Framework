@@ -68,11 +68,11 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
   @Override
   public MergeableMultiLogReg getModelPart(Set<Integer> indices) {
     SparseVector[] w = new SparseVector[numberOfClasses];
+    for (int i = 0; i < numberOfClasses; i++) {
+      w[i] = new SparseVector(indices.size());
+    }
     for (int index : indices) {
       for (int i = 0; i < numberOfClasses; i++) {
-        if (w[i] == null) {
-          w[i] = new SparseVector(indices.size());
-        }
         w[i].add(index, this.w[i].get(index));
       }
     }

@@ -57,7 +57,7 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
   @Override
   public MergeableLogReg merge(final MergeableLogReg model) {
     age = Math.max(age, model.age);
-    bias = (bias + model.bias) / 2.0;
+    bias = (bias + model.bias) * 0.5;
     w.mul(0.5);
     w.add(model.w, 0.5);
     return this;

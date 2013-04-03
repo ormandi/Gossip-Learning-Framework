@@ -96,8 +96,7 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
     
     w.mul(1.0 - nu * lambda);
     w.add(instance, - nu * err);
-    bias -= nu * err;
-    
+    bias -= nu * lambda * err;
   }
   
   /**
@@ -107,8 +106,7 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @return positive label probability of the instance
    */
   private double getPositiveProbability(SparseVector instance){
-    SparseVector ins = (SparseVector)instance.clone();
-    double predict = w.mul(ins.normalize()) + bias;
+    double predict = w.mul(instance) + bias;
     predict = Math.exp(predict) + 1.0;
     return 1.0 / predict;
   }
