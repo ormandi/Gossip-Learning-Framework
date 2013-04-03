@@ -143,7 +143,7 @@ public class MultiLogReg extends ProbabilityModel {
       
       w[j].mul(1.0 - nu * lambda);
       w[j].add(instance, nu * err);
-      bias[j] += nu * err;
+      bias[j] += nu * lambda * err;
     }
   }
 
