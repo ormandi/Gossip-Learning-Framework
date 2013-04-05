@@ -4,6 +4,7 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.P2Pegasos;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.VectorEntry;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -56,9 +57,13 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
    */
   @Override
   public MergeablePegasos merge(MergeablePegasos model) {
-    age = Math.max(age, model.age);
-    w.mul(0.5);
-    w.add(model.w, 0.5);
+    //age = Math.max(age, model.age);
+    //w.mul(0.5);
+    //w.add(model.w, 0.5);
+    for (VectorEntry e : model.w) {
+      double value = w.get(e.index);
+      w.add(e.index, (e.value - value) * 0.5);
+    }
     return this;
   }
 
@@ -69,6 +74,7 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
       w.add(index, this.w.get(index));
     }
     return new MergeablePegasos(w, age, Arrays.copyOf(distribution, distribution.length), lambda, numberOfClasses);
+    //return this;
   }
 
 }

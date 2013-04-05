@@ -4,6 +4,7 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.MultiLogReg;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.VectorEntry;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -56,11 +57,16 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
   
   @Override
   public MergeableMultiLogReg merge(MergeableMultiLogReg model) {
-    age = Math.max(age, model.age);
+    //age = Math.max(age, model.age);
     for (int i = 0; i < numberOfClasses; i++) {
-      w[i].mul(0.5);
-      w[i].add(model.w[i], 0.5);
-      bias[i] = (bias[i] + model.bias[i]) / 2.0;
+      //w[i].mul(0.5);
+      //w[i].add(model.w[i], 0.5);
+      //bias[i] = (bias[i] + model.bias[i]) * 0.5;
+      for (VectorEntry e : model.w[i]) {
+        double value = w[i].get(e.index);
+        w[i].add(e.index, (e.value - value) * 0.5);
+        bias[i] = (bias[i] + model.bias[i]) * 0.5;
+      }
     }
     return this;
   }

@@ -47,7 +47,7 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<
 
   @Override
   public MergeableNaiveBayes getModelPart(Set<Integer> indices) {
-    SparseVector[] mus = new SparseVector[numberOfClasses];
+    /*SparseVector[] mus = new SparseVector[numberOfClasses];
     SparseVector[] sigmas = new SparseVector[numberOfClasses];
     double[] counts = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
@@ -63,6 +63,8 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<
       }
     }
     return new MergeableNaiveBayes(mus, sigmas, counts, serialVersionUID, numberOfClasses, maxIndex);
+    */
+    return this;
   }
 
 }

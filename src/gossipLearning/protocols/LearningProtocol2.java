@@ -112,8 +112,8 @@ public class LearningProtocol2 extends LearningProtocol {
         double label = instances.getLabel(sampleID);
         currModel.update(x, label);
       }
-      // stores the updated model
-      modelHolders[i].add(currModel);
+      // stores the updated model (not necessary since it has only 1 model)
+      //modelHolders[i].add(currModel);
     }
   }
   
