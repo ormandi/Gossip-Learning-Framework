@@ -9,11 +9,11 @@ import gossipLearning.utils.InstanceHolder;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ResultAggregator implements Serializable, Iterable<AggregationResult> {
@@ -114,7 +114,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
   public Iterator<AggregationResult> iterator() {
     lock.lock();
     try {
-    Set<AggregationResult> results = new TreeSet<AggregationResult>();
+    List<AggregationResult> results = new LinkedList<AggregationResult>();
     for (Entry<Integer, Evaluator[][]> entry : aggregations.entrySet()) {
       for (int i = 0; i < entry.getValue().length; i++) {
         if (AggregationResult.isPrintAges) {
