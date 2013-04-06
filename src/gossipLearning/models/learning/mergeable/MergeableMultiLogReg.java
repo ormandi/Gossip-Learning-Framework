@@ -6,7 +6,6 @@ import gossipLearning.models.learning.multiclass.MultiLogReg;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import peersim.config.Configuration;
@@ -73,19 +72,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
 
   @Override
   public MergeableMultiLogReg getModelPart(Set<Integer> indices) {
-    SparseVector[] w = new SparseVector[numberOfClasses];
-    for (int i = 0; i < numberOfClasses; i++) {
-      w[i] = new SparseVector(indices.size());
-    }
-    for (int index : indices) {
-      for (int i = 0; i < numberOfClasses; i++) {
-        w[i].add(index, this.w[i].get(index));
-      }
-    }
-    return new MergeableMultiLogReg(lambda, age, numberOfClasses, w, 
-        Arrays.copyOf(distribution, distribution.length), 
-        Arrays.copyOf(v, v.length), 
-        Arrays.copyOf(bias, bias.length));
+    return this;
   }
 
 }

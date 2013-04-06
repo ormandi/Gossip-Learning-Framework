@@ -1,16 +1,13 @@
 package gossipLearning.models.learning.multiclass;
 
-import java.util.Arrays;
-import java.util.Set;
-
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.LearningModel;
-import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Model;
-import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Arrays;
+
 import peersim.config.Configuration;
 
 /**
@@ -27,18 +24,18 @@ import peersim.config.Configuration;
  * @author István Hegedűs
  *
  */
-public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeable<OneVsAllMetaClassifier>, Partializable<OneVsAllMetaClassifier> {
+public class OneVsAllMetaClassifier extends ProbabilityModel {
   private static final long serialVersionUID = 1650527797690827114L;
   /** @hidden */
   private static final String PAR_BNAME = "OVsA";
   
-  private int numberOfClasses;
-  private ModelHolder classifiers;
+  protected int numberOfClasses;
+  protected ModelHolder classifiers;
   /** @hidden */
-  private String baseLearnerName;
+  protected String baseLearnerName;
   /** @hidden */
-  private String prefix;
-  private double[] distribution;
+  protected String prefix;
+  protected double[] distribution;
 
   /**
    * Default constructor (do nothing).
@@ -131,27 +128,6 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  @Override
-  public OneVsAllMetaClassifier merge(OneVsAllMetaClassifier model) {
-    for (int i = 0; i < classifiers.size(); i++) {
-      Model result = ((Mergeable)classifiers.getModel(i)).merge(model.classifiers.getModel(i));
-      classifiers.setModel(i, result);
-    }
-    return this;
-  }
-
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  @Override
-  public OneVsAllMetaClassifier getModelPart(Set<Integer> indices) {
-    ModelHolder classifiers = new BQModelHolder(this.classifiers.size());
-    for (int i = 0; i < numberOfClasses; i++) {
-      Model m = ((Partializable)this.classifiers.getModel(i)).getModelPart(indices);
-      classifiers.add(m);
-    }
-    return new OneVsAllMetaClassifier(baseLearnerName, numberOfClasses, prefix, classifiers, Arrays.copyOf(distribution, distribution.length));
-  }
-  
   @Override
   public String toString() {
     return classifiers.toString();

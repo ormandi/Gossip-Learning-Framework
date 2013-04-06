@@ -6,7 +6,6 @@ import gossipLearning.models.learning.LogisticRegression;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import peersim.config.Configuration;
@@ -71,10 +70,6 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
 
   @Override
   public MergeableLogReg getModelPart(Set<Integer> indices) {
-    SparseVector w = new SparseVector(indices.size());
-    for (int index : indices) {
-      w.add(index, this.w.get(index));
-    }
-    return new MergeableLogReg(lambda, w, bias, Arrays.copyOf(distribution, distribution.length), age, numberOfClasses);
+    return this;
   }
 }
