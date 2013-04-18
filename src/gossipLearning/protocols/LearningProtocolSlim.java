@@ -58,6 +58,7 @@ public class LearningProtocolSlim extends LearningProtocol {
   }
   
   protected ModelHolder latestModelHolder;
+  protected Set<Integer> indices;
   @Override
   public void activeThread() {
     // evaluate
@@ -68,7 +69,11 @@ public class LearningProtocolSlim extends LearningProtocol {
     }
     
     // get indices of rated items
-    Set<Integer> indices = new TreeSet<Integer>();
+    if (indices == null) {
+      indices = new TreeSet<Integer>();
+    } else {
+      indices.clear();
+    }
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
     for (int i = 0; i < instances.size(); i++) {
       for (VectorEntry e : instances.getInstance(i)) {

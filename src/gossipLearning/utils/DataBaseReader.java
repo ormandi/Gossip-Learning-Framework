@@ -43,19 +43,22 @@ public class DataBaseReader {
     
     // compute means and standard deviations on training set for standardization
     for (int i = 0; i < trainingSet.size(); i++) {
-      means.add(trainingSet.getInstance(i));
+      /*means.add(trainingSet.getInstance(i));
       for (VectorEntry e : trainingSet.getInstance(i)) {
         devs.put(e.index, devs.get(e.index) + (e.value * e.value));
-      }
+      }*/
+      // this can be more efficient
+      SparseVector instance = trainingSet.getInstance(i);
+      means.add(instance);
+      instance.powerTo(2.0);
+      devs.add(instance);
+      instance.sqrt();
     }
     means.mul(1.0 / (double)trainingSet.size());
     devs.mul(1.0 / (double)trainingSet.size());
     SparseVector m2 = new SparseVector(means);
     m2.powerTo(2.0);
     devs.add(m2, -1.0);
-    /*for (VectorEntry e : means) {
-      devs.put(e.index, devs.get(e.index) - (e.value * e.value));
-    }*/
     devs.sqrt();
     
     // reading evaluation file
@@ -107,7 +110,9 @@ public class DataBaseReader {
         continue;
       }
       // eliminating comments and white spaces from the endings of the line
-      line = line.replaceAll("#.*", "").trim();
+      //line = line.replaceAll("#.*", "").trim();
+      int charIndex = line.indexOf("#");
+      line.substring(0, charIndex == -1 ? line.length() : charIndex).trim();
       // splitting line at white spaces and at colons
       split = line.split(":|\\s");
       // throwing exception if the line is invalid (= has even number of tokens, since 

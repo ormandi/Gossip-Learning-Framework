@@ -72,7 +72,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
 
   @Override
   public MergeableMultiLogReg getModelPart(Set<Integer> indices) {
-    return this;
+    return new MergeableMultiLogReg(this);
   }
 
 }

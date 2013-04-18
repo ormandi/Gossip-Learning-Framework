@@ -36,6 +36,7 @@ public class LocalRun {
     
     int numIters = Configuration.getInt("ITER");
     long seed = Configuration.getLong("SEED");
+    int evalTime = numIters / Configuration.getInt("NUMEVALS");
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
     
@@ -65,18 +66,20 @@ public class LocalRun {
     FeatureExtractor extractor = new DummyExtractor();
     
     for (int iter = 0; iter <= numIters; iter++) {
-      // evaluate
-      for (int i = 0; i < models.length; i++) {
-        modelHolder.add(models[i]);
-        resultAggregator.push(-1, i, modelHolder, extractor);
-      }
-      
-      // print results
-      for (AggregationResult result : resultAggregator) {
-        if (iter == 0) {
-          System.out.println("#iter\t" + result.getNames());
+      if (iter % evalTime == 0) {
+        // evaluate
+        for (int i = 0; i < models.length; i++) {
+          modelHolder.add(models[i]);
+          resultAggregator.push(-1, i, modelHolder, extractor);
         }
-        System.out.println(iter + "\t" + result);
+        
+        // print results
+        for (AggregationResult result : resultAggregator) {
+          if (iter == 0) {
+            System.out.println("#iter\t" + result.getNames());
+          }
+          System.out.println(iter + "\t" + result);
+        }
       }
       
       // training

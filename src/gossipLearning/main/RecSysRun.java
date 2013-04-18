@@ -36,6 +36,7 @@ public class RecSysRun {
     
     int numIters = Configuration.getInt("ITER");
     long seed = Configuration.getLong("SEED");
+    int evalTime = numIters / Configuration.getInt("NUMEVALS");
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
     
@@ -64,20 +65,22 @@ public class RecSysRun {
     FeatureExtractor extractor = new DummyExtractor();
     
     for (int iter = 0; iter <= numIters; iter++) {
-      // evaluate
-      for (int i = 0; i < models.length; i++) {
-        modelHolder.add(models[i]);
-        for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-          resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
+      if (iter % evalTime == 0) {
+        // evaluate
+        for (int i = 0; i < models.length; i++) {
+          modelHolder.add(models[i]);
+          for (int j = 0; j < reader.getTrainingSet().size(); j++) {
+            resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
+          }
         }
-      }
-      
-      // print results
-      for (AggregationResult result : resultAggregator) {
-        if (iter == 0) {
-          System.out.println("#iter\t" + result.getNames());
+        
+        // print results
+        for (AggregationResult result : resultAggregator) {
+          if (iter == 0) {
+            System.out.println("#iter\t" + result.getNames());
+          }
+          System.out.println(iter + "\t" + result);
         }
-        System.out.println(iter + "\t" + result);
       }
       
       // training

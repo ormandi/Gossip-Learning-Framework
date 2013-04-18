@@ -70,6 +70,6 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
 
   @Override
   public MergeableLogReg getModelPart(Set<Integer> indices) {
-    return this;
+    return new MergeableLogReg(this);
   }
 }

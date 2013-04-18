@@ -11,6 +11,7 @@ public interface Mergeable<T extends Model> {
   
   /**
    * Returns the merged or the combined model of the actual and the specified models.
+   * @note Recommended usage: merge the specified model to the current model and return this.
    * @param model the model that will be merged with the actual model
    * @return combined or merged model
    */

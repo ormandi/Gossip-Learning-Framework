@@ -2,8 +2,6 @@ package gossipLearning.models.recsys;
 
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
-import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
@@ -11,47 +9,61 @@ import gossipLearning.utils.VectorEntry;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Mergeable<LowRankDecomposition>, Partializable<LowRankDecomposition> {
+public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor {
   private static final long serialVersionUID = -6695974880876825151L;
   private static final String PAR_DIMENSION = "LowRankDecomposition.dimension";
   private static final String PAR_LAMBDA = "LowRankDecomposition.lambda";
   private static final String PAR_ALPHA = "LowRankDecomposition.alpha";
   
   protected double age;
-  protected HashMap<Integer, SparseVector> itemModels;
+  protected HashMap<Integer, SparseVector> columnModels;
   protected int dimension;
   // learning rate
   protected double lambda;
   // regularization parameter
   protected double alpha;
-  protected int maxindex;
+  protected int maxIndex;
   
   public LowRankDecomposition() {
     age = 0.0;
-    itemModels = new HashMap<Integer, SparseVector>();
+    columnModels = new HashMap<Integer, SparseVector>();
     dimension = 10;
     lambda = 0.001;
     alpha = 0.0;
-    maxindex = 0;
+    maxIndex = 0;
   }
   
   public LowRankDecomposition(LowRankDecomposition a) {
     age = a.age;
-    itemModels = new HashMap<Integer, SparseVector>();
-    for (Entry<Integer, SparseVector> e : a.itemModels.entrySet()) {
-      itemModels.put(e.getKey().intValue(), (SparseVector)e.getValue().clone());
+    // for avoiding size duplications of the HashMap
+    int size = 1;
+    while (size <= a.columnModels.size()) {
+      size <<= 1;
+    }
+    columnModels = new HashMap<Integer, SparseVector>(size, 0.9f);
+    for (Entry<Integer, SparseVector> e : a.columnModels.entrySet()) {
+      columnModels.put(e.getKey().intValue(), (SparseVector)e.getValue().clone());
     }
     dimension = a.dimension;
     lambda = a.lambda;
     alpha = a.alpha;
-    maxindex = a.maxindex;
+    maxIndex = a.maxIndex;
   }
   
+  public LowRankDecomposition(double age, HashMap<Integer, SparseVector> columnModels, int dimension, double lambda, double alpha, int maxIndex) {
+    this.age = age;
+    this.columnModels = columnModels;
+    this.dimension = dimension;
+    this.lambda = lambda;
+    this.alpha = alpha;
+    this.maxIndex = maxIndex;
+  }
+  
+  @Override
   public Object clone() {
     return new LowRankDecomposition(this);
   }
@@ -63,10 +75,11 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
   }
 
+  @Override
   public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
     // rowIndex - userID
     // rowModel - userModel
-    // instance - userRatings
+    // instance - row of the matrix
     double[] newVector;
     if (rowModel == null) {
       newVector = new double[dimension];
@@ -75,8 +88,8 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
       }
       rowModel = new SparseVector(newVector);
     }
-    if (maxindex < instance.maxIndex()) {
-      maxindex = instance.maxIndex();
+    if (maxIndex < instance.maxIndex()) {
+      maxIndex = instance.maxIndex();
     }
     
     SparseVector newUserModel = (SparseVector)rowModel.clone();
@@ -89,7 +102,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     if (iterator.hasNext()) {
       entry = iterator.next();
     }
-    for (int index = 0; index <= maxindex; index++){
+    for (int index = 0; index <= maxIndex; index++){
       value = 0.0;
       if (entry != null && entry.index == index) {
         value = entry.value;
@@ -99,7 +112,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
           entry = null;
         }
       }
-      SparseVector itemModel = itemModels.get(index);
+      SparseVector itemModel = columnModels.get(index);
       // initialize a new item-model by uniform random numbers [0,1]
       if (itemModel == null) {
         newVector = new double[dimension];
@@ -107,7 +120,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
           newVector[i] = CommonState.r.nextDouble();
         }
         itemModel = new SparseVector(newVector);
-        itemModels.put(index, itemModel);
+        columnModels.put(index, itemModel);
       }
       // get the prediction and the error
       double prediction = itemModel.mul(rowModel);
@@ -123,51 +136,24 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     return newUserModel;
   }
   
+  @Override
   public double predict(int rowIndex, SparseVector rowModel, int columnIndex) {
     // rowIndex - userID
     // rowModel - userModel
     // columnIndex - itemID
-    SparseVector itemModel = itemModels.get(columnIndex);
+    SparseVector itemModel = columnModels.get(columnIndex);
     if (itemModel == null || rowModel == null) {
       return 0.0;
     }
     return itemModel.mul(rowModel);
   }
-
+  
   @Override
   public double getAge() {
     return age;
   }
   
   @Override
-  public LowRankDecomposition getModelPart(Set<Integer> indices) {
-    LowRankDecomposition result = new LowRankDecomposition();
-    result.age = age;
-    result.dimension = dimension;
-    result.lambda = lambda;
-    result.alpha = alpha;
-    result.maxindex = maxindex;
-    for (int index : indices) {
-      SparseVector v = itemModels.get(index);
-      if (v != null) {
-        result.itemModels.put(index, v);
-      }
-    }
-    return result;
-  }
-
-  @Override
-  public LowRankDecomposition merge(LowRankDecomposition model) {
-    for (Entry<Integer, SparseVector> e : model.itemModels.entrySet()) {
-      itemModels.put(e.getKey(), e.getValue());
-    }
-    return this;
-  }
-  
-  public void setDimension(int dimension) {
-    this.dimension = dimension;
-  }
-  
   public InstanceHolder extract(InstanceHolder instances) {
     InstanceHolder result = new InstanceHolder(instances.getNumberOfClasses(), dimension);
     for (int i = 0; i < instances.size(); i++) {
@@ -176,9 +162,13 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     return result;
   }
   
+  public void setDimension(int dimension) {
+    this.dimension = dimension;
+  }
+  
   public SparseVector extract(SparseVector instance) {
     SparseVector result = new SparseVector(dimension);
-    for (Entry<Integer, SparseVector> e : itemModels.entrySet()) {
+    for (Entry<Integer, SparseVector> e : columnModels.entrySet()) {
       double value = instance.get(e.getKey());
       for (int i = 0; i < dimension; i++) {
         double mvalue = e.getValue().get(i);
@@ -188,19 +178,20 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     return result;
   }
   
-  public String toString() {
-    return itemModels.toString();
-  }
-  
   public SparseVector[] getVectors() {
     SparseVector[] result = new SparseVector[dimension];
     for (int i = 0; i < dimension; i++) {
       result[i] = new SparseVector();
-      for (Entry<Integer, SparseVector> e : itemModels.entrySet()) {
+      for (Entry<Integer, SparseVector> e : columnModels.entrySet()) {
         result[i].put(e.getKey(), e.getValue().get(i));
       }
     }
     return result;
+  }
+  
+  @Override
+  public String toString() {
+    return columnModels.toString();
   }
 
 }

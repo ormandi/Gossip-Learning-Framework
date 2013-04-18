@@ -88,7 +88,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
         }
         for (int j = 0; j < evalNames.length; j++) {
           evaluator[i][j] = (Evaluator)evaluators[i][j].clone();
-          evaluator[i][j].clear();
+          evaluators[i][j].clear();
         }
       }
       aggregations.put(pid, evaluator);

@@ -134,6 +134,7 @@ public class BQModelHolder implements ModelHolder {
     for (int i = index; i < size; i++) {
       models[(start + i) % bound] = models[(start + i + 1) % bound];
     }
+    models[(start + size - 1) % bound] = null;
     size --;
     return ret;
   }
@@ -143,6 +144,7 @@ public class BQModelHolder implements ModelHolder {
     Model ret = null;
     if (size > 0) {
       ret = models[start];
+      models[start] = null;
       start = (start + 1) % bound;
       size --;
     }
@@ -151,6 +153,9 @@ public class BQModelHolder implements ModelHolder {
 
   @Override
   public void clear() {
+    for (int i = 0; i < models.length; i++) {
+      models[i] = null;
+    }
     size = 0;
   }
   

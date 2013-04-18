@@ -80,7 +80,7 @@ public class MergeableOVsA extends OneVsAllMetaClassifier implements Mergeable<M
 
   @Override
   public MergeableOVsA getModelPart(Set<Integer> indices) {
-    return this;
+    return new MergeableOVsA(this);
   }
 
 }

@@ -68,7 +68,7 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
 
   @Override
   public MergeablePegasos getModelPart(Set<Integer> indices) {
-    return this;
+    return new MergeablePegasos(this);
   }
 
 }

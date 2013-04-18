@@ -1,11 +1,9 @@
 package gossipLearning.models.recsys;
 
+import java.util.HashMap;
+
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
-
-import java.util.Map.Entry;
-import java.util.Set;
-
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
@@ -23,13 +21,8 @@ public class RecSysModel extends LowRankDecomposition {
     super(a);
   }
   
-  protected RecSysModel(LowRankDecomposition a) {
-    age = a.age;
-    itemModels = a.itemModels;
-    dimension = a.dimension;
-    lambda = a.lambda;
-    alpha = a.alpha;
-    maxindex = a.maxindex;
+  public RecSysModel(double age, HashMap<Integer, SparseVector> columnModels, int dimension, double lambda, double alpha, int maxIndex) {
+    super(age, columnModels, dimension, lambda, alpha, maxIndex);
   }
   
   public Object clone() {
@@ -46,6 +39,7 @@ public class RecSysModel extends LowRankDecomposition {
   public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
     double[] newVector;
     if (rowModel == null) {
+      // initialize user-model if its null by uniform random numbers  on [0,1]
       newVector = new double[dimension];
       for (int i = 0; i < dimension; i++) {
         newVector[i] = CommonState.r.nextDouble();
@@ -57,17 +51,18 @@ public class RecSysModel extends LowRankDecomposition {
     
     newUserModel.mul(1.0 - alpha);
     for (VectorEntry e : instance) {
-      // get the prediction and the error
-      SparseVector itemModel = itemModels.get(e.index);
-      // initialize a new item-model by uniform random numbers [0,1]
+      SparseVector itemModel = columnModels.get(e.index);
       if (itemModel == null) {
+        // initialize item-model is its null by uniform random numbers on [0,1]
         newVector = new double[dimension];
         for (int i = 0; i < dimension; i++) {
           newVector[i] = CommonState.r.nextDouble();
         }
         itemModel = new SparseVector(newVector);
-        itemModels.put(e.index, itemModel);
+        columnModels.put(e.index, itemModel);
       }
+      
+      // get the prediction and the error
       double prediction = itemModel.mul(rowModel);
       double error = e.value - prediction;
       
@@ -79,32 +74,6 @@ public class RecSysModel extends LowRankDecomposition {
     
     // return new user-model
     return newUserModel;
-  }
-  
-  @Override
-  public RecSysModel merge(LowRankDecomposition model) {
-    //System.out.println(model.itemModels.size());
-    //System.out.println("---merge");
-    for (Entry<Integer, SparseVector> e : model.itemModels.entrySet()) {
-      // store the new information
-      //itemModels.put(e.getKey(), e.getValue());
-      // merge by averaging
-      SparseVector v = itemModels.get(e.getKey());
-      if (v == null) {
-        itemModels.put(e.getKey(), e.getValue());
-      } else {
-        v.mul(0.5).add(e.getValue(), 0.5);
-      }
-    }
-    
-    // only store recv model
-    //this.itemModels = model.itemModels;
-    return this;
-  }
-  
-  @Override
-  public RecSysModel getModelPart(Set<Integer> indices) {
-    return new RecSysModel(super.getModelPart(indices));
   }
   
 }

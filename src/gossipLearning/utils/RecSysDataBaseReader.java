@@ -42,7 +42,9 @@ public class RecSysDataBaseReader extends DataBaseReader {
         continue;
       }
       // eliminating comments and white spaces from the endings of the line
-      line = line.replaceAll("#.*", "").trim();
+      //line = line.replaceAll("#.*", "").trim();
+      int charIndex = line.indexOf("#");
+      line.substring(0, charIndex == -1 ? line.length() : charIndex).trim();
       // splitting line at white spaces and at colons
       split = line.split("\\s");
       // throwing exception if the line is invalid (= has even number of tokens, since

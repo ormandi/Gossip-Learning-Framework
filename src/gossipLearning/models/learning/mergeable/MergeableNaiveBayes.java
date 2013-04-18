@@ -64,7 +64,7 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<
     }
     return new MergeableNaiveBayes(mus, sigmas, counts, serialVersionUID, numberOfClasses, maxIndex);
     */
-    return this;
+    return new MergeableNaiveBayes(this);
   }
 
 }
