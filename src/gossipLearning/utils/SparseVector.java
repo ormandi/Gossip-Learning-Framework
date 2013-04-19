@@ -114,8 +114,8 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
         if (i > 0 && indices[i] <= indices[i - 1]) {
           throw new RuntimeException("The indices have to be in ascendent order.");
         }
-        this.indices[size] = indices[size];
-        this.values[size] = values[size];
+        this.indices[size] = indices[i];
+        this.values[size] = values[i];
         size ++;
       }
     }
@@ -149,13 +149,13 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     if (!(vector instanceof SparseVector)) {
       return false;
     }
-    if (size != ((SparseVector)vector).size()) {
+    if (size != ((SparseVector)vector).size) {
       return false;
     }
-    for (VectorEntry e : (SparseVector)vector) {
-      if (e.value != get(e.index)) {
+    for (int i = 0; i < size; i++) {
+      if (indices[i] != ((SparseVector)vector).indices[i] || 
+          values[i] != ((SparseVector)vector).values[i])
         return false;
-      }
     }
     return true;
   }
@@ -187,6 +187,8 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
       indices[i] = indices[i + 1];
       values[i] = values[i + 1];
     }
+    indices[size-1] = 0;
+    values[size-1] = sparseValue;
   }
   
   /**
@@ -217,7 +219,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    */
   public double get(int index) {
     int idx = getIdx(index);
-    return idx < 0 ? 0.0 : values[idx];
+    return idx < 0 ? sparseValue : values[idx];
   }
 
   /**
@@ -471,6 +473,10 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @return this
    */
   public SparseVector clear() {
+    for (int i = 0; i < size; i++) {
+      indices[i] = 0;
+      values[i] = sparseValue;
+    }
     size = 0;
     return this;
   }
@@ -481,12 +487,12 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @return the cosine similarity
    */
   public double cosSim(SparseVector vector) {
-    double norm = norm();
+    double norm = this.norm();
     double norm2 = vector.norm();
     if (norm == 0.0 || norm2 == 0.0) {
       return 0.0;
     }
-    return mul(vector) / (norm() * vector.norm());
+    return this.mul(vector) / (norm * norm2);
   }
   
   /**
@@ -495,7 +501,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @return the Euclidean distance
    */
   public double euclideanDistance(SparseVector vector) {
-    SparseVector clone = (SparseVector)clone();
+    SparseVector clone = (SparseVector)this.clone();
     clone.add(vector, -1.0);
     return clone.norm();
   }
@@ -517,7 +523,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @return this
    */
   public SparseVector normalize() {
-    double norm = norm();
+    double norm = this.norm();
     if (norm > 0.0 ) {
       mul(1.0 / norm);
     }
@@ -530,7 +536,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @return maximal stored index
    */
   public int maxIndex() {
-    return size == 0 ? -1 : indices[size -1];
+    return size == 0 ? Integer.MIN_VALUE : indices[size -1];
   }
   
   /**

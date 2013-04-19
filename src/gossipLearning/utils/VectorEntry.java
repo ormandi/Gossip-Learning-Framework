@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * This class represents an index value pair for the iterators of 
- * the sparse and dense vectors.
+ * the sparse vectors.
  * 
  * @author István Hegedűs
  */
@@ -31,7 +31,8 @@ public class VectorEntry implements Serializable{
     this.value = value;
   }
   
+  @Override
   public String toString() {
-    return index + " " + value;
+    return index + ":" + value;
   }
 }

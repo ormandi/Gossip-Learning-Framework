@@ -162,9 +162,12 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
   }
   
   /**
-   * Resets the queue.
+   * Clears the queue.
    */
-  public void reset() {
+  public void clear() {
+    for (int i = 0; i < queue.length; i++) {
+      queue[i] = null;
+    }
     startPosition = 0;
     size = 0;
   }

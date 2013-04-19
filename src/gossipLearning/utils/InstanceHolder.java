@@ -70,7 +70,7 @@ public class InstanceHolder implements Serializable{
       this.instances.add((SparseVector)a.instances.get(i).clone());
     }
     for (int i = 0; i < a.labels.size(); i++){
-      this.labels.add((double)a.labels.get(i));
+      this.labels.add(a.labels.get(i).doubleValue());
     }
   }
   

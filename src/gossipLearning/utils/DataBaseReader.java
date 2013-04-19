@@ -43,11 +43,6 @@ public class DataBaseReader {
     
     // compute means and standard deviations on training set for standardization
     for (int i = 0; i < trainingSet.size(); i++) {
-      /*means.add(trainingSet.getInstance(i));
-      for (VectorEntry e : trainingSet.getInstance(i)) {
-        devs.put(e.index, devs.get(e.index) + (e.value * e.value));
-      }*/
-      // this can be more efficient
       SparseVector instance = trainingSet.getInstance(i);
       means.add(instance);
       instance.powerTo(2.0);
@@ -69,7 +64,6 @@ public class DataBaseReader {
     numberOfClasses = Math.max(trainingSet.getNumberOfClasses(), evalSet.getNumberOfClasses());
     trainingSet = new InstanceHolder(trainingSet.getInstances(), trainingSet.getLabels(), numberOfClasses, numberOfFeatures);
     evalSet = new InstanceHolder(evalSet.getInstances(), evalSet.getLabels(), numberOfClasses, numberOfFeatures);
-  
   }
   
   /**
@@ -93,6 +87,7 @@ public class DataBaseReader {
     int c = 0;
     double label;
     int key;
+    int prevKey;
     double value;
     int[] indices;
     double[] values;
@@ -100,19 +95,13 @@ public class DataBaseReader {
     while ((line = br.readLine()) != null){
       try {
       c++;
-      // checking whether it is a regression problem or not
-      if (c == 1 && line.matches("#\\s([Rr]egression|REGRESSION)")) {
-        numberOfClasses = Integer.MAX_VALUE;
-        continue;
-      }
       // eliminating empty and comment lines
       if (line.length() == 0 || line.startsWith("#")){
         continue;
       }
       // eliminating comments and white spaces from the endings of the line
-      //line = line.replaceAll("#.*", "").trim();
       int charIndex = line.indexOf("#");
-      line.substring(0, charIndex == -1 ? line.length() : charIndex).trim();
+      line = line.substring(0, charIndex == -1 ? line.length() : charIndex).trim();
       // splitting line at white spaces and at colons
       split = line.split(":|\\s");
       // throwing exception if the line is invalid (= has even number of tokens, since 
@@ -124,11 +113,15 @@ public class DataBaseReader {
       indices = new int[split.length >>> 1];
       values = new double[split.length >>> 1];
       size = 0;
+      prevKey = -1;
       for (int i = 1; i < split.length; i += 2){
         // index from 0
         key = Integer.parseInt(split[i]) - 1;
         if (key < 0){
-          throw new RuntimeException("The index of the features must be non-negative integer, line " + c);
+          throw new RuntimeException("The index of the features must be positive integer, line " + c);
+        }
+        if (key <= prevKey) {
+          throw new RuntimeException("Unexpected key (" + (key+1) + ") at line " + c);
         }
         if (key > numberOfFeatures) {
           numberOfFeatures = key;
@@ -137,6 +130,7 @@ public class DataBaseReader {
         indices[size] = key;
         values[size] = value;
         size ++;
+        prevKey = key;
       }
       // storing parsed instance
       instances.add(new SparseVector(indices, values));
@@ -201,7 +195,7 @@ public class DataBaseReader {
     polynomize(n, true);
   }
   
-  public void polynomize(int n, boolean generateAll) {
+  private void polynomize(int n, boolean generateAll) {
     Vector<Vector<Integer>> mapping = Utils.polyGen(numberOfFeatures, n, generateAll);
     trainingSet = convert(trainingSet, mapping);
     evalSet = convert(evalSet, mapping);    

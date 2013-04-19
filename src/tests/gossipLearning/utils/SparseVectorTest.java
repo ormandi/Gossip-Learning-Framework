@@ -3,6 +3,7 @@ package tests.gossipLearning.utils;
 import gossipLearning.utils.SparseVector;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -24,12 +25,18 @@ public class SparseVectorTest extends TestCase implements Serializable {
     map.put(1, 2.0);
     SparseVector v2 = new SparseVector(map);
     assertEquals(v0, v2);
+    map = new HashMap<Integer, Double>();
+    map.put(1, 2.0);
+    map.put(-1, 0.8);
+    map.put(3, 0.3);
+    v2 = new SparseVector(map);
+    assertEquals(v0, v2);
     SparseVector v3 = new SparseVector(v0);
     assertEquals(v0, v3);
-    int[] indices = new int[]{2, 5, 6};
-    double[] values = new double[]{0.5, 2.3, 0};
+    int[] indices = new int[]{2, 5, 6, 8};
+    double[] values = new double[]{0.5, 2.3, 0, 1.2};
     SparseVector v4 = new SparseVector(indices, values);
-    assertEquals(v4, new SparseVector(new double[]{0, 0, 0.5, 0, 0, 2.3}));
+    assertEquals(v4, new SparseVector(new double[]{0, 0, 0.5, 0, 0, 2.3, 0, 0, 1.2}));
   }
   
   public void testClone() {

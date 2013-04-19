@@ -6,9 +6,21 @@ import java.util.Stack;
 import java.util.Vector;
 
 public class Utils {
+  /**
+   * Squared root of 2.
+   */
   public static final double SQRT2 = Math.sqrt(2.0);
+  /**
+   * Squared root of 2 times pi.
+   */
   public static final double SQRT2PI = Math.sqrt(2.0 * Math.PI);
+  /**
+   * Inverse of the natural logarithm of 2.
+   */
   public static final double INVLN2 = 1.0 / Math.log(2.0);
+  /**
+   * Should be used for epsilon.
+   */
   public static final double EPS = 1E-10;
   
   /**
@@ -160,10 +172,23 @@ public class Utils {
     }
   }
   
+  /**
+   * Shuffles the specified array using the specified random object.
+   * @param r used for shuffling
+   * @param array to be shuffled
+   */
   public static void arraxShuffle(Random r, Object[] array) {
     arrayShuffle(r, array, 0, array.length);
   }
   
+  /**
+   * Shuffles the specified array using the specified random object from 
+   * the specified position to the spefified position.
+   * @param r used for shuffling
+   * @param array to be shuffled
+   * @param from from index
+   * @param to to index
+   */
   public static void arrayShuffle(Random r, Object[] array, int from, int to) {
     for (int i=from; i<to; i++) {
       int randomPosition = from + r.nextInt(to - from);
@@ -178,6 +203,7 @@ public class Utils {
    * This method applies a greedy technique.
    * @param mtx "similarity" matrix
    * @return maximal matching
+   * @note actually do nothing
    */
   public static int[] maximalMatching(Vector<SparseVector> mtx) {
     // FIXME: we should use the hungarian method instead of this

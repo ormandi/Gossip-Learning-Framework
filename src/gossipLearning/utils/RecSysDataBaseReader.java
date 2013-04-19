@@ -22,7 +22,6 @@ public class RecSysDataBaseReader extends DataBaseReader {
     if (file == null || !file.exists()){
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
     }
-    //InstanceHolder holder = new InstanceHolder();
     Vector<SparseVector> instances = new Vector<SparseVector>();
     Vector<Double> labels = new Vector<Double>();
     BufferedReader br = new BufferedReader(new FileReader(file));
@@ -42,9 +41,8 @@ public class RecSysDataBaseReader extends DataBaseReader {
         continue;
       }
       // eliminating comments and white spaces from the endings of the line
-      //line = line.replaceAll("#.*", "").trim();
       int charIndex = line.indexOf("#");
-      line.substring(0, charIndex == -1 ? line.length() : charIndex).trim();
+      line = line.substring(0, charIndex == -1 ? line.length() : charIndex).trim();
       // splitting line at white spaces and at colons
       split = line.split("\\s");
       // throwing exception if the line is invalid (= has even number of tokens, since
@@ -80,7 +78,7 @@ public class RecSysDataBaseReader extends DataBaseReader {
       labels.set(userId, (double)userId);
     }
     br.close();
-    return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses, numberOfFeatures); // 1-> indicating clustering
+    return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses, numberOfFeatures);
   }
   
 }

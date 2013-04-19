@@ -7,6 +7,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 public class UtilsTest extends TestCase {
+  private static final double EPS = 1E-5;
   
   public void testRegression() {
     double[] array = new double[]{1, 2, 3, 4, 5};
@@ -40,16 +41,16 @@ public class UtilsTest extends TestCase {
   }
   
   public void testCDF() {
-    assertEquals(0.5, Utils.cdf(0, 0, 1.0), 1E-5);
-    assertEquals(0.64531, Utils.cdf(0.42019, 0.23694, 0.49170), 1E-5);
+    assertEquals(0.5, Utils.cdf(0, 0, 1.0), EPS);
+    assertEquals(0.64531, Utils.cdf(0.42019, 0.23694, 0.49170), EPS);
     assertEquals(Double.NaN, Utils.cdf(0, 0, 0));
   }
   
   public void testERF() {
-    assertEquals(0.0, Utils.erf(0), 1E-5);
-    assertEquals(0.84270, Utils.erf(1), 1E-5);
-    assertEquals(-0.84270, Utils.erf(-1), 1E-5);
-    assertEquals(1, Utils.erf(10), 1E-5);
+    assertEquals(0.0, Utils.erf(0), EPS);
+    assertEquals(0.84270, Utils.erf(1), EPS);
+    assertEquals(-0.84270, Utils.erf(-1), EPS);
+    assertEquals(1, Utils.erf(10), EPS);
   }
   
   public void testNormalize() {
@@ -58,5 +59,113 @@ public class UtilsTest extends TestCase {
     assertTrue(Arrays.equals(exp, Utils.normalize(vector)));
     vector = new double[]{0, 0, 0, 0, 1};
     assertTrue(Arrays.equals(vector, Utils.normalize(vector)));
+  }
+  
+  public void testDFFT() {
+    double[] vector = new double[]{1, 0, 1, 0, 1, 0, 1, 0};
+    double[] exp = new double[]{4, 0, 0, 0, 0, 0, 0, 0};
+    assertTrue(Arrays.equals(exp, Utils.dfft(vector)));
+    
+    vector = new double[]{1, 0, 0, 0, 1, 0, 0, 0};
+    exp = new double[]{2, 0, 0, 0, 2, 0, 0, 0};
+    assertTrue(Arrays.equals(exp, Utils.dfft(vector)));
+    
+    vector = new double[]{0, 0, 1, 0, 0, 0, 1, 0};
+    exp = new double[]{2, 0, 0, 0, -2, 0, 0, 0};
+    assertTrue(Arrays.equals(exp, Utils.dfft(vector)));
+    
+    vector = new double[]{1, 0, 0, 0, 0, 0, 1, 0};
+    exp = new double[]{2, 0, 1, 1, 0, 0, 1, -1};
+    double[] result = Utils.dfft(vector);
+    for (int i = 0; i < exp.length; i++) {
+      assertEquals(exp[i], result[i], EPS);
+    }
+    
+    vector = new double[]{1, 0, 0, 0, 0, 0, 0, 0};
+    exp = new double[]{1, 0, 1, 0, 1, 0, 1, 0};
+    assertTrue(Arrays.equals(exp, Utils.dfft(vector)));
+    
+    vector = new double[]{0, 0, 0, 0, 0, 0, 1, 0};
+    exp = new double[]{1, 0, 0, 1, -1, 0, 0, -1};
+    result = Utils.dfft(vector);
+    for (int i = 0; i < exp.length; i++) {
+      assertEquals(exp[i], result[i], EPS);
+    }
+  }
+  
+  public void testIDFFT() {
+    double[] vector = new double[]{1, 0, 1, 0, 1, 0, 1, 0};
+    double[] result = Utils.idfft(Utils.dfft(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{1, 0, 0, 0, 1, 0, 0, 0};
+    result = Utils.idfft(Utils.dfft(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{0, 0, 1, 0, 0, 0, 1, 0};
+    result = Utils.idfft(Utils.dfft(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{1, 0, 0, 0, 0, 0, 1, 0};
+    result = Utils.idfft(Utils.dfft(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{1, 0, 0, 0, 0, 0, 0, 0};
+    result = Utils.idfft(Utils.dfft(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{0, 0, 0, 0, 0, 0, 1, 0};
+    result = Utils.idfft(Utils.dfft(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+  }
+  
+  public void testWavelet() {
+    double[] vector = new double[]{1, 0, 1, 0, 1, 0, 1, 0};
+    double[] result = Utils.idhwt(Utils.dhwt(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{1, 0, 0, 0, 1, 0, 0, 0};
+    result = Utils.idhwt(Utils.dhwt(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{0, 0, 1, 0, 0, 0, 1, 0};
+    result = Utils.idhwt(Utils.dhwt(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{1, 0, 0, 0, 0, 0, 1, 0};
+    result = Utils.idhwt(Utils.dhwt(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{1, 0, 0, 0, 0, 0, 0, 0};
+    result = Utils.idhwt(Utils.dhwt(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
+    
+    vector = new double[]{0, 0, 0, 0, 0, 0, 1, 0};
+    result = Utils.idhwt(Utils.dhwt(vector));
+    for (int i = 0; i < vector.length; i++) {
+      assertEquals(vector[i], result[i], EPS);
+    }
   }
 }

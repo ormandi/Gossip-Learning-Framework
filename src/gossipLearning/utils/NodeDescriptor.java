@@ -4,6 +4,12 @@ import java.io.Serializable;
 
 import peersim.core.Node;
 
+/**
+ * This class represents a node and a corresponding vector.
+ * Nodes can be compared based on the cosine similarity of the corresponding 
+ * descriptors.
+ * @author István Hegedűs
+ */
 public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>, Cloneable {
   private static final long serialVersionUID = -8582247148380060765L;
   
@@ -11,12 +17,21 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   private SparseVector descriptor;
   private double similarity;
   
+  /**
+   * Creates an object and stored the specified parameters.
+   * @param node node to be described
+   * @param descriptor descriptor that describes the node
+   */
   public NodeDescriptor(Node node, SparseVector descriptor) {
     this.node = node;
     this.descriptor = descriptor;
   }
   
-  protected NodeDescriptor(NodeDescriptor a) {
+  /**
+   * Deep copy constructor.
+   * @param a to be copied
+   */
+  public NodeDescriptor(NodeDescriptor a) {
     node = a.node;
     if (a.descriptor != null) {
       descriptor = (SparseVector)a.descriptor.clone();
@@ -43,22 +58,42 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
     return true;
   }
   
+  /**
+   * Returns the described node.
+   * @return described node
+   */
   public Node getNode() {
     return node;
   }
   
+  /**
+   * Sets the specified descriptor as the descriptor of the node.
+   * @param descriptor to be set
+   */
   public void setDecriptor(SparseVector descriptor) {
     this.descriptor = descriptor;
   }
   
+  /**
+   * Returns the descriptor that describes the node.
+   * @return descriptor of the node.
+   */
   public SparseVector getDescriptor() {
     return descriptor;
   }
   
+  /**
+   * Sets the specified similarity for the descriptor
+   * @param similarity to be set
+   */
   public void setSimilarity(double similarity) {
     this.similarity = similarity;
   }
   
+  /**
+   * Returns the similarity value of the descriptor.
+   * @return similarity
+   */
   public double getSimilarity() {
     return similarity;
   }
@@ -75,7 +110,7 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   
   /**
    * Computes the similarity between the current descriptor and the 
-   * specified descriptor. The similarity of a null is Double.NEGATIVE_INFINITY!
+   * specified descriptor. The similarity of a null is 0.0.
    * @param a compute similarity for
    * @return similarity
    */
@@ -90,8 +125,7 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   
   @Override
   public String toString() {
-    //return node.getID() + ":" + similarity + " - " + descriptor;
-    return node.getID() + "";
+    return node.getID() + ":" + descriptor;
   }
   
 }
