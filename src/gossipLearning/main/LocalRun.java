@@ -30,16 +30,20 @@ public class LocalRun {
       System.err.println("Using: LocalRun LocalConfig");
       System.exit(0);
     }
+    
+    // set up configuration parser
     String configName = args[0];
     Configuration.setConfig(new ParsedProperties(configName));
     System.err.println("Loading parameters from " + configName);
     
+    // parse general parameters
     int numIters = Configuration.getInt("ITER");
     long seed = Configuration.getLong("SEED");
     int evalTime = numIters / Configuration.getInt("NUMEVALS");
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
     
+    // parse learning related parameters
     String dbReaderName = Configuration.getString("dbReader");
     File tFile = new File(Configuration.getString("trainingFile"));
     File eFile = new File(Configuration.getString("evaluationFile"));
@@ -47,18 +51,24 @@ public class LocalRun {
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
     
+    // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    
+    // create models
     LearningModel[] models = new LearningModel[modelNames.length];
     for (int i = 0; i < modelNames.length; i++) {
       models[i] = (LearningModel)Class.forName(modelNames[i]).newInstance();
       models[i].init("learners");
       models[i].setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
     }
+    
+    // initialize evaluator
     ResultAggregator resultAggregator = new ResultAggregator(modelNames, evalNames);
     resultAggregator.setEvalSet(reader.getEvalSet());
     AggregationResult.printPrecision = printPrecision;
     
+    // learning
     System.err.println("Start learing.");
     SparseVector instance;
     double label;
@@ -91,10 +101,13 @@ public class LocalRun {
         modelHolder.add(models[i]);
       }
     }
+    
+    // evaluate on the end of the learning again
+    System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
       resultAggregator.push(-1, i, modelHolder, extractor);
     }
-    System.out.println(resultAggregator);
+    System.err.println(resultAggregator);
   }
 
 }

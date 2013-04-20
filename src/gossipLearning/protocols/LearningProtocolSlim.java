@@ -1,6 +1,5 @@
 package gossipLearning.protocols;
 
-import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.evaluators.ResultAggregator;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.LearningModel;
@@ -8,7 +7,6 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
@@ -21,7 +19,7 @@ import peersim.core.CommonState;
 public class LearningProtocolSlim extends LearningProtocol {
   
   public LearningProtocolSlim(String prefix) {
-    super(prefix);
+    super(prefix, 1);
   }
   
   protected LearningProtocolSlim(LearningProtocolSlim a) {
@@ -36,28 +34,14 @@ public class LearningProtocolSlim extends LearningProtocol {
   public void init(String prefix) {
     try {
       super.init(prefix);
-      resultAggregator = new RecSysResultAggregator(modelNames, evalNames);
-      // holder for storing the last seen mergeable models for correct merge
+      resultAggregator = new ResultAggregator(modelNames, evalNames);
       lastSeenMergeableModels = null;
-      modelHolders = new ModelHolder[modelNames.length];
-      latestModelHolder = new BQModelHolder(modelNames.length);
-      for (int i = 0; i < modelNames.length; i++){
-        try {
-          modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).getConstructor(int.class).newInstance(1);
-        } catch (NoSuchMethodException e) {
-          modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).newInstance();
-        }
-        LearningModel model = (LearningModel)Class.forName(modelNames[i]).newInstance();
-        model.init(prefix);
-        modelHolders[i].add(model);
-      }
       numberOfIncomingModels = 1;
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
     }
   }
   
-  protected ModelHolder latestModelHolder;
   protected Set<Integer> indices;
   @Override
   public void activeThread() {
@@ -82,18 +66,16 @@ public class LearningProtocolSlim extends LearningProtocol {
     }
     
     // send
-    for (int id = 1; id > 0; id --) {
-      latestModelHolder.clear();
-      for (int i = 0; i < modelHolders.length; i++) {  
-        // store the latest models in a new modelHolder
-        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(0)).getModelPart(indices);
-        latestModelHolder.add(latestModel);
-      }
-      if (latestModelHolder.size() == modelHolders.length) {
-        // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
-      }
+    for (int i = 0; i < modelHolders.length; i++) {  
+      // store the latest models in a new modelHolder
+      Model latestModel = ((Partializable<?>)modelHolders[i].getModel(0)).getModelPart(indices);
+      latestModelHolder.add(latestModel);
     }
+    if (latestModelHolder.size() == modelHolders.length) {
+      // send the latest models to a random neighbor
+      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+    }
+    latestModelHolder.clear();
     numberOfIncomingModels = 0;
   }
   
@@ -108,7 +90,7 @@ public class LearningProtocolSlim extends LearningProtocol {
       // get the ith model from the modelHolder
       LearningModel recvModel = (LearningModel)modelHolder.getModel(i);
       LearningModel currModel = (LearningModel)modelHolders[i].getModel(0);
-      // if it is a mergeable model, them merge them
+      // it works only with mergeable models, and merge them
       ((Mergeable) currModel).merge(recvModel);
       // updating the model with the local training samples
       for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
@@ -118,7 +100,7 @@ public class LearningProtocolSlim extends LearningProtocol {
         currModel.update(x, label);
       }
       // stores the updated model (not necessary since it has only 1 model)
-      //modelHolders[i].add(currModel);
+      modelHolders[i].add(currModel);
     }
   }
   

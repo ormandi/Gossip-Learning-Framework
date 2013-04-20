@@ -7,7 +7,6 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
@@ -19,7 +18,7 @@ import peersim.core.CommonState;
 
 public class RecSysProtocol extends LearningProtocol {
 
-  private SparseVector userModel;
+  private SparseVector[] userModels;
   
   public RecSysProtocol(String prefix) {
     super(prefix);
@@ -37,17 +36,16 @@ public class RecSysProtocol extends LearningProtocol {
   public void init(String prefix) {
     super.init(prefix);
     resultAggregator = new RecSysResultAggregator(modelNames, evalNames);
-    latestModelHolder = new BQModelHolder(modelNames.length);
+    userModels = new SparseVector[modelNames.length];
   }
   
-  protected ModelHolder latestModelHolder;
   protected Set<Integer> indices;
   @Override
   public void activeThread() {
     // evaluate
     for (int i = 0; i < modelHolders.length; i++) {
       if (CommonState.r.nextDouble() < evaluationProbability) {
-        ((RecSysResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModel, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
+        ((RecSysResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
       }
     }
     
@@ -74,7 +72,6 @@ public class RecSysProtocol extends LearningProtocol {
     }
     
     for (int id = Math.min(numberOfIncomingModels, capacity); id > 0; id --) {
-      latestModelHolder.clear();
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
         Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - id)).getModelPart(indices);
@@ -84,6 +81,7 @@ public class RecSysProtocol extends LearningProtocol {
         // send the latest models to a random neighbor
         sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
       }
+      latestModelHolder.clear();
     }
     numberOfIncomingModels = 0;
   }
@@ -92,10 +90,13 @@ public class RecSysProtocol extends LearningProtocol {
   protected void updateModels(ModelHolder modelHolder){
     // get instances from the extraction protocol
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    if (instances.size() > 1) {
+      throw new RuntimeException("The number of instances should be one at avery node instead of " + instances.size());
+    }
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
       MatrixBasedModel model = (MatrixBasedModel)modelHolder.getModel(i);
-      // if it is a mergeable model, them merge them
+      // if it is a mergeable model, then merge them
       if (model instanceof Mergeable){
         MatrixBasedModel lastSeen = (MatrixBasedModel)lastSeenMergeableModels.getModel(i);
         lastSeenMergeableModels.setModel(i, (MatrixBasedModel) model.clone());
@@ -105,7 +106,7 @@ public class RecSysProtocol extends LearningProtocol {
       for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
         // we use each samples for updating the currently processed model
         SparseVector x = instances.getInstance(sampleID);
-        userModel = model.update((int)currentNode.getID(), userModel, x);
+        userModels[i] = model.update((int)currentNode.getID(), userModels[i], x);
       }
       // stores the updated model
       modelHolders[i].add(model);

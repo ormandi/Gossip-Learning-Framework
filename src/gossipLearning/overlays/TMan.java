@@ -21,7 +21,7 @@ import peersim.extras.mj.ednewscast.CycleMessage;
 import peersim.transport.Transport;
 
 /**
- * Stores the descriptors of the nodes in descendant order based on the 
+ * Stores the descriptors of the nodes in <b>descendant order</b> based on the 
  * similarity defined in the NodeDescriptor class computeSimilarity 
  * function, so the higher is better. The similarity for a stored descriptor 
  * is set as the similarity between the data of the stored node and the data 
@@ -128,6 +128,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
     if (me == null) {
       me = new NodeDescriptor(node, null);
     }
+    
     if (event instanceof TManMessage) {
       final TManMessage msg = (TManMessage) event;
       // send the answer message
@@ -226,27 +227,34 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
     boolean repair = false;
     int index = containsNode(desc.getNode());
     if (index >= 0) {
+      // if contains the descriptor, than actualize and repair
       cache[index] = desc;
+      // repair forward (goes to the end/tail of the list)
       if (index < size -1 && cache[index].compareTo(cache[index +1]) < 0) {
         for (int i = index; i < size -1 && cache[index].compareTo(cache[index +1]) < 0; i++) {
           NodeDescriptor tmp = cache[index];
           cache[index] = cache[index +1];
           cache[index +1] = tmp;
         }
+        return true;
       } else {
+        // repair backward (goes to the head of the list)
         repair = true;
       }
     } else if (size < cache.length) {
+      // if does not contain and not full, insert to the end and repair (backward)
       cache[size] = desc;
       index = size;
       size ++;
       repair = true;
     } else if (cache[size -1].compareTo(desc) < 0) {
+      // if does not contain and better than the last, insert to the end and repair (backward)
       cache[size -1] = desc;
       index = size -1;
       repair = true;
     }
     if (repair) {
+      // repair (backward) starts from the index of the insertion and goes to the head of the list
       for (int i = index; i > 0 && cache[i].compareTo(cache[i -1]) > 0; i--) {
         NodeDescriptor tmp = cache[i];
         cache[i] = cache[i -1];

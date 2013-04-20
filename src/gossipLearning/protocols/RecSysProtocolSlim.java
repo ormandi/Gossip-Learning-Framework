@@ -7,7 +7,6 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
@@ -19,10 +18,14 @@ import peersim.core.CommonState;
 
 public class RecSysProtocolSlim extends LearningProtocol {
 
-  private SparseVector userModel;
+  /**
+   * One user model for every model
+   */
+  private SparseVector[] userModels;
   
   public RecSysProtocolSlim(String prefix) {
-    super(prefix);
+    // sets the holder capacity to 1
+    super(prefix, 1);
   }
   
   protected RecSysProtocolSlim(RecSysProtocolSlim a) {
@@ -38,34 +41,20 @@ public class RecSysProtocolSlim extends LearningProtocol {
     try {
       super.init(prefix);
       resultAggregator = new RecSysResultAggregator(modelNames, evalNames);
-      // holder for storing the last seen mergeable models for correct merge
       lastSeenMergeableModels = null;
-      modelHolders = new ModelHolder[modelNames.length];
-      latestModelHolder = new BQModelHolder(modelNames.length);
-      for (int i = 0; i < modelNames.length; i++){
-        try {
-          modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).getConstructor(int.class).newInstance(1);
-        } catch (NoSuchMethodException e) {
-          modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).newInstance();
-        }
-        Model model = (Model)Class.forName(modelNames[i]).newInstance();
-        model.init(prefix);
-        modelHolders[i].add(model);
-      }
-      numberOfIncomingModels = 1;
+      userModels = new SparseVector[modelNames.length];
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
     }
   }
   
-  protected ModelHolder latestModelHolder;
   protected Set<Integer> indices;
   @Override
   public void activeThread() {
     // evaluate
     for (int i = 0; i < modelHolders.length; i++) {
       if (CommonState.r.nextDouble() < evaluationProbability) {
-        ((RecSysResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModel, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
+        ((RecSysResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
       }
     }
     
@@ -83,18 +72,16 @@ public class RecSysProtocolSlim extends LearningProtocol {
     }
     
     // send
-    for (int id = 1; id > 0; id --) {
-      for (int i = 0; i < modelHolders.length; i++) {  
-        // store the latest models in a new modelHolder
-        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
-        latestModelHolder.add(latestModel);
-      }
-      if (latestModelHolder.size() == modelHolders.length) {
-        // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
-      }
-      latestModelHolder.clear();
+    for (int i = 0; i < modelHolders.length; i++) {  
+      // store the latest models in a new modelHolder
+      Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
+      latestModelHolder.add(latestModel);
     }
+    if (latestModelHolder.size() == modelHolders.length) {
+      // send the latest models to a random neighbor
+      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+    }
+    latestModelHolder.clear();
     numberOfIncomingModels = 0;
   }
   
@@ -109,15 +96,13 @@ public class RecSysProtocolSlim extends LearningProtocol {
       // get the ith model from the modelHolder
       MatrixBasedModel recvModel = (MatrixBasedModel)modelHolder.getModel(i);
       MatrixBasedModel currModel = (MatrixBasedModel)modelHolders[i].getModel(0);
-      // if it is a mergeable model, them merge them
-      if (currModel instanceof Mergeable){
-        currModel = (MatrixBasedModel)((Mergeable) currModel).merge(recvModel);
-      }
+      // it works only with mergeable models, and merge them
+      ((Mergeable) currModel).merge(recvModel);
       // updating the model with the local training samples
       for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
         // we use each samples for updating the currently processed model
         SparseVector x = instances.getInstance(sampleID);
-        userModel = currModel.update((int)currentNode.getID(), userModel, x);
+        userModels[i] = currModel.update((int)currentNode.getID(), userModels[i], x);
       }
       // stores the updated model
       modelHolders[i].add(currModel);

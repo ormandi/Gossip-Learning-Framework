@@ -30,16 +30,20 @@ public class RecSysRun {
       System.err.println("Using: RecSysRun LocalConfig");
       System.exit(0);
     }
+    
+    // set up configuration parser
     String configName = args[0];
     Configuration.setConfig(new ParsedProperties(configName));
     System.err.println("Loading parameters from " + configName);
     
+    // parse general parameters
     int numIters = Configuration.getInt("ITER");
     long seed = Configuration.getLong("SEED");
     int evalTime = numIters / Configuration.getInt("NUMEVALS");
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
     
+    // parse learning related parameters
     String dbReaderName = Configuration.getString("dbReader");
     File tFile = new File(Configuration.getString("trainingFile"));
     File eFile = new File(Configuration.getString("evaluationFile"));
@@ -47,18 +51,24 @@ public class RecSysRun {
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
     
+    // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    
+    // create models
     LowRankDecomposition[] models = new LowRankDecomposition[modelNames.length];
     SparseVector userModels[][] = new SparseVector[modelNames.length][reader.getTrainingSet().size()];
     for (int i = 0; i < modelNames.length; i++) {
       models[i] = (LowRankDecomposition)Class.forName(modelNames[i]).newInstance();
       models[i].init("learners");
     }
+    
+    // initialize evaluator
     RecSysResultAggregator resultAggregator = new RecSysResultAggregator(modelNames, evalNames);
     resultAggregator.setEvalSet(reader.getEvalSet());
     AggregationResult.printPrecision = printPrecision;
     
+    // learning
     System.err.println("Start learing.");
     SparseVector instance;
     BQModelHolder modelHolder = new BQModelHolder(1);
@@ -91,13 +101,16 @@ public class RecSysRun {
         modelHolder.add(models[i]);
       }
     }
+    
+    // evaluate on the end of the learning again
+    System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
       modelHolder.add(models[i]);
       for (int j = 0; j < reader.getTrainingSet().size(); j++) {
         resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
       }
     }
-    System.out.println(resultAggregator);
+    System.err.println(resultAggregator);
   }
 
 }

@@ -23,9 +23,12 @@ public class PredictionObserver extends GraphObserver {
   /** @hidden*/
   protected boolean isPrintPrefix = true;
   
+  protected final long logTime;
+  
   public PredictionObserver(String prefix) throws Exception {
     super(prefix);
     pid = Configuration.getPid(prefix + "." + PAR_PROT);
+    logTime = Configuration.getLong("simulation.logtime");
   }
   
   public boolean execute() {
@@ -35,11 +38,13 @@ public class PredictionObserver extends GraphObserver {
       if (isPrintPrefix) {
         for (AggregationResult result : ((LearningProtocol) p).getResults()) {
           System.out.println("#iter\t" + result.getNames());
+          System.out.println((CommonState.getTime()/logTime) + "\t" + result);
         }
         isPrintPrefix = false;
-      }
-      for (AggregationResult result : ((LearningProtocol) p).getResults()) {
-        System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + result);
+      } else {
+        for (AggregationResult result : ((LearningProtocol) p).getResults()) {
+          System.out.println((CommonState.getTime()/logTime) + "\t" + result);
+        }
       }
     }
     return false;

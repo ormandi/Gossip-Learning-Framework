@@ -31,6 +31,7 @@ import peersim.core.Protocol;
  * <li>evaluationFile - the name of the evaluation file</li>
  * <li>samplesPerNode - the number of loaded samples per nodes</li>
  * <li>printPrecision - the number of floating points of the evaluation metric results</li>
+ * <li>isPrintAges - the age of the model is printed or not</li>
  * </ul>
  * @author Róbert Ormándi
  *
@@ -74,8 +75,8 @@ public class InstanceLoader implements Control {
     }
     tFile = new File(Configuration.getString(prefix + "." + PAR_TFILE));
     eFile = new File(Configuration.getString(prefix + "." + PAR_EFILE));
-    samplesPerNode = Configuration.getInt(prefix + "." + PAR_SIZE, 1);
-    readerClassName = Configuration.getString(prefix + "." + PAR_READERCLASS, "gossipLearning.DataBaseReader");
+    samplesPerNode = Configuration.getInt(prefix + "." + PAR_SIZE);
+    readerClassName = Configuration.getString(prefix + "." + PAR_READERCLASS);
     AggregationResult.printPrecision = Configuration.getInt(prefix + "." + PAR_PRINTPRECISION);
     AggregationResult.isPrintAges = Configuration.getBoolean(prefix + "." + PAR_ISPRINTAGES, false);
   }
@@ -100,7 +101,7 @@ public class InstanceLoader implements Control {
           // set the instances for current node
           extractionProtocol.setInstanceHolder(instances);
         } else {
-          throw new RuntimeException("The protocol " + pidE + " have to implement LearningProtocol interface!");
+          throw new RuntimeException("The protocol " + pidE + " has to implement the ExtractionProtocol interface!");
         }
         
         // sets the number of classes for the learning protocols and the evaluation set for the evaluator.
@@ -110,6 +111,8 @@ public class InstanceLoader implements Control {
             LearningProtocol learningProtocol = (LearningProtocol) protocol;
             learningProtocol.getResults().setEvalSet(reader.getEvalSet());
             learningProtocol.setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
+          } else {
+            throw new RuntimeException("The protocol " + pidE + " has to implement the LearningProtocol interface!");
           }
         }
       }

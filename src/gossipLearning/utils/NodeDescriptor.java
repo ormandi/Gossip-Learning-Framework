@@ -110,14 +110,13 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   
   /**
    * Computes the similarity between the current descriptor and the 
-   * specified descriptor. The similarity of a null is 0.0.
+   * specified descriptor. The similarity of a null is Double.NEGATIVE_INFINITY.
    * @param a compute similarity for
    * @return similarity
    */
   public double computeSimilarity(NodeDescriptor a) {
     if (a.descriptor == null) {
-      //return Double.NEGATIVE_INFINITY;
-      return 0.0;
+      return Double.NEGATIVE_INFINITY;
     }
     //return -descriptor.euclideanDistance(a.descriptor);
     return descriptor.cosSim(a.descriptor);

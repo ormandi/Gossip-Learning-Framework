@@ -75,6 +75,24 @@ public class LearningProtocol extends AbstractProtocol {
   }
   
   /**
+   * Constructor which parses the content of a standard Peersim configuration file.
+   * 
+   * @param prefix
+   * @param capacity holder capacity
+   */
+  protected LearningProtocol(String prefix, int capacity) {
+    exrtactorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
+    this.capacity = capacity;
+    modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
+    modelNames = Configuration.getString(prefix + "." + PAR_MODELNAMES).split(",");
+    evalNames = Configuration.getString(prefix + "." + PAR_EVALNAMES).split(",");
+    evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
+    numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
+    numberOfWaits = 0;
+    init(prefix);
+  }
+  
+  /**
    * Copy constructor.
    */
   protected LearningProtocol(LearningProtocol a) {
@@ -104,6 +122,7 @@ public class LearningProtocol extends AbstractProtocol {
       resultAggregator = new ResultAggregator(modelNames, evalNames);
       // holder for storing the last seen mergeable models for correct merge
       lastSeenMergeableModels = new BQModelHolder(modelNames.length);
+      latestModelHolder = new BQModelHolder(modelNames.length);
       modelHolders = new ModelHolder[modelNames.length];
       for (int i = 0; i < modelNames.length; i++){
         try {
@@ -132,6 +151,7 @@ public class LearningProtocol extends AbstractProtocol {
     return new LearningProtocol(this);
   }
   
+  protected ModelHolder latestModelHolder;
   /**
    * It sends the latest models to a uniformly selected random neighbor.
    */
@@ -152,9 +172,7 @@ public class LearningProtocol extends AbstractProtocol {
       numberOfIncomingModels = 1;
       numberOfWaits = 0;
     }
-    ModelHolder latestModelHolder = new BQModelHolder(modelHolders.length);
     for (int id = Math.min(numberOfIncomingModels, capacity); id > 0; id --) {
-      latestModelHolder.clear();
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
         Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - id);
@@ -164,6 +182,7 @@ public class LearningProtocol extends AbstractProtocol {
         // send the latest models to a random neighbor
         sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
       }
+      latestModelHolder.clear();
     }
     numberOfIncomingModels = 0;
   }
@@ -191,7 +210,7 @@ public class LearningProtocol extends AbstractProtocol {
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
       LearningModel model = (LearningModel)modelHolder.getModel(i);
-      // if it is a mergeable model, them merge them
+      // if it is a mergeable model, then merge them
       if (model instanceof Mergeable){
         LearningModel lastSeen = (LearningModel)lastSeenMergeableModels.getModel(i);
         lastSeenMergeableModels.setModel(i, (LearningModel) model.clone());

@@ -24,6 +24,7 @@ import peersim.core.Network;
  * <li>extractionProtocol - the extraction protocol</li>
  * <li>learningProtocols - the learning protocols, separated by comma</li>
  * <li>numOfEvals - the number of evaluations</li>
+ * <li>isPrintAges - the age of the model is printed or not</li>
  * <li>driftsPerEval - the number of drifts per evaluations (drift rate)</li>
  * <li>samplesPerEval - the new sample sampling rate</li>
  * <li>asyncRate - the asynchrony rate of the drift</li>
@@ -62,6 +63,8 @@ public class BaseLineControl implements Control {
   private final double driftLength;
   private final double driftLength1;
   
+  private final long logTime;
+  
   private final int dimension;
   private final int numOfInstances;
   private final boolean isSudden;
@@ -97,6 +100,8 @@ public class BaseLineControl implements Control {
     
     driftLength = (double)(CommonState.getEndTime() - 1) / (double)numOfEvals / driftsPerEval;
     driftLength1 = asyncRate * driftLength;
+    
+    logTime = Configuration.getLong("simulation.logtime");
     
     dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
     numOfInstances = Configuration.getInt(prefix + "." + PAR_NUMOFINSTANCES);
@@ -240,11 +245,13 @@ public class BaseLineControl implements Control {
     if (isPrintPrefix) {
       for (AggregationResult result : protocol.getResults()) {
         System.out.println("#iter\t" + result.getNames());
+        System.out.println((CommonState.getTime()/logTime) + "\t" + result);
       }
       isPrintPrefix = false;
-    }
-    for (AggregationResult result : protocol.getResults()) {
-      System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + result);
+    } else {
+      for (AggregationResult result : protocol.getResults()) {
+        System.out.println((CommonState.getTime()/logTime) + "\t" + result);
+      }
     }
   }
   

@@ -70,7 +70,6 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
       mtx.get(i).clear();
     }
     nmi /= normNmi;
-    // TODO: use better matching for ri
     return new double[] {putiry, nmi, 0.0 * ri};
   }
   

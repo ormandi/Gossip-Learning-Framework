@@ -59,6 +59,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
       return;
     }
     InstanceHolder eval = extractor.extract(evalSet);
+    // TODO: voting is not implemented yet
     LearningModel model = (LearningModel)modelHolder.getModel(modelHolder.size() - 1);
     modelAges[index] = model.getAge();
     for (int i = 0; i < eval.size(); i++) {
@@ -71,7 +72,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     push(pid, index);
   }
   
-  protected void push(int pid, int index) {
+  protected void push(int pid, int modelIndex) {
     lock.lock();
     Evaluator[][] evaluator = aggregations.get(pid);
     if (!pid2ModelNames.containsKey(pid)) {
@@ -82,23 +83,23 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     StringBuffer[] buffs = pid2ModelAges.get(pid);
     if (evaluator == null) {
       evaluator = new Evaluator[modelNames.length][evalNames.length];
-      for (int i = 0; i < modelNames.length; i++) {
+      for (int model_i = 0; model_i < modelNames.length; model_i++) {
         if (AggregationResult.isPrintAges) {
-          buffs[i] = new StringBuffer();
+          buffs[model_i] = new StringBuffer();
         }
-        for (int j = 0; j < evalNames.length; j++) {
-          evaluator[i][j] = (Evaluator)evaluators[i][j].clone();
-          evaluators[i][j].clear();
+        for (int eval_j = 0; eval_j < evalNames.length; eval_j++) {
+          evaluator[model_i][eval_j] = (Evaluator)evaluators[model_i][eval_j].clone();
+          evaluators[model_i][eval_j].clear();
         }
       }
       aggregations.put(pid, evaluator);
     } else {
       if (AggregationResult.isPrintAges) {
-        buffs[index].append(' ');
-        buffs[index].append(modelAges[index]);
+        buffs[modelIndex].append(' ');
+        buffs[modelIndex].append(modelAges[modelIndex]);
       }
       for (int i = 0; i < evalNames.length; i++) {
-        evaluator[index][i].merge(evaluators[index][i]);
+        evaluator[modelIndex][i].merge(evaluators[modelIndex][i]);
       }
     }
     lock.unlock();

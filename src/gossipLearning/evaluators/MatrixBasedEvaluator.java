@@ -30,7 +30,7 @@ public class MatrixBasedEvaluator implements Evaluator {
   
   public MatrixBasedEvaluator(MatrixBasedEvaluator a) {
     values = Arrays.copyOf(a.values, a.values.length);
-    names = a.names;
+    names = Arrays.copyOf(a.names, a.names.length);
     mtx = new Vector<SparseVector>();
     for (int i = 0; i < a.mtx.size(); i++) {
       mtx.add((SparseVector)a.mtx.get(i).clone());

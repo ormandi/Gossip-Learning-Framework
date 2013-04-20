@@ -21,11 +21,17 @@ public class MSError extends ValueBasedEvaluator {
     return new MSError(this);
   }
 
+  /**
+   * @return the squared difference of the specified values
+   */
   @Override
   public double getValue(double expected, double predicted) {
     return (expected - predicted) * (expected - predicted);
   }
 
+  /**
+   * @return the specified value
+   */
   @Override
   public double postProcess(double meanValue) {
     return meanValue;

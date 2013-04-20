@@ -27,7 +27,7 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   
   public ValueBasedEvaluator(ValueBasedEvaluator a) {
     values = Arrays.copyOf(a.values, a.values.length);
-    names = a.names;
+    names = Arrays.copyOf(a.names, a.names.length);
     counter = a.counter;
     numOfMerges = a.numOfMerges;
   }
@@ -52,8 +52,20 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   @Override
   public abstract Object clone();
   
+  /**
+   * Returns the evaluation result based on the specified parameters.
+   * @param expected expected value
+   * @param predicted predicted value
+   * @return evaluated result
+   */
   public abstract double getValue(double expected, double predicted);
   
+  /**
+   * Makes post processing step on the specified value, that should be the 
+   * mean of the results of the getValue(...) function
+   * @param meanValue mean of the evaluation
+   * @return post processed mean
+   */
   public abstract double postProcess(double meanValue);
   
   @Override

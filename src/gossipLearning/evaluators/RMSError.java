@@ -21,11 +21,17 @@ public class RMSError extends ValueBasedEvaluator {
     return new RMSError(this);
   }
 
+  /**
+   * @return the squared difference of the specified values
+   */
   @Override
   public double getValue(double expected, double predicted) {
     return (expected - predicted) * (expected - predicted);
   }
 
+  /**
+   * @return the squared root of the specified value
+   */
   @Override
   public double postProcess(double meanValue) {
     return Math.sqrt(meanValue);

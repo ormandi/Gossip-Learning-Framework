@@ -26,6 +26,7 @@ import peersim.core.Network;
  * <li>evaluationFile - the name of the evaluation file</li>
  * <li>samplesPerNode - the number of loaded samples per nodes</li>
  * <li>printPrecision - the number of floating points of the evaluation metric results</li>
+ * <li>isPrintAges - the age of the model is printed or not</li>
  * <li>numOfEvals - the number of evaluations</li>
  * <li>driftsPerEval - the number of drifts per evaluations (drift rate)</li>
  * <li>samplesPerEval - the new sample sampling rate</li>
@@ -49,6 +50,8 @@ public class DynamicInstanceLoader extends InstanceLoader {
   private final double driftLength;
   private final double driftLength1;
   
+  private final long logTime;
+  
   public DynamicInstanceLoader(String prefix) {
     super(prefix);
     
@@ -63,6 +66,8 @@ public class DynamicInstanceLoader extends InstanceLoader {
     driftLength = (double)(CommonState.getEndTime() - 1) / (double)numOfEvals / driftsPerEval;
     driftLength1 = asyncRate * driftLength;
     
+    logTime = Configuration.getLong("simulation.logtime");
+    
     try {
       reader = DataBaseReader.createDataBaseReader(readerClassName, tFile, eFile);
     } catch (Exception e) {
@@ -75,7 +80,10 @@ public class DynamicInstanceLoader extends InstanceLoader {
   }
 
   /**
-   * Sets a new instance for nodes as the training set.
+   * Sets new instances for nodes as the training set.<br/>
+   * The floor of the specified value number of samples will be set 
+   * and plus one with the remaining probability (n - floor(n)).
+   * @param n amount of samples
    */
   private void changeInstances(double n){
     InstanceHolder instanceHolder;
@@ -112,16 +120,19 @@ public class DynamicInstanceLoader extends InstanceLoader {
     if (isPrintPrefix) {
       for (AggregationResult result : protocol.getResults()) {
         System.out.println("#iter\t" + result.getNames());
+        System.out.println((CommonState.getTime()/logTime) + "\t" + result);
       }
       isPrintPrefix = false;
-    }
-    for (AggregationResult result : protocol.getResults()) {
-      System.out.println((CommonState.getTime()/Configuration.getLong("simulation.logtime")) + "\t" + result);
+    } else {
+      for (AggregationResult result : protocol.getResults()) {
+        System.out.println((CommonState.getTime()/logTime) + "\t" + result);
+      }
     }
   }
   
   /**
-   * Changes the labels on the training and evaluation sets.
+   * Changes the labels on the training and evaluation sets.<br/>
+   * The new label is: (label + 1) modulo numOfClasses
    */
   private void changeLabels(){
     double label;
