@@ -25,7 +25,11 @@ public class RecSysResultAggregator extends ResultAggregator {
       double expected = entry.value;
       double predicted = model.predict(userIdx, userModel, entry.index);
       for (int j = 0; j < evaluators[index].length; j++) {
-        evaluators[index][j].evaluate(expected, predicted);
+        if (evaluators[index][j] instanceof MatrixBasedEvaluator) {
+          evaluators[index][j].evaluate(expected, Math.round(predicted));
+        } else {
+          evaluators[index][j].evaluate(expected, predicted);
+        }
       }
     }
     push(pid, index);
