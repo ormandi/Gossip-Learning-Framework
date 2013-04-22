@@ -1,15 +1,15 @@
 package gossipLearning.models.recsys;
 
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Map.Entry;
-
 import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.utils.SparseVector;
+
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import peersim.config.Configuration;
 
-public class MergeableLowRank extends LowRankDecomposition implements Mergeable<MergeableLowRank>, Partializable<MergeableLowRank> {
+public class MergeableLowRank extends LowRankDecomposition implements Mergeable<MergeableLowRank> {
   private static final long serialVersionUID = -8892302266739538821L;
   private static final String PAR_DIMENSION = "MergeableLowRank.dimension";
   private static final String PAR_LAMBDA = "MergeableLowRank.lambda";

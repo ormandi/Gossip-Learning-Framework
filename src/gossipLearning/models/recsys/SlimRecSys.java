@@ -9,9 +9,9 @@ import peersim.config.Configuration;
 
 public class SlimRecSys extends MergeableRecSys {
   private static final long serialVersionUID = -2675295901691742814L;
-  private static final String PAR_DIMENSION = "MergeableRecSys.dimension";
-  private static final String PAR_LAMBDA = "MergeableRecSys.lambda";
-  private static final String PAR_ALPHA = "MergeableRecSys.alpha";
+  private static final String PAR_DIMENSION = "SlimRecSys.dimension";
+  private static final String PAR_LAMBDA = "SlimRecSys.lambda";
+  private static final String PAR_ALPHA = "SlimRecSys.alpha";
   
   public SlimRecSys() {
     super();

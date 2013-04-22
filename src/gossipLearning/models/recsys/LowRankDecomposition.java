@@ -2,18 +2,20 @@ package gossipLearning.models.recsys;
 
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor {
+public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Partializable<LowRankDecomposition> {
   private static final long serialVersionUID = -6695974880876825151L;
   private static final String PAR_DIMENSION = "LowRankDecomposition.dimension";
   private static final String PAR_LAMBDA = "LowRankDecomposition.lambda";
@@ -160,6 +162,11 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
       result.add(extract(instances.getInstance(i)), instances.getLabel(i));
     }
     return result;
+  }
+  
+  @Override
+  public LowRankDecomposition getModelPart(Set<Integer> indices) {
+    return new LowRankDecomposition(this);
   }
   
   public void setDimension(int dimension) {

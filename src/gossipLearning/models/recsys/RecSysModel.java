@@ -1,9 +1,11 @@
 package gossipLearning.models.recsys;
 
-import java.util.HashMap;
-
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
+
+import java.util.HashMap;
+import java.util.Set;
+
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
@@ -74,6 +76,11 @@ public class RecSysModel extends LowRankDecomposition {
     
     // return new user-model
     return newUserModel;
+  }
+  
+  @Override
+  public RecSysModel getModelPart(Set<Integer> indices) {
+    return new RecSysModel(this);
   }
   
 }

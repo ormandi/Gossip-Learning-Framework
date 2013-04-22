@@ -1,0 +1,119 @@
+C ${ITERATIONS}
+NETWORKSIZE ${NETWORK_SIZE}
+
+ONLINESIZE NETWORKSIZE
+CYCLE C*ONLINESIZE+1
+LOGTIME ONLINESIZE
+SEED 1234567890
+
+# Transport parameters
+DROP 0.0
+MINDELAY ONLINESIZE*0.9
+MAXDELAY ONLINESIZE*1.1
+
+# Overlay parameters
+NEWSCAST_CACHESIZE 10
+NEWSCAST_FREQ ONLINESIZE/10.0
+
+
+#-------------------- General Simulation Properties --------------------
+network.size NETWORKSIZE
+simulation.endtime CYCLE
+simulation.logtime LOGTIME
+simulation.messagemindelay MINDELAY
+simulation.threadnum 2
+random.seed SEED
+
+
+#-------------------- Transport layer --------------------
+protocol.transport UniformRandomTransport
+protocol.transport.mindelay MINDELAY
+protocol.transport.maxdelay MAXDELAY
+
+
+#-------------------- Connection layer --------------------
+protocol.overlay peersim.extras.mj.ednewscast.EdNewscast
+protocol.overlay.transport transport
+protocol.overlay.cache NEWSCAST_CACHESIZE
+protocol.overlay.baseFreq NEWSCAST_FREQ
+
+
+#-------------------- Extraction layer --------------------
+protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
+protocol.extractionProtocol.linkable overlay
+protocol.extractionProtocol.transport transport
+protocol.extractionProtocol.delayMean ONLINESIZE
+protocol.extractionProtocol.delayVar ONLINESIZE/10.0
+protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.extractionProtocol.modelHolderCapacity 1
+protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
+protocol.extractionProtocol.isUseTMan false
+
+
+#-------------------- Learning layer(s) --------------------
+LAMBDA 1E-3
+protocol.learningProtocol gossipLearning.protocols.RecSysProtocol
+protocol.learningProtocol.linkable overlay
+protocol.learningProtocol.transport transport
+protocol.learningProtocol.extractorProtocol extractionProtocol
+protocol.learningProtocol.delayMean ONLINESIZE
+protocol.learningProtocol.delayVar ONLINESIZE/10.0
+protocol.learningProtocol.numOfWaitingPeriods 10
+protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.learningProtocol.modelHolderCapacity 3
+protocol.learningProtocol.modelNames gossipLearning.models.recsys.RecSysModel
+protocol.learningProtocol.RecSysModel.dimension 2
+protocol.learningProtocol.RecSysModel.lambda LAMBDA
+protocol.learningProtocol.RecSysModel.alpha 0
+protocol.learningProtocol.evalNames gossipLearning.evaluators.MAError,gossipLearning.evaluators.RMSError
+protocol.learningProtocol.evalProbability 1.0
+
+protocol.learningProtocol2 gossipLearning.protocols.RecSysProtocolSlim
+protocol.learningProtocol2.linkable overlay
+protocol.learningProtocol2.transport transport
+protocol.learningProtocol2.extractorProtocol extractionProtocol
+protocol.learningProtocol2.delayMean ONLINESIZE
+protocol.learningProtocol2.delayVar ONLINESIZE/10.0
+protocol.learningProtocol2.numOfWaitingPeriods 10
+protocol.learningProtocol2.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.learningProtocol2.modelHolderCapacity 3
+protocol.learningProtocol2.modelNames gossipLearning.models.recsys.SlimRecSys
+protocol.learningProtocol2.SlimRecSys.dimension 2
+protocol.learningProtocol2.SlimRecSys.lambda LAMBDA
+protocol.learningProtocol2.SlimRecSys.alpha 0
+protocol.learningProtocol2.evalNames gossipLearning.evaluators.MAError,gossipLearning.evaluators.RMSError
+protocol.learningProtocol2.evalProbability 1.0
+
+
+#-------------------- Initializers --------------------
+init.overlayInit WireKOut
+init.overlayInit.k NEWSCAST_CACHESIZE
+init.overlayInit.protocol overlay
+
+init.overlayStart peersim.extras.mj.ednewscast.EventInitializer
+init.overlayStart.protocolID overlay
+
+init.instanceLoader gossipLearning.controls.InstanceLoader
+init.instanceLoader.readerClass gossipLearning.utils.RecSysDataBaseReader
+init.instanceLoader.extractionProtocol extractionProtocol
+init.instanceLoader.learningProtocols learningProtocol,learningProtocol2
+init.instanceLoader.trainingFile ../res/db/movielens_small.train
+init.instanceLoader.evaluationFile ../res/db/movielens_small.test
+init.instanceLoader.samplesPerNode 1
+init.instanceLoader.printPrecision 4
+init.instanceLoader.isPrintAges false
+
+init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
+init.learningProtocolStart.protocols learningProtocol,learningProtocol2
+init.learningProtocolStart.delay 0
+
+
+#-------------------- Define Init Sequence --------------------
+include.init overlayInit overlayStart instanceLoader learningProtocolStart
+
+
+#-------------------- Observers --------------------
+control.prediction gossipLearning.controls.PredictionObserver
+control.prediction.step LOGTIME
+control.prediction.protocol learningProtocol
+control.prediction.format gpt
