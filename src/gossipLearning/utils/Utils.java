@@ -205,13 +205,21 @@ public class Utils {
    * @return maximal matching
    * @note actually do nothing
    */
+  public static int[] maximalMatching(double[][] mtx) {
+    // FIXME: maximal matching finds minimal matching!
+    HungarianMethod hunmeth = new HungarianMethod(mtx);
+    return hunmeth.getPermutationArray();
+  }
+  
   public static int[] maximalMatching(Vector<SparseVector> mtx) {
-    // FIXME: we should use the hungarian method instead of this
-    int[] result = new int[mtx.size()];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = i;
+    double[][] tmpMtx = new double[mtx.size()][mtx.size()];
+    for (int i = 0; i < mtx.size(); i++) {
+      for (int j = 0; j < mtx.size(); j++) {
+        // TODO: remove - if maximal matching is fixed
+        tmpMtx[i][j] = -mtx.get(i).get(j);
+      }
     }
-    return result;
+    return maximalMatching(tmpMtx);
   }
   
   /**

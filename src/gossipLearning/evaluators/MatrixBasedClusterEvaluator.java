@@ -70,7 +70,7 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
       mtx.get(i).clear();
     }
     nmi /= normNmi;
-    return new double[] {putiry, nmi, 0.0 * ri};
+    return new double[] {putiry, nmi, ri};
   }
   
   @Override
@@ -91,7 +91,6 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
       }
       s.append('\n');
     }
-    //System.out.println(Arrays.toString(matching));
     return s.toString();
   }
 
