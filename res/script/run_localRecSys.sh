@@ -24,7 +24,7 @@ if [ -s "${trainingFile}" -a -s "$evaluationFile" -a -s "$config_template" ]; th
   echo -e "ITERATIONS ${iter}\nTRAINING_DATABASE $trainingFile\nEVALUATION_DATABASE $evaluationFile" | ${dir}/generate_config.sh $config_template > ${out_dir}/config.txt
   
   # run simulation
-  nice -n 19 java -Xmx${mem} -cp ${cp} gossipLearning.main.LocalRun ${out_dir}/config.txt | tee ${out_dir}/output.txt
+  nice -n 19 java -Xmx${mem} -cp ${cp} gossipLearning.main.RecSysRun ${out_dir}/config.txt | tee ${out_dir}/output.txt
 
   export modelName=`head -n 1 ${out_dir}/output.txt | awk '{print $NF}'`;
   

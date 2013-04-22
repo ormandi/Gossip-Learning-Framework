@@ -1,5 +1,6 @@
 ITER ${ITERATIONS}
 SEED 1234567890
+NUMEVALS 1000
 
 dbReader gossipLearning.DataBaseReader
 trainingFile ${TRAINING_DATABASE}
