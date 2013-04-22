@@ -203,7 +203,6 @@ public class Utils {
    * This method applies a greedy technique.
    * @param mtx "similarity" matrix
    * @return maximal matching
-   * @note actually do nothing
    */
   public static int[] maximalMatching(double[][] mtx) {
     // FIXME: maximal matching finds minimal matching!
@@ -211,6 +210,12 @@ public class Utils {
     return hunmeth.getPermutationArray();
   }
   
+  /**
+   * Finds the maximal matching of indices based on the specified matrix.
+   * This method applies a greedy technique.
+   * @param mtx "similarity" matrix
+   * @return maximal matching
+   */
   public static int[] maximalMatching(Vector<SparseVector> mtx) {
     double[][] tmpMtx = new double[mtx.size()][mtx.size()];
     for (int i = 0; i < mtx.size(); i++) {

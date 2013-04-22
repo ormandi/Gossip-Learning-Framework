@@ -6,6 +6,25 @@ import gossipLearning.utils.VectorEntry;
 
 import java.util.Vector;
 
+/**
+ * This class is for supporting that type of evaluator, where 
+ * the result is based on a matrix and the task is clustering.<br/>
+ * Rows belong to the expected values, and columns belong to the predicted values.
+ * <br/><br/>
+ * This class currently computes the purity, NMI and RI measurements.
+ * <ul>
+ * <li><b>purity:</b> each cluster is assigned to the class which is most 
+ * frequent in the cluster, and then the accuracy of this assignment is 
+ * measured by counting the number of correctly assigned documents and dividing 
+ * by the number of documents.</li>
+ * <li><b>NMI:</b> Normalized Mutual Information</li>
+ * <li><b>RI:</b> Rand Index - accuracy (For computing this measure 
+ * we find the best matching between the clusters and classes using the 
+ * Hungarian Method).</li>
+ * </ul>
+ * @see <a href="http://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-clustering-1.html">Evaluation of clustering<a/>
+ * @author István Hegedűs
+ */
 public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
   private static final long serialVersionUID = -6354546808718608891L;
   
@@ -39,9 +58,7 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
           max = e.value;
         }
         if (matching[i] == e.index) {
-          ri += e.value * mtx.size();
-        } else {
-          ri += e.value * (mtx.size() - 2);
+          ri += e.value;
         }
       }
       putiry += max;
@@ -50,7 +67,7 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
       return new double[] {0.0, 0.0, 0.0};
     }
     putiry /= sum;
-    ri /= sum * mtx.size();
+    ri /= sum;
     for (int i = 0; i < mtx.size(); i++) {
       sumRow[i] /= sum;
       sumCol[i] /= sum;
