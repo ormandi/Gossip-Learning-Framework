@@ -19,7 +19,7 @@ import peersim.config.Configuration;
  * </ul>
  * @author István Hegedűs
  */
-public class LinearRegression implements LearningModel, Mergeable<LinearRegression>,Partializable<LinearRegression> , SimilarityComputable<LinearRegression> {
+public class LinearRegression implements LearningModel, Mergeable<LinearRegression>, Partializable<LinearRegression>, SimilarityComputable<LinearRegression> {
   private static final long serialVersionUID = -1468280308189482885L;
   
   /** @hidden */
@@ -83,11 +83,12 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   public void update(SparseVector instance, double label) {
     age ++;
     double err = label - predict(instance);
+    //System.out.println(label + "\t" + predict(instance));
     
     double nu = 1.0 / (lambda * age);
     w.mul(1.0 - nu * lambda);
     w.add(instance, nu * err);
-    bias += nu * err;
+    bias += nu * lambda * err;
   }
 
   /**
