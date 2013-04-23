@@ -97,8 +97,8 @@ init.instanceLoader gossipLearning.controls.InstanceLoader
 init.instanceLoader.readerClass gossipLearning.utils.RecSysDataBaseReader
 init.instanceLoader.extractionProtocol extractionProtocol
 init.instanceLoader.learningProtocols learningProtocol,learningProtocol2
-init.instanceLoader.trainingFile ../res/db/movielens_small.train
-init.instanceLoader.evaluationFile ../res/db/movielens_small.test
+init.instanceLoader.trainingFile ${TRAINING_DATABASE}
+init.instanceLoader.evaluationFile ${EVALUATION_DATABASE}
 init.instanceLoader.samplesPerNode 1
 init.instanceLoader.printPrecision 4
 init.instanceLoader.isPrintAges false
