@@ -20,7 +20,6 @@ public class SimpleNaiveBayes extends ProbabilityModel {
   protected SparseVector[] mus;
   protected SparseVector[] sigmas;
   protected double[] counts;
-  protected double age;
   protected int numberOfClasses;
   protected int maxIndex;
 

@@ -197,6 +197,9 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @return the position of the specified index
    */
   private int getIdx(int index) {
+    if (index < 0) {
+      throw new IndexOutOfBoundsException("" + index);
+    }
     int first = 0;
     int last = size - 1;
     while(first <= last) {
@@ -501,9 +504,29 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @return the Euclidean distance
    */
   public double euclideanDistance(SparseVector vector) {
-    SparseVector clone = (SparseVector)this.clone();
-    clone.add(vector, -1.0);
-    return clone.norm();
+    double dist = 0.0;
+    int idx = 0;
+    int idx2 = 0;
+    while (idx < size && idx2 < vector.size) {
+      if (indices[idx] == vector.indices[idx2]) {
+        dist = Utils.hypot(dist, values[idx] - vector.values[idx2]);
+        idx ++;
+        idx2 ++;
+      } else if (indices[idx] < vector.indices[idx2]) {
+        dist = Utils.hypot(dist, values[idx]);
+        idx ++;
+      } else {
+        dist = Utils.hypot(dist, vector.values[idx2]);
+        idx2 ++;
+      }
+    }
+    for (int i = idx2; i < vector.size; i++) {
+      dist = Utils.hypot(dist, vector.values[i]);
+    }
+    for (int i = idx; i < size; i++) {
+      dist = Utils.hypot(dist, values[i]);
+    }
+    return dist;
   }
   
   /**
@@ -513,9 +536,9 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   public double norm() {
     double norm = 0.0;
     for (int i = 0; i < size; i++) {
-      norm += values[i] * values[i];
+      norm = Utils.hypot(norm, values[i]);
     }
-    return Math.sqrt(norm);
+    return norm;
   }
 
   /**

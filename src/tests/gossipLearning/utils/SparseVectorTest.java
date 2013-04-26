@@ -97,6 +97,10 @@ public class SparseVectorTest extends TestCase implements Serializable {
     SparseVector v2 = new SparseVector(new double[]{0.1,3,0,2,0,1.1});
     SparseVector v3 = new SparseVector(new double[]{1.1,3,0,4,0,1.1});
     assertEquals(v1.add(v2), v3);
+    v1 = new SparseVector(new double[]{1.0,0,0,1.0});
+    v2 = new SparseVector(new double[]{0,1.0,1.0,0});
+    v3 = new SparseVector(new double[]{1.0,1.0,1.0,1.0,0,});
+    assertEquals(v1.add(v2), v3);
   }
   
   public void testAdd2() {

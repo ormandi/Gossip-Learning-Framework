@@ -89,6 +89,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
 
   @Override
   public void update(SparseVector instance, double label) {
+    age ++;
     for (int i = 0; i < numberOfClasses; i++) {
       ((LearningModel)classifiers.getModel(i)).update(instance, (label == i) ? 1.0 : 0.0);
     }

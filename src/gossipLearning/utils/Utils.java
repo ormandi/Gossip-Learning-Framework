@@ -382,5 +382,19 @@ public class Utils {
     }
     return arrTime;
   }
+  
+  /**
+   * sqrt(x^2 + y^2) without under/overflow.
+   */
+  public static double hypot(double x, double y) {
+    double t;
+    x = Math.abs(x);
+    y = Math.abs(y);
+    t = Math.min(x, y);
+    x = Math.max(x, y);
+    t = t / x;
+    if (x == 0.0) return 0.0;
+    return x * Math.sqrt(1 + t * t);
+  }
 
 }
