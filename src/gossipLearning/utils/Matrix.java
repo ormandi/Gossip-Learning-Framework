@@ -361,6 +361,71 @@ public class Matrix implements Serializable {
   }
   
   /**
+   * Returns the reference of the matrix that was multiplied by the specified
+   * constant. <br/>
+   * A = s .* A
+   * @param value value to multiply (s)
+   * @return reference of the multiplied matrix (A)
+   * @note in place operation!
+   */
+  public Matrix mulEquals(double value) {
+    for (int i = 0; i < numberOfRows; i++) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        if (isTransposed) {
+          matrix[j][i] *= value;
+        } else {
+          matrix[i][j] *= value;
+        }
+      }
+    }
+    return this;
+  }
+  
+  /**
+   * Returns a new matrix (C) that is the current matrix (A) multiplied by the
+   * specified constant (s) in the specified range. <br/>
+   * @param rowFrom initial row index
+   * @param rowTo final row index
+   * @param colFrom initial column index
+   * @param colTo final column index
+   * @param value constant (s)
+   * @return C
+   */
+  public Matrix mul(int rowFrom, int rowTo, int colFrom, int colTo, double value) {
+    Matrix result = new Matrix(this);
+    for (int i = rowFrom; i <= rowTo; i++) {
+      for (int j = colFrom; j <= colTo; j++) {
+        result.matrix[i][j] *= value;
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * Returns the reference of the matrix that was multiplied by the specified
+   * constant in the specified range. <br/>
+   * @param rowFrom initial row index
+   * @param rowTo final row index
+   * @param colFrom initial column index
+   * @param colTo final column index
+   * @param value constant
+   * @return scaled A in range
+   * @note in place operation!
+   */
+  public Matrix mulEquals(int rowFrom, int rowTo, int colFrom, int colTo, double value) {
+    for (int i = rowFrom; i <= rowTo; i++) {
+      for (int j = colFrom; j <= colTo; j++) {
+        if (isTransposed) {
+          matrix[j][i] *= value;
+        } else {
+          matrix[i][j] *= value;
+        }
+      }
+    }
+    return this;
+  }
+
+  /**
    * Returns a new vector (c) that is the current matrix (A) multiplied by the
    * specified vector (v). <br/>
    * c' = v' * A
@@ -396,27 +461,6 @@ public class Matrix implements Serializable {
       }
     }
     return result;
-  }
-
-  /**
-   * Returns the reference of the matrix that was multiplied by the specified
-   * constant. <br/>
-   * A = s .* A
-   * @param value value to multiply (s)
-   * @return reference of the multiplied matrix (A)
-   * @note in place operation!
-   */
-  public Matrix mulEquals(double value) {
-    for (int i = 0; i < numberOfRows; i++) {
-      for (int j = 0; j < numberOfColumns; j++) {
-        if (isTransposed) {
-          matrix[j][i] *= value;
-        } else {
-          matrix[i][j] *= value;
-        }
-      }
-    }
-    return this;
   }
 
   /**
