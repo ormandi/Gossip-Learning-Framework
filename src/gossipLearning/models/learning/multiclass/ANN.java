@@ -207,6 +207,40 @@ public class ANN extends ProbabilityModel {
       }
     }
   }
+  
+  public double computeCostFunction(SparseVector x, double label) {
+    return computeCostFunction(x, label, lambda);
+  }
+  
+  public double computeCostFunction(SparseVector x, double label, double lv) {
+    // create y
+    Matrix y = new Matrix(getNumberOfClasses(), 1);
+    y.set((int) label, 0, 1.0);
+    
+    // predict y
+    Matrix h = new Matrix(distributionForInstance(x), false);
+    
+    // compute cost
+    double cost = 0.0;
+    for (int i = 0; i < getNumberOfClasses(); i ++) {
+      cost += - y.get(i, 0) * ((h.get(i, 0) > 1.0E-6) ? Math.log(h.get(i, 0)) : -1E10) - (1.0 - y.get(i, 0)) * ((1.0 - h.get(i, 0) > 1.0E-6) ?  Math.log(1.0 - h.get(i, 0)) : -1E10);
+    }
+    
+    // adding regularization term
+    double reg = 0.0;
+    for (int l = 0; l < thetas.length; l ++) {
+      for (int i = 0; i < thetas[l].getNumberOfRows(); i ++) {
+        for (int j = 1; j < thetas[l].getNumberOfColumns(); j ++) {
+          reg += thetas[l].get(i, j) * thetas[l].get(i, j);
+        }
+      }
+    }
+    reg *= (lv / 2.0);
+    cost += reg;
+    
+    // return cost
+    return cost;
+  }
 
   @Override
   public int getNumberOfClasses() {
