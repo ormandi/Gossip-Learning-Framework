@@ -70,7 +70,7 @@ public class ANN extends ProbabilityModel {
     if (a.thetas != null) {
       thetas = new Matrix[a.thetas.length];
       products = new Matrix[a.products.length];
-      for (int i = 0; i < a.thetas.length; i++) {
+      for (int i = 0; i < a.thetas.length && a.thetas[i] != null; i++) {
         thetas[i] = (Matrix)a.thetas[i].clone();
         products[i] = (Matrix)a.products[i].clone();
       }

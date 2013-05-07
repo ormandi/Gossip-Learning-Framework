@@ -34,16 +34,17 @@ public class ChurnControl implements Control {
   private final int pid;
   private static final String PAR_SIZE = "size";
   private final int size;
-  private static final String PAR_MU = "churn.mu";
-  private static final String PAR_SIGMA = "churn.sigma";
+  private static final String PAR_MU = "mu";
+  private static final String PAR_SIGMA = "sigma";
   public static final int INIT_SESSION_LENGTH = 0;
   
   
-  private final static LogNormalRandom rand = new LogNormalRandom(Configuration.getDouble(PAR_MU), Configuration.getDouble(PAR_SIGMA), Configuration.getLong("random.seed", System.currentTimeMillis()));
+  private final LogNormalRandom rand;
   
   public ChurnControl(String prefix) {
     pid = Configuration.getPid(prefix + "." + PAR_PID);
     size = Configuration.getInt(prefix + "." + PAR_SIZE);
+    rand = new LogNormalRandom(Configuration.getDouble(prefix + "." + PAR_MU), Configuration.getDouble(prefix + "." + PAR_SIGMA), Configuration.getLong("random.seed", System.currentTimeMillis()));
   }
 
 
@@ -67,7 +68,7 @@ public class ChurnControl implements Control {
     return false;
   }
 
-  public static long getOnlineSessionLength() {
+  public long getOnlineSessionLength() {
     long len = Math.round(rand.nextDouble());
     while (len == 0) {
       len = Math.round(rand.nextDouble());
@@ -79,7 +80,7 @@ public class ChurnControl implements Control {
   private static Map<Long, Integer> id2idx = new TreeMap<Long, Integer>();
   private static Vector<Node> downNodes = new Vector<Node>();
   private static Map<Long,Long> offlineToOnline = new TreeMap<Long,Long>();
-  public static void adjustNumberOfOnlineSessions(int size) {
+  public void adjustNumberOfOnlineSessions(int size) {
     id2idx.clear();
     downNodes.clear();
     int onlineNodes = 0;
