@@ -99,9 +99,14 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
       s.append(i);
     }
     s.append('\n');
+    for (int i = 0; i <= mtx.size(); i++) {
+      s.append("--------");
+    }
+    s.append('\n');
     int[] matching = Utils.maximalMatching(mtx);
     for (int i = 0; i < mtx.size(); i++) {
       s.append(i);
+      s.append(':');
       for (int j = 0; j < mtx.size(); j++) {
         s.append('\t');
         s.append((int)mtx.get(i).get(matching[j]));

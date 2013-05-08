@@ -44,10 +44,10 @@ public class DataBaseReader {
     // compute means and standard deviations on training set for standardization
     for (int i = 0; i < trainingSet.size(); i++) {
       SparseVector instance = trainingSet.getInstance(i);
+      SparseVector clone = new SparseVector(instance);
+      clone.pointMul(instance);
       means.add(instance);
-      instance.powerTo(2.0);
-      devs.add(instance);
-      instance.sqrt();
+      devs.add(clone);
     }
     means.mul(1.0 / (double)trainingSet.size());
     devs.mul(1.0 / (double)trainingSet.size());
