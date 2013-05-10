@@ -44,6 +44,8 @@ public class UtilsTest extends TestCase {
     assertEquals(0.5, Utils.cdf(0, 0, 1.0), EPS);
     assertEquals(0.64531, Utils.cdf(0.42019, 0.23694, 0.49170), EPS);
     assertEquals(Double.NaN, Utils.cdf(0, 0, 0));
+    assertEquals(1.0 - Utils.cdf(1, 0, 1), Utils.cdf(-1, 0, 1));
+    
   }
   
   public void testERF() {
