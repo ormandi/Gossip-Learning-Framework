@@ -51,23 +51,13 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     return new SimpleNaiveBayes(this);
   }
   
-  protected SimpleNaiveBayes(SparseVector[] mus, SparseVector[] sigmas, 
-      double[] counts, double age, int numberOfClasses, int maxIndex) {
-    this.mus = mus;
-    this.sigmas = sigmas;
-    this.counts = counts;
-    this.age = age;
-    this.numberOfClasses = numberOfClasses;
-    this.maxIndex = maxIndex;
-  }
-
   @Override
   public void init(String prefix) {
   }
 
   @Override
   public void update(SparseVector instance, double label) {
-    if (instance.maxIndex() > maxIndex) {
+    if (instance.maxIndex() >= maxIndex) {
       maxIndex = instance.maxIndex() + 1;
     }
     age ++;
@@ -79,8 +69,8 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     SparseVector copy = new SparseVector(instance);
     vs.mul(1.0 - 1.0 / count).add(copy.pointMul(instance), 1.0 / count);
   }
-  //private static int iter=1;
-
+  //private boolean isPrint = true;
+  
   @Override
   public double[] distributionForInstance(SparseVector instance) {
     double[] res = new double[numberOfClasses];
@@ -88,6 +78,7 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     double p;
     double pc;
     double sum = 0.0;
+    double max = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < numberOfClasses; i++) {
       p = 0.0;
       pc = Math.log(counts[i] / age);
@@ -119,36 +110,45 @@ public class SimpleNaiveBayes extends ProbabilityModel {
             instE = instIter.next();
           }
         }
-        sigma = Math.sqrt(sigma - mu * mu);
-        p += logProb(value, mu, sigma == 0.0 ? Utils.EPS : sigma) - pc;
+        sigma = Math.sqrt(Math.abs(sigma - mu * mu));
+        sigma = (sigma == 0.0) ? Utils.EPS : sigma;
+        double ptmp = logProb(value, mu, sigma);
+        p += (ptmp > 0.0) ? 0.0 : ptmp;
         // featureCoefs can be used for feature selection
-        /*if (iter % 3416 == 0) {
+        /*if (age == 10000) {
           for (int c = 0; c < i; c++) {
-            double m = mus.get(c).get(j);
-            double s = sigmas.get(c).get(j);
-            s = s == 0.0 ? Utils.EPS : s;
+            double m = mus[c].get(j);
+            double s = sigmas[c].get(j);
+            s = (s == 0.0) ? Utils.EPS : s;
             featureCoefs[j] += Math.abs(Utils.cdf(m, mu, sigma) - Utils.cdf(mu, m, s));
           }
         }*/
       }
-      res[i] = Math.exp(p + pc);
-      if (res[i] == 0.0 || Double.isNaN(res[i]) || Double.isInfinite(res[i])) {
-        res[i] = Utils.EPS;
+      res[i] = pc + p;
+      if (res[i] > 0.0 || Double.isNaN(res[i]) || Double.isInfinite(res[i])) {
+        res[i] = -1.0/Utils.EPS;
       }
-      sum += res[i];
+      if (res[i] > max) {
+        max = res[i];
+      }
     }
-    for (int i = 0; sum > 0.0 && i < res.length; i++) {
+    for (int i = 0; i < res.length; i++) {
+      res[i] -= max;
+      res[i] = Math.exp(res[i]);
+      sum += Math.abs(res[i]);
+    }
+    for (int i = 0; i < res.length; i++) {
       res[i] /= sum;
     }
-    /*if (iter % 3416 == 0) {
+    /*if (age == 10000 && isPrint) {
+      isPrint = false;
       TreeMap<Double, Integer> map = new TreeMap<Double, Integer>();
       for (int i = 0; i < featureCoefs.length; i++) {
         featureCoefs[i] /= numberOfClasses;
-        map.put(featureCoefs[i], i);
+        map.put(featureCoefs[i], (i+1));
       }
       System.out.println("Features: " + map.descendingMap().values() + "\t" + map.descendingMap().keySet());
-    }
-    iter ++;*/
+    }*/
     return res;
   }
 
@@ -175,7 +175,7 @@ public class SimpleNaiveBayes extends ProbabilityModel {
 
   private static double logProb(double x, double mu, double sigma) {
     double z = (x - mu) / sigma;
-    double frac = Math.log(1.0 / (Utils.SQRT2PI * sigma));
+    double frac = -Math.log(Utils.SQRT2PI * sigma);
     double pow = (-z * z) / 2.0;
     return frac + pow;
   }
