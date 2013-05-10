@@ -31,7 +31,7 @@ public abstract class ProbabilityModel implements LearningModel {
    */
   @Override
   public final double predict(SparseVector instance) {
-    int maxLabelIndex = -1;
+    int maxLabelIndex = 0;
     double maxValue = Double.NEGATIVE_INFINITY;
     double[] distribution = distributionForInstance(instance);
     for (int i = 0; i < getNumberOfClasses(); i++){
