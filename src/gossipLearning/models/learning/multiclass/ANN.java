@@ -72,6 +72,8 @@ public class ANN extends ProbabilityModel {
       products = new Matrix[a.products.length];
       for (int i = 0; i < a.thetas.length && a.thetas[i] != null; i++) {
         thetas[i] = (Matrix)a.thetas[i].clone();
+      }
+      for (int i = 0; i < a.products.length && a.products[i] != null; i++) {
         products[i] = (Matrix)a.products[i].clone();
       }
     }
@@ -142,6 +144,9 @@ public class ANN extends ProbabilityModel {
     
     // evaluate instance
     Matrix predicted = evaluate(instance);
+    if (predicted == null) {
+      return;
+    }
     // delta for computing gradient
     Matrix delta = predicted.subtract(expected);
     
@@ -171,7 +176,7 @@ public class ANN extends ProbabilityModel {
   }
   
   private Matrix evaluate(SparseVector instance) {
-    if (thetas[0] == null) {
+    if (thetas[0] == null || layersSizes[0] == 0) {
       return null;
     }
     Matrix activations;
