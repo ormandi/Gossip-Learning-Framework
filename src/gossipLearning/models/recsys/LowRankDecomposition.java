@@ -4,13 +4,13 @@ import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.utils.InstanceHolder;
+import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
-import gossipLearning.utils.VectorEntry;
+import gossipLearning.utils.Utils;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -23,16 +23,20 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   
   protected double age;
   protected HashMap<Integer, SparseVector> columnModels;
+  protected SparseVector eigenValues;
   protected int dimension;
   // learning rate
   protected double lambda;
   // regularization parameter
   protected double alpha;
   protected int maxIndex;
+  protected Matrix R;
+  protected Matrix V;
   
   public LowRankDecomposition() {
     age = 0.0;
     columnModels = new HashMap<Integer, SparseVector>();
+    eigenValues = new SparseVector();
     dimension = 10;
     lambda = 0.001;
     alpha = 0.0;
@@ -49,6 +53,11 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     columnModels = new HashMap<Integer, SparseVector>(size, 0.9f);
     for (Entry<Integer, SparseVector> e : a.columnModels.entrySet()) {
       columnModels.put(e.getKey().intValue(), (SparseVector)e.getValue().clone());
+    }
+    if (a.eigenValues != null) {
+      eigenValues = new SparseVector(a.eigenValues);
+    } else {
+      eigenValues = new SparseVector();
     }
     dimension = a.dimension;
     lambda = a.lambda;
@@ -94,48 +103,49 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
       maxIndex = instance.maxIndex();
     }
     
-    SparseVector newUserModel = (SparseVector)rowModel.clone();
+    SparseVector newRowModel = (SparseVector)rowModel.clone();
     age ++;
     
-    newUserModel.mul(1.0 - alpha);
+    //newUserModel.mul(1.0 - alpha);
     double value = 0.0;
-    VectorEntry entry = null;
-    Iterator<VectorEntry> iterator = instance.iterator();
-    if (iterator.hasNext()) {
-      entry = iterator.next();
-    }
-    for (int index = 0; index <= maxIndex; index++){
-      value = 0.0;
-      if (entry != null && entry.index == index) {
-        value = entry.value;
-        if (iterator.hasNext()) {
-          entry = iterator.next();
-        } else {
-          entry = null;
-        }
-      }
-      SparseVector itemModel = columnModels.get(index);
+    double nu = lambda / Math.log10(age + 1);
+    
+    for (int j = 0; j <= maxIndex; j++) {
+      SparseVector columnModel = columnModels.get(j);
       // initialize a new item-model by uniform random numbers [0,1]
-      if (itemModel == null) {
+      if (columnModel == null) {
         newVector = new double[dimension];
-        for (int i = 0; i < dimension; i++) {
-          newVector[i] = CommonState.r.nextDouble();
+        for (int d = 0; d < dimension; d++) {
+          newVector[d] = CommonState.r.nextDouble();
         }
-        itemModel = new SparseVector(newVector);
-        columnModels.put(index, itemModel);
+        columnModel = new SparseVector(newVector);
+        columnModels.put(j, columnModel);
       }
-      // get the prediction and the error
-      double prediction = itemModel.mul(rowModel);
-      double error = value - prediction;
-      
-      // update models
-      newUserModel.add(itemModel, lambda * error);
-      itemModel.mul(1.0 - alpha);
-      itemModel.add(rowModel, lambda * error);
+      value = instance.get(j);
+      for (int i = 0; i < dimension; i++) {
+        // get the prediction and the error
+        double ri = rowModel.get(i);
+        double ci = columnModel.get(i);
+        double prediction = ri * ci;
+        double error = value - prediction;
+        
+        // update models
+        newRowModel.add(i, ci * nu * error);
+        //itemModel.mul(1.0 - alpha);
+        columnModel.add(i, ri * nu * error);
+        
+        // deflate the value of the matrix
+        value -= prediction;
+      }
     }
     
+    //TODO: compute corresponding eigenvalue
+    
+    // set null for normalizer matrix
+    R = null;
+    
     // return new user-model
-    return newUserModel;
+    return newRowModel;
   }
   
   @Override
@@ -173,27 +183,51 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     this.dimension = dimension;
   }
   
+  public int getDimension() {
+    return dimension;
+  }
+  
   public SparseVector extract(SparseVector instance) {
-    SparseVector result = new SparseVector(dimension);
-    for (Entry<Integer, SparseVector> e : columnModels.entrySet()) {
-      double value = instance.get(e.getKey());
-      for (int i = 0; i < dimension; i++) {
-        double mvalue = e.getValue().get(i);
-        result.add(i, value * mvalue);
-      }
+    if (R == null) {
+      getV();
     }
+    Matrix res = V.mulLeft(instance);
+    SparseVector result = new SparseVector(res.getRow(0));
     return result;
   }
   
-  public SparseVector[] getVectors() {
-    SparseVector[] result = new SparseVector[dimension];
-    for (int i = 0; i < dimension; i++) {
-      result[i] = new SparseVector();
-      for (Entry<Integer, SparseVector> e : columnModels.entrySet()) {
-        result[i].put(e.getKey(), e.getValue().get(i));
-      }
+  public Matrix getV() {
+    if (R != null) {
+      return V;
     }
-    return result;
+    R = new Matrix(dimension, dimension);
+    V = new Matrix(maxIndex + 1, dimension);
+    for (int i = 0; i < dimension; i++) {
+      double norm = 0.0;
+      for (Entry<Integer, SparseVector> e : columnModels.entrySet()) {
+        double value = e.getValue().get(i);
+        V.set(e.getKey(), i, value);
+        norm = Utils.hypot(norm, value);
+      }
+      for (int j = 0; j < maxIndex + 1; j++) {
+        V.set(j, i, V.get(j, i) / norm);
+      }
+      R.set(i, i, norm);
+    }
+    //System.err.println(R);
+    return V;
+  }
+  
+  public Matrix getUSi(SparseVector ui) {
+    if (R == null) {
+      getV();
+    }
+    Matrix USi = R.mulLeft(ui);
+    return USi;
+  }
+  
+  public SparseVector getEigenValues() {
+    return eigenValues;
   }
   
   @Override
