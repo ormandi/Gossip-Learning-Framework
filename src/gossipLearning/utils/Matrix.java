@@ -5,6 +5,11 @@ import gossipLearning.utils.jama.LUDecomposition;
 import gossipLearning.utils.jama.QRDecomposition;
 import gossipLearning.utils.jama.SingularValueDecomposition;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Random;
 
@@ -1142,6 +1147,43 @@ public class Matrix implements Serializable {
       return false;
     }
     return true;
+  }
+  
+  /**
+   * Prints the string representation of the object to the 
+   * specified file.
+   * @param outFile file to be written
+   * @throws IOException
+   */
+  public void writeToFile(File outFile) throws IOException {
+    writeToFile(outFile, false);
+  }
+  
+  /**
+   * Prints the string representation of the object to the 
+   * specified file.
+   * @param outFile file to be written
+   * @param append is append the specified file
+   * @throws IOException
+   */
+  public void writeToFile(File outFile, boolean append) throws IOException {
+    PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(outFile, append)));
+    for (int i = 0; i < numberOfRows; i++) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        if (j != 0) {
+          pw.print(' ');
+        }
+        if (isTransposed) {
+          pw.print(matrix[j][i]);
+        } else {
+          pw.print(matrix[i][j]);
+        }
+      }
+      //if (i < numberOfRows - 1) {
+        pw.println();
+      //}
+    }
+    pw.close();
   }
 
   /**
