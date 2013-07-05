@@ -16,11 +16,11 @@ public class KMeans implements Model {
   private static final long serialVersionUID = -1382541535383273679L;
   
   private static final String PAR_K = "KMeans.K";
-  private static final double wSize = 20.0;
+  private static final String PAR_WSIZE = "KMeans.wsize";
   
+  protected double wSize;
   protected int K;
   protected SparseVector[] centroids = null;
-  protected boolean[] isInitialized = null;
   
   /**
    * Constructs a KMeans object. Should not use without init(String prefix) function.
@@ -32,14 +32,11 @@ public class KMeans implements Model {
    * Constructs a KMeans object with the specified number of cluster centroids.
    * @param K the number of centroids
    */
-  public KMeans(int K) {
+  public KMeans(int K, double wSize) {
     this();
     this.K = K;
+    this.wSize = wSize;
     centroids = new SparseVector[K];
-    isInitialized = new boolean[K];
-    for (int i = 0; i < K; i++) {
-      centroids[i] = new SparseVector();
-      isInitialized[i] = false;
     }
   }
   
@@ -51,10 +48,10 @@ public class KMeans implements Model {
     K = a.K;
     if (a.centroids != null) {
       centroids = new SparseVector[K];
-      isInitialized = new boolean[K];
       for (int i = 0; i < K; i++) {
-        centroids[i] = (SparseVector)a.centroids[i].clone();
-        isInitialized[i] = a.isInitialized[i];
+	if (!(a.centroids[i] == null)) {
+          centroids[i] = (SparseVector)a.centroids[i].clone();
+	}
       }
     }
   }
@@ -69,12 +66,8 @@ public class KMeans implements Model {
   @Override
   public void init(String prefix) {
     this.K = Configuration.getInt(prefix + "." + PAR_K);
+    this.wSize = Configuration.getDouble(prefix + "." + PAR_WSIZE);
     centroids = new SparseVector[K];
-    isInitialized = new boolean[K];
-    for (int i = 0; i < K; i++) {
-      centroids[i] = new SparseVector();
-      isInitialized[i] = false;
-    }
   }
   
   /**
@@ -83,7 +76,7 @@ public class KMeans implements Model {
    */
   private int getInitializable() {
     for (int i = 0; i < K; i++) {
-      if (!isInitialized[i]) {
+      if (centroids[i]==null) {
         return i;
       }
     }
@@ -97,8 +90,12 @@ public class KMeans implements Model {
    */
   private boolean containsCentroid(SparseVector vector) {
     for (int i = 0; i < K; i++) {
-      if (centroids[i].equals(vector)) {
-        return true;
+      if(centroids[i] == null) {
+        continue;
+      } else {
+        if (centroids[i].equals(vector)) {
+          return true;
+        }
       }
     }
     return false;
@@ -110,15 +107,14 @@ public class KMeans implements Model {
     int initIndex = getInitializable();
     if (initIndex != -1) {
       if (!containsCentroid(instance)) {
-        centroids[initIndex].add(instance);
-        isInitialized[initIndex] = true;
+        centroids[initIndex] = new SparseVector(instance);
       }
+    } else {
+      // update
+      int idx = (int)predict(instance);
+      centroids[idx].mul(1.0 - (2.0 / wSize));
+      centroids[idx].add(instance, 2.0 / wSize);
     }
-    
-    // update
-    int idx = (int)predict(instance);
-    centroids[idx].mul(1.0 - (2.0 / wSize));
-    centroids[idx].add(instance, 2.0 / wSize);
   }
 
   @Override
@@ -128,10 +124,22 @@ public class KMeans implements Model {
     double dist;
     for (int i = 0; i < K; i++) {
       // find closest centroid
-      dist = centroids[i].euclideanDistance(instance);
+      if(centroids[i] == null) {
+        dist = Double.MAX_VALUE;
+      } else {
+        dist = centroids[i].euclideanDistance(instance);
+      }
       if (dist < minDist) {
         minDist = dist;
         idx = i;
+      }
+    }
+    if (idx == -1){
+      if (K == 0) {
+        idx = 0;
+      } else {
+        int min = 0, max = K - 1;
+        idx = CommonState.r.nextInt(max - min + 1) + min;
       }
     }
     return idx;
@@ -153,8 +161,13 @@ public class KMeans implements Model {
   public String toString() {
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < K; i++) {
-      sb.append(centroids[i].toString());
-      sb.append('\n');
+      if (centroids[i] == null) {
+        sb.append("null");
+        sb.append('\n');
+      } else {
+        sb.append(centroids[i].toString());
+        sb.append('\n');
+      }
     }
     return sb.toString();
   }
