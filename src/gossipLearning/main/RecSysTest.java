@@ -213,7 +213,7 @@ public class RecSysTest {
       }
       filteredTest.add(instance, testSet.getLabel(i));
     }
-    KMeans kMeans = new KMeans(numOfClusters);
+    KMeans kMeans = new KMeans(numOfClusters, 250.0);
     Random r = new Random(seed);
     for (int i = 0; i < 2*filteredTrain.size(); i++) {
       int index = r.nextInt(filteredTrain.size());

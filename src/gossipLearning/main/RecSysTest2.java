@@ -54,7 +54,7 @@ public class RecSysTest2 {
     //ItemFrequencies freqs = new ItemFrequencies((int)numberOfRatings, m, k, Integer.MAX_VALUE);
     ItemFrequencies freqs = new ItemFrequencies(m, k);
     
-    KMeans kMeans = new KMeans(numOfClusters);
+    KMeans kMeans = new KMeans(numOfClusters, 250.0);
     Model[] models = new Model[numOfClusters];
     for (int i = 0; i < numOfClusters; i++) {
       models[i] = (Model)Class.forName(modelName).newInstance();

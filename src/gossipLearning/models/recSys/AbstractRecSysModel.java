@@ -216,7 +216,7 @@ public abstract class AbstractRecSysModel implements RecSysModel {
       Collections.shuffle(clusteringDB);
       
       // perform clustering
-      clusterer = new KMeans(numberOfClusters);
+      clusterer = new KMeans(numberOfClusters, 250.0);
       for (int step = 0; step < numberOfClusteringSteps*clusteringDB.size(); step ++) {
         clusterer.update(clusteringDB.get(step % clusteringDB.size()), 0.0);
       }
