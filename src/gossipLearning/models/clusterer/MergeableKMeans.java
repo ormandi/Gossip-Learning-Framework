@@ -1,11 +1,6 @@
 package gossipLearning.models.clusterer;
 
-
-import java.util.LinkedList;
-import java.util.List;
-
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 import gossipLearning.interfaces.Mergeable;
 import gossipLearning.utils.HungarianMethod;
 import gossipLearning.utils.SparseVector;
@@ -65,65 +60,22 @@ public class MergeableKMeans extends KMeans implements Mergeable<MergeableKMeans
 		if (hasEmptyCentroidInThis || hasEmptyCentroidInModel) {
 		  if (hasEmptyCentroidInThis) {
 	      fillEmptyCentroids(model);
-		  }
+		  } // if hasEmptyCentroidInModel is true than do nothing
 		  return this;
 		} else {
 			MergeableKMeans mkm= new MergeableKMeans(this);
-			HungarianMethod hum = new HungarianMethod(this.centroids, model.centroids);
+			HungarianMethod hum = new HungarianMethod(mkm.centroids, model.centroids);
 			int[] permutationArray = hum.getPermutationArray();
 
+			// avg(this, model) with permutation which is get from result of hungarian method
 			for (int i = 0; i < this.centroids.length; i++) {
-				SparseVector mergecentroid = new SparseVector(this.centroids[i]);
-				mergecentroid.add( model.centroids[permutationArray[i]] );
-				mergecentroid.mul(0.5);
-				mkm.centroids[i] = mergecentroid;	
+				mkm.centroids[i].add( model.centroids[permutationArray[i]] );
+				mkm.centroids[i].mul(0.5);
 			}
-
+			
 			return mkm;
 		}
 
 	}
 	
-	/**
-   * Fills empty centroids with K-sized subset of the union of examined models's centroids.
-   * @param model
-   */
-  private void fillEmptyCentroids(MergeableKMeans model) {
-    List<SparseVector> centroidSet = new LinkedList<SparseVector>();
-    for (int i = 0; i < this.centroids.length; i++) {
-      if(!(this.centroids[i] == null)) {
-        centroidSet.add(this.centroids[i]);
-      }
-      if(!(model.centroids[i] == null)) {
-        if (!this.containsCentroid(model.centroids[i])) {
-          centroidSet.add(model.centroids[i]);
-        }
-      } 
-    }
-    for (int i = 0; i < K; i++) {
-      if(centroidSet.size() == 0) {
-        return;
-      }
-      int min = 0; 
-      int max = centroidSet.size()-1;
-      int randomNum = CommonState.r.nextInt(max - min + 1) + min;
-      this.centroids[i] = centroidSet.get(randomNum);
-      centroidSet.remove(randomNum);
-    }
-  }
-  
-  /**
-   * This method search for empty centroid in all of the examined model. 
-   * @param model
-   * @return true: if this or the model has empty centroid
-   *         false: if all of the examined centroids are filled
-   */
-  private boolean hasEmptyCentroid(MergeableKMeans model) {
-    boolean isUninitialized = false;
-    for (int i = 0; i < model.centroids.length; i++) {
-      if(model.centroids[i] == null)
-        return true;
-    }
-    return isUninitialized;
-  }
 }

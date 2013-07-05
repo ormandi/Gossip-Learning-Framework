@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 
 import gossipLearning.interfaces.Mergeable;
 import gossipLearning.utils.SparseVector;
@@ -82,7 +81,8 @@ public class MergeableKMeansGreedy extends KMeans implements Mergeable<Mergeable
         double minDist = Double.MAX_VALUE;
         int mini = -1;
         int minj = -1;
-
+        
+        // Get the index of the two centroids which have the minimum distance.
         for (int i = 0; i < centroidSet.size(); i++) {
           for (int j = 0; j < centroidSet.size(); j++) {
             if (i!=j){
@@ -96,11 +96,12 @@ public class MergeableKMeansGreedy extends KMeans implements Mergeable<Mergeable
           }
         }
         
+        // Make a new centroid. This centroid is the avg of the two closest centroid
         SparseVector insert = new SparseVector(centroidSet.get(mini));
-        SparseVector added = new SparseVector(centroidSet.get(minj));
-        insert.add(added);
+        insert.add(centroidSet.get(minj));
         insert.mul(0.5);
         
+        // Remove the old centroids
         if(minj > mini) {
           centroidSet.remove(minj);
           centroidSet.remove(mini);
@@ -109,6 +110,7 @@ public class MergeableKMeansGreedy extends KMeans implements Mergeable<Mergeable
           centroidSet.remove(minj);
         }
         
+        // Add the new one
         centroidSet.add(insert);
       }
       
@@ -118,49 +120,6 @@ public class MergeableKMeansGreedy extends KMeans implements Mergeable<Mergeable
 
       return mrg;
     }
-  }
-  
-  /**
-   * Fills empty centroids with K-sized subset of the union of examined models's centroids.
-   * @param model
-   */
-  private void fillEmptyCentroids(MergeableKMeansGreedy model) {
-    List<SparseVector> centroidSet = new LinkedList<SparseVector>();
-    for (int i = 0; i < this.centroids.length; i++) {
-      if(!(this.centroids[i] == null)) {
-        centroidSet.add(this.centroids[i]);
-      }
-      if(!(model.centroids[i] == null)) {
-        if (!this.containsCentroid(model.centroids[i])) {
-          centroidSet.add(model.centroids[i]);
-        }
-      } 
-    }
-    for (int i = 0; i < K; i++) {
-      if(centroidSet.size() == 0) {
-        return;
-      }
-      int min = 0; 
-      int max = centroidSet.size()-1;
-      int randomNum = CommonState.r.nextInt(max - min + 1) + min;
-      this.centroids[i] = centroidSet.get(randomNum);
-      centroidSet.remove(randomNum);
-    }
-  }
-  
-  /**
-   * This method search for empty centroid in all of the examined model. 
-   * @param model
-   * @return true: if this or the model has empty centroid
-   *         false: if all of the examined centroids are filled
-   */
-  private boolean hasEmptyCentroid(MergeableKMeansGreedy model) {
-    boolean isUninitialized = false;
-    for (int i = 0; i < model.centroids.length; i++) {
-      if(model.centroids[i] == null)
-        return true;
-    }
-    return isUninitialized;
   }
 
 }
