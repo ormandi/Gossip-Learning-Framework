@@ -16,7 +16,7 @@ public class HungarianMethod {
 	 */
 	public HungarianMethod(double[][] x) {
 		diffTable = initDiffTable(x);
-		permutationArray = hungarianMethod();
+		permutationArray = computePermutationArray();
 	}
 	
 	/***
@@ -28,8 +28,13 @@ public class HungarianMethod {
 	 */
 	public HungarianMethod(SparseVector[] x1, SparseVector[] x2) {
 		diffTable = initDiffTable(x1,x2);
-		permutationArray = hungarianMethod();
+		permutationArray = computePermutationArray();
 	}
+
+  public HungarianMethod(Matrix m1, Matrix m2){
+    diffTable = initDiffTable(m1, m2);
+    permutationArray = computePermutationArray();
+  }
 	
 	/***
 	 * Permutation array gives the best permutation for the two input vector 
@@ -39,7 +44,100 @@ public class HungarianMethod {
 	public int[] getPermutationArray() {
 		return permutationArray;
 	}
+  
+  private int[] computePermutationArray() {
+    int[] tmpPermutationArray;
+    if (diffTable.length > 3) {
+      tmpPermutationArray = hungarianMethod();
+    } else if (diffTable.length > 2) {
+      tmpPermutationArray = bruteforceK3();
+    } else if (diffTable.length > 1) {
+      tmpPermutationArray = bruteforceK2();
+    } else {
+      tmpPermutationArray = bruteforceK1();
+    }
+    return tmpPermutationArray;
+  }
+  
+  private int[] bruteforceK1() {
+    int[] tmpPermArray = new int[1];
+    tmpPermArray[0] = 0;
+    return tmpPermArray;
+  }
 
+  private int[] bruteforceK2() {
+    int[] tmpPermArray = new int[2];
+    if(diffTable[0][0]+diffTable[1][1] <= diffTable[0][1]+diffTable[1][0]) {
+      tmpPermArray[0] = 0;
+      tmpPermArray[1] = 1; 
+    } else {
+      tmpPermArray[0] = 1;
+      tmpPermArray[1] = 0; 
+    }
+    return tmpPermArray;
+  }
+
+  private int[] bruteforceK3() {
+    
+    List<Double> perm = new LinkedList<>();
+    perm.add(diffTable[0][0] + diffTable[1][1] + diffTable[2][2]);
+    perm.add(diffTable[0][0] + diffTable[1][2] + diffTable[2][1]);
+    perm.add(diffTable[0][1] + diffTable[1][0] + diffTable[2][2]);
+    perm.add(diffTable[0][1] + diffTable[1][2] + diffTable[2][0]);
+    perm.add(diffTable[0][2] + diffTable[1][1] + diffTable[2][0]);
+    perm.add(diffTable[0][2] + diffTable[1][0] + diffTable[2][1]);
+    double minVal = Double.MAX_VALUE;
+    int minIdx = 0;
+    for (int i = 0; i < perm.size(); i++) {
+      if (perm.get(i) < minVal) {
+        minVal = perm.get(i);
+        minIdx = i;
+      }
+    }
+    return getK3PermFromPermIndex(minIdx);
+  }
+
+  private int[] getK3PermFromPermIndex(int minIdx) {
+    int[] tmpPermArray = new int[3];
+    switch (minIdx) {
+      case 0: 
+        tmpPermArray[0] = 0;
+        tmpPermArray[1] = 1;
+        tmpPermArray[2] = 2; 
+        break;
+      case 1: 
+        tmpPermArray[0] = 0;
+        tmpPermArray[1] = 2;
+        tmpPermArray[2] = 1; 
+        break;
+      case 2: 
+        tmpPermArray[0] = 1;
+        tmpPermArray[1] = 0;
+        tmpPermArray[2] = 2; 
+        break;
+      case 3: 
+        tmpPermArray[0] = 1;
+        tmpPermArray[1] = 2;
+        tmpPermArray[2] = 0; 
+        break;
+      case 4: 
+        tmpPermArray[0] = 2;
+        tmpPermArray[1] = 1;
+        tmpPermArray[2] = 0; 
+        break;
+      case 5: 
+        tmpPermArray[0] = 2;
+        tmpPermArray[1] = 1;
+        tmpPermArray[2] = 0; 
+        break;
+      default:
+        tmpPermArray[0] = 2;
+        tmpPermArray[1] = 0;
+        tmpPermArray[2] = 1; 
+        break;
+    }
+    return tmpPermArray;
+  }
 	private int[] hungarianMethod() {
 	
 		//Preparation Part 2
@@ -203,6 +301,18 @@ public class HungarianMethod {
 		
 		return initDiffTable(differenceTable);
 	}
+
+  private double[][] initDiffTable(Matrix m1, Matrix m2){
+
+    SparseVector[] x1 = new SparseVector[m1.getNumberOfRows()];
+    SparseVector[] x2 = new SparseVector[m2.getNumberOfRows()];
+    for (int i = 0; i < x2.length; i++) {
+      x1[i] = new SparseVector(m1.getRow(i));
+      x2[i] = new SparseVector(m2.getRow(i));
+    }
+
+    return initDiffTable(x1,x2);
+  }
 	
 	private int[] initStarArray(){
 		int[] permArray = initCommaArray();

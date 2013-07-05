@@ -102,6 +102,35 @@ public class HungarianMethodTest {
 
 	}
 	
+  /***
+   * test the Hungarian method implementation with small example
+   */
+  @Test
+  public void testHungarianMethodWith2DArrayArray(){
+    double[][] x8 = {{2,0},
+        {2,0}};
+    hum = new HungarianMethod(x8);
+    int[] actuals = hum.getPermutationArray();
+    int[] expecteds4 = {0,1};
+    String message = "Result";
+    assertArrayEquals(message, expecteds4, actuals);
+  }
+  
+  /***
+   * test the Hungarian method implementation with small example
+   */
+  @Test
+  public void testHungarianMethodWith3DArrayArray(){
+    double[][] x8 = {{22,122,0},
+        {0,2123,120},
+        {12,0,41}};
+    hum = new HungarianMethod(x8);
+    int[] actuals = hum.getPermutationArray();
+    int[] expecteds4 = {2,1,0};
+    String message = "Result";
+    assertArrayEquals(message, expecteds4, actuals);
+  }
+	
 	/***
 	 * test the Hungarian method implementation with known example 
 	 * which include negative numbers. 
