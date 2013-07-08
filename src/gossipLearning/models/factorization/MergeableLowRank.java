@@ -1,6 +1,7 @@
-package gossipLearning.models.recsys;
+package gossipLearning.models.factorization;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.utils.SparseVector;
 
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Set;
 
 import peersim.config.Configuration;
 
-public class MergeableLowRank extends LowRankDecomposition implements Mergeable<MergeableLowRank> {
+public class MergeableLowRank extends LowRankDecomposition implements Mergeable<MergeableLowRank>, Partializable<MergeableLowRank> {
   private static final long serialVersionUID = -8892302266739538821L;
   private static final String PAR_DIMENSION = "MergeableLowRank.dimension";
   private static final String PAR_LAMBDA = "MergeableLowRank.lambda";
@@ -41,13 +42,14 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable<
   
   @Override
   public MergeableLowRank merge(MergeableLowRank model) {
+    maxIndex = Math.max(maxIndex, model.maxIndex);
     for (Entry<Integer, SparseVector> e : model.columnModels.entrySet()) {
       // merge by averaging
       SparseVector v = columnModels.get(e.getKey());
       if (v == null) {
         columnModels.put(e.getKey(), e.getValue());
       } else {
-        v.mul(0.5).add(e.getValue(), 0.5);
+        v.add(e.getValue()).mul(0.5);
       }
     }
     return this;
@@ -56,6 +58,7 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable<
   @Override
   public MergeableLowRank getModelPart(Set<Integer> indices) {
     return new MergeableLowRank(this);
+    //return this;
   }
 
 }

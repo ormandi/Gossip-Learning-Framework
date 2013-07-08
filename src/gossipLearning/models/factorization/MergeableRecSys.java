@@ -1,6 +1,7 @@
-package gossipLearning.models.recsys;
+package gossipLearning.models.factorization;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.utils.SparseVector;
 
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Set;
 
 import peersim.config.Configuration;
 
-public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableRecSys> {
+public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableRecSys>, Partializable<MergeableRecSys> {
   private static final long serialVersionUID = 2481904642423040181L;
   private static final String PAR_DIMENSION = "MergeableRecSys.dimension";
   private static final String PAR_LAMBDA = "MergeableRecSys.lambda";

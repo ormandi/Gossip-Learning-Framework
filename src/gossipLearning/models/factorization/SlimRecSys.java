@@ -1,4 +1,4 @@
-package gossipLearning.models.recsys;
+package gossipLearning.models.factorization;
 
 import gossipLearning.utils.SparseVector;
 

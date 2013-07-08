@@ -1,6 +1,6 @@
 package gossipLearning.protocols;
 
-import gossipLearning.evaluators.RecSysResultAggregator;
+import gossipLearning.evaluators.FactorizationResultAggregator;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
@@ -14,38 +14,43 @@ import gossipLearning.utils.VectorEntry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-public class RecSysProtocolSlim extends LearningProtocol {
+public class FactorizationProtocolSlim extends LearningProtocol {
+  protected static final String PAR_ARRGNAME = "aggrName";
 
   /**
    * One user model for every model
    */
-  private SparseVector[] userModels;
+  protected SparseVector[] userModels;
+  protected String aggrClassName;
   
-  public RecSysProtocolSlim(String prefix) {
+  public FactorizationProtocolSlim(String prefix) {
     // sets the holder capacity to 1
     super(prefix, 1);
   }
   
-  protected RecSysProtocolSlim(RecSysProtocolSlim a) {
+  protected FactorizationProtocolSlim(FactorizationProtocolSlim a) {
     super(a);
   }
   
   @Override
   public Object clone() {
-    return new RecSysProtocolSlim(this);
+    return new FactorizationProtocolSlim(this);
   }
   
   public void init(String prefix) {
+    super.init(prefix);
+    aggrClassName = Configuration.getString(prefix + "." + PAR_ARRGNAME);
+    //resultAggregator = new RecSysResultAggregator(modelNames, evalNames);
     try {
-      super.init(prefix);
-      resultAggregator = new RecSysResultAggregator(modelNames, evalNames);
-      lastSeenMergeableModels = null;
-      userModels = new SparseVector[modelNames.length];
+      resultAggregator = (FactorizationResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(modelNames, evalNames);
     } catch (Exception e) {
-      throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
+      throw new RuntimeException(e);
     }
+    lastSeenMergeableModels = null;
+    userModels = new SparseVector[modelNames.length];
   }
   
   protected Set<Integer> indices;
@@ -54,7 +59,7 @@ public class RecSysProtocolSlim extends LearningProtocol {
     // evaluate
     for (int i = 0; i < modelHolders.length; i++) {
       if (CommonState.r.nextDouble() < evaluationProbability) {
-        ((RecSysResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
+        ((FactorizationResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
       }
     }
     

@@ -98,13 +98,13 @@ public class LocalRun {
       label = reader.getTrainingSet().getLabel(instanceIndex);
       for (int i = 0; i < models.length; i++) {
         models[i].update(instance, label);
-        modelHolder.add(models[i]);
       }
     }
     
     // evaluate on the end of the learning again
     System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
+      modelHolder.add(models[i]);
       resultAggregator.push(-1, i, modelHolder, extractor);
     }
     System.err.println(resultAggregator);

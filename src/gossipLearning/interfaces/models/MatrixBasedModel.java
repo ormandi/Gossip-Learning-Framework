@@ -1,5 +1,6 @@
 package gossipLearning.interfaces.models;
 
+import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 
 /**
@@ -28,4 +29,7 @@ public interface MatrixBasedModel extends Model {
    * @return the predicted value of m_ij
    */
   public double predict(int rowIndex, SparseVector rowModel, int columnIndex);
+  
+  public Matrix getV();
+  public Matrix getUSi(SparseVector ui);
 }

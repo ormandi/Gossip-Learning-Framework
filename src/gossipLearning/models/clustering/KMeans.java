@@ -20,7 +20,7 @@ public class KMeans implements LearningModel {
   private static final long serialVersionUID = -1382541535383273679L;
   
   private static final String PAR_K = "KMeans.K";
-  private static final double wSize = 100.0;
+  private static final double wSize = 1000.0;
   
   private int K;
   private double age;
@@ -168,6 +168,12 @@ public class KMeans implements LearningModel {
       sb.append('\n');
     }
     return sb.toString();
+  }
+  
+  public void setCentroids(SparseVector[] centroids) {
+    for (int i = 0; i < K; i++) {
+      this.centroids[i] = new SparseVector(centroids[i]);
+    }
   }
 
 }

@@ -3,7 +3,7 @@ package gossipLearning.main;
 import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.models.extraction.DummyExtractor;
-import gossipLearning.models.recsys.LowRankDecomposition;
+import gossipLearning.models.factorization.LowRankDecomposition;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
