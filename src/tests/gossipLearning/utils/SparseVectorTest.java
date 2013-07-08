@@ -18,16 +18,13 @@ public class SparseVectorTest extends TestCase implements Serializable {
     v0.put(3, 0.3);
     SparseVector v1 = new SparseVector(new double[]{0, 2, 0, 0.3});
     assertEquals(v0, v1);
-    v0.put(-1, 0.8);
     Map<Integer, Double> map = new TreeMap<Integer, Double>();
     map.put(3, 0.3);
-    map.put(-1, 0.8);
     map.put(1, 2.0);
     SparseVector v2 = new SparseVector(map);
     assertEquals(v0, v2);
     map = new HashMap<Integer, Double>();
     map.put(1, 2.0);
-    map.put(-1, 0.8);
     map.put(3, 0.3);
     v2 = new SparseVector(map);
     assertEquals(v0, v2);
@@ -61,7 +58,6 @@ public class SparseVectorTest extends TestCase implements Serializable {
   
   public void testGet() {
     SparseVector v1 = new SparseVector(new double[]{1,0,0,2});
-    assertEquals(v1.get(-1), 0.0);
     assertEquals(v1.get(3), 2.0);
     assertEquals(v1.get(Integer.MAX_VALUE), 0.0);
   }
