@@ -61,7 +61,14 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
     /*for (int i = 0; i < mtx.size(); i++) {
       System.out.println(mtx.get(i));
     }*/
+    //mtx.clear();
     for (int i = 0; i < e.mtx.size(); i++) {
+      if (mtx.size() == i) {
+        mtx.add((SparseVector)e.mtx.get(i).clone());
+      } else {
+        mtx.get(i).add(e.mtx.get(i));
+      }
+      //mtx.add(new SparseVector(e.mtx.get(i)));
       max = 0.0;
       for (VectorEntry en : e.mtx.get(i)) {
         sumRow[i] += en.value;

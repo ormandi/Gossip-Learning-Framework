@@ -140,6 +140,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     StringBuffer sb = new StringBuffer();
     for (Entry<Integer, Evaluator[][]> entry : aggregations.entrySet()) {
       for (int i = 0; i < entry.getValue().length; i++) {
+        sb.append(pid2ModelNames.get(entry.getKey())[i] + ":\n");
         for (int j = 0; j < entry.getValue()[i].length; j++) {
           sb.append(entry.getValue()[i][j]);
           sb.append('\n');

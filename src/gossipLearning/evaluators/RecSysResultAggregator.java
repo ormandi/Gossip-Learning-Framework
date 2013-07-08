@@ -7,13 +7,14 @@ import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 
-public class RecSysResultAggregator extends ResultAggregator {
+public class RecSysResultAggregator extends FactorizationResultAggregator {
   private static final long serialVersionUID = 7010094375422981942L;
   
   public RecSysResultAggregator(String[] modelNames, String[] evalNames) {
     super(modelNames, evalNames);
   }
   
+  @Override
   public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {
     if (modelHolder.size() == 0) {
       return;

@@ -44,7 +44,7 @@ public class MatrixBasedClusterEvaluatorTest extends TestCase implements Seriali
     for (int i = 0; i < 20; i++) {
       evaluator.evaluate(1.0, 1.0);
     }
-    String expected = "e\\p\t0\t1\n0\t10\t5\n1\t2\t20\n";
+    String expected = "e\\p\t0\t1\n------------------------\n0:\t10\t5\n1:\t2\t20\n";
     assertEquals(expected, evaluator.toString());
   }
   
@@ -63,7 +63,7 @@ public class MatrixBasedClusterEvaluatorTest extends TestCase implements Seriali
       evaluator.evaluate(1.0, 1.0);
     }
     MatrixBasedEvaluator me = (MatrixBasedClusterEvaluator)evaluator.clone();
-    String expected = "e\\p\t0\t1\n0\t20\t10\n1\t4\t40\n";
+    String expected = "e\\p\t0\t1\n------------------------\n0:\t20\t10\n1:\t4\t40\n";
     evaluator.merge(me);
     assertEquals(expected, evaluator.toString());
   }
@@ -91,10 +91,12 @@ public class MatrixBasedClusterEvaluatorTest extends TestCase implements Seriali
     for (int i = 0; i < 3; i++) {
       evaluator.evaluate(2.0, 2.0);
     }
-    double[] result = evaluator.getResults();
+    MatrixBasedClusterEvaluator ev = new MatrixBasedClusterEvaluator();
+    ev.merge(evaluator);
+    double[] result = ev.getResults();
     assertEquals(result[0], 0.7058823529411765, Utils.EPS);
     assertEquals(result[1], 0.3645617718571898, Utils.EPS);
-    assertEquals(result[2], 0.0, Utils.EPS);
+    assertEquals(result[2], 0.7058823529411765, Utils.EPS);
   }
   
   public void testZeros() {
@@ -105,11 +107,12 @@ public class MatrixBasedClusterEvaluatorTest extends TestCase implements Seriali
     for (int i = 0; i < 15; i++) {
       evaluator.evaluate(1.0, 1.0);
     }
-    double[] result = evaluator.getResults();
+    MatrixBasedClusterEvaluator ev = new MatrixBasedClusterEvaluator();
+    ev.merge(evaluator);
+    double[] result = ev.getResults();
     assertEquals(result[0], 0.8823529411764706, Utils.EPS);
     assertEquals(result[1], 0.0, Utils.EPS);
-    assertEquals(result[2], 0.0, Utils.EPS);
-    
+    assertEquals(result[2], 0.8823529411764706, Utils.EPS);
     evaluator = new MatrixBasedClusterEvaluator();
     for (int i = 0; i < 2; i++) {
       evaluator.evaluate(0.0, 1.0);
@@ -117,10 +120,12 @@ public class MatrixBasedClusterEvaluatorTest extends TestCase implements Seriali
     for (int i = 0; i < 15; i++) {
       evaluator.evaluate(1.0, 1.0);
     }
-    result = evaluator.getResults();
+    ev = new MatrixBasedClusterEvaluator();
+    ev.merge(evaluator);
+    result = ev.getResults();
     assertEquals(result[0], 1.0, Utils.EPS);
     assertEquals(result[1], 0.0, Utils.EPS);
-    assertEquals(result[2], 0.0, Utils.EPS);
+    assertEquals(result[2], 0.8823529411764706, Utils.EPS);
   }
   
 }
