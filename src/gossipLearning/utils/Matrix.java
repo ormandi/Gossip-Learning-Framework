@@ -1198,9 +1198,9 @@ public class Matrix implements Serializable {
           sb.append(' ');
         }
         if (isTransposed) {
-          sb.append(matrix[j][i]);
+          sb.append(String.format("%.5g", Math.abs(matrix[j][i]) < Utils.EPS ? 0 : matrix[j][i]));
         } else {
-          sb.append(matrix[i][j]);
+          sb.append(String.format("%.5g", Math.abs(matrix[i][j]) < Utils.EPS ? 0 : matrix[i][j]));
         }
       }
       if (i < numberOfRows - 1) {
