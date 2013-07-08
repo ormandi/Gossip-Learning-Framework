@@ -1,7 +1,7 @@
 package tests.gossipLearning.models.clusterer;
 
 
-import gossipLearning.models.clusterer.MergeableKMeansNaive;
+import gossipLearning.models.clusterer.MergeableKMeansNaiv;
 import gossipLearning.utils.SparseVector;
 
 import java.io.Serializable;
@@ -18,7 +18,7 @@ public class TestMergeableKMeansNaive extends TestCase implements Serializable {
 
   private static final long serialVersionUID = 2122972816698489548L;
   private static boolean isConfigured = false;
-  private MergeableKMeansNaive km;
+  private MergeableKMeansNaiv km;
   public void setUp() {
     if (! isConfigured) {
       Configuration.setConfig(new ParsedProperties(new String[]{"res/config/multipleLearnersClustering.txt"}));
@@ -30,39 +30,39 @@ public class TestMergeableKMeansNaive extends TestCase implements Serializable {
   
   @Test
   public void testClone() {
-    km = new MergeableKMeansNaive(10,250.0);
-    MergeableKMeansNaive km2 = (MergeableKMeansNaive)km.clone();
+    km = new MergeableKMeansNaiv(10,250.0);
+    MergeableKMeansNaiv km2 = (MergeableKMeansNaiv)km.clone();
     assertEquals(km.toString(), km2.toString());
   }
 
   @Test
   public void testInit() {
-    km = new MergeableKMeansNaive();
+    km = new MergeableKMeansNaiv();
     km.init("protocol.learningProtocol");
     assertEquals("null\nnull\nnull\n", km.toString());
   }
 
   @Test
   public void testMergeableKMeans() {
-    km = new MergeableKMeansNaive();
+    km = new MergeableKMeansNaiv();
     assertEquals(km.toString(), "");
   }
 
   @Test
   public void testMergeableKMeansIntDouble() {
-    km = new MergeableKMeansNaive(2,250.0);
+    km = new MergeableKMeansNaiv(2,250.0);
     assertEquals(km.toString(), "null\nnull\n");
   }
 
   @Test
   public void testMergeableKMeansKMeans() {
-    km = new MergeableKMeansNaive(new MergeableKMeansNaive(3,250.0));
+    km = new MergeableKMeansNaiv(new MergeableKMeansNaiv(3,250.0));
     assertEquals(km.toString(), "null\nnull\nnull\n");
   }
 
   @Test
   public void testMergeSameModel() {
-    km = new MergeableKMeansNaive();
+    km = new MergeableKMeansNaiv();
     km.init("protocol.learningProtocol");
     double[] x1 ={1,2,3,0} ;
     double[] x2 ={1,2,3,5} ;
@@ -74,7 +74,7 @@ public class TestMergeableKMeansNaive extends TestCase implements Serializable {
     instance = new SparseVector(x3);
     km.update(instance, 0);
     
-    MergeableKMeansNaive mkm = new MergeableKMeansNaive();
+    MergeableKMeansNaiv mkm = new MergeableKMeansNaiv();
     mkm.init("protocol.learningProtocol");
     double[] mx1 ={1,2,3,0} ;
     double[] mx2 ={1,2,3,5} ;
@@ -94,7 +94,7 @@ public class TestMergeableKMeansNaive extends TestCase implements Serializable {
 
   @Test
   public void testMergeEmptyModel() {
-    km = new MergeableKMeansNaive();
+    km = new MergeableKMeansNaiv();
     km.init("protocol.learningProtocol");
     double[] x1 ={1,2,3,0} ;
     double[] x2 ={1,2,3,5} ;
@@ -106,7 +106,7 @@ public class TestMergeableKMeansNaive extends TestCase implements Serializable {
     instance = new SparseVector(x3);
     km.update(instance, 0);
     
-    MergeableKMeansNaive mkm = new MergeableKMeansNaive();
+    MergeableKMeansNaiv mkm = new MergeableKMeansNaiv();
     mkm.init("protocol.learningProtocol");
     double[] mx1 ={1,2,3,0} ;
     double[] mx2 ={1,2,3,5} ;
@@ -121,7 +121,7 @@ public class TestMergeableKMeansNaive extends TestCase implements Serializable {
     assertEquals(excepted, km.toString());
   }
   public void testMergeEmptyThis() {
-    km = new MergeableKMeansNaive();
+    km = new MergeableKMeansNaiv();
     km.init("protocol.learningProtocol");
     double[] x1 ={1,2,3,0} ;
     double[] x2 ={1,2,3,5} ;
@@ -130,7 +130,7 @@ public class TestMergeableKMeansNaive extends TestCase implements Serializable {
     instance = new SparseVector(x2);
     km.update(instance, 0);
     
-    MergeableKMeansNaive mkm = new MergeableKMeansNaive();
+    MergeableKMeansNaiv mkm = new MergeableKMeansNaiv();
     mkm.init("protocol.learningProtocol");
     double[] mx1 ={1,2,3,0} ;
     double[] mx2 ={1,2,3,5} ;

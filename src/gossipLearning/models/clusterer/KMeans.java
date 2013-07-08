@@ -183,7 +183,7 @@ public class KMeans implements Model {
     }
     // if all centroids are uninitialized than get random index 
     if (idx == -1){
-      idx = CommonState.r.nextInt(K);
+      idx = 0;
     }
     return idx;
   }
