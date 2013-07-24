@@ -172,7 +172,12 @@ public class KMeans implements Model {
     for (int i = 0; i < K; i++) {
       // find closest centroid
       if(centroids[i] == null) {
-        dist = Double.MAX_VALUE;
+        if (i > 1) {
+          dist = Double.MAX_VALUE;
+        } else {
+          idx = -1;
+          break;
+        }
       } else {
         dist = centroids[i].euclideanDistance(instance);
       }
@@ -183,7 +188,7 @@ public class KMeans implements Model {
     }
     // if all centroids are uninitialized than get random index 
     if (idx == -1){
-      idx = 0;
+      idx = CommonState.r.nextInt(K);
     }
     return idx;
   }
