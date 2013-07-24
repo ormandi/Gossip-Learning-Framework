@@ -1,6 +1,6 @@
 package gossipLearning.models.clusterer;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import gossipLearning.interfaces.Model;
@@ -125,7 +125,7 @@ public class KMeans implements Model {
    * @param model
    */
   protected void fillEmptyCentroids(KMeans model) {
-    List<SparseVector> centroidSet = new LinkedList<SparseVector>();
+    List<SparseVector> centroidSet = new ArrayList<SparseVector>();
     // fill the centroidset with the known centroids
     for (int i = 0; i < this.centroids.length; i++) {
       if(!(this.centroids[i] == null)) {

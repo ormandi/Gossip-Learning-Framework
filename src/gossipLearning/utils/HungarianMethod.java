@@ -262,37 +262,37 @@ public class HungarianMethod {
    * @param differTable matrix of the assignment problem
    * @return
    */
-  private double[][] initDiffTable(double[][] differTable){
+  private static double[][] initDiffTable(double[][] differTable){
 
-    double[][] differenceTable = differTable.clone();
-    double[] rowMin = new double[differenceTable.length];
-    double[] coloumnMin = new double[differenceTable.length];
+    //double[][] differenceTable = differTable.clone();
+    double[] rowMin = new double[differTable.length];
+    double[] coloumnMin = new double[differTable.length];
 
-    for (int i = 0; i < differenceTable.length; i++) {
+    for (int i = 0; i < differTable.length; i++) {
       rowMin[i] = Integer.MAX_VALUE;
-      for (int j = 0; j < differenceTable[i].length; j++) {
-        rowMin[i] = Math.min(rowMin[i], differenceTable[i][j]);
+      for (int j = 0; j < differTable[i].length; j++) {
+        rowMin[i] = Math.min(rowMin[i], differTable[i][j]);
         coloumnMin[j] = Integer.MAX_VALUE;
       }
     }
 
-    for (int i = 0; i < differenceTable.length; i++) {
-      for (int j = 0; j < differenceTable[i].length; j++) {
-        differenceTable[i][j] -= rowMin[i];
-        coloumnMin[j] = Math.min(coloumnMin[j], differenceTable[i][j]);
+    for (int i = 0; i < differTable.length; i++) {
+      for (int j = 0; j < differTable[i].length; j++) {
+        differTable[i][j] -= rowMin[i];
+        coloumnMin[j] = Math.min(coloumnMin[j], differTable[i][j]);
       }
     }
 
-    for (int i = 0; i <differenceTable.length; i++) {
-      for (int j = 0; j < differenceTable[i].length; j++) {
-        differenceTable[i][j] -= coloumnMin[j];
+    for (int i = 0; i <differTable.length; i++) {
+      for (int j = 0; j < differTable[i].length; j++) {
+        differTable[i][j] -= coloumnMin[j];
       }
     }
 
-    return differenceTable;
+    return differTable;
   }
 
-  private double[][] initDiffTable(SparseVector[] x1, SparseVector[] x2) {
+  private static double[][] initDiffTable(SparseVector[] x1, SparseVector[] x2) {
 
     double[][] differenceTable = new double[x1.length][x2.length];
 
@@ -305,7 +305,7 @@ public class HungarianMethod {
     return initDiffTable(differenceTable);
   }
 
-  private double[][] initDiffTable(Matrix m1, Matrix m2){
+  private static double[][] initDiffTable(Matrix m1, Matrix m2){
 
     SparseVector[] x1 = new SparseVector[m1.getNumberOfRows()];
     SparseVector[] x2 = new SparseVector[m2.getNumberOfRows()];

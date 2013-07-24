@@ -1,6 +1,6 @@
 package gossipLearning.models.clusterer;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import peersim.config.Configuration;
@@ -68,7 +68,7 @@ public class MergeableKMeansGreedy extends KMeans implements Mergeable<Mergeable
     } else {
       MergeableKMeansGreedy mrg = new MergeableKMeansGreedy(this);
 
-      List<SparseVector> centroidSet = new LinkedList<SparseVector>();
+      List<SparseVector> centroidSet = new ArrayList<SparseVector>();
 
       for (SparseVector centroid : mrg.centroids) {
         centroidSet.add(centroid);
@@ -84,7 +84,7 @@ public class MergeableKMeansGreedy extends KMeans implements Mergeable<Mergeable
         
         // Get the index of the two centroids which have the minimum distance.
         for (int i = 0; i < centroidSet.size(); i++) {
-          for (int j = 0; j < centroidSet.size(); j++) {
+          for (int j = i; j < centroidSet.size(); j++) {
             if (i!=j){
               double dist = centroidSet.get(i).euclideanDistance(centroidSet.get(j));
               if (dist <= minDist) {
