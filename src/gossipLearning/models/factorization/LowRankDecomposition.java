@@ -106,7 +106,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     
     //newUserModel.mul(1.0 - alpha);
     double value = 0.0;
-    double nu = lambda / Math.log10(age + 1);
+    double nu = lambda / Math.log(age + 1);
     //double nu = lambda;
     
     for (int j = 0; j <= maxIndex; j++) {
