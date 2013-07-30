@@ -201,7 +201,12 @@ public class InstanceHolder implements Serializable{
   public void writeToFile(File outFile) throws IOException{
     PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(outFile)));
     for (int i = 0; i < instances.size(); i++){
-      pw.print(labels.get(i));
+      double label = labels.get(i);
+      if (label == (int)label) {
+        pw.print((int)label);
+      } else {
+        pw.print(label);
+      }
       for (VectorEntry e : instances.get(i)){
         pw.print(' ');
         pw.print(e.index + 1);
@@ -220,7 +225,12 @@ public class InstanceHolder implements Serializable{
   public String toString(){
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < instances.size(); i++){
-      sb.append(labels.get(i));
+      double label = labels.get(i);
+      if (label == (int)label) {
+        sb.append((int)label);
+      } else {
+        sb.append(label);
+      }
       for (VectorEntry e : instances.get(i)){
         sb.append(' ');
         sb.append(e.index + 1);
