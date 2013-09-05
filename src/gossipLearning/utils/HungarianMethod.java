@@ -89,7 +89,7 @@ public class HungarianMethod {
 
 	private int[] bruteforceK3() {
 
-		List<Double> perm = new LinkedList<>();
+		List<Double> perm = new LinkedList<Double>();
 		perm.add(diffTable[0][0] + diffTable[1][1] + diffTable[2][2]);
 		perm.add(diffTable[0][0] + diffTable[1][2] + diffTable[2][1]);
 		perm.add(diffTable[0][1] + diffTable[1][0] + diffTable[2][2]);
