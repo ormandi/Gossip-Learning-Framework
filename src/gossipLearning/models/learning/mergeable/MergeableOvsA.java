@@ -11,16 +11,16 @@ import java.util.Set;
 
 import peersim.config.Configuration;
 
-public class MergeableOVsA extends OneVsAllMetaClassifier implements Mergeable<MergeableOVsA>, Partializable<MergeableOVsA> {
+public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<MergeableOvsA>, Partializable<MergeableOvsA> {
   private static final long serialVersionUID = -2294873002764150476L;
   
   /** @hidden */
-  private static final String PAR_BNAME = "MergeableOVsA";
+  private static final String PAR_BNAME = "MergeableOvsA";
   
   /**
    * Default constructor (do nothing).
    */
-  public MergeableOVsA() {
+  public MergeableOvsA() {
     super();
   }
   
@@ -28,7 +28,7 @@ public class MergeableOVsA extends OneVsAllMetaClassifier implements Mergeable<M
    * Copy constructor for deep copy
    * @param a to copy
    */
-  public MergeableOVsA(MergeableOVsA a) {
+  public MergeableOvsA(MergeableOvsA a) {
     this.baseLearnerName = a.baseLearnerName;
     this.numberOfClasses = a.numberOfClasses;
     this.prefix = a.prefix;
@@ -48,7 +48,7 @@ public class MergeableOVsA extends OneVsAllMetaClassifier implements Mergeable<M
    * @param classifiers
    * @param distribution
    */
-  protected MergeableOVsA(String baseLearnerName, int numberOfClasses, 
+  protected MergeableOvsA(String baseLearnerName, int numberOfClasses, 
       String prefix, ModelHolder classifiers, double[] distribution) {
     this.baseLearnerName = baseLearnerName;
     this.numberOfClasses = numberOfClasses;
@@ -59,18 +59,18 @@ public class MergeableOVsA extends OneVsAllMetaClassifier implements Mergeable<M
   
   @Override
   public Object clone() {
-    return new MergeableOVsA(this);
+    return new MergeableOvsA(this);
   }
 
   @Override
   public void init(String prefix) {
-    this.prefix = prefix;
-    baseLearnerName = Configuration.getString(prefix + "." + PAR_BNAME + ".modelName");
+    this.prefix = prefix + "." + PAR_BNAME;
+    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
-  public MergeableOVsA merge(MergeableOVsA model) {
+  public MergeableOvsA merge(MergeableOvsA model) {
     for (int i = 0; i < classifiers.size(); i++) {
       Model result = ((Mergeable)classifiers.getModel(i)).merge(model.classifiers.getModel(i));
       classifiers.setModel(i, result);
@@ -79,8 +79,8 @@ public class MergeableOVsA extends OneVsAllMetaClassifier implements Mergeable<M
   }
 
   @Override
-  public MergeableOVsA getModelPart(Set<Integer> indices) {
-    return new MergeableOVsA(this);
+  public MergeableOvsA getModelPart(Set<Integer> indices) {
+    return new MergeableOvsA(this);
   }
 
 }

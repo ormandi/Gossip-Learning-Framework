@@ -3,7 +3,7 @@ package gossipLearning.models.learning.mergeable.slim;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
-import gossipLearning.models.learning.mergeable.MergeableOVsA;
+import gossipLearning.models.learning.mergeable.MergeableOvsA;
 import gossipLearning.utils.BQModelHolder;
 
 import java.util.Arrays;
@@ -11,11 +11,11 @@ import java.util.Set;
 
 import peersim.config.Configuration;
 
-public class SlimOvsA extends MergeableOVsA {
+public class SlimOvsA extends MergeableOvsA {
   private static final long serialVersionUID = 4459146413742898799L;
   
   /** @hidden */
-  private static final String PAR_BNAME = "SlimOVsA";
+  private static final String PAR_BNAME = "SlimOvsA";
   
   /**
    * Default constructor (do nothing).
@@ -64,12 +64,12 @@ public class SlimOvsA extends MergeableOVsA {
 
   @Override
   public void init(String prefix) {
-    this.prefix = prefix;
-    baseLearnerName = Configuration.getString(prefix + "." + PAR_BNAME + ".modelName");
+    this.prefix = prefix + "." + PAR_BNAME;
+    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
   }
 
   @Override
-  public SlimOvsA merge(MergeableOVsA model) {
+  public SlimOvsA merge(MergeableOvsA model) {
     super.merge(model);
     return this;
   }

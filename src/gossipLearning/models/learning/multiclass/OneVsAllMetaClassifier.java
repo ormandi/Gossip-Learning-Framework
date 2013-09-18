@@ -27,7 +27,7 @@ import peersim.config.Configuration;
 public class OneVsAllMetaClassifier extends ProbabilityModel {
   private static final long serialVersionUID = 1650527797690827114L;
   /** @hidden */
-  private static final String PAR_BNAME = "OVsA";
+  private static final String PAR_BNAME = "OvsA";
   
   protected int numberOfClasses;
   protected ModelHolder classifiers;
@@ -83,8 +83,8 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
 
   @Override
   public void init(String prefix) {
-    this.prefix = prefix;
-    baseLearnerName = Configuration.getString(prefix + "." + PAR_BNAME + ".modelName");
+    this.prefix = prefix + "." + PAR_BNAME;
+    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
   }
 
   @Override
@@ -120,7 +120,8 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < numberOfClasses; i++) {
       try {
         ProbabilityModel model = (ProbabilityModel)Class.forName(baseLearnerName).newInstance();
-        model.init(prefix + "." + PAR_BNAME);
+        // FIXME: PAR_BNAME should be inheritable
+        model.init(prefix);
         model.setNumberOfClasses(2);
         classifiers.add(model);
       } catch (Exception e) {
