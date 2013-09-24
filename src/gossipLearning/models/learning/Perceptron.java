@@ -52,6 +52,24 @@ public class Perceptron extends ProbabilityModel {
       fGrad = new ConstantGradient();
     }
   }
+  
+  protected Perceptron(double age, double lambda, boolean usingSigmoid, int numberOfClasses, 
+      double[] distribution, SparseVector w, double bias) {
+    this.age = age;
+    this.lambda = lambda;
+    this.usingSigmoid = usingSigmoid;
+    this.numberOfClasses = numberOfClasses;
+    this.distribution = distribution;
+    this.w = w;
+    this.bias = bias;
+    if (usingSigmoid) {
+      fAct = new Sigmoid();
+      fGrad = new SigmoidGradient();
+    } else {
+      fAct = new Binary();
+      fGrad = new ConstantGradient();
+    }
+  }
 
   @Override
   public Object clone() {
