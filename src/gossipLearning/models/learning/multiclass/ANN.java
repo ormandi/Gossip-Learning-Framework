@@ -1,8 +1,6 @@
 package gossipLearning.models.learning.multiclass;
 
 import gossipLearning.interfaces.Function;
-import gossipLearning.interfaces.functions.Sigmoid;
-import gossipLearning.interfaces.functions.SigmoidGradient;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
@@ -36,15 +34,17 @@ import peersim.core.CommonState;
 public class ANN extends ProbabilityModel {
   private static final long serialVersionUID = 5187257180709173833L;
   protected static final String PAR_HIDDEN = "ANN.hiddenLayers";
+  protected static final String PAR_ACTF = "ANN.activationFunction";
+  protected static final String PAR_GRADF = "ANN.gradientFunction";
   protected static final String PAR_LAMBDA = "ANN.lambda";
-  
+
   protected double lambda;
   protected Function fAct;
   protected Function fGrad;
 
   protected int numberOfClasses;
   protected double[] distribution;
-  
+
   /** parameter matrices of the layers */
   protected Matrix[] thetas;
   /** output of the layers without applying activation function */
@@ -52,13 +52,10 @@ public class ANN extends ProbabilityModel {
   /** size of the layers including the number of features + 1 (first)
    * and the number of classes (last)*/
   protected int[] layersSizes;
-  
+
   public ANN() {
-    fAct = new Sigmoid();
-    fGrad = new SigmoidGradient();
-    age = 0.0;
   }
-  
+
   public ANN(ANN a) {
     this();
     age = a.age;
@@ -81,7 +78,7 @@ public class ANN extends ProbabilityModel {
       layersSizes = Arrays.copyOf(a.layersSizes, a.layersSizes.length);
     }
   }
-  
+
   @Override
   public Object clone() {
     return new ANN(this);
@@ -91,6 +88,13 @@ public class ANN extends ProbabilityModel {
   public void init(String prefix) {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     String layers = Configuration.getString(prefix + "." + PAR_HIDDEN, null);
+    try {
+      fAct = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_ACTF)).newInstance();
+      fGrad = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_GRADF)).newInstance();
+    } catch (Exception e) {
+      throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
+    }
+    age = 0.0;
     String[] layersSizes = null;
     int numLayers = layers == null ? 0 : (layersSizes = layers.split(",")).length;
     thetas = new Matrix[numLayers + 1];
@@ -116,7 +120,7 @@ public class ANN extends ProbabilityModel {
     }
     return distribution;
   }
-  
+
   @Override
   public void update(SparseVector instance, double label) {
     // the instance is a row vector (1Xd)
@@ -126,22 +130,22 @@ public class ANN extends ProbabilityModel {
       layersSizes[0] = numOfFeatures + 1;
     }
     layersSizes[layersSizes.length - 1] = numberOfClasses;
-    
+
     // allocates and initializes layers if necessary
     adjustLayers();
-    
+
     // expected vector
     Matrix expected = new Matrix(1, numberOfClasses).set(0, (int)label, 1.0);
-    
+
     // update layers
     update(instance, expected);
   }
-  
+
   private void update(SparseVector instance, Matrix expected) {
     age ++;
     double nu = 1.0 / (lambda * age);
     Matrix gradient;
-    
+
     // evaluate instance
     Matrix predicted = evaluate(instance);
     if (predicted == null) {
@@ -149,7 +153,7 @@ public class ANN extends ProbabilityModel {
     }
     // delta for computing gradient
     Matrix delta = predicted.subtract(expected);
-    
+
     // hidden layers
     for (int i = thetas.length - 1; i > 0; i--) {
       gradient = products[i - 1].apply(fAct).transpose().mul(delta);
@@ -163,7 +167,7 @@ public class ANN extends ProbabilityModel {
       // update
       thetas[i].addEquals(gradient, -1.0);
     }
-    
+
     // input layer
     gradient = new Matrix(instance, delta.getRow(0), layersSizes[0]);
     // avoiding bias regularization
@@ -174,20 +178,20 @@ public class ANN extends ProbabilityModel {
     // update
     thetas[0].addEquals(gradient, -1.0);
   }
-  
+
   private Matrix evaluate(SparseVector instance) {
     if (thetas[0] == null || layersSizes[0] == 0) {
       return null;
     }
     Matrix activations;
-    
+
     // input layer
     products[0] = thetas[0].mulLeft(instance);
     // add bias (last row of thata_0)
     products[0].addEquals(thetas[0].getMatrix(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[1] - 1));
     // apply activation function
     activations = products[0].apply(fAct);
-    
+
     // hidden layers
     for (int i = 1; i < thetas.length; i++) {
       // last value is for adding bias
@@ -197,7 +201,7 @@ public class ANN extends ProbabilityModel {
     }
     return activations;
   }
-  
+
   private void adjustLayers() {
     // thetas are initialized uniform randomly from [-scale : scale] (ML-Class)
     for (int i = 0; i < thetas.length; i++) {
@@ -212,25 +216,25 @@ public class ANN extends ProbabilityModel {
       }
     }
   }
-  
+
   public double computeCostFunction(SparseVector x, double label) {
     return computeCostFunction(x, label, lambda);
   }
-  
+
   public double computeCostFunction(SparseVector x, double label, double lv) {
     // create y
     Matrix y = new Matrix(getNumberOfClasses(), 1);
     y.set((int) label, 0, 1.0);
-    
+
     // predict y
     Matrix h = new Matrix(distributionForInstance(x), false);
-    
+
     // compute cost
     double cost = 0.0;
     for (int i = 0; i < getNumberOfClasses(); i ++) {
       cost += - y.get(i, 0) * ((h.get(i, 0) > 1.0E-6) ? Math.log(h.get(i, 0)) : -1E10) - (1.0 - y.get(i, 0)) * ((1.0 - h.get(i, 0) > 1.0E-6) ?  Math.log(1.0 - h.get(i, 0)) : -1E10);
     }
-    
+
     // adding regularization term
     double reg = 0.0;
     for (int l = 0; l < thetas.length; l ++) {
@@ -242,7 +246,7 @@ public class ANN extends ProbabilityModel {
     }
     reg *= (lv / 2.0);
     cost += reg;
-    
+
     // return cost
     return cost;
   }
@@ -256,5 +260,5 @@ public class ANN extends ProbabilityModel {
   public void setNumberOfClasses(int numberOfClasses) {
     this.numberOfClasses = numberOfClasses;
   }
-  
+
 }
