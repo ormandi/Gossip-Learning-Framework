@@ -90,6 +90,10 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
   
   public void setEvalSet(InstanceHolder evalSet) {
     lock.lock();
+    if (ResultAggregator.evalSet == evalSet) {
+      lock.unlock();
+      return;
+    }
     ResultAggregator.evalSet = evalSet;
     Matrix M = new Matrix(evalSet.size(), evalSet.getNumberOfFeatures());
     for (int i = 0; i < evalSet.size(); i++) {
