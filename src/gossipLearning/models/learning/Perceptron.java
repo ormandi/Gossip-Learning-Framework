@@ -3,7 +3,7 @@ package gossipLearning.models.learning;
 import java.util.Arrays;
 
 import gossipLearning.interfaces.Function;
-import gossipLearning.interfaces.functions.Binary;
+import gossipLearning.interfaces.functions.Step;
 import gossipLearning.interfaces.functions.ConstantGradient;
 import gossipLearning.interfaces.functions.Sigmoid;
 import gossipLearning.interfaces.functions.SigmoidGradient;
@@ -48,7 +48,7 @@ public class Perceptron extends ProbabilityModel {
       fAct = new Sigmoid();
       fGrad = new SigmoidGradient();
     } else {
-      fAct = new Binary();
+      fAct = new Step();
       fGrad = new ConstantGradient();
     }
   }
@@ -66,7 +66,7 @@ public class Perceptron extends ProbabilityModel {
       fAct = new Sigmoid();
       fGrad = new SigmoidGradient();
     } else {
-      fAct = new Binary();
+      fAct = new Step();
       fGrad = new ConstantGradient();
     }
   }
@@ -81,7 +81,7 @@ public class Perceptron extends ProbabilityModel {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     usingSigmoid = Configuration.getBoolean(prefix + "." + PAR_FUNC);
     if (!usingSigmoid) {
-      fAct = new Binary();
+      fAct = new Step();
       fGrad = new ConstantGradient();
     }
   }

@@ -64,8 +64,8 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
       for (VectorEntry e : model.w[i]) {
         double value = w[i].get(e.index);
         w[i].add(e.index, (e.value - value) * 0.5);
-        bias[i] = (bias[i] + model.bias[i]) * 0.5;
       }
+      bias[i] = (bias[i] + model.bias[i]) * 0.5;
     }
     return this;
   }

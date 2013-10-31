@@ -27,6 +27,7 @@ import peersim.core.CommonState;
  * <li> z^(i) = a^(i-1) * T^(i), if i > 0</li>
  * <li> z^(0) = X * T^(0), for the input layer</li>
  * </ul>
+ * <li>g'(): gradient function</li>
  * </ul>
  * 
  * @author István Hegedűs
@@ -152,7 +153,8 @@ public class ANN extends ProbabilityModel {
       return;
     }
     // delta for computing gradient
-    Matrix delta = predicted.subtract(expected);
+    //Matrix delta = predicted.subtract(expected);
+    Matrix delta = predicted.subtract(expected).pointMulEquals(products[thetas.length - 1].applyEquals(fGrad));
 
     // hidden layers
     for (int i = thetas.length - 1; i > 0; i--) {
