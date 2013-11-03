@@ -62,6 +62,8 @@ public class ANN extends ProbabilityModel {
     age = a.age;
     lambda = a.lambda;
     numberOfClasses = a.numberOfClasses;
+    fAct = a.fAct;
+    fGrad = a.fGrad;
     if (a.distribution != null) {
       distribution = Arrays.copyOf(a.distribution, a.distribution.length);
     }
