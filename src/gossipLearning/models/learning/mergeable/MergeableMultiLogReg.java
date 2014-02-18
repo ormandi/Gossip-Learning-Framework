@@ -57,7 +57,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
   @Override
   public MergeableMultiLogReg merge(MergeableMultiLogReg model) {
     //age = Math.max(age, model.age);
-    for (int i = 0; i < numberOfClasses; i++) {
+    for (int i = 0; i < numberOfClasses -1; i++) {
       //w[i].mul(0.5);
       //w[i].add(model.w[i], 0.5);
       //bias[i] = (bias[i] + model.bias[i]) * 0.5;

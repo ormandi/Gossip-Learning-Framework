@@ -2,6 +2,7 @@ package gossipLearning.models.extraction;
 
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.utils.InstanceHolder;
+import gossipLearning.utils.SparseVector;
 
 /**
  * This class represents a dummy feature extractor that do nothing with the features.
@@ -25,6 +26,11 @@ public class DummyExtractor implements FeatureExtractor {
   @Override
   public InstanceHolder extract(InstanceHolder instances) {
     return instances;
+  }
+
+  @Override
+  public SparseVector extract(SparseVector instance) {
+    return instance;
   }
 
   @Override

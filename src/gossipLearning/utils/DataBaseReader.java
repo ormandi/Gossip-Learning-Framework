@@ -33,10 +33,19 @@ public class DataBaseReader {
   private SparseVector devs;
   private boolean isStandardized;
   
+  /** @hidden */
+  private SparseVector mins;
+  /** @hidden */
+  private SparseVector maxs;
+  private boolean isNormalized;
+  
   protected DataBaseReader(final File tFile, final File eFile) throws IOException{
     means = new SparseVector();
     devs = new SparseVector();
+    mins = new SparseVector();
+    maxs = new SparseVector();
     isStandardized = false;
+    isNormalized = false;
     
     // reading training file
     trainingSet = parseFile(tFile);
@@ -48,7 +57,12 @@ public class DataBaseReader {
       clone.pointMul(instance);
       means.add(instance);
       devs.add(clone);
+      for (VectorEntry e : instance) {
+        mins.put(e.index, Math.min(mins.get(e.index), e.value));
+        maxs.put(e.index, Math.max(maxs.get(e.index), e.value));
+      }
     }
+    maxs.add(mins, -1.0);
     means.mul(1.0 / (double)trainingSet.size());
     devs.mul(1.0 / (double)trainingSet.size());
     SparseVector m2 = new SparseVector(means);
@@ -174,7 +188,7 @@ public class DataBaseReader {
    * Standardizes the training and test data sets based on the training data.
    */
   public void standardize() {
-    if (isStandardized) {
+    if (isStandardized || isNormalized) {
       return;
     }
     isStandardized = true;
@@ -183,6 +197,22 @@ public class DataBaseReader {
     }
     for (int i = 0; i < evalSet.size(); i++) {
       evalSet.getInstance(i).add(means, -1.0).div(devs);
+    }
+  }
+  
+  /**
+   * Normalizes the training and test data sets based on the training data.
+   */
+  public void normalize() {
+    if (isNormalized || isStandardized) {
+      return;
+    }
+    isNormalized = true;
+    for (int i = 0; i < trainingSet.size(); i++) {
+      trainingSet.getInstance(i).add(mins, -1.0).div(maxs);
+    }
+    for (int i = 0; i < evalSet.size(); i++) {
+      evalSet.getInstance(i).add(mins, -1.0).div(maxs);
     }
   }
   

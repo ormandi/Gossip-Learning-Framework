@@ -27,6 +27,7 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     mus = null;
     sigmas = null;
     counts = null;
+    distribution = null;
     age = 0.0;
     maxIndex = 0;
     numberOfClasses = 0;
@@ -36,10 +37,12 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     mus = new SparseVector[a.numberOfClasses];
     sigmas = new SparseVector[a.numberOfClasses];
     counts = new double[a.numberOfClasses];
+    distribution = new double[a.numberOfClasses];
     for (int i = 0; i < a.numberOfClasses; i++) {
       mus[i] = (SparseVector)a.mus[i].clone();
       sigmas[i] = (SparseVector)a.sigmas[i].clone();
       counts[i] = a.counts[i];
+      distribution[i] = a.distribution[i];
     }
     age = a.age;
     numberOfClasses = a.numberOfClasses;
@@ -71,74 +74,35 @@ public class SimpleNaiveBayes extends ProbabilityModel {
   }
   //private boolean isPrint = true;
   
+  protected double[] distribution;
+  
   @Override
   public double[] distributionForInstance(SparseVector instance) {
-    double[] res = new double[numberOfClasses];
     //double[] featureCoefs = new double[maxIndex];
     double p;
     double pc;
     double sum = 0.0;
     double max = Double.NEGATIVE_INFINITY;
     for (int i = 0; i < numberOfClasses; i++) {
-      p = 0.0;
+      distribution[i] = 0.0;
       pc = Math.log(counts[i] / age);
-      Iterator<VectorEntry> muIter = mus[i].iterator();
-      Iterator<VectorEntry> sigmaIter = sigmas[i].iterator();
-      Iterator<VectorEntry> instIter = instance.iterator();
-      VectorEntry muE = muIter.hasNext() ? muIter.next() : new VectorEntry(-1, 0.0);
-      VectorEntry sigmaE = sigmaIter.hasNext() ? sigmaIter.next() : new VectorEntry(-1, 0.0);
-      VectorEntry instE = instIter.hasNext() ? instIter.next() : new VectorEntry(-1, 0.0);
-      for (int j = 0; j < maxIndex; j++) {
-        double mu = 0.0;
-        double sigma = 0.0;
-        double value = 0.0;
-        if (j == muE.index) {
-          mu = muE.value;
-          if (muIter.hasNext()) {
-            muE = muIter.next();
-          }
-        }
-        if (j == sigmaE.index) {
-          sigma = sigmaE.value;
-          if (sigmaIter.hasNext()) {
-            sigmaE = sigmaIter.next();
-          }
-        }
-        if (j == instE.index) {
-          value = instE.value;
-          if (instIter.hasNext()) {
-            instE = instIter.next();
-          }
-        }
-        sigma = Math.sqrt(Math.abs(sigma - mu * mu));
-        sigma = (sigma == 0.0) ? Utils.EPS : sigma;
-        double ptmp = logProb(value, mu, sigma);
-        p += (ptmp > 0.0) ? 0.0 : ptmp;
-        // featureCoefs can be used for feature selection
-        /*if (age == 10000) {
-          for (int c = 0; c < i; c++) {
-            double m = mus[c].get(j);
-            double s = sigmas[c].get(j);
-            s = (s == 0.0) ? Utils.EPS : s;
-            featureCoefs[j] += Math.abs(Utils.cdf(m, mu, sigma) - Utils.cdf(mu, m, s));
-          }
-        }*/
+      p = condLogProb(instance, mus[i], sigmas[i], maxIndex);
+      
+      distribution[i] = pc + p;
+      if (distribution[i] > 0.0 || Double.isNaN(distribution[i]) || Double.isInfinite(distribution[i])) {
+        distribution[i] = -1.0/Utils.EPS;
       }
-      res[i] = pc + p;
-      if (res[i] > 0.0 || Double.isNaN(res[i]) || Double.isInfinite(res[i])) {
-        res[i] = -1.0/Utils.EPS;
-      }
-      if (res[i] > max) {
-        max = res[i];
+      if (distribution[i] > max) {
+        max = distribution[i];
       }
     }
-    for (int i = 0; i < res.length; i++) {
-      res[i] -= max;
-      res[i] = Math.exp(res[i]);
-      sum += Math.abs(res[i]);
+    for (int i = 0; i < distribution.length; i++) {
+      distribution[i] -= max;
+      distribution[i] = Math.exp(distribution[i]);
+      sum += Math.abs(distribution[i]);
     }
-    for (int i = 0; i < res.length; i++) {
-      res[i] /= sum;
+    for (int i = 0; i < distribution.length; i++) {
+      distribution[i] /= sum;
     }
     /*if (age == 10000 && isPrint) {
       isPrint = false;
@@ -149,7 +113,7 @@ public class SimpleNaiveBayes extends ProbabilityModel {
       }
       System.out.println("Features: " + map.descendingMap().values() + "\t" + map.descendingMap().keySet());
     }*/
-    return res;
+    return distribution;
   }
 
   @Override
@@ -166,11 +130,60 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     mus = new SparseVector[numberOfClasses];
     sigmas = new SparseVector[numberOfClasses];
     counts = new double[numberOfClasses];
+    distribution = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
       mus[i] = new SparseVector();
       sigmas[i] = new SparseVector();
       counts[i] = 0.0;
+      distribution[i] = 0.0;
     }
+  }
+  
+  private static double condLogProb(SparseVector instance, SparseVector mu, SparseVector sigma, int maxIndex) {
+    double p = 0.0;
+    Iterator<VectorEntry> muIter = mu.iterator();
+    Iterator<VectorEntry> sigmaIter = sigma.iterator();
+    Iterator<VectorEntry> instIter = instance.iterator();
+    VectorEntry muE = muIter.hasNext() ? muIter.next() : new VectorEntry(-1, 0.0);
+    VectorEntry sigmaE = sigmaIter.hasNext() ? sigmaIter.next() : new VectorEntry(-1, 0.0);
+    VectorEntry instE = instIter.hasNext() ? instIter.next() : new VectorEntry(-1, 0.0);
+    for (int j = 0; j < maxIndex; j++) {
+      double m = 0.0;
+      double s = 0.0;
+      double value = 0.0;
+      if (j == muE.index) {
+        m = muE.value;
+        if (muIter.hasNext()) {
+          muE = muIter.next();
+        }
+      }
+      if (j == sigmaE.index) {
+        s = sigmaE.value;
+        if (sigmaIter.hasNext()) {
+          sigmaE = sigmaIter.next();
+        }
+      }
+      if (j == instE.index) {
+        value = instE.value;
+        if (instIter.hasNext()) {
+          instE = instIter.next();
+        }
+      }
+      s = Math.sqrt(Math.abs(s - m * m));
+      s = (s == 0.0) ? Utils.EPS : s;
+      double ptmp = logProb(value, m, s);
+      p += (ptmp > 0.0) ? 0.0 : ptmp;
+      // featureCoefs can be used for feature selection
+      /*if (age == 10000) {
+        for (int c = 0; c < i; c++) {
+          double m = mus[c].get(j);
+          double s = sigmas[c].get(j);
+          s = (s == 0.0) ? Utils.EPS : s;
+          featureCoefs[j] += Math.abs(Utils.cdf(m, mu, sigma) - Utils.cdf(mu, m, s));
+        }
+      }*/
+    }
+    return p;
   }
 
   private static double logProb(double x, double mu, double sigma) {

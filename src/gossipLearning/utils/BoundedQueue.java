@@ -108,6 +108,7 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
     T ret = null;
     if (size > 0) {
       ret = queue[startPosition];
+      queue[startPosition] = null;
       size--;
       startPosition = (startPosition + 1) % bound;
     }
@@ -127,18 +128,23 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
     }
     ret = get(index);
     int idxTo, idxFrom;
-    if (index < size / 2) {
-      for (int i = 0; i < index; i++) {
-        idxTo = (startPosition + i + 1) % bound;
-        idxFrom = (startPosition + i) % bound;
+    if (index == 0 || index == size -1) {
+      queue[(startPosition + index) % bound] = null;
+    }
+    if (index <= size / 2) {
+      for (int i = index; i > 0; i--) {
+        idxTo = (startPosition + i) % bound;
+        idxFrom = (startPosition + i -1) % bound;
         queue[idxTo] = queue[idxFrom];
+        queue[idxFrom] = null;
       }
       startPosition = (startPosition + 1) % bound;
     } else {
-      for (int i = index; i < size; i++) {
+      for (int i = index; i < size -1; i++) {
         idxTo = (startPosition + i) % bound;
         idxFrom = (startPosition + i + 1) % bound;
         queue[idxTo] = queue[idxFrom];
+        queue[idxFrom] = null;
       }
     }
     size--;

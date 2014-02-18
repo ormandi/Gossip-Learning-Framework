@@ -68,8 +68,8 @@ public class MultiLogReg extends ProbabilityModel {
       w = null;
       bias = null;
     } else {
-      w = new SparseVector[numberOfClasses];
-      for (int i = 0; i < numberOfClasses; i++) {
+      w = new SparseVector[numberOfClasses -1];
+      for (int i = 0; i < numberOfClasses -1; i++) {
         w[i] = (SparseVector)a.w[i].clone();
       }
       distribution = Arrays.copyOf(a.distribution, a.numberOfClasses);
@@ -137,13 +137,13 @@ public class MultiLogReg extends ProbabilityModel {
     double[] distribution = distributionForInstance(instance);
     
     // update for each classes
-    for (int j = 0; j < numberOfClasses; j++) {
-      double cDelta = (label == j) ? 1.0 : 0.0;
-      double err = cDelta - distribution[j];
+    for (int i = 0; i < numberOfClasses -1; i++) {
+      double cDelta = (label == i) ? 1.0 : 0.0;
+      double err = cDelta - distribution[i];
       
-      w[j].mul(1.0 - nu * lambda);
-      w[j].add(instance, nu * err);
-      bias[j] += nu * lambda * err;
+      w[i].mul(1.0 - nu * lambda);
+      w[i].add(instance, nu * err);
+      bias[i] += nu * lambda * err;
     }
   }
 
@@ -161,9 +161,9 @@ public class MultiLogReg extends ProbabilityModel {
       this.numberOfClasses = numberOfClasses;
       distribution = new double[numberOfClasses];
       v = new double[numberOfClasses];
-      w = new SparseVector[numberOfClasses];
-      bias = new double[numberOfClasses];
-      for (int i = 0; i < numberOfClasses; i++) {
+      w = new SparseVector[numberOfClasses -1];
+      bias = new double[numberOfClasses -1];
+      for (int i = 0; i < numberOfClasses -1; i++) {
         w[i] = new SparseVector();
       }
     }

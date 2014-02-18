@@ -9,6 +9,7 @@ import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 import gossipLearning.utils.jama.SingularValueDecomposition;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -61,17 +62,18 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
         USp.set(userIdx, i, USi.get(0, i));
         USTUSp.set(i, i, USTUSp.get(i, i) + (UST.get(i, userIdx) * USp.get(userIdx, i)));
       }
-      //Matrix USTUSp = UST.mul(USp);
       lock.unlock();
       
       
       // The trace of the V^Tv matrix should contain only 1s.
       // V^T is the expected right eigenvectors
       // v is the computed right eigenvectors
-      Matrix VTv = VT.mul(v);
+      double[] VTvtr = new double[v.getColumnDimension()];
       for (int i = 0; i < Math.min(v.getColumnDimension(), v.getRowDimension()) && S.get(i, i) != 0.0; i++) {
-      //for (int i = 0; i < v.getColumnDimension(); i++) {
-        double predicted = Math.abs(VTv.get(i, i));
+        for (int k = 0; k < v.getRowDimension(); k++) {
+          VTvtr[i] += VT.get(i,k) * v.get(k, i);
+        }
+        double predicted = Math.abs(VTvtr[i]);
         for (int j = 0; j < evaluators[index].length; j++) {
           evaluators[index][j].evaluate(expected, predicted);
         }
@@ -106,6 +108,39 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
     VT = svd.getV().transpose();
     S = svd.getS();
     lock.unlock();
+    printProps();
+  }
+  
+  public void setEvalSet(Matrix UST, Matrix VT, Matrix S) {
+    lock.lock();
+    if (LowRankResultAggregator.S == S) {
+      lock.unlock();
+      return;
+    }
+    LowRankResultAggregator.UST = UST;
+    LowRankResultAggregator.VT = VT;
+    LowRankResultAggregator.S = S;
+    lock.unlock();
+    printProps();
+  }
+  
+  private void printProps() {
+    double[] arr = new double[S.getRowDimension()];
+    double[] perc = new double[S.getRowDimension()];
+    double sum = 0.0;
+    for (int i = 0; i < S.getRowDimension(); i++) {
+      arr[i] = S.get(i, i);
+      sum += arr[i];
+    }
+    double sum2 = 0.0;
+    for (int i = 0; i < S.getRowDimension(); i++) {
+      sum2 += arr[i];
+      perc[i] = sum2 / sum;
+    }
+    System.out.println("#Eigenvalues: " + Arrays.toString(arr));
+    System.out.println("#Information: " + Arrays.toString(perc));
+    //System.out.println(Arrays.toString(VT.getRow(0)));
+    //System.out.println(Arrays.toString(UST.getRow(0)));
   }
   
 }

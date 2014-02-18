@@ -50,10 +50,19 @@ public class LocalRun {
     String[] modelNames = Configuration.getString("learners").split(",");
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
+    boolean isStandardize = Configuration.getBoolean("isStandardize", false);
+    boolean isNormalize = Configuration.getBoolean("isNormalize", false);
     
     // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    if (isStandardize) {
+      System.err.println("Standardizing data set.");
+      reader.standardize();
+    } else if (isNormalize) {
+      System.err.println("Normalizing data set.");
+      reader.normalize();
+    }
     
     // create models
     LearningModel[] models = new LearningModel[modelNames.length];
@@ -97,7 +106,7 @@ public class LocalRun {
       instance = reader.getTrainingSet().getInstance(instanceIndex);
       label = reader.getTrainingSet().getLabel(instanceIndex);
       for (int i = 0; i < models.length; i++) {
-        models[i].update(instance, label);
+        models[i].update(extractor.extract(instance), label);
       }
     }
     

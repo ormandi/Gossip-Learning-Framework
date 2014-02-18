@@ -1,6 +1,6 @@
 package gossipLearning.main;
 
-import gossipLearning.evaluators.LowRankResultAggregator;
+import gossipLearning.evaluators.FactorizationResultAggregator;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.models.factorization.LowRankDecomposition;
@@ -13,9 +13,8 @@ import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Random;
-
-import cern.colt.Arrays;
 
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
@@ -51,6 +50,7 @@ public class LowRankRun {
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
     boolean isPrintResults = Configuration.getBoolean("isPrintResults", false);
+    String aggrClassName = Configuration.getString("aggrName");
     
     // read database
     System.err.println("Reading data set.");
@@ -63,7 +63,7 @@ public class LowRankRun {
     extractor.init("extractor");
     
     // initialize evaluator
-    LowRankResultAggregator lrResultAggregator = new LowRankResultAggregator(new String[]{extractorName}, evalNames);
+    FactorizationResultAggregator lrResultAggregator = (FactorizationResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(new String[]{extractorName}, evalNames);
     lrResultAggregator.setEvalSet(reader.getTrainingSet());
     AggregationResult.printPrecision = printPrecision;
     

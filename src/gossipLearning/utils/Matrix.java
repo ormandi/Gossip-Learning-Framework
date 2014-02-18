@@ -503,6 +503,44 @@ public class Matrix implements Serializable {
     }
     return result;
   }
+  
+  /**
+   * Returns a new matrix (C) object that is the current matrix (A) multiplied
+   * by the specified matrix (B). The result is computed in parallel way on 
+   * the specified number of threads.<br/>
+   * C = A * B
+   * @param matrix matrix to multiply (B)
+   * @param numThreads number of working threads
+   * @return result of the multiplication as a new matrix object (C)
+   * @throws IllegalArgumentException if the matrices cannot be multiplied
+   * @throws InterruptedException {@link Thread}
+   */
+  public Matrix mul(Matrix matrix, int numThreads) throws InterruptedException {
+    if (numberOfColumns != matrix.numberOfRows) {
+      throw new IllegalArgumentException("Matrix with dimensions "
+          + numberOfRows + "x" + numberOfColumns
+          + " cannot be multiplied by a matrix with dimensions "
+          + matrix.numberOfRows + "x" + matrix.numberOfColumns);
+    }
+    Matrix result = new Matrix(numberOfRows, matrix.numberOfColumns);
+    
+    Worker[] w = new Worker[numThreads];
+    for (int i = 0; i < numThreads; i++) {
+      int from = i * result.numberOfRows / numThreads;
+      int to = (i + 1) * result.numberOfRows / numThreads;
+      if (i == numThreads - 1) {
+        to = result.numberOfRows;
+      }
+      w[i] = new Worker(from, to, result, this, matrix);
+      w[i].start();
+    }
+    
+    for (int i = 0; i < numThreads; i++) {
+      w[i].join();
+    }
+    
+    return result;
+  }
 
   /**
    * Returns a new matrix (C) object that is the current matrix (A) multiplied
@@ -1168,6 +1206,7 @@ public class Matrix implements Serializable {
    */
   public void writeToFile(File outFile, boolean append) throws IOException {
     PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(outFile, append)));
+    pw.print(numberOfRows + " " + numberOfColumns);
     for (int i = 0; i < numberOfRows; i++) {
       for (int j = 0; j < numberOfColumns; j++) {
         if (j != 0) {
@@ -1259,5 +1298,40 @@ public class Matrix implements Serializable {
     ma.transpose();
     System.out.println("MA + MB:\n" + ma.add(mb));
     System.out.println("MA - MB:\n" + ma.subtract(mb));
+  }
+  
+  private class Worker extends Thread implements Runnable {
+    private Matrix result, arg1, arg2;
+    private int from, to;
+    
+    public Worker(int from, int to, Matrix result, Matrix arg1, Matrix arg2) {
+      super();
+      this.from = from;
+      this.to = to;
+      this.result = result;
+      this.arg1 = arg1;
+      this.arg2 = arg2;
+    }
+
+    @Override
+    public void run() {
+      for (int i = from; i < to; i++) {
+        for (int j = 0; j < result.numberOfColumns; j++) {
+          double sum = 0.0;
+          for (int k = 0; k < numberOfColumns; k++) {
+            if (arg1.isTransposed && arg2.isTransposed) {
+              sum += arg1.matrix[k][i] * arg2.matrix[j][k];
+            } else if (!arg1.isTransposed && arg2.isTransposed) {
+              sum += arg1.matrix[i][k] * arg2.matrix[j][k];
+            } else if (arg1.isTransposed && !arg2.isTransposed) {
+              sum += arg1.matrix[k][i] * arg2.matrix[k][j];
+            } else {
+              sum += arg1.matrix[i][k] * arg2.matrix[k][j];
+            }
+          }
+          result.matrix[i][j] = sum;
+        }
+      }
+    }
   }
 }

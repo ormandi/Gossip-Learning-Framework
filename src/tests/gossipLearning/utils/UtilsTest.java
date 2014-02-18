@@ -1,10 +1,14 @@
 package tests.gossipLearning.utils;
 
+import gossipLearning.utils.Matrix;
 import gossipLearning.utils.Utils;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import junit.framework.TestCase;
+
+import org.junit.Test;
 
 public class UtilsTest extends TestCase {
   private static final double EPS = 1E-5;
@@ -169,5 +173,51 @@ public class UtilsTest extends TestCase {
     for (int i = 0; i < vector.length; i++) {
       assertEquals(vector[i], result[i], EPS);
     }
+  }
+  
+  public void testButterflyRandomOrthogonalMatrix() {
+    int n = 1;
+    int rank = 1;
+    Random r = new Random(1234567890);
+    Matrix M = Utils.butterflyRandomOrthogonalMatrix(n, rank, r);
+    Matrix MT = new Matrix(M).transpose();
+    Matrix MTM = MT.mul(M);
+    double sum = 0.0;
+    for (int i = 0; i < rank; i++) {
+      for (int j = 0; j < rank; j++) {
+        sum += MTM.get(i, j);
+      }
+    }
+    assertEquals(rank, sum, EPS);
+    n = 32;
+    rank = 32;
+    M = Utils.butterflyRandomOrthogonalMatrix(n, rank, r);
+    MT = new Matrix(M).transpose();
+    MTM = MT.mul(M);
+    sum = 0.0;
+    for (int i = 0; i < rank; i++) {
+      for (int j = 0; j < rank; j++) {
+        sum += MTM.get(i, j);
+      }
+    }
+    assertEquals(rank, sum, EPS);
+    n = 32;
+    rank = 10;
+    M = Utils.butterflyRandomOrthogonalMatrix(n, rank, r);
+    MT = new Matrix(M).transpose();
+    MTM = MT.mul(M);
+    sum = 0.0;
+    for (int i = 0; i < rank; i++) {
+      for (int j = 0; j < rank; j++) {
+        sum += MTM.get(i, j);
+      }
+    }
+    assertEquals(rank, sum, EPS);
+  }
+  @Test (expected=RuntimeException.class) public void butterflyMatrixPower() {
+    Utils.butterflyRandomOrthogonalMatrix(10, 1, null);
+  }
+  @Test (expected=RuntimeException.class) public void butterflyMatrixGreater() {
+    Utils.butterflyRandomOrthogonalMatrix(1, 10, null);
   }
 }

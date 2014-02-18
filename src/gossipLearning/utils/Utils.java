@@ -1,6 +1,7 @@
 package gossipLearning.utils;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Stack;
 import java.util.Vector;
@@ -395,6 +396,133 @@ public class Utils {
     t = t / x;
     if (x == 0.0) return 0.0;
     return x * Math.sqrt(1 + t * t);
+  }
+  
+  /**
+   * Generates a random column orthogonal matrix with n rows and rank columns. <br/>
+   * Q<sup>(2n)</sup> = |Q<sup>(n)</sup>c<sub>n</sub> -Q<sup>(n)</sup>s<sub>n</sub>| <br/> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   *                    |Q&#770;<sup>(n)</sup>s<sub>n</sub> &nbsp; Q&#770;<sup>(n)</sup>c<sub>n</sub>| <br/>
+   * where <ul> 
+   *  <li>c<sub>i</sub> = cos(&#952;<sub>i</sub>)</li>
+   *  <li>s<sub>i</sub> = sin(&#952;<sub>i</sub>)</li>
+   *  <li>Q&#770;<sup>(n)</sup> has the same form as Q<sup>(n)</sup> except that c<sub>i</sub>
+   * and s<sub>i</sub> indices are increased by n</li>
+   *  <li>Q<sup>(1)</sup> = [1]</li>
+   *  <li>&#952;<sub>i</sub> is a random angle in [0;2&#960;] radian.</li>
+   * </ul>
+   * @param n number of rows (should be on power of 2)
+   * @param rank number of columns (should not be grater than n)
+   * @param r random number generator
+   * @return column orthogonal matrix with the specified rank
+   */
+  public static Matrix butterflyRandomOrthogonalMatrix(int n, int rank, Random r) {
+    if (!Utils.isPower2(n)) {
+      throw new RuntimeException("n should be on power of 2: " + n);
+    }
+    if (rank > n) {
+      throw new RuntimeException("rank should less than or equal to n: " + rank);
+    }
+    double[] theta = new double[n];
+    for (int i = 0; i < n; i++) {
+      theta[i] = 2.0 * r.nextDouble() * Math.PI;
+    }
+    Matrix M = new Matrix(n, rank);
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < rank; j++) {
+        double value = 1.0;
+        int indexi = i;
+        int indexj = j;
+        int t = 0;
+        for (int power = n >> 1; power > 0; power >>= 1) {
+          //System.out.println(power + " " + t);
+          if (indexi < power && indexj < power) {
+            //System.out.print("c" + (power + t));
+            value *= Math.cos(theta[power + t]);
+          } else if (indexi < power && indexj >= power) {
+            //System.out.print("-s" + (power + t));
+            value *= -Math.sin(theta[power + t]);
+            indexj %= power;
+          } else if (indexi >= power && indexj < power) {
+            //System.out.print("s" + (power + t));
+            value *= Math.sin(theta[power + t]);
+            indexi %= power;
+            t = power;
+          } else if (indexi >= power && indexj >= power) {
+            //System.out.print("c" + (power + t));
+            value *= Math.cos(theta[power + t]);
+            indexi %= power;
+            indexj %= power;
+            t = power;
+          }
+        }
+        M.set(i, j, value);
+        //System.out.print("\t");
+      }
+    }
+    return M;
+  }
+  
+  public static Matrix randomKOutGraph(int n, int k, Random r) {
+    Matrix M = new Matrix(n, n);
+    HashSet<Integer> set = new HashSet<Integer>();
+    for (int i = 0; i < n; i++) {
+      while (set.size() < k) {
+        set.add(r.nextInt(n));
+      }
+      for (int j : set) {
+        M.set(i, j, 1.0);
+      }
+    }
+    return M;
+  }
+  
+  public static Matrix randomBAGraph(int n, int m, Random r) {
+    if (n <= m) {
+      throw new RuntimeException("number of nodes should be greater than the number of initial nodes:  " + n + " - " + m);
+    }
+    if (m < 2) {
+      throw new RuntimeException("initial number of nodes should be at least 2: " + m);
+    }
+    Matrix M = new Matrix(n, n);
+    double[] degrees = new double[n];
+    double numEdges = 0.0;
+    
+    // initializing the network
+    for (int i = 0; i < m; i++) {
+      for (int j = i + 1; j < m; j++) {
+        M.set(i, j, 1.0);
+        M.set(j, i, 1.0);
+        degrees[i] ++;
+        degrees[j] ++;
+        numEdges += 2.0;
+      }
+    }
+    
+    // add node i to the network
+    for (int i = m; i < n; i++) {
+      // add m edges to node i
+      for (int k = 0; k < m; k++) {
+        double rnd = r.nextDouble();
+        double prob = 0.0;
+        // try to add edge to node j
+        for (int j = 0; j < i; j++) {
+          prob += degrees[j] / numEdges;
+          if (rnd <= prob && M.get(i, j) == 0.0) {
+            M.set(i, j, 1.0);
+            M.set(j, i, 1.0);
+            degrees[i] ++;
+            degrees[j] ++;
+            numEdges += 2.0;
+          }
+        }
+      }
+    }
+    /*for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        M.set(i, j, M.get(i, j) / degrees[i]);
+      }
+    }*/
+    return M;
   }
 
 }

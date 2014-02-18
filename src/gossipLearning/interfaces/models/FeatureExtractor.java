@@ -1,6 +1,7 @@
 package gossipLearning.interfaces.models;
 
 import gossipLearning.utils.InstanceHolder;
+import gossipLearning.utils.SparseVector;
 
 /**
  * This interface describes a static (local) feature manipulator class 
@@ -15,4 +16,10 @@ public interface FeatureExtractor extends Model {
    * @return manipulated instances
    */
   public InstanceHolder extract(InstanceHolder instances);
+  /**
+   * Applies the feature manipulation for the specified instance.
+   * @param instance to be manipulated
+   * @return manipulated instance
+   */
+  public SparseVector extract(SparseVector instance);
 }
