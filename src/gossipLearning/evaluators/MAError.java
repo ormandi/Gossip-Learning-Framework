@@ -21,11 +21,17 @@ public class MAError extends ValueBasedEvaluator {
     return new MAError(this);
   }
 
+  /**
+   * @return the absolute difference of the specified values
+   */
   @Override
   public double getValue(double expected, double predicted) {
     return Math.abs(expected - predicted);
   }
 
+  /**
+   * @return the specified value
+   */
   @Override
   public double postProcess(double meanValue) {
     return meanValue;

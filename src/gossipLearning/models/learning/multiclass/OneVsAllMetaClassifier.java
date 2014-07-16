@@ -2,11 +2,12 @@ package gossipLearning.models.learning.multiclass;
 
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.LearningModel;
-import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Arrays;
+
 import peersim.config.Configuration;
 
 /**
@@ -23,23 +24,38 @@ import peersim.config.Configuration;
  * @author István Hegedűs
  *
  */
-public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeable<OneVsAllMetaClassifier> {
+public class OneVsAllMetaClassifier extends ProbabilityModel {
   private static final long serialVersionUID = 1650527797690827114L;
   /** @hidden */
-  private static final String PAR_BNAME = "OVsA";
+  private static final String PAR_BNAME = "OvsA";
   
-  private int numberOfClasses;
-  private ModelHolder classifiers;
+  protected int numberOfClasses;
+  protected ModelHolder classifiers;
   /** @hidden */
-  private String baseLearnerName;
+  protected String baseLearnerName;
   /** @hidden */
-  private String prefix;
-  private double[] distribution;
+  protected final String prefix;
+  protected double[] distribution;
 
   /**
-   * Default constructor (do nothing).
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public OneVsAllMetaClassifier() {
+  public OneVsAllMetaClassifier(String prefix) {
+    this(prefix, PAR_BNAME);
+  }
+  
+  /**
+   * This constructor is for initializing the member variables of the Model. </br>
+   * And special configuration parameters can be set.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   * @param PAR_BNAME the prefix name in the configuration file
+   */
+  protected OneVsAllMetaClassifier(String prefix, String PAR_BNAME) {
+    this.prefix = prefix + "." + PAR_BNAME;
+    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
   }
   
   /**
@@ -55,6 +71,23 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
     } else {
       classifiers = null;
     }
+    this.distribution = Arrays.copyOf(a.distribution, a.distribution.length);
+  }
+  
+  /**
+   * Constructs an object and sets the specified parameters.
+   * @param baseLearnerName name of the used learning algorithm
+   * @param numberOfClasses number of classes
+   * @param prefix
+   * @param classifiers
+   * @param distribution
+   */
+  protected OneVsAllMetaClassifier(String baseLearnerName, int numberOfClasses, String prefix, ModelHolder classifiers, double[] distribution) {
+    this.baseLearnerName = baseLearnerName;
+    this.numberOfClasses = numberOfClasses;
+    this.prefix = prefix;
+    this.classifiers = classifiers;
+    this.distribution = distribution;
   }
   
   @Override
@@ -63,13 +96,8 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
   }
 
   @Override
-  public void init(String prefix) {
-    this.prefix = prefix;
-    baseLearnerName = Configuration.getString(prefix + "." + PAR_BNAME + ".modelName");
-  }
-
-  @Override
   public void update(SparseVector instance, double label) {
+    age ++;
     for (int i = 0; i < numberOfClasses; i++) {
       ((LearningModel)classifiers.getModel(i)).update(instance, (label == i) ? 1.0 : 0.0);
     }
@@ -99,8 +127,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
     classifiers = new BQModelHolder(numberOfClasses);
     for (int i = 0; i < numberOfClasses; i++) {
       try {
-        ProbabilityModel model = (ProbabilityModel)Class.forName(baseLearnerName).newInstance();
-        model.init(prefix + "." + PAR_BNAME);
+        ProbabilityModel model = (ProbabilityModel)Class.forName(baseLearnerName).getConstructor(String.class).newInstance(prefix);
         model.setNumberOfClasses(2);
         classifiers.add(model);
       } catch (Exception e) {
@@ -109,17 +136,9 @@ public class OneVsAllMetaClassifier extends ProbabilityModel implements Mergeabl
     }
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
-  public OneVsAllMetaClassifier merge(OneVsAllMetaClassifier model) {
-    for (int i = 0; i < classifiers.size(); i++) {
-      if (!(classifiers.getModel(i) instanceof Mergeable)) {
-        return this;
-      }
-      Model result = ((Mergeable)classifiers.getModel(i)).merge(model.classifiers.getModel(i));
-      classifiers.setModel(i, result);
-    }
-    return this;
+  public String toString() {
+    return classifiers.toString();
   }
 
 }

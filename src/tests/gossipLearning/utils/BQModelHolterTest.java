@@ -63,6 +63,10 @@ public class BQModelHolterTest extends TestCase implements Serializable {
     r = (DummyModel)holder.remove(1);
     assertEquals(holder.toString(), "2\t3\t[3, 1]");
     assertEquals(r, m4);
+    holder.remove(1);
+    assertEquals(holder.toString(), "1\t3\t[3]");
+    holder.remove(0);
+    assertEquals(holder.toString(), "0\t3\t[]");
   }
   
   public void testGet() {
@@ -144,10 +148,6 @@ class DummyModel implements Model {
     return false;
   }
 
-  @Override
-  public void init(String prefix) {
-  }
-  
   public String toString() {
     return "" + data;
   }

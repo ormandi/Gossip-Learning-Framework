@@ -6,8 +6,11 @@ import gossipLearning.interfaces.models.FeatureExtractorModel;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.protocols.AbstractProtocol;
 import gossipLearning.messages.ModelMessage;
+import gossipLearning.overlays.TMan;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
+import gossipLearning.utils.NodeDescriptor;
+import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
 /**
@@ -28,6 +31,7 @@ public class ExtractionProtocol extends AbstractProtocol {
   private static final String PAR_MODELNAMES = "modelName";
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
+  private static final String PAR_ISUSETMAN = "isUseTMan";
   
   protected final int capacity;
   /** @hidden */
@@ -37,6 +41,8 @@ public class ExtractionProtocol extends AbstractProtocol {
   protected ModelHolder modelHolder;
   /** @hidden */
   protected ModelHolder lastSeenMergeableModels;
+  protected boolean isUseTMan;
+  protected NodeDescriptor descriptor;
   
   protected InstanceHolder instances;
   
@@ -46,9 +52,12 @@ public class ExtractionProtocol extends AbstractProtocol {
    * @param prefix
    */
   public ExtractionProtocol(String prefix) {
+    super(prefix);
     capacity = Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY);
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     modelName = Configuration.getString(prefix + "." + PAR_MODELNAMES);
+    isUseTMan = Configuration.getBoolean(prefix + "." + PAR_ISUSETMAN);
+    descriptor = null;
     init(prefix);
   }
   
@@ -58,12 +67,14 @@ public class ExtractionProtocol extends AbstractProtocol {
    * @param a to be copied
    */
   protected ExtractionProtocol(ExtractionProtocol a) {
-    prefix = a.prefix;
-    delayMean = a.delayMean;
-    delayVar = a.delayVar;
+    super(a.prefix);
     capacity = a.capacity;
     modelHolderName = a.modelHolderName;
     modelName = a.modelName;
+    isUseTMan = a.isUseTMan;
+    if (a.descriptor != null) {
+      descriptor = (NodeDescriptor)a.descriptor.clone();
+    }
     init(prefix);
   }
   
@@ -74,7 +85,6 @@ public class ExtractionProtocol extends AbstractProtocol {
    */
   protected void init(String prefix) {
     try {
-      super.init(prefix);
       // holder for storing the last seen mergeable models for correct merge
       lastSeenMergeableModels = new BQModelHolder(1);
       try {
@@ -82,8 +92,7 @@ public class ExtractionProtocol extends AbstractProtocol {
       } catch (NoSuchMethodException e) {
         modelHolder = (ModelHolder)Class.forName(modelHolderName).newInstance();
       }
-      Model model = (Model)Class.forName(modelName).newInstance();
-      model.init(prefix);
+      Model model = (Model)Class.forName(modelName).getConstructor(String.class).newInstance(prefix);
       modelHolder.add(model);
       lastSeenMergeableModels.add(model);
     } catch (Exception e) {
@@ -113,6 +122,21 @@ public class ExtractionProtocol extends AbstractProtocol {
     
     // send the latest models to a random neighbor
     sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+    
+    // initialize or update descriptor
+    SparseVector v = new SparseVector();
+    for (int i = 0; i < instances.size(); i++) {
+      v.add(instances.getInstance(i), 1.0 / instances.size());
+    }
+    if (descriptor == null) {
+      descriptor = new NodeDescriptor(currentNode, v);
+    } else {
+      descriptor.setDecriptor(v);
+    }
+    descriptor.setSimilarity(descriptor.computeSimilarity(descriptor));
+    if (isUseTMan) {
+      ((TMan)getOverlay()).setDescriptor(descriptor);
+    }
   }
 
   /**

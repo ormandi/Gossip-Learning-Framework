@@ -33,29 +33,41 @@ public class DataBaseReader {
   private SparseVector devs;
   private boolean isStandardized;
   
+  /** @hidden */
+  private SparseVector mins;
+  /** @hidden */
+  private SparseVector maxs;
+  private boolean isNormalized;
+  
   protected DataBaseReader(final File tFile, final File eFile) throws IOException{
     means = new SparseVector();
     devs = new SparseVector();
+    mins = new SparseVector();
+    maxs = new SparseVector();
     isStandardized = false;
+    isNormalized = false;
     
     // reading training file
     trainingSet = parseFile(tFile);
     
     // compute means and standard deviations on training set for standardization
     for (int i = 0; i < trainingSet.size(); i++) {
-      means.add(trainingSet.getInstance(i));
-      for (VectorEntry e : trainingSet.getInstance(i)) {
-        devs.put(e.index, devs.get(e.index) + (e.value * e.value));
+      SparseVector instance = trainingSet.getInstance(i);
+      SparseVector clone = new SparseVector(instance);
+      clone.pointMul(instance);
+      means.add(instance);
+      devs.add(clone);
+      for (VectorEntry e : instance) {
+        mins.put(e.index, Math.min(mins.get(e.index), e.value));
+        maxs.put(e.index, Math.max(maxs.get(e.index), e.value));
       }
     }
+    maxs.add(mins, -1.0);
     means.mul(1.0 / (double)trainingSet.size());
     devs.mul(1.0 / (double)trainingSet.size());
     SparseVector m2 = new SparseVector(means);
     m2.powerTo(2.0);
     devs.add(m2, -1.0);
-    /*for (VectorEntry e : means) {
-      devs.put(e.index, devs.get(e.index) - (e.value * e.value));
-    }*/
     devs.sqrt();
     
     // reading evaluation file
@@ -66,7 +78,6 @@ public class DataBaseReader {
     numberOfClasses = Math.max(trainingSet.getNumberOfClasses(), evalSet.getNumberOfClasses());
     trainingSet = new InstanceHolder(trainingSet.getInstances(), trainingSet.getLabels(), numberOfClasses, numberOfFeatures);
     evalSet = new InstanceHolder(evalSet.getInstances(), evalSet.getLabels(), numberOfClasses, numberOfFeatures);
-  
   }
   
   /**
@@ -79,7 +90,6 @@ public class DataBaseReader {
     if (file == null || !file.exists()){
       throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
     }
-    //InstanceHolder holder = new InstanceHolder();
     Vector<SparseVector> instances = new Vector<SparseVector>();
     Vector<Double> labels = new Vector<Double>();
     BufferedReader br = new BufferedReader(new FileReader(file));
@@ -91,21 +101,21 @@ public class DataBaseReader {
     int c = 0;
     double label;
     int key;
+    int prevKey;
     double value;
-    SparseVector instance;
+    int[] indices;
+    double[] values;
+    int size;
     while ((line = br.readLine()) != null){
+      try {
       c++;
-      // checking whether it is a regression problem or not
-      if (c == 1 && line.matches("#\\s([Rr]egression|REGRESSION)")) {
-        numberOfClasses = Integer.MAX_VALUE;
-        continue;
-      }
       // eliminating empty and comment lines
       if (line.length() == 0 || line.startsWith("#")){
         continue;
       }
       // eliminating comments and white spaces from the endings of the line
-      line = line.replaceAll("#.*", "").trim();
+      int charIndex = line.indexOf("#");
+      line = line.substring(0, charIndex == -1 ? line.length() : charIndex).trim();
       // splitting line at white spaces and at colons
       split = line.split(":|\\s");
       // throwing exception if the line is invalid (= has even number of tokens, since 
@@ -114,29 +124,38 @@ public class DataBaseReader {
         throw new RuntimeException("The file \"" + file.toString() + "\" has invalid structure at line " + c);
       }
       label = Double.parseDouble(split[0]);
-      /*if (numberOfClasses != Integer.MAX_VALUE && (label < 0.0 || label != (int)label)) {
-        // not a regression problem => the label has to be an integer which is greater or equal than 0 
-        throw new RuntimeException("The class label has to be integer and greater than or equal to 0, line " + c);
-      }*/
-      instance = new SparseVector(split.length >>> 1);
+      indices = new int[split.length >>> 1];
+      values = new double[split.length >>> 1];
+      size = 0;
+      prevKey = -1;
       for (int i = 1; i < split.length; i += 2){
-        key = Integer.parseInt(split[i]) - 1; // index from 0
+        // index from 0
+        key = Integer.parseInt(split[i]) - 1;
         if (key < 0){
-          throw new RuntimeException("The index of the features must be non-negative integer, line " + c);
+          throw new RuntimeException("The index of the features must be positive integer, line " + c);
+        }
+        if (key <= prevKey) {
+          throw new RuntimeException("Unexpected key (" + (key+1) + ") at line " + c);
         }
         if (key > numberOfFeatures) {
           numberOfFeatures = key;
         }
         value = Double.parseDouble(split[i + 1]);
-        instance.put(key, value);
+        indices[size] = key;
+        values[size] = value;
+        size ++;
+        prevKey = key;
       }
       // storing parsed instance
-      instances.add(instance);
+      instances.add(new SparseVector(indices, values));
       labels.add(label);
       
       // calculating the number of classes if it is not a regression
       if (numberOfClasses != Integer.MAX_VALUE) {
         classes.add(label);
+      }
+      } catch (Exception e) {
+        throw new RuntimeException("Exceprion was caught while parsing file " + file.toString() + " at line " + c, e);
       }
     }
     br.close();
@@ -169,7 +188,7 @@ public class DataBaseReader {
    * Standardizes the training and test data sets based on the training data.
    */
   public void standardize() {
-    if (isStandardized) {
+    if (isStandardized || isNormalized) {
       return;
     }
     isStandardized = true;
@@ -182,6 +201,22 @@ public class DataBaseReader {
   }
   
   /**
+   * Normalizes the training and test data sets based on the training data.
+   */
+  public void normalize() {
+    if (isNormalized || isStandardized) {
+      return;
+    }
+    isNormalized = true;
+    for (int i = 0; i < trainingSet.size(); i++) {
+      trainingSet.getInstance(i).add(mins, -1.0).div(maxs);
+    }
+    for (int i = 0; i < evalSet.size(); i++) {
+      evalSet.getInstance(i).add(mins, -1.0).div(maxs);
+    }
+  }
+  
+  /**
    * Transform the training and evaluation databases applying an at most n-degree polynomial radial
    * basis function I.e. when n=2 and the original database contains two dimensions (x,y), the mapping 
    * produce a new database containing five dimensions (x,y,x^2,xy,y^2). 
@@ -190,7 +225,7 @@ public class DataBaseReader {
     polynomize(n, true);
   }
   
-  public void polynomize(int n, boolean generateAll) {
+  private void polynomize(int n, boolean generateAll) {
     Vector<Vector<Integer>> mapping = Utils.polyGen(numberOfFeatures, n, generateAll);
     trainingSet = convert(trainingSet, mapping);
     evalSet = convert(evalSet, mapping);    

@@ -31,10 +31,10 @@ public abstract class AbstractProtocol implements GossipProtocol {
   //active thread delay mean and variance
   /** @hidden */
   protected static final String PAR_DELAYMEAN = "delayMean";
-  protected double delayMean = Double.POSITIVE_INFINITY;
+  protected final double delayMean;
   /** @hidden */
   protected static final String PAR_DELAYVAR = "delayVar";
-  protected double delayVar = 1.0;
+  protected final double delayVar;
   
   // variables for modeling churn
   protected long sessionLength = ChurnControl.INIT_SESSION_LENGTH;
@@ -46,19 +46,19 @@ public abstract class AbstractProtocol implements GossipProtocol {
   /** @hidden */
   protected int currentProtocolID = -1;
   /** @hidden */
-  protected String prefix;
+  protected final String prefix;
+  
+  public AbstractProtocol(String prefix) {
+    this.prefix = prefix;
+    delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN);
+    delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR);
+  }
   
   /**
    * This method performers the deep copying of the protocol.
    */
   @Override
   public abstract Object clone();
-  
-  protected void init(String prefix) {
-    this.prefix = prefix;
-    delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN, Double.POSITIVE_INFINITY);
-    delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR, 1.0);
-  }
   
   /**
    * It is a helper method as well which supports sending message

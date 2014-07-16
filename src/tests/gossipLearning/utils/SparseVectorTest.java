@@ -3,6 +3,7 @@ package tests.gossipLearning.utils;
 import gossipLearning.utils.SparseVector;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -17,15 +18,22 @@ public class SparseVectorTest extends TestCase implements Serializable {
     v0.put(3, 0.3);
     SparseVector v1 = new SparseVector(new double[]{0, 2, 0, 0.3});
     assertEquals(v0, v1);
-    v0.put(-1, 0.8);
     Map<Integer, Double> map = new TreeMap<Integer, Double>();
     map.put(3, 0.3);
-    map.put(-1, 0.8);
     map.put(1, 2.0);
     SparseVector v2 = new SparseVector(map);
     assertEquals(v0, v2);
+    map = new HashMap<Integer, Double>();
+    map.put(1, 2.0);
+    map.put(3, 0.3);
+    v2 = new SparseVector(map);
+    assertEquals(v0, v2);
     SparseVector v3 = new SparseVector(v0);
     assertEquals(v0, v3);
+    int[] indices = new int[]{2, 5, 6, 8};
+    double[] values = new double[]{0.5, 2.3, 0, 1.2};
+    SparseVector v4 = new SparseVector(indices, values);
+    assertEquals(v4, new SparseVector(new double[]{0, 0, 0.5, 0, 0, 2.3, 0, 0, 1.2}));
   }
   
   public void testClone() {
@@ -50,7 +58,6 @@ public class SparseVectorTest extends TestCase implements Serializable {
   
   public void testGet() {
     SparseVector v1 = new SparseVector(new double[]{1,0,0,2});
-    assertEquals(v1.get(-1), 0.0);
     assertEquals(v1.get(3), 2.0);
     assertEquals(v1.get(Integer.MAX_VALUE), 0.0);
   }
@@ -85,6 +92,10 @@ public class SparseVectorTest extends TestCase implements Serializable {
     SparseVector v1 = new SparseVector(new double[]{1,0,0,2});
     SparseVector v2 = new SparseVector(new double[]{0.1,3,0,2,0,1.1});
     SparseVector v3 = new SparseVector(new double[]{1.1,3,0,4,0,1.1});
+    assertEquals(v1.add(v2), v3);
+    v1 = new SparseVector(new double[]{1.0,0,0,1.0});
+    v2 = new SparseVector(new double[]{0,1.0,1.0,0});
+    v3 = new SparseVector(new double[]{1.0,1.0,1.0,1.0,0,});
     assertEquals(v1.add(v2), v3);
   }
   
@@ -195,6 +206,26 @@ public class SparseVectorTest extends TestCase implements Serializable {
   public void testSum() {
     SparseVector v = new SparseVector(new double[]{0.5,0,0,0.25,0});
     assertEquals(v.sum(), 0.75);
+  }
+  
+  public void testCosSim() {
+    SparseVector v = new SparseVector(new double[]{1.0,0,0,1.0});
+    SparseVector v2 = new SparseVector(new double[]{1.0,0,0,1.0});
+    assertEquals(1.0, v.cosSim(v2), 1E-5);
+    v2 = new SparseVector(new double[]{0.0,1.0,1.0,0.0});
+    assertEquals(0.0, v.cosSim(v2), 1E-5);
+    v2 = new SparseVector(new double[]{-1.0,0,0,-1.0});
+    assertEquals(-1.0, v.cosSim(v2), 1E-5);
+  }
+  
+  public void testEuclideanDistance() {
+    SparseVector v = new SparseVector(new double[]{1.0,0,0,1.0});
+    SparseVector v2 = new SparseVector(new double[]{1.0,0,0,1.0});
+    assertEquals(0.0, v.euclideanDistance(v2), 1E-5);
+    v2 = new SparseVector(new double[]{0.0,1.0,1.0,0.0});
+    assertEquals(2.0, v.euclideanDistance(v2), 1E-5);
+    v2 = new SparseVector(new double[]{-1.0,0,0,-1.0});
+    assertEquals(Math.sqrt(8), v.euclideanDistance(v2), 1E-5);
   }
 
 }

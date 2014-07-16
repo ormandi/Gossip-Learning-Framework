@@ -64,7 +64,13 @@ public class FilterBoost extends ProbabilityModel {
    * Constructs an initial model.<br/>
    * @NOTE: Object is not usable until calling init(String prefix) function!
    */
-  public FilterBoost() {
+  public FilterBoost(String prefix) {
+    this.prefix = prefix;
+    T = Configuration.getInt(prefix + "." + PAR_T);
+    C = Configuration.getInt(prefix + "." + PAR_C);
+    useCache = Configuration.getBoolean(prefix + "." + PAR_USECACHE);
+    weakLearnerClassName = Configuration.getString(prefix + "." + PAR_WEAKLEARNERNAME);
+    strongLearner = new BQModelHolder(T);
     numberOfClasses = 2;
     cacheDist = new TreeMap<SparseVector, double[]>();
     useCache = true;
@@ -75,7 +81,6 @@ public class FilterBoost extends ProbabilityModel {
    * @param a to copy
    */
   protected FilterBoost(FilterBoost a) {
-    this();
     this.T = a.T;
     this.C = a.C;
     this.t = a.t;
@@ -113,16 +118,6 @@ public class FilterBoost extends ProbabilityModel {
     return new FilterBoost(this);
   }
 
-  @Override
-  public void init(String prefix) {
-    this.prefix = prefix;
-    T = Configuration.getInt(prefix + "." + PAR_T);
-    C = Configuration.getInt(prefix + "." + PAR_C);
-    useCache = Configuration.getBoolean(prefix + "." + PAR_USECACHE);
-    weakLearnerClassName = Configuration.getString(prefix + "." + PAR_WEAKLEARNERNAME);
-    strongLearner = new BQModelHolder(T);
-  }
-
   private double[] losses;
   private double[] sWeigths;
   private double counter = 0.0;
@@ -151,11 +146,9 @@ public class FilterBoost extends ProbabilityModel {
       weakWeights = 0.0;
       constantWeights = 0.0;
       try {
-        actualWeakLearner = (WeakLearner)Class.forName(weakLearnerClassName).newInstance();
-        actualWeakLearner.init(prefix + ".FilterBoost");
+        actualWeakLearner = (WeakLearner)Class.forName(weakLearnerClassName).getConstructor(String.class).newInstance(prefix + ".FilterBoost");
         actualWeakLearner.setNumberOfClasses(numberOfClasses);
-        constantWeakLearner = new ConstantLearner();
-        constantWeakLearner.init(prefix + ".FilterBoost");
+        constantWeakLearner = new ConstantLearner(prefix + ".FilterBoost");
         constantWeakLearner.setNumberOfClasses(numberOfClasses);
       } catch (Exception e) {
         e.printStackTrace();

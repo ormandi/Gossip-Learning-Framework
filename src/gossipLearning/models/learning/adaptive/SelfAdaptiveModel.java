@@ -2,9 +2,10 @@ package gossipLearning.models.learning.adaptive;
 
 import gossipLearning.interfaces.models.ErrorEstimatorModel;
 import gossipLearning.interfaces.models.LearningModel;
-import gossipLearning.utils.LogNormalRandom;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 
 /**
  * A type of model, that can handle the drifting concepts through 
@@ -30,7 +31,6 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
   private static final double C = 1.96;
   private static final double wsize = 100;
   private static final double alpha = 2.0/(wsize);
-  private static LogNormalRandom r;
   /** @hidden */
   protected String prefix;
   /**
@@ -71,7 +71,15 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
   /**
    * Constructs an initial object, call of init(prefix) function is required.
    */
-  public SelfAdaptiveModel() {
+  public SelfAdaptiveModel(String prefix) {
+    this.prefix = prefix;
+    maximalAge = Utils.nextLogNormal(mu, sigma, CommonState.r);
+    modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
+    try {
+      model = (LearningModel)Class.forName(modelName).getConstructor(String.class).newInstance(prefix + ".SelfAdaptiveModel");
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     age = 2.0;
     meanError = 0.5;
     sqMeanError = 0.5;
@@ -103,33 +111,15 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
   }
   
   @Override
-  public void init(String prefix) {
-    this.prefix = prefix;
-    long seed = Configuration.getLong("random.seed");
-    if (r == null) {
-      r = new LogNormalRandom(mu, sigma, seed);
-    }
-    maximalAge = r.nextDouble();
-    modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
-    try {
-      model = (LearningModel)Class.forName(modelName).newInstance();
-      model.init(prefix + ".SelfAdaptiveModel");
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
   public void update(SparseVector instance, double label) {
     if (age >= maximalAge) {
-      maximalAge = r.nextDouble();
+      maximalAge = Utils.nextLogNormal(mu, sigma, CommonState.r);
       age = 2.0;
       meanError = 0.5;
       sqMeanError = 0.5;
       confidence = 0.0;
       try {
-        model = (LearningModel)Class.forName(modelName).newInstance();
-        model.init(prefix);
+        model = (LearningModel)Class.forName(modelName).getConstructor(String.class).newInstance(prefix);
         model.setNumberOfClasses(numberOfClasses);
       } catch (Exception e) {
         throw new RuntimeException(e);

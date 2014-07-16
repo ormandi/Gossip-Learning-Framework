@@ -21,11 +21,18 @@ public class ZeroOneError extends ValueBasedEvaluator {
     return new ZeroOneError(this);
   }
 
+  /**
+   * @return 0 if the expected value is equals to the predicted value 
+   * and 1 otherwise
+   */
   @Override
   public double getValue(double expected, double predicted) {
     return expected == predicted ? 0.0 : 1.0;
   }
 
+  /**
+   * @return the specified value
+   */
   @Override
   public double postProcess(double meanValue) {
     return meanValue;

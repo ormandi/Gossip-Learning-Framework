@@ -22,12 +22,17 @@ public class AdaLineLearner extends WeakLearner {
   
   private static long c;
 
-  public AdaLineLearner() {
+  public AdaLineLearner(String prefix) {
+    super(prefix);
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    seed = Configuration.getLong("random.seed");
+    r = new Random(seed | c++);
     w = new SparseVector();
     age = 0.0;
   }
   
   public AdaLineLearner(AdaLineLearner a) {
+    super(a.prefix);
     numberOfClasses = a.numberOfClasses;
     age = a.age;
     lambda = a.lambda;
@@ -42,13 +47,6 @@ public class AdaLineLearner extends WeakLearner {
     }
   }
   
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    seed = Configuration.getLong("random.seed");
-    r = new Random(seed | c++);
-  }
-
   @Override
   public int getNumberOfClasses() {
     return numberOfClasses;

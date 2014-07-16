@@ -9,11 +9,11 @@ import gossipLearning.utils.InstanceHolder;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class ResultAggregator implements Serializable, Iterable<AggregationResult> {
@@ -59,6 +59,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
       return;
     }
     InstanceHolder eval = extractor.extract(evalSet);
+    // TODO: voting is not implemented yet
     LearningModel model = (LearningModel)modelHolder.getModel(modelHolder.size() - 1);
     modelAges[index] = model.getAge();
     for (int i = 0; i < eval.size(); i++) {
@@ -71,7 +72,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     push(pid, index);
   }
   
-  protected void push(int pid, int index) {
+  protected void push(int pid, int modelIndex) {
     lock.lock();
     Evaluator[][] evaluator = aggregations.get(pid);
     if (!pid2ModelNames.containsKey(pid)) {
@@ -82,23 +83,23 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     StringBuffer[] buffs = pid2ModelAges.get(pid);
     if (evaluator == null) {
       evaluator = new Evaluator[modelNames.length][evalNames.length];
-      for (int i = 0; i < modelNames.length; i++) {
+      for (int model_i = 0; model_i < modelNames.length; model_i++) {
         if (AggregationResult.isPrintAges) {
-          buffs[i] = new StringBuffer();
+          buffs[model_i] = new StringBuffer();
         }
-        for (int j = 0; j < evalNames.length; j++) {
-          evaluator[i][j] = (Evaluator)evaluators[i][j].clone();
-          evaluator[i][j].clear();
+        for (int eval_j = 0; eval_j < evalNames.length; eval_j++) {
+          evaluator[model_i][eval_j] = (Evaluator)evaluators[model_i][eval_j].clone();
+          evaluators[model_i][eval_j].clear();
         }
       }
       aggregations.put(pid, evaluator);
     } else {
       if (AggregationResult.isPrintAges) {
-        buffs[index].append(' ');
-        buffs[index].append(modelAges[index]);
+        buffs[modelIndex].append(' ');
+        buffs[modelIndex].append(modelAges[modelIndex]);
       }
       for (int i = 0; i < evalNames.length; i++) {
-        evaluator[index][i].merge(evaluators[index][i]);
+        evaluator[modelIndex][i].merge(evaluators[modelIndex][i]);
       }
     }
     lock.unlock();
@@ -114,7 +115,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
   public Iterator<AggregationResult> iterator() {
     lock.lock();
     try {
-    Set<AggregationResult> results = new TreeSet<AggregationResult>();
+    List<AggregationResult> results = new LinkedList<AggregationResult>();
     for (Entry<Integer, Evaluator[][]> entry : aggregations.entrySet()) {
       for (int i = 0; i < entry.getValue().length; i++) {
         if (AggregationResult.isPrintAges) {
@@ -139,6 +140,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     StringBuffer sb = new StringBuffer();
     for (Entry<Integer, Evaluator[][]> entry : aggregations.entrySet()) {
       for (int i = 0; i < entry.getValue().length; i++) {
+        sb.append(pid2ModelNames.get(entry.getKey())[i] + ":\n");
         for (int j = 0; j < entry.getValue()[i].length; j++) {
           sb.append(entry.getValue()[i][j]);
           sb.append('\n');

@@ -20,18 +20,27 @@ public class KMeans implements LearningModel {
   private static final long serialVersionUID = -1382541535383273679L;
   
   private static final String PAR_K = "KMeans.K";
-  private static final double wSize = 100.0;
+  private static final double wSize = 1000.0;
   
-  private int K;
+  private final int K;
   private double age;
   /** @hidden*/
   private SparseVector[] centroids = null;
   private boolean[] isInitialized = null;
   
   /**
-   * Constructs a KMeans object. Should not use without init(String prefix) function.
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public KMeans() {
+  public KMeans(String prefix) {
+    this.K = Configuration.getInt(prefix + "." + PAR_K);
+    centroids = new SparseVector[K];
+    isInitialized = new boolean[K];
+    for (int i = 0; i < K; i++) {
+      centroids[i] = new SparseVector();
+      isInitialized[i] = false;
+    }
   }
   
   /**
@@ -39,7 +48,6 @@ public class KMeans implements LearningModel {
    * @param K the number of centroids
    */
   public KMeans(int K) {
-    this();
     this.K = K;
     centroids = new SparseVector[K];
     isInitialized = new boolean[K];
@@ -72,17 +80,6 @@ public class KMeans implements LearningModel {
     return new KMeans(this);
   }
 
-  @Override
-  public void init(String prefix) {
-    this.K = Configuration.getInt(prefix + "." + PAR_K);
-    centroids = new SparseVector[K];
-    isInitialized = new boolean[K];
-    for (int i = 0; i < K; i++) {
-      centroids[i] = new SparseVector();
-      isInitialized[i] = false;
-    }
-  }
-  
   /**
    * Returns the index of the first uninitialized cluster centroid.
    * @return the index of uninitialized centroid
@@ -168,6 +165,12 @@ public class KMeans implements LearningModel {
       sb.append('\n');
     }
     return sb.toString();
+  }
+  
+  public void setCentroids(SparseVector[] centroids) {
+    for (int i = 0; i < K; i++) {
+      this.centroids[i] = new SparseVector(centroids[i]);
+    }
   }
 
 }

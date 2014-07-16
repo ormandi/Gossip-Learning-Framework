@@ -43,7 +43,7 @@ public class MatrixBasedEvaluatorTest extends TestCase implements Serializable {
     for (int i = 0; i < 20; i++) {
       evaluator.evaluate(1.0, 1.0);
     }
-    String expected = "e\\p\t0\t1\n0\t10\t5\n1\t2\t20\n";
+    String expected = "e\\p\t0\t1\n------------------------\n0:\t10\t5\n1:\t2\t20\n";
     assertEquals(expected, evaluator.toString());
   }
   
@@ -62,7 +62,7 @@ public class MatrixBasedEvaluatorTest extends TestCase implements Serializable {
       evaluator.evaluate(1.0, 1.0);
     }
     MatrixBasedEvaluator me = (MatrixBasedEvaluator)evaluator.clone();
-    String expected = "e\\p\t0\t1\n0\t20\t10\n1\t4\t40\n";
+    String expected = "e\\p\t0\t1\n------------------------\n0:\t20\t10\n1:\t4\t40\n";
     evaluator.merge(me);
     assertEquals(expected, evaluator.toString());
   }

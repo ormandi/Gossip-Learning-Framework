@@ -61,6 +61,10 @@ protocol.learningProtocol.MultiLogReg.lambda 0.01
 protocol.learningProtocol.MergeableMultiLogReg.lambda 0.01
 protocol.learningProtocol.P2Winnow.eta 1.0
 protocol.learningProtocol.P2Winnow.theta 0.5
+protocol.learningProtocol.ANN.hiddenLayers 100
+protocol.learningProtocol.ANN.lambda 0.00001            # regularization lambda!
+protocol.learningProtocol.ANN.activationFunction gossipLearning.interfaces.functions.Sigmoid
+protocol.learningProtocol.ANN.gradientFunction gossipLearning.interfaces.functions.SigmoidGradient
 
 
 #-------------------- Initializers --------------------

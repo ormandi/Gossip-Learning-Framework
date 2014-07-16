@@ -45,7 +45,11 @@ public class SigmoidStumpLearner extends WeakLearner {
   /**
    * Constructs an initially learner.
    */
-  public SigmoidStumpLearner() {
+  public SigmoidStumpLearner(String prefix) {
+    super(prefix);
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    seed = Configuration.getLong("random.seed");
+    r = new Random(seed | c++);
     age = 1;
     bestIndex = 0;
     lambda = 0.001;
@@ -61,6 +65,7 @@ public class SigmoidStumpLearner extends WeakLearner {
    * @param a to copy
    */
   private SigmoidStumpLearner(SigmoidStumpLearner a) {
+    super(a.prefix);
     this.age = a.age;
     this.lambda = a.lambda;
     this.numberOfClasses = a.numberOfClasses;
@@ -100,13 +105,6 @@ public class SigmoidStumpLearner extends WeakLearner {
    */
   public Object clone(){
     return new SigmoidStumpLearner(this);
-  }
-  
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    seed = Configuration.getLong("random.seed");
-    r = new Random(seed | c++);
   }
   
   /**

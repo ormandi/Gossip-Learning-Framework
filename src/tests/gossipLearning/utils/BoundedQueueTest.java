@@ -68,8 +68,10 @@ public class BoundedQueueTest extends TestCase implements Serializable {
     for (int i = 0; i < 7; i++) {
       bq.add(i);
     }
-    assertEquals(5, bq.remove(3).intValue());
-    assertEquals("2 3 4 6", bq.toString());
+    assertEquals(2, bq.remove(0).intValue());
+    assertEquals("3 4 5 6", bq.toString());
+    assertEquals(6, bq.remove(3).intValue());
+    assertEquals("3 4 5", bq.toString());
   }
   
   public void testSize() {

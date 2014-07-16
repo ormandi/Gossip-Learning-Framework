@@ -2,8 +2,12 @@ package gossipLearning.models.learning.regression;
 
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SimilarityComputable;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Set;
+
 import peersim.config.Configuration;
 
 /**
@@ -15,12 +19,12 @@ import peersim.config.Configuration;
  * </ul>
  * @author István Hegedűs
  */
-public class LinearRegression implements LearningModel, Mergeable<LinearRegression>, SimilarityComputable<LinearRegression> {
+public class LinearRegression implements LearningModel, Mergeable<LinearRegression>, Partializable<LinearRegression>, SimilarityComputable<LinearRegression> {
   private static final long serialVersionUID = -1468280308189482885L;
   
   /** @hidden */
   protected static final String PAR_LAMBDA = "LinearRegression.lambda";
-  protected double lambda;
+  protected final double lambda;
   
   /** @hidden */
   private SparseVector w;
@@ -30,15 +34,18 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   private int numberOfClasses;
   
   /**
-   * Creates a default model with age=0 and the regression hyperplane is the 0 vector.
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public LinearRegression(){
+  public LinearRegression(String prefix){
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     w = new SparseVector();
     bias = 0.0;
     age = 0.0;
   }
   
-  private LinearRegression(LinearRegression a){
+  protected LinearRegression(LinearRegression a){
     w = (SparseVector)a.w.clone();
     bias = a.bias;
     age = a.age;
@@ -46,27 +53,36 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
     numberOfClasses = a.numberOfClasses;
   }
   
+  /**
+   * Constructs an object and sets the specified parameters.
+   * @param w hyperplane
+   * @param bias bias variable
+   * @param age number of updates
+   * @param lambda learning parameter
+   * @param numberOfClasses number of classes
+   */
+  protected LinearRegression(SparseVector w, double bias, double age, double lambda, int numberOfClasses) {
+    this.w = w;
+    this.bias = bias;
+    this.age = age;
+    this.lambda = lambda;
+    this.numberOfClasses = numberOfClasses;
+  }
+  
   public Object clone(){
     return new LinearRegression(this);
-  }
-
-  /**
-   * Initialize the age=0 and the separating hyperplane=0 vector.
-   */
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
 
   @Override
   public void update(SparseVector instance, double label) {
     age ++;
     double err = label - predict(instance);
+    //System.out.println(label + "\t" + predict(instance));
     
     double nu = 1.0 / (lambda * age);
     w.mul(1.0 - nu * lambda);
     w.add(instance, nu * err);
-    bias += nu * err;
+    bias += nu * lambda * err;
   }
 
   /**
@@ -109,6 +125,15 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   @Override
   public String toString() {
     return w.toString() + "\t" + bias;
+  }
+
+  @Override
+  public LinearRegression getModelPart(Set<Integer> indices) {
+    SparseVector w = new SparseVector(indices.size());
+    for (int index : indices) {
+      w.add(index, this.w.get(index));
+    }
+    return new LinearRegression(w, bias, age, lambda, numberOfClasses);
   }
 
 }

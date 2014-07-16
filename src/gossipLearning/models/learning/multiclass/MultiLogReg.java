@@ -27,7 +27,7 @@ public class MultiLogReg extends ProbabilityModel {
   /**
    * Learning parameter.
    */
-  protected double lambda = 0.0001;
+  protected final double lambda;
   
   /**
    * The hyperplanes of the model.
@@ -46,11 +46,23 @@ public class MultiLogReg extends ProbabilityModel {
   protected int numberOfClasses = 0;
 
   /**
-   * Constructs a default multi-class logistic regression. <br/>
-   * NOTE: It works only after calling init(String prefix) and 
-   * setNumberOfClasses(int numberOfClasses) functions.
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public MultiLogReg() {
+  public MultiLogReg(String prefix) {
+    this(prefix, PAR_LAMBDA);
+  }
+  
+  /**
+   * This constructor is for initializing the member variables of the Model. </br>
+   * And special configuration parameters can be set.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   * @param PAR_LAMBDA learning rate configuration string
+   */
+  protected MultiLogReg(String prefix, String PAR_LAMBDA) {
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     w = null;
     age = 0.0;
   }
@@ -68,14 +80,34 @@ public class MultiLogReg extends ProbabilityModel {
       w = null;
       bias = null;
     } else {
-      w = new SparseVector[numberOfClasses];
-      for (int i = 0; i < numberOfClasses; i++) {
+      w = new SparseVector[numberOfClasses -1];
+      for (int i = 0; i < numberOfClasses -1; i++) {
         w[i] = (SparseVector)a.w[i].clone();
       }
       distribution = Arrays.copyOf(a.distribution, a.numberOfClasses);
       v = Arrays.copyOf(a.v, a.numberOfClasses);
       bias = Arrays.copyOf(a.bias, a.bias.length);
     }
+  }
+  
+  /**
+   * Constructs an object and sets the specified parameters.
+   * @param lambda learning parameter
+   * @param age number of updates
+   * @param numberOfClasses number of classes
+   * @param w array of hyperplanes
+   * @param distribution template variable for the class distribution
+   * @param v template variable for the class distribution
+   * @param bias array of biases
+   */
+  protected MultiLogReg(double lambda, double age, int numberOfClasses, SparseVector[] w, double[] distribution, double[] v, double[] bias) {
+    this.lambda = lambda;
+    this.age = age;
+    this.numberOfClasses = numberOfClasses;
+    this.w = w;
+    this.distribution = distribution;
+    this.v = v;
+    this.bias = bias;
   }
   
   /**
@@ -105,24 +137,19 @@ public class MultiLogReg extends ProbabilityModel {
   }
 
   @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-  }
-
-  @Override
   public void update(SparseVector instance, double label) {
     age ++;
     double nu = 1.0 / (lambda * age);
     double[] distribution = distributionForInstance(instance);
     
     // update for each classes
-    for (int j = 0; j < numberOfClasses; j++) {
-      double cDelta = (label == j) ? 1.0 : 0.0;
-      double err = cDelta - distribution[j];
+    for (int i = 0; i < numberOfClasses -1; i++) {
+      double cDelta = (label == i) ? 1.0 : 0.0;
+      double err = cDelta - distribution[i];
       
-      w[j].mul(1.0 - nu * lambda);
-      w[j].add(instance, nu * err);
-      bias[j] += nu * err;
+      w[i].mul(1.0 - nu * lambda);
+      w[i].add(instance, nu * err);
+      bias[i] += nu * lambda * err;
     }
   }
 
@@ -140,9 +167,9 @@ public class MultiLogReg extends ProbabilityModel {
       this.numberOfClasses = numberOfClasses;
       distribution = new double[numberOfClasses];
       v = new double[numberOfClasses];
-      w = new SparseVector[numberOfClasses];
-      bias = new double[numberOfClasses];
-      for (int i = 0; i < numberOfClasses; i++) {
+      w = new SparseVector[numberOfClasses -1];
+      bias = new double[numberOfClasses -1];
+      for (int i = 0; i < numberOfClasses -1; i++) {
         w[i] = new SparseVector();
       }
     }

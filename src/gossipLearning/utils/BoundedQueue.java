@@ -39,19 +39,31 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
   /**
    * Makes a deep copy of this object.
    */
+  @SuppressWarnings("unchecked")
+  @Override
   public Object clone() {
-    Object ret = null;
-    try {
-      ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-      ObjectOutputStream out = new ObjectOutputStream(byteOut);
-      out.writeObject(this);
-      ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
-      ret = in.readObject();
-      in.close();
-      out.close();
-    } catch (Exception e) {
-      // it throws out transparently the caught IOException
-      throw new RuntimeException(e);
+    BoundedQueue<T> ret = new BoundedQueue<T>(bound);
+    ret.size = size;
+    ret.startPosition = startPosition;
+    System.arraycopy(queue, 0, ret.queue, 0, queue.length);
+    for (int i = 0; i < size; i++) {
+      try {
+        ret.queue[(i + startPosition) % bound] = (T)queue[(i + startPosition) % bound].getClass().getMethod("clone").invoke(queue[(i + startPosition) % bound]);
+      } catch (NoSuchMethodException e) {
+        try {
+          ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+          ObjectOutputStream out = new ObjectOutputStream(byteOut);
+          out.writeObject(queue[(i + startPosition) % bound]);
+          ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(byteOut.toByteArray()));
+          ret.queue[(i + startPosition) % bound] = (T)in.readObject();
+          in.close();
+          out.close();
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
     return ret;
   }
@@ -96,6 +108,7 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
     T ret = null;
     if (size > 0) {
       ret = queue[startPosition];
+      queue[startPosition] = null;
       size--;
       startPosition = (startPosition + 1) % bound;
     }
@@ -115,18 +128,23 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
     }
     ret = get(index);
     int idxTo, idxFrom;
-    if (index < size / 2) {
-      for (int i = 0; i < index; i++) {
-        idxTo = (startPosition + i + 1) % bound;
-        idxFrom = (startPosition + i) % bound;
+    if (index == 0 || index == size -1) {
+      queue[(startPosition + index) % bound] = null;
+    }
+    if (index <= size / 2) {
+      for (int i = index; i > 0; i--) {
+        idxTo = (startPosition + i) % bound;
+        idxFrom = (startPosition + i -1) % bound;
         queue[idxTo] = queue[idxFrom];
+        queue[idxFrom] = null;
       }
       startPosition = (startPosition + 1) % bound;
     } else {
-      for (int i = index; i < size; i++) {
+      for (int i = index; i < size -1; i++) {
         idxTo = (startPosition + i) % bound;
         idxFrom = (startPosition + i + 1) % bound;
         queue[idxTo] = queue[idxFrom];
+        queue[idxFrom] = null;
       }
     }
     size--;
@@ -150,9 +168,12 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
   }
   
   /**
-   * Resets the queue.
+   * Clears the queue.
    */
-  public void reset() {
+  public void clear() {
+    for (int i = 0; i < queue.length; i++) {
+      queue[i] = null;
+    }
     startPosition = 0;
     size = 0;
   }
