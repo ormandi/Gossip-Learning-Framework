@@ -52,6 +52,7 @@ public class ExtractionProtocol extends AbstractProtocol {
    * @param prefix
    */
   public ExtractionProtocol(String prefix) {
+    super(prefix);
     capacity = Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY);
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     modelName = Configuration.getString(prefix + "." + PAR_MODELNAMES);
@@ -66,9 +67,7 @@ public class ExtractionProtocol extends AbstractProtocol {
    * @param a to be copied
    */
   protected ExtractionProtocol(ExtractionProtocol a) {
-    prefix = a.prefix;
-    delayMean = a.delayMean;
-    delayVar = a.delayVar;
+    super(a.prefix);
     capacity = a.capacity;
     modelHolderName = a.modelHolderName;
     modelName = a.modelName;
@@ -86,7 +85,6 @@ public class ExtractionProtocol extends AbstractProtocol {
    */
   protected void init(String prefix) {
     try {
-      super.init(prefix);
       // holder for storing the last seen mergeable models for correct merge
       lastSeenMergeableModels = new BQModelHolder(1);
       try {
@@ -94,8 +92,7 @@ public class ExtractionProtocol extends AbstractProtocol {
       } catch (NoSuchMethodException e) {
         modelHolder = (ModelHolder)Class.forName(modelHolderName).newInstance();
       }
-      Model model = (Model)Class.forName(modelName).newInstance();
-      model.init(prefix);
+      Model model = (Model)Class.forName(modelName).getConstructor(String.class).newInstance(prefix);
       modelHolder.add(model);
       lastSeenMergeableModels.add(model);
     } catch (Exception e) {

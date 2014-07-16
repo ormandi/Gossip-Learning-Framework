@@ -9,8 +9,6 @@ import gossipLearning.utils.BQModelHolder;
 import java.util.Arrays;
 import java.util.Set;
 
-import peersim.config.Configuration;
-
 public class SlimOvsA extends MergeableOvsA {
   private static final long serialVersionUID = 4459146413742898799L;
   
@@ -20,8 +18,8 @@ public class SlimOvsA extends MergeableOvsA {
   /**
    * Default constructor (do nothing).
    */
-  public SlimOvsA() {
-    super();
+  public SlimOvsA(String prefix) {
+    super(prefix, PAR_BNAME);
   }
   
   /**
@@ -29,15 +27,7 @@ public class SlimOvsA extends MergeableOvsA {
    * @param a to copy
    */
   public SlimOvsA(SlimOvsA a) {
-    this.baseLearnerName = a.baseLearnerName;
-    this.numberOfClasses = a.numberOfClasses;
-    this.prefix = a.prefix;
-    if (a.classifiers != null) {
-      this.classifiers = (ModelHolder)a.classifiers.clone();
-    } else {
-      classifiers = null;
-    }
-    this.distribution = Arrays.copyOf(a.distribution, a.distribution.length);
+    super(a);
   }
   
   /**
@@ -48,24 +38,13 @@ public class SlimOvsA extends MergeableOvsA {
    * @param classifiers
    * @param distribution
    */
-  protected SlimOvsA(String baseLearnerName, int numberOfClasses, 
-      String prefix, ModelHolder classifiers, double[] distribution) {
-    this.baseLearnerName = baseLearnerName;
-    this.numberOfClasses = numberOfClasses;
-    this.prefix = prefix;
-    this.classifiers = classifiers;
-    this.distribution = distribution;
+  protected SlimOvsA(String baseLearnerName, int numberOfClasses, String prefix, ModelHolder classifiers, double[] distribution) {
+    super(baseLearnerName, numberOfClasses, prefix, classifiers, distribution);
   }
   
   @Override
   public Object clone() {
     return new SlimOvsA(this);
-  }
-
-  @Override
-  public void init(String prefix) {
-    this.prefix = prefix + "." + PAR_BNAME;
-    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
   }
 
   @Override

@@ -4,67 +4,25 @@ import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
 
-import peersim.config.Configuration;
 import peersim.core.CommonState;
 
 public class SimpleLowRank extends LowRankDecomposition {
-  private static final long serialVersionUID = -6695974880876825151L;
+  private static final long serialVersionUID = 4718668916550720442L;
   private static final String PAR_DIMENSION = "SimpleLowRank.dimension";
   private static final String PAR_LAMBDA = "SimpleLowRank.lambda";
   private static final String PAR_ALPHA = "SimpleLowRank.alpha";
   
-  protected double age;
-  protected HashMap<Integer, SparseVector> columnModels;
-  protected SparseVector eigenValues;
-  protected int dimension;
-  // learning rate
-  protected double lambda;
-  // regularization parameter
-  protected double alpha;
-  protected int maxIndex;
-  protected Matrix V;
-  
-  public SimpleLowRank() {
+  public SimpleLowRank(String prefix) {
+    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
     age = 0.0;
     columnModels = new HashMap<Integer, SparseVector>();
     eigenValues = new SparseVector();
-    dimension = 10;
-    lambda = 0.001;
-    alpha = 0.0;
     maxIndex = 1;
   }
   
   public SimpleLowRank(SimpleLowRank a) {
-    age = a.age;
-    // for avoiding size duplications of the HashMap
-    int size = 1;
-    while (size <= a.columnModels.size()) {
-      size <<= 1;
-    }
-    columnModels = new HashMap<Integer, SparseVector>(size, 0.9f);
-    for (Entry<Integer, SparseVector> e : a.columnModels.entrySet()) {
-      columnModels.put(e.getKey().intValue(), (SparseVector)e.getValue().clone());
-    }
-    if (a.eigenValues != null) {
-      eigenValues = new SparseVector(a.eigenValues);
-    } else {
-      eigenValues = new SparseVector();
-    }
-    dimension = a.dimension;
-    lambda = a.lambda;
-    alpha = a.alpha;
-    maxIndex = a.maxIndex;
-  }
-  
-  public SimpleLowRank(double age, HashMap<Integer, SparseVector> columnModels, int dimension, double lambda, double alpha, int maxIndex) {
-    this.age = age;
-    this.columnModels = columnModels;
-    this.dimension = dimension;
-    this.lambda = lambda;
-    this.alpha = alpha;
-    this.maxIndex = maxIndex;
+    super(a);
   }
   
   @Override
@@ -72,13 +30,6 @@ public class SimpleLowRank extends LowRankDecomposition {
     return new SimpleLowRank(this);
   }
   
-  @Override
-  public void init(String prefix) {
-    dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
-  }
-
   @Override
   public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
     // rowIndex - userID
@@ -141,10 +92,6 @@ public class SimpleLowRank extends LowRankDecomposition {
   @Override
   public double getAge() {
     return age;
-  }
-  
-  public void setDimension(int dimension) {
-    this.dimension = dimension;
   }
   
   public int getDimension() {

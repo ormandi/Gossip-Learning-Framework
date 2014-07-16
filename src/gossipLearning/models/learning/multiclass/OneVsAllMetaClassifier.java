@@ -34,13 +34,28 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
   /** @hidden */
   protected String baseLearnerName;
   /** @hidden */
-  protected String prefix;
+  protected final String prefix;
   protected double[] distribution;
 
   /**
-   * Default constructor (do nothing).
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public OneVsAllMetaClassifier() {
+  public OneVsAllMetaClassifier(String prefix) {
+    this(prefix, PAR_BNAME);
+  }
+  
+  /**
+   * This constructor is for initializing the member variables of the Model. </br>
+   * And special configuration parameters can be set.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   * @param PAR_BNAME the prefix name in the configuration file
+   */
+  protected OneVsAllMetaClassifier(String prefix, String PAR_BNAME) {
+    this.prefix = prefix + "." + PAR_BNAME;
+    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
   }
   
   /**
@@ -67,8 +82,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
    * @param classifiers
    * @param distribution
    */
-  protected OneVsAllMetaClassifier(String baseLearnerName, int numberOfClasses, 
-      String prefix, ModelHolder classifiers, double[] distribution) {
+  protected OneVsAllMetaClassifier(String baseLearnerName, int numberOfClasses, String prefix, ModelHolder classifiers, double[] distribution) {
     this.baseLearnerName = baseLearnerName;
     this.numberOfClasses = numberOfClasses;
     this.prefix = prefix;
@@ -79,12 +93,6 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
   @Override
   public Object clone() {
     return new OneVsAllMetaClassifier(this);
-  }
-
-  @Override
-  public void init(String prefix) {
-    this.prefix = prefix + "." + PAR_BNAME;
-    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
   }
 
   @Override
@@ -119,9 +127,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     classifiers = new BQModelHolder(numberOfClasses);
     for (int i = 0; i < numberOfClasses; i++) {
       try {
-        ProbabilityModel model = (ProbabilityModel)Class.forName(baseLearnerName).newInstance();
-        // FIXME: PAR_BNAME should be inheritable
-        model.init(prefix);
+        ProbabilityModel model = (ProbabilityModel)Class.forName(baseLearnerName).getConstructor(String.class).newInstance(prefix);
         model.setNumberOfClasses(2);
         classifiers.add(model);
       } catch (Exception e) {

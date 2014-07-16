@@ -5,7 +5,6 @@ import gossipLearning.utils.VectorEntry;
 
 import java.util.HashMap;
 
-import peersim.config.Configuration;
 import peersim.core.CommonState;
 
 public class RecSysModel extends LowRankDecomposition {
@@ -14,8 +13,12 @@ public class RecSysModel extends LowRankDecomposition {
   private static final String PAR_LAMBDA = "RecSysModel.lambda";
   private static final String PAR_ALPHA = "RecSysModel.alpha";
   
-  public RecSysModel() {
-    super();
+  public RecSysModel(String prefix) {
+    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
+  }
+  
+  public RecSysModel(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA) {
+    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
   }
   
   public RecSysModel(RecSysModel a) {
@@ -30,13 +33,6 @@ public class RecSysModel extends LowRankDecomposition {
     return new RecSysModel(this);
   }
   
-  @Override
-  public void init(String prefix) {
-    dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
-  }
-
   public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
     double[] newVector;
     if (rowModel == null) {

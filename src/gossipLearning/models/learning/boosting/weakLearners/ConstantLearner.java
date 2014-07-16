@@ -17,7 +17,8 @@ public class ConstantLearner extends WeakLearner {
   /**
    * Constructs a default learner.
    */
-  public ConstantLearner() {
+  public ConstantLearner(String prefix) {
+    super(prefix);
     age = 0;
   }
   
@@ -26,6 +27,7 @@ public class ConstantLearner extends WeakLearner {
    * @param a to copy
    */
   public ConstantLearner(ConstantLearner a) {
+    super(a.prefix);
     this.age = a.age;
     this.alpha = a.alpha;
     this.numberOfClasses = a.numberOfClasses;
@@ -40,10 +42,6 @@ public class ConstantLearner extends WeakLearner {
   @Override
   public Object clone() {
     return new ConstantLearner(this);
-  }
-
-  @Override
-  public void init(String prefix) {
   }
 
   @Override

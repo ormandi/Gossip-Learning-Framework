@@ -17,7 +17,7 @@ public class ANNTest  extends TestCase implements Serializable {
   private static final long serialVersionUID = 2747367262713232391L;
   private static boolean isConfigured = false;
   
-  private ANN ann = new ANN();
+  private ANN ann;
 
   @Override
   public void setUp() {
@@ -45,9 +45,8 @@ public class ANNTest  extends TestCase implements Serializable {
       InstanceHolder eval = r.getEvalSet();
       
       // initialize learner
-      ann = new ANN();
+      ann = new ANN("protocol.learningProtocol");
       ann.setNumberOfClasses(3);
-      ann.init("protocol.learningProtocol");
       double cost = Double.MAX_VALUE;
       
       // training

@@ -6,7 +6,6 @@ import gossipLearning.protocols.LearningProtocol;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Matrix;
-import gossipLearning.utils.ParetoRandom;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
@@ -65,10 +64,11 @@ public class LowRankLoader implements Control {
     int n = Network.size();
     // generate singular values
     S = new Matrix(rank, rank);
-    ParetoRandom er = new ParetoRandom(pareto_xm, pareto_alpha, Configuration.getLong("random.seed"));
+    //ParetoRandom er = new ParetoRandom(pareto_xm, pareto_alpha, Configuration.getLong("random.seed"));
     double[] arr = new double[rank];
     for (int i = 0; i < rank; i++) {
-      arr[i] = er.nextDouble() - pareto_xm;
+      //arr[i] = er.nextDouble() - pareto_xm;
+      arr[i] = Utils.nextPareto(pareto_xm, pareto_alpha, CommonState.r) - pareto_xm;
     }
     Arrays.sort(arr);
     for (int i = 0; i < rank; i++) {

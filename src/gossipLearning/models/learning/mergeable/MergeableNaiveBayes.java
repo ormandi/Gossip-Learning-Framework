@@ -10,8 +10,8 @@ import java.util.Set;
 public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<MergeableNaiveBayes>, Partializable<MergeableNaiveBayes> {
   private static final long serialVersionUID = 2340506780082847579L;
   
-  public MergeableNaiveBayes() {
-    super();
+  public MergeableNaiveBayes(String prefix) {
+    super(prefix);
   }
   
   public MergeableNaiveBayes(MergeableNaiveBayes a) {

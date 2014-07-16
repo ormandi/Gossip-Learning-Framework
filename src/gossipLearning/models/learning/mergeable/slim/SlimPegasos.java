@@ -6,16 +6,14 @@ import gossipLearning.utils.SparseVector;
 import java.util.Arrays;
 import java.util.Set;
 
-import peersim.config.Configuration;
-
 public class SlimPegasos extends MergeablePegasos {
   private static final long serialVersionUID = 6849809999453437967L;
   
   /** @hidden */
   protected static final String PAR_LAMBDA = "SlimPegasos.lambda";
   
-  public SlimPegasos(){
-    super();
+  public SlimPegasos(String prefix){
+    super(prefix, PAR_LAMBDA);
   }
   
   /**
@@ -34,10 +32,6 @@ public class SlimPegasos extends MergeablePegasos {
   
   public Object clone(){
     return new SlimPegasos(this);
-  }
-  
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
   
   /**

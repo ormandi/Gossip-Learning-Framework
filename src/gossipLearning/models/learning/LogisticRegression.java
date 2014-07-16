@@ -22,8 +22,8 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   private static final long serialVersionUID = -6445114719685631031L;
   
   /** @hidden */
-  protected static final String PAR_LAMBDA = "LogisticRegression.lambda";
-  protected double lambda;
+  private static final String PAR_LAMBDA = "LogisticRegression.lambda";
+  protected final double lambda;
   
   /** @hidden */
   protected SparseVector w;
@@ -32,10 +32,23 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   protected int numberOfClasses = 2;
   
   /**
-   * Initializes the hyperplane as 0 vector.
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public LogisticRegression(){
-    lambda = 0.0001;
+  public LogisticRegression(String prefix){
+    this(prefix, PAR_LAMBDA);
+  }
+  
+  /**
+   * This constructor is for initializing the member variables of the Model. </br>
+   * And special configuration parameters can be set.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   * @param PAR_LAMBDA learning rate configuration string
+   */
+  protected LogisticRegression(String prefix, String PAR_LAMBDA) {
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     w = new SparseVector();
     bias = 0.0;
     distribution = new double[numberOfClasses];
@@ -65,8 +78,7 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param age number of updates
    * @param numberOfClasses number of classes
    */
-  protected LogisticRegression(double lambda, SparseVector w, double bias, 
-      double[] distribution, double age, int numberOfClasses) {
+  protected LogisticRegression(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses) {
     this.lambda = lambda;
     this.w = w;
     this.bias = bias;
@@ -80,11 +92,6 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    */
   public Object clone(){
     return new LogisticRegression(this);
-  }
-
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
 
   @Override

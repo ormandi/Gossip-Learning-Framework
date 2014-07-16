@@ -2,6 +2,7 @@ package gossipLearning.models.factorization;
 
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
@@ -9,10 +10,11 @@ import gossipLearning.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import peersim.config.Configuration;
 
-public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor {
+public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Partializable<LowRankDecomposition> {
   private static final long serialVersionUID = -6695974880876825151L;
   private static final String PAR_DIMENSION = "LowRankDecomposition.dimension";
   private static final String PAR_LAMBDA = "LowRankDecomposition.lambda";
@@ -21,22 +23,26 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
   protected double age;
   protected HashMap<Integer, SparseVector> columnModels;
   protected SparseVector eigenValues;
-  protected int dimension;
+  protected final int dimension;
   // learning rate
-  protected double lambda;
+  protected final double lambda;
   // regularization parameter
-  protected double alpha;
+  protected final double alpha;
   protected int maxIndex;
   protected Matrix R;
   protected Matrix V;
   
-  public LowRankDecomposition() {
+  public LowRankDecomposition(String prefix) {
+    this(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
+  }
+  
+  public LowRankDecomposition(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA) {
+    dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
     age = 0.0;
     columnModels = new HashMap<Integer, SparseVector>();
     eigenValues = new SparseVector();
-    dimension = 10;
-    lambda = 0.001;
-    alpha = 0.0;
     maxIndex = 1;
   }
   
@@ -76,13 +82,6 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     return new LowRankDecomposition(this);
   }
   
-  @Override
-  public void init(String prefix) {
-    dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
-  }
-
   @Override
   public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
     // rowIndex - userID
@@ -173,10 +172,6 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     return result;
   }
   
-  public void setDimension(int dimension) {
-    this.dimension = dimension;
-  }
-  
   public int getDimension() {
     return dimension;
   }
@@ -233,6 +228,11 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
   @Override
   public String toString() {
     return getV().toString();
+  }
+
+  @Override
+  public LowRankDecomposition getModelPart(Set<Integer> indices) {
+    return this;
   }
 
 }

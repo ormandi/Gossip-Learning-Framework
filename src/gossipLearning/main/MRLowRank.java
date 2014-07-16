@@ -120,6 +120,7 @@ public class MRLowRank {
       // compute delta
       // this can be parallelized
       double nu = lambda / Math.log(iter + 2);
+      nu = lambda;
       deltaU.mulEquals(0.0);
       deltaV.mulEquals(0.0);
       for (int i = 0; i < U.getRowDimension(); i++) {

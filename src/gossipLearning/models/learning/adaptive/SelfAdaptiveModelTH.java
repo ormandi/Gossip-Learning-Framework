@@ -34,7 +34,21 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
   private int numOfClasses;
   private BoundedQueue<Double> history;
   
-  public SelfAdaptiveModelTH() {
+  public SelfAdaptiveModelTH(String prefix) {
+    this.prefix = prefix;
+    historyLength = Configuration.getInt(prefix + "." + PAR_HLENGTH);
+    if (historyLength % 2 != 0) {
+      historyLength++;
+    }
+    modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
+    if (model == null) {
+      try {
+        model = (LearningModel)Class.forName(modelName).getConstructor(String.class).newInstance(prefix + ".SelfAdaptiveModelTH");
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+    history = new BoundedQueue<Double>(historyLength);
     age = 0;
   }
   
@@ -44,7 +58,6 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
    */
   @SuppressWarnings("unchecked")
   protected SelfAdaptiveModelTH(SelfAdaptiveModelTH a) {
-    this();
     age = a.age;
     isNewModel = a.isNewModel;
     numOfClasses = a.numOfClasses;
@@ -74,25 +87,6 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
     return new SelfAdaptiveModelTH(this);
   }
   
-  @Override
-  public void init(String prefix) {
-    this.prefix = new String(prefix);
-    historyLength = Configuration.getInt(prefix + "." + PAR_HLENGTH);
-    if (historyLength % 2 != 0) {
-      historyLength++;
-    }
-    modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
-    if (model == null) {
-      try {
-        model = (LearningModel)Class.forName(modelName).newInstance();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-    model.init(prefix + ".SelfAdaptiveModelTH");
-    history = new BoundedQueue<Double>(historyLength);
-  }
-  
   private double age = 0;
   private boolean isNewModel = true;
   @Override
@@ -108,11 +102,10 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
     if (isCreateNewModel()) {
       //System.err.println("#NEWMODEL:" + this);
       try {
-        model = (LearningModel)Class.forName(modelName).newInstance();
+        model = (LearningModel)Class.forName(modelName).getConstructor(String.class).newInstance(prefix + ".SelfAdaptiveModelTH");
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-      model.init(prefix + ".SelfAdaptiveModelTH");
       model.setNumberOfClasses(numOfClasses);
       age = 0;
       isNewModel = true;

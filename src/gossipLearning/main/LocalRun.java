@@ -56,6 +56,7 @@ public class LocalRun {
     // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    //reader.w
     if (isStandardize) {
       System.err.println("Standardizing data set.");
       reader.standardize();
@@ -67,8 +68,7 @@ public class LocalRun {
     // create models
     LearningModel[] models = new LearningModel[modelNames.length];
     for (int i = 0; i < modelNames.length; i++) {
-      models[i] = (LearningModel)Class.forName(modelNames[i]).newInstance();
-      models[i].init("learners");
+      models[i] = (LearningModel)Class.forName(modelNames[i]).getConstructor(String.class).newInstance("learners");
       models[i].setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
     }
     
@@ -82,7 +82,7 @@ public class LocalRun {
     SparseVector instance;
     double label;
     BQModelHolder modelHolder = new BQModelHolder(1);
-    FeatureExtractor extractor = new DummyExtractor();
+    FeatureExtractor extractor = new DummyExtractor("");
     
     for (int iter = 0; iter <= numIters; iter++) {
       if (iter % evalTime == 0) {
@@ -117,6 +117,9 @@ public class LocalRun {
       resultAggregator.push(-1, i, modelHolder, extractor);
     }
     System.err.println(resultAggregator);
+    /*for (int i = 0; i < reader.getEvalSet().size(); i++) {
+      System.out.println(i + "\t" + reader.getEvalSet().getLabel(i) + "\t" + Arrays.toString(((ProbabilityModel)models[0]).distributionForInstance(reader.getEvalSet().getInstance(i))));
+    }*/
   }
 
 }

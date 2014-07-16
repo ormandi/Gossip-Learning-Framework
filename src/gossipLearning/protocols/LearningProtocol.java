@@ -22,6 +22,7 @@ import peersim.core.CommonState;
  */
 public class LearningProtocol extends AbstractProtocol {
   private static final String PAR_EXTRACTORPID = "extractorProtocol";
+  protected static final String PAR_ARRGNAME = "aggrName";
   private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_MODELNAMES = "modelNames";
@@ -63,6 +64,7 @@ public class LearningProtocol extends AbstractProtocol {
    * @param prefix
    */
   public LearningProtocol(String prefix) {
+    super(prefix);
     exrtactorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
     capacity = Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY);
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
@@ -81,6 +83,7 @@ public class LearningProtocol extends AbstractProtocol {
    * @param capacity holder capacity
    */
   protected LearningProtocol(String prefix, int capacity) {
+    super(prefix);
     exrtactorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
     this.capacity = capacity;
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
@@ -96,10 +99,8 @@ public class LearningProtocol extends AbstractProtocol {
    * Copy constructor.
    */
   protected LearningProtocol(LearningProtocol a) {
+    super(a.prefix);
     exrtactorProtocolID = a.exrtactorProtocolID;
-    prefix = a.prefix;
-    delayMean = a.delayMean;
-    delayVar = a.delayVar;
     capacity = a.capacity;
     modelHolderName = a.modelHolderName;
     modelNames = a.modelNames;
@@ -118,8 +119,8 @@ public class LearningProtocol extends AbstractProtocol {
    */
   protected void init(String prefix) {
     try {
-      super.init(prefix);
-      resultAggregator = new ResultAggregator(modelNames, evalNames);
+      String aggrClassName = Configuration.getString(prefix + "." + PAR_ARRGNAME);
+      resultAggregator = (ResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(modelNames, evalNames);
       // holder for storing the last seen mergeable models for correct merge
       lastSeenMergeableModels = new BQModelHolder(modelNames.length);
       latestModelHolder = new BQModelHolder(modelNames.length);
@@ -130,8 +131,7 @@ public class LearningProtocol extends AbstractProtocol {
         } catch (NoSuchMethodException e) {
           modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).newInstance();
         }
-        Model model = (Model)Class.forName(modelNames[i]).newInstance();
-        model.init(prefix);
+        Model model = (Model)Class.forName(modelNames[i]).getConstructor(String.class).newInstance(prefix);
         lastSeenMergeableModels.add(model);
         modelHolders[i].add(model);
       }

@@ -12,10 +12,20 @@ import java.util.Arrays;
  */
 public abstract class WeakLearner extends ProbabilityModel{
   private static final long serialVersionUID = 1349841351687L;
+  protected final String prefix;
   /**
    * Represents the weight of the current weak learner.
    */
   protected double alpha = 1.0;
+  
+  /**
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   */
+  public WeakLearner(String prefix) {
+    this.prefix = prefix; 
+  }
   
   /**
    * Returns the weight of the current weak learner.

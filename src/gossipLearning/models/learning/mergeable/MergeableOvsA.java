@@ -6,10 +6,7 @@ import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.OneVsAllMetaClassifier;
 
-import java.util.Arrays;
 import java.util.Set;
-
-import peersim.config.Configuration;
 
 public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<MergeableOvsA>, Partializable<MergeableOvsA> {
   private static final long serialVersionUID = -2294873002764150476L;
@@ -17,11 +14,12 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<M
   /** @hidden */
   private static final String PAR_BNAME = "MergeableOvsA";
   
-  /**
-   * Default constructor (do nothing).
-   */
-  public MergeableOvsA() {
-    super();
+  public MergeableOvsA(String prefix) {
+    super(prefix, PAR_BNAME);
+  }
+  
+  protected MergeableOvsA(String prefix, String PAR_BNAME) {
+    super(prefix, PAR_BNAME);
   }
   
   /**
@@ -29,15 +27,7 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<M
    * @param a to copy
    */
   public MergeableOvsA(MergeableOvsA a) {
-    this.baseLearnerName = a.baseLearnerName;
-    this.numberOfClasses = a.numberOfClasses;
-    this.prefix = a.prefix;
-    if (a.classifiers != null) {
-      this.classifiers = (ModelHolder)a.classifiers.clone();
-    } else {
-      classifiers = null;
-    }
-    this.distribution = Arrays.copyOf(a.distribution, a.distribution.length);
+    super(a);
   }
   
   /**
@@ -48,24 +38,13 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<M
    * @param classifiers
    * @param distribution
    */
-  protected MergeableOvsA(String baseLearnerName, int numberOfClasses, 
-      String prefix, ModelHolder classifiers, double[] distribution) {
-    this.baseLearnerName = baseLearnerName;
-    this.numberOfClasses = numberOfClasses;
-    this.prefix = prefix;
-    this.classifiers = classifiers;
-    this.distribution = distribution;
+  protected MergeableOvsA(String baseLearnerName, int numberOfClasses, String prefix, ModelHolder classifiers, double[] distribution) {
+    super(baseLearnerName, numberOfClasses, prefix, classifiers, distribution);
   }
   
   @Override
   public Object clone() {
     return new MergeableOvsA(this);
-  }
-
-  @Override
-  public void init(String prefix) {
-    this.prefix = prefix + "." + PAR_BNAME;
-    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })

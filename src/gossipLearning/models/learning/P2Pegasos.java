@@ -12,7 +12,7 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
   
   /** @hidden */
   protected static final String PAR_LAMBDA = "P2Pegasos.lambda";
-  protected double lambda;
+  protected final double lambda;
   
   /** @hidden */
   protected SparseVector w;
@@ -20,9 +20,23 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
   protected int numberOfClasses = 2;
   
   /**
-   * Creates a default model with age=0 and the separating hyperplane is the 0 vector.
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public P2Pegasos(){
+  public P2Pegasos(String prefix){
+    this(prefix, PAR_LAMBDA);
+  }
+  
+  /**
+   * This constructor is for initializing the member variables of the Model. </br>
+   * And special configuration parameters can be set.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   * @param PAR_LAMBDA learning rate configuration string
+   */
+  public P2Pegasos(String prefix, String PAR_LAMBDA) {
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     w = new SparseVector();
     age = 0.0;
     distribution = new double[numberOfClasses];
@@ -49,8 +63,7 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
    * @param lambda learning parameter
    * @param numberOfClasses number of classes
    */
-  protected P2Pegasos(SparseVector w, double age, double[] distribution, 
-      double lambda, int numberOfClasses) {
+  protected P2Pegasos(SparseVector w, double age, double[] distribution, double lambda, int numberOfClasses) {
     this.w = w;
     this.age = age;
     this.distribution = distribution;
@@ -60,14 +73,6 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
   
   public Object clone(){
     return new P2Pegasos(this);
-  }
-
-  /**
-   * Initialize the age=0 and the separating hyperplane=0 vector.
-   */
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
 
   /**

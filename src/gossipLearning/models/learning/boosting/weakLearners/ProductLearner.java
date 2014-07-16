@@ -20,10 +20,22 @@ public class ProductLearner extends WeakLearner {
   private String baseLearnerName;
   private WeakLearner[] baseLearners;
   
-  public ProductLearner() {
+  public ProductLearner(String prefix) {
+    super(prefix);
+    numberOfLearners = Configuration.getInt(prefix + "." + PAR_NUMLEARNERS);
+    baseLearnerName = Configuration.getString(prefix + "." + PAR_LEARNERNAME);
+    baseLearners = new WeakLearner[numberOfLearners];
+    for (int i = 0; i < numberOfLearners; i++) {
+      try {
+        baseLearners[i] = (WeakLearner)Class.forName(baseLearnerName).getConstructor(String.class).newInstance(prefix + ".ProductLearner");
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
   
   public ProductLearner(ProductLearner a) {
+    super(a.prefix);
     numberOfClasses = a.numberOfClasses;
     numberOfLearners = a.numberOfLearners;
     baseLearnerName = a.baseLearnerName;
@@ -35,21 +47,6 @@ public class ProductLearner extends WeakLearner {
     }
   }
   
-  @Override
-  public void init(String prefix) {
-    numberOfLearners = Configuration.getInt(prefix + "." + PAR_NUMLEARNERS);
-    baseLearnerName = Configuration.getString(prefix + "." + PAR_LEARNERNAME);
-    baseLearners = new WeakLearner[numberOfLearners];
-    for (int i = 0; i < numberOfLearners; i++) {
-      try {
-        baseLearners[i] = (WeakLearner)Class.forName(baseLearnerName).newInstance();
-        baseLearners[i].init(prefix + ".ProductLearner");
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
   @Override
   public int getNumberOfClasses() {
     return numberOfClasses;

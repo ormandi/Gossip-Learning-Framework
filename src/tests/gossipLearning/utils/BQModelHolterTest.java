@@ -148,10 +148,6 @@ class DummyModel implements Model {
     return false;
   }
 
-  @Override
-  public void init(String prefix) {
-  }
-  
   public String toString() {
     return "" + data;
   }

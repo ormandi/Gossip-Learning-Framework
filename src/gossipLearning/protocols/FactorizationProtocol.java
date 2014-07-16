@@ -5,6 +5,7 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
@@ -81,7 +82,8 @@ public class FactorizationProtocol extends LearningProtocol {
     for (int id = Math.min(numberOfIncomingModels, capacity); id > 0; id --) {
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
-        Model latestModel = (MatrixBasedModel)modelHolders[i].getModel(modelHolders[i].size() - id);
+        //Model latestModel = (MatrixBasedModel)modelHolders[i].getModel(modelHolders[i].size() - id);
+        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - id)).getModelPart(indices);
         latestModelHolder.add(latestModel);
       }
       if (latestModelHolder.size() == modelHolders.length) {

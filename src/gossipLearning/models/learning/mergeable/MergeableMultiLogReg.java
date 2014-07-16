@@ -8,8 +8,6 @@ import gossipLearning.utils.VectorEntry;
 
 import java.util.Set;
 
-import peersim.config.Configuration;
-
 /**
  * This class represents a multi-class logistic regression classifier 
  * that can be merged to an other mergeable multi-class logistic regression classifier.
@@ -29,8 +27,12 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
   /**
    * Default constructor that calls the super();
    */
-  public MergeableMultiLogReg() {
-    super();
+  public MergeableMultiLogReg(String prefix) {
+    super(prefix, PAR_LAMBDA);
+  }
+  
+  public MergeableMultiLogReg(String prefix, String PAR_LAMBDA) {
+    super(prefix, PAR_LAMBDA);
   }
   
   /**
@@ -41,17 +43,12 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
     super(a);
   }
   
-  protected MergeableMultiLogReg(double lambda, double age, int numberOfClasses, 
-      SparseVector[] w, double[] distribution, double[] v, double[] bias) {
+  protected MergeableMultiLogReg(double lambda, double age, int numberOfClasses, SparseVector[] w, double[] distribution, double[] v, double[] bias) {
     super(lambda, age, numberOfClasses, w, distribution, v, bias);
   }
   
   public Object clone() {
     return new MergeableMultiLogReg(this);
-  }
-  
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
   
   @Override
@@ -64,8 +61,12 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
       for (VectorEntry e : model.w[i]) {
         double value = w[i].get(e.index);
         w[i].add(e.index, (e.value - value) * 0.5);
+        //w[i].put(e.index, (e.value + value) / (2.0 - 1.0/age));
+        //w[i].put(e.index, (e.value + value));
       }
       bias[i] = (bias[i] + model.bias[i]) * 0.5;
+      //bias[i] = (bias[i] + model.bias[i]) / (2.0 - 1.0/age);
+      //w[i].normalize();
     }
     return this;
   }

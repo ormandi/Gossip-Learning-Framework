@@ -23,7 +23,7 @@ public class SimpleNaiveBayes extends ProbabilityModel {
   protected int numberOfClasses;
   protected int maxIndex;
 
-  public SimpleNaiveBayes() {
+  public SimpleNaiveBayes(String prefix) {
     mus = null;
     sigmas = null;
     counts = null;
@@ -54,10 +54,6 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     return new SimpleNaiveBayes(this);
   }
   
-  @Override
-  public void init(String prefix) {
-  }
-
   @Override
   public void update(SparseVector instance, double label) {
     if (instance.maxIndex() >= maxIndex) {

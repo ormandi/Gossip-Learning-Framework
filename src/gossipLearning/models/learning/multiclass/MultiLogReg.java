@@ -27,7 +27,7 @@ public class MultiLogReg extends ProbabilityModel {
   /**
    * Learning parameter.
    */
-  protected double lambda = 0.0001;
+  protected final double lambda;
   
   /**
    * The hyperplanes of the model.
@@ -46,11 +46,23 @@ public class MultiLogReg extends ProbabilityModel {
   protected int numberOfClasses = 0;
 
   /**
-   * Constructs a default multi-class logistic regression. <br/>
-   * NOTE: It works only after calling init(String prefix) and 
-   * setNumberOfClasses(int numberOfClasses) functions.
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public MultiLogReg() {
+  public MultiLogReg(String prefix) {
+    this(prefix, PAR_LAMBDA);
+  }
+  
+  /**
+   * This constructor is for initializing the member variables of the Model. </br>
+   * And special configuration parameters can be set.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   * @param PAR_LAMBDA learning rate configuration string
+   */
+  protected MultiLogReg(String prefix, String PAR_LAMBDA) {
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     w = null;
     age = 0.0;
   }
@@ -88,8 +100,7 @@ public class MultiLogReg extends ProbabilityModel {
    * @param v template variable for the class distribution
    * @param bias array of biases
    */
-  protected MultiLogReg(double lambda, double age, int numberOfClasses, 
-      SparseVector[] w, double[] distribution, double[] v, double[] bias) {
+  protected MultiLogReg(double lambda, double age, int numberOfClasses, SparseVector[] w, double[] distribution, double[] v, double[] bias) {
     this.lambda = lambda;
     this.age = age;
     this.numberOfClasses = numberOfClasses;
@@ -123,11 +134,6 @@ public class MultiLogReg extends ProbabilityModel {
       distribution[i] = 1.0 / (sum + Math.exp(-v[i]));
     }
     return distribution;
-  }
-
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
 
   @Override

@@ -6,8 +6,6 @@ import gossipLearning.utils.SparseVector;
 import java.util.Arrays;
 import java.util.Set;
 
-import peersim.config.Configuration;
-
 public class SlimMultiLogReg extends MergeableMultiLogReg {
   private static final long serialVersionUID = 2834866979500268161L;
   
@@ -17,8 +15,8 @@ public class SlimMultiLogReg extends MergeableMultiLogReg {
   /**
    * Default constructor that calls the super();
    */
-  public SlimMultiLogReg() {
-    super();
+  public SlimMultiLogReg(String prefix) {
+    super(prefix, PAR_LAMBDA);
   }
   
   /**
@@ -29,17 +27,12 @@ public class SlimMultiLogReg extends MergeableMultiLogReg {
     super(a);
   }
   
-  protected SlimMultiLogReg(double lambda, double age, int numberOfClasses, 
-      SparseVector[] w, double[] distribution, double[] v, double[] bias) {
+  protected SlimMultiLogReg(double lambda, double age, int numberOfClasses, SparseVector[] w, double[] distribution, double[] v, double[] bias) {
     super(lambda, age, numberOfClasses, w, distribution, v, bias);
   }
   
   public Object clone() {
     return new SlimMultiLogReg(this);
-  }
-  
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
   
   @Override
@@ -50,12 +43,12 @@ public class SlimMultiLogReg extends MergeableMultiLogReg {
 
   @Override
   public SlimMultiLogReg getModelPart(Set<Integer> indices) {
-    SparseVector[] w = new SparseVector[numberOfClasses];
-    for (int i = 0; i < numberOfClasses; i++) {
+    SparseVector[] w = new SparseVector[numberOfClasses-1];
+    for (int i = 0; i < numberOfClasses-1; i++) {
       w[i] = new SparseVector(indices.size());
     }
     for (int index : indices) {
-      for (int i = 0; i < numberOfClasses; i++) {
+      for (int i = 0; i < numberOfClasses-1; i++) {
         w[i].add(index, this.w[i].get(index));
       }
     }

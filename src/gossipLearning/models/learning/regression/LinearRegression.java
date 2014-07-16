@@ -24,7 +24,7 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   
   /** @hidden */
   protected static final String PAR_LAMBDA = "LinearRegression.lambda";
-  protected double lambda;
+  protected final double lambda;
   
   /** @hidden */
   private SparseVector w;
@@ -34,9 +34,12 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   private int numberOfClasses;
   
   /**
-   * Creates a default model with age=0 and the regression hyperplane is the 0 vector.
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
-  public LinearRegression(){
+  public LinearRegression(String prefix){
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     w = new SparseVector();
     bias = 0.0;
     age = 0.0;
@@ -58,8 +61,7 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
    * @param lambda learning parameter
    * @param numberOfClasses number of classes
    */
-  protected LinearRegression(SparseVector w, double bias, double age, 
-      double lambda, int numberOfClasses) {
+  protected LinearRegression(SparseVector w, double bias, double age, double lambda, int numberOfClasses) {
     this.w = w;
     this.bias = bias;
     this.age = age;
@@ -69,14 +71,6 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   
   public Object clone(){
     return new LinearRegression(this);
-  }
-
-  /**
-   * Initialize the age=0 and the separating hyperplane=0 vector.
-   */
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
 
   @Override

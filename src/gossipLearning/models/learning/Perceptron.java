@@ -1,89 +1,86 @@
 package gossipLearning.models.learning;
 
-import java.util.Arrays;
-
 import gossipLearning.interfaces.Function;
-import gossipLearning.interfaces.functions.Step;
-import gossipLearning.interfaces.functions.ConstantGradient;
-import gossipLearning.interfaces.functions.Sigmoid;
-import gossipLearning.interfaces.functions.SigmoidGradient;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Arrays;
+
 import peersim.config.Configuration;
 
 public class Perceptron extends ProbabilityModel {
   private static final long serialVersionUID = -817025202609991782L;
   protected static final String PAR_LAMBDA = "Perceptron.lambda";
-  protected static final String PAR_FUNC = "Perceptron.usingSigmoid";
+  protected static final String PAR_AFUNC = "Perceptron.activation";
+  protected static final String PAR_GFUNC = "Perceptron.gradient";
   
-  protected double lambda;
-  protected boolean usingSigmoid;
+  protected final double lambda;
   protected int numberOfClasses;
   protected double[] distribution;
   
   protected SparseVector w;
   protected double bias;
   
-  protected Function fAct;
-  protected Function fGrad;
+  protected final Function fAct;
+  protected final Function fGrad;
   
-  public Perceptron() {
+  /**
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   */
+  public Perceptron(String prefix) {
+    this(prefix, PAR_LAMBDA, PAR_AFUNC, PAR_GFUNC);
+  }
+  
+  /**
+   * This constructor is for initializing the member variables of the Model. </br>
+   * And special configuration parameters can be set.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   * @param PAR_LAMBDA learning rate configuration string
+   * @param PAR_AFUNC activation function configuration string
+   * @param PAR_GFUNC gradient function configuration string
+   */
+  public Perceptron(String prefix, String PAR_LAMBDA, String PAR_AFUNC, String PAR_GFUNC) {
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    try {
+      fAct = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_AFUNC)).newInstance();
+      fGrad = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_GFUNC)).newInstance();
+    } catch (Exception e) {
+      throw new RuntimeException("Can not create function. ", e);
+    }
     age = 0.0;
     distribution = new double[2];
     w = new SparseVector();
     bias = 0.0;
-    fAct = new Sigmoid();
-    fGrad = new SigmoidGradient();
+  }
+  
+  public Perceptron(double age, double lambda, Function fAct, Function fGrad, int numberOfClasses, double[] distribution, SparseVector w, double bias) {
+    this.age = age;
+    this.lambda = lambda;
+    this.fAct = fAct;
+    this.fGrad = fGrad;
+    this.numberOfClasses = numberOfClasses;
+    this.distribution = distribution;
+    this.w = w;
+    this.bias = bias;
   }
   
   public Perceptron(Perceptron a) {
     age = a.age;
     lambda = a.lambda;
-    usingSigmoid = a.usingSigmoid;
     numberOfClasses = a.numberOfClasses;
     distribution = Arrays.copyOf(a.distribution, a.distribution.length);
     w = (SparseVector)a.w.clone();
     bias = a.bias;
-    if (usingSigmoid) {
-      fAct = new Sigmoid();
-      fGrad = new SigmoidGradient();
-    } else {
-      fAct = new Step();
-      fGrad = new ConstantGradient();
-    }
+    fAct = a.fAct;
+    fGrad = a.fGrad;
   }
   
-  protected Perceptron(double age, double lambda, boolean usingSigmoid, int numberOfClasses, 
-      double[] distribution, SparseVector w, double bias) {
-    this.age = age;
-    this.lambda = lambda;
-    this.usingSigmoid = usingSigmoid;
-    this.numberOfClasses = numberOfClasses;
-    this.distribution = distribution;
-    this.w = w;
-    this.bias = bias;
-    if (usingSigmoid) {
-      fAct = new Sigmoid();
-      fGrad = new SigmoidGradient();
-    } else {
-      fAct = new Step();
-      fGrad = new ConstantGradient();
-    }
-  }
-
   @Override
   public Object clone() {
     return new Perceptron(this);
-  }
-
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    usingSigmoid = Configuration.getBoolean(prefix + "." + PAR_FUNC);
-    if (!usingSigmoid) {
-      fAct = new Step();
-      fGrad = new ConstantGradient();
-    }
   }
 
   @Override

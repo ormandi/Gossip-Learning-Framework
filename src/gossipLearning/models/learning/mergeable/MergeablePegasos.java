@@ -8,8 +8,6 @@ import gossipLearning.utils.VectorEntry;
 
 import java.util.Set;
 
-import peersim.config.Configuration;
-
 /**
  * A mergeable version of the Pegasos algorithm.
  * <br/><br/>
@@ -25,8 +23,12 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
   /** @hidden */
   protected static final String PAR_LAMBDA = "MergeablePegasos.lambda";
   
-  public MergeablePegasos(){
-    super();
+  public MergeablePegasos(String prefix){
+    super(prefix, PAR_LAMBDA);
+  }
+  
+  public MergeablePegasos(String prefix, String PAR_LAMBDA) {
+    super(prefix, PAR_LAMBDA);
   }
   
   /**
@@ -38,17 +40,12 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
     super(a);
   }
   
-  protected MergeablePegasos(SparseVector w, double age, double[] distribution, 
-      double lambda, int numberOfClasses) {
+  protected MergeablePegasos(SparseVector w, double age, double[] distribution, double lambda, int numberOfClasses) {
     super(w, age, distribution, lambda, numberOfClasses);
   }
   
   public Object clone(){
     return new MergeablePegasos(this);
-  }
-  
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
   
   /**

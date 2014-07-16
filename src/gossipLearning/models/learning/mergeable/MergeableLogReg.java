@@ -8,8 +8,6 @@ import gossipLearning.utils.VectorEntry;
 
 import java.util.Set;
 
-import peersim.config.Configuration;
-
 /**
  * This class represents the logistic regression classifier that 
  * can be merged to an other mergeable logistic regression classifier.
@@ -24,34 +22,26 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
   private static final long serialVersionUID = -4465428750554412761L;
   
   /** @hidden */
-  protected static final String PAR_LAMBDA = "MergeableLogReg.lambda";
+  private static final String PAR_LAMBDA = "MergeableLogReg.lambda";
 
-  /**
-   * Default constructor that calls the super();
-   */
-  public MergeableLogReg(){
-    super();
+  public MergeableLogReg(String prefix){
+    super(prefix, PAR_LAMBDA);
   }
   
-  /**
-   * Constructs an object by clones (deep copy) the specified object.
-   * @param a to be cloned.
-   */
+  protected MergeableLogReg(String prefix, String PAR_LAMBDA) {
+    super(prefix, PAR_LAMBDA);
+  }
+  
   protected MergeableLogReg(MergeableLogReg a){
     super(a);
   }
   
-  protected MergeableLogReg(double lambda, SparseVector w, double bias, 
-      double[] distribution, double age, int numberOfClasses) {
+  protected MergeableLogReg(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses) {
     super(lambda, w, bias, distribution, age, numberOfClasses);
   }
   
   public Object clone(){
     return new MergeableLogReg(this);
-  }
-  
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
   }
   
   @Override

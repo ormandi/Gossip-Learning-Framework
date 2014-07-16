@@ -58,9 +58,8 @@ public class LowRankRun {
     //reader.standardize();
     
     // create models
-    LowRankDecomposition extractor = (LowRankDecomposition)Class.forName(extractorName).newInstance();
+    LowRankDecomposition extractor = (LowRankDecomposition)Class.forName(extractorName).getConstructor(String.class).newInstance("extractor");
     SparseVector userModels[] = new SparseVector[reader.getTrainingSet().size()];
-    extractor.init("extractor");
     
     // initialize evaluator
     FactorizationResultAggregator lrResultAggregator = (FactorizationResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(new String[]{extractorName}, evalNames);
@@ -71,7 +70,7 @@ public class LowRankRun {
     System.err.println("Start learing.");
     SparseVector instance;
     BQModelHolder modelHolder = new BQModelHolder(1);
-    FeatureExtractor dummyExtractor = new DummyExtractor();
+    FeatureExtractor dummyExtractor = new DummyExtractor("");
     for (int iter = 0; iter <= numIters; iter++) {
       if (iter % evalTime == 0) {
         // evaluate

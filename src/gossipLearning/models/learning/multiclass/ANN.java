@@ -39,9 +39,9 @@ public class ANN extends ProbabilityModel {
   protected static final String PAR_GRADF = "ANN.gradientFunction";
   protected static final String PAR_LAMBDA = "ANN.lambda";
 
-  protected double lambda;
-  protected Function fAct;
-  protected Function fGrad;
+  protected final double lambda;
+  protected final Function fAct;
+  protected final Function fGrad;
 
   protected int numberOfClasses;
   protected double[] distribution;
@@ -54,11 +54,34 @@ public class ANN extends ProbabilityModel {
    * and the number of classes (last)*/
   protected int[] layersSizes;
 
-  public ANN() {
+  /**
+   * This constructor is for initializing the member variables of the Model.
+   * 
+   * @param prefix The ID of the parameters contained in the Peersim configuration file.
+   */
+  public ANN(String prefix) {
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    String layers = Configuration.getString(prefix + "." + PAR_HIDDEN, null);
+    try {
+      fAct = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_ACTF)).newInstance();
+      fGrad = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_GRADF)).newInstance();
+    } catch (Exception e) {
+      throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
+    }
+    age = 0.0;
+    String[] layersSizes = null;
+    int numLayers = layers == null ? 0 : (layersSizes = layers.split(",")).length;
+    thetas = new Matrix[numLayers + 1];
+    products = new Matrix[numLayers + 1];
+    // first is numOfFeatures + 1, last is numOfClasses
+    this.layersSizes = new int[numLayers + 2];
+    for (int i = 0; i < numLayers; i++) {
+      // plus 1 for the bias
+      this.layersSizes[i + 1] = Integer.parseInt(layersSizes[i]) + 1;
+    }
   }
 
   public ANN(ANN a) {
-    this();
     age = a.age;
     lambda = a.lambda;
     numberOfClasses = a.numberOfClasses;
@@ -85,29 +108,6 @@ public class ANN extends ProbabilityModel {
   @Override
   public Object clone() {
     return new ANN(this);
-  }
-
-  @Override
-  public void init(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    String layers = Configuration.getString(prefix + "." + PAR_HIDDEN, null);
-    try {
-      fAct = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_ACTF)).newInstance();
-      fGrad = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_GRADF)).newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
-    }
-    age = 0.0;
-    String[] layersSizes = null;
-    int numLayers = layers == null ? 0 : (layersSizes = layers.split(",")).length;
-    thetas = new Matrix[numLayers + 1];
-    products = new Matrix[numLayers + 1];
-    // first is numOfFeatures + 1, last is numOfClasses
-    this.layersSizes = new int[numLayers + 2];
-    for (int i = 0; i < numLayers; i++) {
-      // plus 1 for the bias
-      this.layersSizes[i + 1] = Integer.parseInt(layersSizes[i]) + 1;
-    }
   }
 
   @Override

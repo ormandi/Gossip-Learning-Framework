@@ -5,16 +5,14 @@ import gossipLearning.utils.SparseVector;
 import java.util.HashMap;
 import java.util.Set;
 
-import peersim.config.Configuration;
-
 public class SlimRecSys extends MergeableRecSys {
   private static final long serialVersionUID = -2675295901691742814L;
   private static final String PAR_DIMENSION = "SlimRecSys.dimension";
   private static final String PAR_LAMBDA = "SlimRecSys.lambda";
   private static final String PAR_ALPHA = "SlimRecSys.alpha";
   
-  public SlimRecSys() {
-    super();
+  public SlimRecSys(String prefix) {
+    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
   }
   
   public SlimRecSys(SlimRecSys a) {
@@ -27,13 +25,6 @@ public class SlimRecSys extends MergeableRecSys {
   
   public Object clone() {
     return new SlimRecSys(this);
-  }
-  
-  @Override
-  public void init(String prefix) {
-    dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
   }
   
   @Override

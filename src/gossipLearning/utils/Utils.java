@@ -524,5 +524,191 @@ public class Utils {
     }*/
     return M;
   }
+  
+  /**
+   * Returns a random number generated from normal distribution using 
+   * the specified parameters.
+   * @param mu
+   * @param sigma
+   * @param r
+   * @return mu + sigma * r.nextGaussian()
+   */
+  public static double nextNormal(double mu, double sigma, Random r) {
+    return mu + sigma * r.nextGaussian();
+  }
+  
+  /**
+   * Returns a random number generated from log-normal distribution using 
+   * the specified parameters.
+   * @param mu
+   * @param sigma
+   * @param r
+   * @return Math.exp(nextNormal(mu, sigma, r))
+   */
+  public static double nextLogNormal(double mu, double sigma, Random r) {
+    return Math.exp(nextNormal(mu, sigma, r));
+  }
+  
+  /**
+   * Returns a random number generated from exponential distribution using 
+   * the specified parameters.
+   * @param lambda
+   * @param r
+   * @return -Math.log(r.nextDouble()) / lambda
+   */
+  public static double nextExponential(double lambda, Random r) {
+    return -Math.log(r.nextDouble()) / lambda;
+  }
+  
+  /**
+   * Returns a random number generated from pareto distribution using 
+   * the specified parameters.
+   * @param xm
+   * @param alpha
+   * @param r
+   * @return xm / (Math.pow(r.nextDouble(), 1.0 / alpha))
+   */
+  public static double nextPareto(double xm, double alpha, Random r) {
+    return xm / (Math.pow(r.nextDouble(), 1.0 / alpha));
+  }
+  
+  public static double nextPareto(double xm, double alpha, double bound, Random r) {
+    double rnd = r.nextDouble();
+    double xma = Math.pow(xm, alpha);
+    double bounda = Math.pow(bound, alpha);
+    return Math.pow(-(rnd * bounda - rnd * xma - bounda)/(bounda * xma), -1.0/alpha);
+  }
+  
+  /**
+   * Returns a random number generated from gamma distribution using 
+   * the specified parameters.
+   * @param n
+   * @param r
+   * @return
+   */
+  public static double nextGamma(double n, Random r) {
+    double result = 0.0;
+    for (int i = 0; i < n; i++) {
+      result -= Math.log(r.nextDouble());
+    }
+    return result;
+  }
+  
+  /**
+   * Returns a random number generated from gamma distribution using 
+   * the specified parameters.
+   * @param n
+   * @param r
+   * @return
+   */
+  public static double nextGammaFast(double n, Random r) {
+    final double d = n - 0.333333333333333333;
+    final double c = 1 / (3 * Math.sqrt(d));
+    while (true) {
+      final double x = r.nextGaussian();
+      final double v = (1 + c * x) * (1 + c * x) * (1 + c * x);
+      if (v <= 0) {
+        continue;
+      }
+      final double x2 = x * x;
+      final double u = r.nextDouble();
+      // Squeeze
+      if (u < 1 - 0.0331 * x2 * x2) {
+        return d * v;
+      }
+      if (Math.log(u) < 0.5 * x2 + d * (1 - v + Math.log(v))) {
+        return d * v;
+      }
+    }
+  }
+  
+  /**
+   * Returns a random number generated from beta distribution using 
+   * the specified parameters.
+   * @param alpha
+   * @param beta
+   * @param r
+   * @return
+   */
+  public static double nextBeta(double alpha, double beta, Random r) {
+    double x = nextGamma(alpha, r);
+    double y = nextGamma(beta, r);
+    return x / (x + y);
+  }
+  
+  /**
+   * Returns a random number generated from beta distribution using 
+   * the specified parameters.
+   * @param alpha
+   * @param beta
+   * @param r
+   * @return
+   */
+  public static double nextBetaFast(double alpha, double beta, Random r) {
+    double x = nextGammaFast(alpha, r);
+    double y = nextGammaFast(beta, r);
+    return x / (x + y);
+  }
+  
+  private static double[] KSTest(double[] a, double[] b) {
+    double[] ca = a.clone();
+    double[] cb = b.clone();
+    Arrays.sort(ca);
+    Arrays.sort(cb);
+    double ia = 1.0 / ca.length;
+    double ib = 1.0 / cb.length;
+    double max = 0.0;
+    double val;
+    for (int i = 0; i < ca.length; i++) {
+      val = Math.abs((i*ia) - (Math.abs(getIdx(cb, ca[i]))*ib));
+      if (val > max) {
+        max = val;
+      }
+    }
+    double c_a = max / Math.sqrt((a.length + b.length) / (double)(a.length * b.length));
+    return new double[]{max, c_a};
+  }
+  
+  private static int getIdx(double[] a, double value) {
+    int first = 0;
+    int last = a.length - 1;
+    while(first <= last) {
+      int med = (first + last) >>> 1;
+      if (a[med] < value) {
+        first = med + 1;
+      } else if (a[med] > value) {
+        last = med - 1;
+      } else {
+        return med;
+      }
+    }
+    return -(first + 1);
+  }
+  
+  public static void main(String[] args) {
+    Random r = new Random(System.currentTimeMillis());
+    int size = 100;
+    double[] a = new double[size];
+    double[] b = new double[size];
+    for (int i = 0; i < size; i++) {
+      a[i] = nextGamma(5, r);
+      b[i] = nextGammaFast(5, r);
+      //a[i] = nextNormal(0.0, 2.0, r);
+      //b[i] = nextNormal(0.0, 1.0, r);
+    }
+    System.out.print("[" + a[0]);
+    for (int i = 1; i < a.length; i++) {
+      System.out.print(" " + a[i]);
+    }
+    System.out.println("]");
+    
+    System.out.print("[" + b[0]);
+    for (int i = 1; i < b.length; i++) {
+      System.out.print(" " + b[i]);
+    }
+    System.out.println("]");
+    
+    System.out.println(Arrays.toString(KSTest(a, b)));
+  }
 
 }

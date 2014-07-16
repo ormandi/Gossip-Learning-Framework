@@ -59,8 +59,7 @@ public class RecSysRun {
     LowRankDecomposition[] models = new LowRankDecomposition[modelNames.length];
     SparseVector userModels[][] = new SparseVector[modelNames.length][reader.getTrainingSet().size()];
     for (int i = 0; i < modelNames.length; i++) {
-      models[i] = (LowRankDecomposition)Class.forName(modelNames[i]).newInstance();
-      models[i].init("learners");
+      models[i] = (LowRankDecomposition)Class.forName(modelNames[i]).getConstructor(String.class).newInstance("learners");
     }
     
     // initialize evaluator
@@ -72,7 +71,7 @@ public class RecSysRun {
     System.err.println("Start learing.");
     SparseVector instance;
     BQModelHolder modelHolder = new BQModelHolder(1);
-    FeatureExtractor extractor = new DummyExtractor();
+    FeatureExtractor extractor = new DummyExtractor("");
     
     for (int iter = 0; iter <= numIters; iter++) {
       if (iter % evalTime == 0) {
