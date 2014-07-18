@@ -7,6 +7,11 @@ import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
 
+/**
+ * Control that computes the mean and the standard deviation of the 
+ * similarities between the nodes and the list of node descriptors that has.
+ * @author István Hegddűs
+ */
 public class TManEval implements Control {
   private static final String PAR_PROT = "protocol";
   

@@ -24,6 +24,8 @@ import peersim.config.Configuration;
  * <li>modelName.param - parameters of the extractor model</li>
  * <li>modelHolderName - the name of the model holder</li>
  * <li>modelHolderCapacity - the capacity of the model holder</li>
+ * <li>isUseTMan - is using TMan overlay, default is false</li>
+ * <li>isSim - is using similarity or distance measure, default is true</li>
  * </ul>
  * @author István Hegedűs
  */
@@ -32,6 +34,7 @@ public class ExtractionProtocol extends AbstractProtocol {
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
   private static final String PAR_ISUSETMAN = "isUseTMan";
+  private static final String PAR_ISSIM = "isSim";
   
   protected final int capacity;
   /** @hidden */
@@ -41,7 +44,8 @@ public class ExtractionProtocol extends AbstractProtocol {
   protected ModelHolder modelHolder;
   /** @hidden */
   protected ModelHolder lastSeenMergeableModels;
-  protected boolean isUseTMan;
+  protected final boolean isUseTMan;
+  protected final boolean isSim;
   protected NodeDescriptor descriptor;
   
   protected InstanceHolder instances;
@@ -56,7 +60,8 @@ public class ExtractionProtocol extends AbstractProtocol {
     capacity = Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY);
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     modelName = Configuration.getString(prefix + "." + PAR_MODELNAMES);
-    isUseTMan = Configuration.getBoolean(prefix + "." + PAR_ISUSETMAN);
+    isUseTMan = Configuration.getBoolean(prefix + "." + PAR_ISUSETMAN, false);
+    isSim = Configuration.getBoolean(prefix + "." + PAR_ISSIM, true);
     descriptor = null;
     init(prefix);
   }
@@ -72,6 +77,7 @@ public class ExtractionProtocol extends AbstractProtocol {
     modelHolderName = a.modelHolderName;
     modelName = a.modelName;
     isUseTMan = a.isUseTMan;
+    isSim = a.isSim;
     if (a.descriptor != null) {
       descriptor = (NodeDescriptor)a.descriptor.clone();
     }
@@ -129,7 +135,7 @@ public class ExtractionProtocol extends AbstractProtocol {
       v.add(instances.getInstance(i), 1.0 / instances.size());
     }
     if (descriptor == null) {
-      descriptor = new NodeDescriptor(currentNode, v);
+      descriptor = new NodeDescriptor(currentNode, v, isSim);
     } else {
       descriptor.setDecriptor(v);
     }

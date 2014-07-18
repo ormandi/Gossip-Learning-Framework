@@ -32,8 +32,10 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
   private static final long serialVersionUID = 5481011536830137165L;
   private static final String PAR_CACHE = "cache";
   private static final String PAR_BASEFREQ = "baseFreq";
+  private static final String PAR_ISSIM = "isSim";
   
   private final int baseFreq;
+  private final boolean isSim;
   private long sessionLength = ChurnControl.INIT_SESSION_LENGTH;
   
   private NodeDescriptor me;
@@ -43,6 +45,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
   public TMan(String prefix) {
     final int cachesize = Configuration.getInt(prefix + "." + PAR_CACHE);
     baseFreq = Configuration.getInt(prefix + "." + PAR_BASEFREQ);
+    isSim = Configuration.getBoolean(prefix + "." + PAR_ISSIM);
 
     if (baseFreq <= 0) {
       throw (InvalidParameterException) new InvalidParameterException(
@@ -64,6 +67,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
       cache[i] = (NodeDescriptor)a.cache[i].clone();
     }
     size = a.size;
+    isSim = a.isSim;
   }
   
   @Override
@@ -95,7 +99,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
 
     if (size < cache.length) {
       // add new neighbor
-      cache[size] = new NodeDescriptor(neighbour, null);
+      cache[size] = new NodeDescriptor(neighbour, null, isSim);
       cache[size].setSimilarity(Double.NEGATIVE_INFINITY);
       // find its position
       for (int j = size; j > 0 && cache[j].compareTo(cache[j-1]) > 0; j--) {
@@ -126,7 +130,7 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
   @Override
   public void processEvent(Node node, int pid, Object event) {
     if (me == null) {
-      me = new NodeDescriptor(node, null);
+      me = new NodeDescriptor(node, null, isSim);
     }
     
     if (event instanceof TManMessage) {

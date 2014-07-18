@@ -6,8 +6,8 @@ import peersim.core.Node;
 
 /**
  * This class represents a node and a corresponding vector.
- * Nodes can be compared based on the cosine similarity of the corresponding 
- * descriptors.
+ * Nodes can be compared by cosine similarity or Euclidean distance 
+ * of the corresponding descriptors.
  * @author István Hegedűs
  */
 public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>, Cloneable {
@@ -16,15 +16,19 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   private final Node node;
   private SparseVector descriptor;
   private double similarity;
+  private final boolean isSim;
   
   /**
    * Creates an object and stored the specified parameters.
    * @param node node to be described
    * @param descriptor descriptor that describes the node
+   * @param isSim if true the comparison is based on cosine similarity and 
+   * Euclidean distance otherwise
    */
-  public NodeDescriptor(Node node, SparseVector descriptor) {
+  public NodeDescriptor(Node node, SparseVector descriptor, boolean isSim) {
     this.node = node;
     this.descriptor = descriptor;
+    this.isSim = isSim;
   }
   
   /**
@@ -39,6 +43,7 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
       descriptor = null;
     }
     similarity = a.similarity;
+    isSim = a.isSim;
   }
   
   @Override
@@ -101,9 +106,9 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   @Override
   public int compareTo(NodeDescriptor a) {
     if (similarity < a.similarity) {
-      return -1;
+      return isSim ? 1 : -1;
     } else if (similarity > a.similarity) {
-      return 1;
+      return isSim ? -1 : 1;
     }
     return 0;
   }
@@ -118,8 +123,11 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
     if (a.descriptor == null) {
       return Double.NEGATIVE_INFINITY;
     }
-    //return -descriptor.euclideanDistance(a.descriptor);
-    return descriptor.cosSim(a.descriptor);
+    if (isSim) {
+      return descriptor.cosSim(a.descriptor);
+    } else {
+      return -descriptor.euclideanDistance(a.descriptor);
+    }
   }
   
   @Override
