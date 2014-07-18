@@ -4,6 +4,11 @@ import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
+/**
+ * Abstract bandit model that handles the plays and rewards, but the 
+ * update function (the logic) should be specified in the descendant classes.
+ * @author István Hegedűs
+ */
 public abstract class BanditModel implements LearningModel {
   private static final long serialVersionUID = -7777210431635913738L;
   private static final String PAR_K = "Bandits.K";
@@ -15,14 +20,27 @@ public abstract class BanditModel implements LearningModel {
   protected double sumRewards;
   protected int K;
   
-  public BanditModel() {
+  /**
+   * Constructs a bandit model and loads parameters from configuration file.
+   * @param prefix prefix of the class in the configuration file.
+   */
+  public BanditModel(String prefix) {
     age = 0.0;
-    plays = null;
-    rewards = null;
     sumPlays = 0.0;
     sumRewards = 0.0;
+    K = Configuration.getInt(prefix + "." + PAR_K);
+    plays = new double[K];
+    rewards = new double[K];
+    for (int i = 0; i < plays.length; i++) {
+      plays[i] = 0.0;
+      rewards[i] = 0.0;
+    }
   }
   
+  /**
+   * Deep copy constructor.
+   * @param a to copy
+   */
   public BanditModel(BanditModel a) {
     age = a.age;
     if (a.plays != null) {
@@ -36,18 +54,14 @@ public abstract class BanditModel implements LearningModel {
     K = a.K;
   }
   
+  /**
+   * Deep copy clone.
+   */
   public abstract Object clone();
   
-  public void init(String prefix) {
-    K = Configuration.getInt(prefix + "." + PAR_K);
-    plays = new double[K];
-    rewards = new double[K];
-    for (int i = 0; i < plays.length; i++) {
-      plays[i] = 0.0;
-      rewards[i] = 0.0;
-    }
-  }
-  
+  /**
+   * The descendant classes implements here the logic (which arm should be played).
+   */
   public abstract void update();
   
   public final void update(SparseVector instance, double label) {

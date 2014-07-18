@@ -16,24 +16,20 @@ public class EGreedy extends BanditModel {
   protected double d;
   protected Vector<Integer> bestArmIndices;
   
-  public EGreedy() {
-    super();
+  public EGreedy(String prefix) {
+    super(prefix);
+    c = Configuration.getDouble(prefix + "." + PAR_C);
+    d = Configuration.getDouble(prefix + "." + PAR_D);
     bestArmIndices = new Vector<Integer>();
   }
   
-  public EGreedy(EGreedy a) {
+  protected EGreedy(EGreedy a) {
     super(a);
     c = a.c;
     d = a.d;
     bestArmIndices = new Vector<Integer>();
   }
   
-  public void init(String prefix) {
-    super.init(prefix);
-    c = Configuration.getDouble(prefix + "." + PAR_C);
-    d = Configuration.getDouble(prefix + "." + PAR_D);
-  }
-
   @Override
   public Object clone() {
     return new EGreedy(this);

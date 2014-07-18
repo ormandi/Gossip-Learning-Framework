@@ -7,16 +7,12 @@ import peersim.core.Network;
 public class UCBMerge extends UCB implements Mergeable<UCBMerge> {
   private static final long serialVersionUID = 2840791660561009595L;
   
-  public UCBMerge() {
-    super();
+  public UCBMerge(String prefix) {
+    super(prefix);
   }
   
-  public UCBMerge(UCBMerge a){
+  protected UCBMerge(UCBMerge a){
     super(a);
-  }
-  
-  public void init(String prefix) {
-    super.init(prefix);
   }
   
   public Object clone() {

@@ -11,20 +11,16 @@ public class UCB extends BanditModel {
   
   protected Vector<Integer> bestArmIndices;
   
-  public UCB() {
-    super();
+  public UCB(String prefix) {
+    super(prefix);
     bestArmIndices = new Vector<Integer>();
   }
   
-  public UCB(UCB a) {
+  protected UCB(UCB a) {
     super(a);
     bestArmIndices = new Vector<Integer>();
   }
   
-  public void init(String prefix) {
-    super.init(prefix);
-  }
-
   @Override
   public Object clone() {
     return new UCB(this);

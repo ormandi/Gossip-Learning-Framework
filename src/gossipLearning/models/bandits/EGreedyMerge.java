@@ -32,42 +32,8 @@ public class EGreedyMerge extends BanditModel implements Mergeable<EGreedyMerge>
   public double d;
   public double c;
   
-  public EGreedyMerge() {
-    bestArmIndices = new Vector<Integer>();
-  }
-  
-  protected EGreedyMerge(double age, double[] n, double sumN, double[] s, double[] w, double[] r, double[] q, double[] f, double[] g, double c, double d, int K){
-    this.K = K;
-    // age
-    this.age = age;
-    
-    // counters
-    this.n = Arrays.copyOf(n, n.length);
-    this.sumN = sumN;
-    
-    // model
-    this.s = Arrays.copyOf(s, s.length);
-    this.w = Arrays.copyOf(w, w.length);
-    this.r = Arrays.copyOf(r, r.length);
-    this.q = Arrays.copyOf(q, q.length);
-    this.f = Arrays.copyOf(f, f.length);
-    this.g = Arrays.copyOf(g, g.length);
-    
-    // parameter
-    this.c = c;
-    this.d = d;
-    
-    bestArmIndices = new Vector<Integer>();
-  }
-
-  @Override
-  public Object clone() {
-    return new EGreedyMerge(age, n, sumN, s, w, r, q, f, g, c, d, K);
-  }
-  
-  @Override
-  public void init(String prefix) {
-    super.init(prefix);
+  public EGreedyMerge(String prefix) {
+    super(prefix);
     c = Configuration.getDouble(prefix + "." + PAR_C);
     d = Configuration.getDouble(prefix + "." + PAR_D);
     
@@ -84,6 +50,34 @@ public class EGreedyMerge extends BanditModel implements Mergeable<EGreedyMerge>
     f = Arrays.copyOf(n, n.length);
     g = Arrays.copyOf(n, n.length);
     
+    bestArmIndices = new Vector<Integer>();
+  }
+  
+  protected EGreedyMerge(EGreedyMerge a) {
+    super(a);
+    
+    // counters
+    n = Arrays.copyOf(a.n, a.n.length);
+    sumN = a.sumN;
+    
+    // model
+    s = Arrays.copyOf(a.s, a.s.length);
+    w = Arrays.copyOf(a.w, a.w.length);
+    r = Arrays.copyOf(a.r, a.r.length);
+    q = Arrays.copyOf(a.q, a.q.length);
+    f = Arrays.copyOf(a.f, a.f.length);
+    g = Arrays.copyOf(a.g, a.g.length);
+    
+    // parameter
+    c = a.c;
+    d = a.d;
+    
+    bestArmIndices = new Vector<Integer>();
+  }
+
+  @Override
+  public Object clone() {
+    return new EGreedyMerge(this);
   }
   
   public void update() {
