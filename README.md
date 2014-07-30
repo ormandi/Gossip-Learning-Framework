@@ -1,6 +1,3 @@
-THIS BRANCH OF THE PROJECT IS IN REFACTORING PHASE!!!
-=====================================================
-
 Gossip Learning Framework (GoLF)
 ================================
 
@@ -111,9 +108,10 @@ Citation
 ========
 
 If you use GoLF in your scientific work or just you want to refer to
-GoLF somewhere, please cite the following
-[paper](http://dx.doi.org/10.1007/978-3-642-23400-2_49). The full
-citation is
+GoLF somewhere, please cite the followings
+[paper1](http://dx.doi.org/10.1007/978-3-642-23400-2_49) and 
+[paper2](http://dx.doi.org/10.1002/cpe.2858). The full
+citations are
 
 	@inproceedings{ormandi2011asynchronP2PDM,
 	  author = {R{\'o}bert Orm{\'a}ndi and Istv{\'a}n Heged\H{u}s and M{\'a}rk Jelasity},
@@ -126,5 +124,19 @@ citation is
 	  publisher = {Springer-Verlag},
 	  ee = {http://dx.doi.org/10.1007/978-3-642-23400-2_49},
 	  bibsource = {http://www.inf.u-szeged.hu/~ormandi/papers/ormandi2011asynchronP2PDM.bib}
+	}
+	@article {CPE:CPE2858,
+	  author = {Orm\'{a}ndi, R\'{o}bert and Heged\H{u}s, Istv\'{a}n and Jelasity, M\'{a}rk},
+	  title = {Gossip learning with linear models on fully distributed data},
+	  journal = {Concurrency and Computation: Practice and Experience},
+	  volume = {25},
+	  number = {4},
+	  publisher = {John Wiley & Sons, Ltd},
+	  issn = {1532-0634},
+	  url = {http://dx.doi.org/10.1002/cpe.2858},
+	  doi = {10.1002/cpe.2858},
+	  pages = {556--571},
+	  keywords = {P2P, gossip, bagging, online learning, stochastic gradient descent, random walk},
+	  year = {2013},
 	}
 
