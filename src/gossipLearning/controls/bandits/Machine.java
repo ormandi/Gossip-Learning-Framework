@@ -23,6 +23,7 @@ public class Machine {
   private Arm arms[];
   private Random r;
   private int K;
+  private long plays;
   
   private static Machine instance = null;
   
@@ -41,6 +42,7 @@ public class Machine {
       arms[c] = new Arm((0.8 / slices) * i + 0.1);
       c++;
     }
+    plays = 0;
   }
   
   private Machine(String prefix) {
@@ -71,7 +73,8 @@ public class Machine {
         }
       }
     }
-    //System.out.println("ARMS: " + Arrays.toString(arms));
+    //System.out.println("#ARMS: " + Arrays.toString(arms));
+    plays = 0;
     //d = (0.8 / (K-1)) * 0.9;
   }
   
@@ -80,8 +83,17 @@ public class Machine {
    * @param index to be played
    * @return reward
    */
-  public double play(int index) {
+  public synchronized double play(int index) {
+    plays ++;
     return arms[index].play(r);
+  }
+  
+  /**
+   * Returns the number of plays on the machine.
+   * @return number of plays
+   */
+  public long getPlays() {
+    return plays;
   }
   
   /**

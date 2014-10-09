@@ -17,10 +17,10 @@ public class BanditObserver extends GraphObserver {
   public boolean execute() {
     updateGraph();
     if (isPrintPrefix) {
-      System.out.println("#iter\tacc\tregret");
+      System.out.println("#iter\tacc\tregret\tplays");
       isPrintPrefix = false;
     }
-    System.out.println((CommonState.getTime()/logTime) + "\t" + Machine.getInstance().getPrecision() + "\t" + Machine.getInstance().getRegret());
+    System.out.println((CommonState.getTime()/logTime) + "\t" + Machine.getInstance().getPrecision() + "\t" + Machine.getInstance().getRegret() + "\t" + Machine.getInstance().getPlays());
     return false;
   }
 
