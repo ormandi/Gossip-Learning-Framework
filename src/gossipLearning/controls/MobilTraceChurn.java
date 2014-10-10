@@ -30,6 +30,12 @@ public class MobilTraceChurn implements Control {
   private static final String LENGTH_CLUSTS = "lengthClusts";
   private final int lengthClusts;
   
+  private static final String UNITS_IN_STEP = "unitsInStep";
+  private final long unitsInStep;
+  
+  private static final String INIT_TIME = "initTime";
+  private final long initTime;
+  
   protected static final double CL_LIMIT_1 = Math.exp(2.0);
   protected static final double CL_LIMIT_2 = Math.exp(5.0);
   
@@ -44,6 +50,8 @@ public class MobilTraceChurn implements Control {
     fName = Configuration.getString(prefix + "." + TRACE_FILE);
     hourBlocks = Configuration.getInt(prefix + "." + HOUR_BLOCKS);
     lengthClusts = Configuration.getInt(prefix + "." + LENGTH_CLUSTS);
+    unitsInStep = Configuration.getLong(prefix + "." + UNITS_IN_STEP);
+    initTime = Configuration.getLong(prefix + "." + INIT_TIME);
     onlineSessions = new long[hourBlocks][lengthClusts][];
     offlineSessions = new long[hourBlocks][lengthClusts][];
     numExecutes = 0;
@@ -82,10 +90,21 @@ public class MobilTraceChurn implements Control {
   public boolean execute() {
     if (prevLengths == null) {
       prevLengths = new long[Network.size()];
+      // initialize randomly from the three categories
+      for (int i = 0; i < Network.size(); i++) {
+        int r = CommonState.r.nextInt(3);
+        if (r == 0) {
+          prevLengths[i] = 0;
+        } else if (r == 1) {
+          prevLengths[i] = (long)CL_LIMIT_1 + 1;
+        } else {
+          prevLengths[i] = (long)CL_LIMIT_2 + 1;
+        }
+      }
     }
     
     // determines the hourId
-    int hourId = (int)(numExecutes / (24 / hourBlocks)) % hourBlocks;
+    int hourId = (int)((numExecutes / 60) / (24 / hourBlocks)) % hourBlocks;
     numExecutes ++;
     
     for (int i = 0; i < Network.size(); i ++) {
@@ -95,10 +114,10 @@ public class MobilTraceChurn implements Control {
         Churnable churnableProt = (Churnable) prot;
         
         // update session length of node
-        churnableProt.setSessionLength(churnableProt.getSessionLength() - 1);
+        churnableProt.setSessionLength(churnableProt.getSessionLength() - unitsInStep);
         
         // node reaches the end of the session
-        if (churnableProt.getSessionLength() <= 0) {
+        while (churnableProt.getSessionLength() <= 0) {
           
           // determines the session length cluster
           int clId = 2;
@@ -109,18 +128,19 @@ public class MobilTraceChurn implements Control {
           }
           
           // changes the failstate and sets the new session length
+          long sLength = 0;
           if (node.getFailState() == Fallible.OK) {
             node.setFailState(Fallible.DOWN);
-            long sLength = getSessionLength(hourId, clId, false);
-            prevLengths[i] = sLength;
-            churnableProt.setSessionLength(sLength);
+            sLength = getSessionLength(hourId, clId, false);
           } else if (node.getFailState() == Fallible.DOWN) {
             node.setFailState(Fallible.OK);
-            long sLength = getSessionLength(hourId, clId, true);
-            prevLengths[i] = sLength;
-            churnableProt.setSessionLength(sLength);
-            churnableProt.initSession(node, pid);
+            sLength = getSessionLength(hourId, clId, true);
+            if (numExecutes >= initTime) {
+              churnableProt.initSession(node, pid);
+            }
           }
+          prevLengths[i] = sLength;
+          churnableProt.setSessionLength(churnableProt.getSessionLength() + sLength);
         }
       } else {
         throw new RuntimeException("Protocol with PID=" + pid + " does not support modeling churn!!!");
