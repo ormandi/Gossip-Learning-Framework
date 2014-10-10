@@ -45,6 +45,22 @@ public class Machine {
     plays = 0;
   }
   
+  private Machine(long seed, double[] mus) {
+    r = new Random(seed);
+    this.K = mus.length;
+    arms = new Arm[K];
+    double bestValue = 0.0;
+    bestArm = -1;
+    for (int i = 0; i < mus.length; i++) {
+      arms[i] = new Arm(mus[i]);
+      if (mus[i] > bestValue) {
+        bestValue = mus[i];
+        bestArm = i;
+      }
+    }
+    plays = 0;
+  }
+  
   private Machine(String prefix) {
     long seed = Configuration.getLong(prefix + "." + PAR_SEED);
     r = new Random(seed);
@@ -160,36 +176,45 @@ public class Machine {
   }
   
   /**
-   * Constructs an instance of the Machine based on the configuration file.
+   * Constructs an instance of the Machine based on the configuration file. 
+   * And sets the singleton instance for the function getInstance().
    * @param prefix of this class in the configuration file
-   * @return an instance of the Machine
+   * @return the instance of the Machine
    */
   public static Machine getInstance(String prefix) {
-    if (instance == null) {
-      instance = new Machine(prefix);
-    }
-    
+    instance = new Machine(prefix);
     return instance;
   }
   
   /**
    * Constructs an instance of the Machine based on the specified parameters. </br>
    * mu<sub>i</sub> = 0.1 + 0.8(i-1)/(K-1)
+   * And sets the singleton instance for the function getInstance().
    * @param seed random seed
    * @param K number of arms
-   * @return an instance of the Machine
+   * @return the instance of the Machine
    */
   public static Machine getInstance(long seed, int K) {
-    if (instance == null) {
-      instance = new Machine(seed, K);
-    }
-    
+    instance = new Machine(seed, K);
+    return instance;
+  }
+  
+  /**
+   * Constructs an instance of the Machine based on the specified parameters. 
+   * And sets the singleton instance for the function getInstance().
+   * @param seed random seed
+   * @param mus the expected values of the arms
+   * @return the instance of the Machine
+   */
+  public static Machine getInstance(long seed, double[] mus) {
+    instance = new Machine(seed, mus);
     return instance;
   }
   
   /**
    * Returns the single instance of the Machine or null if it is not constructed.
-   * @return the single instance
+   * @return the single instance, or null if other getInstance(...) was not 
+   * called before.
    */
   public static Machine getInstance() {
     return instance;
