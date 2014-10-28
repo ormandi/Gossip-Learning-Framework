@@ -5,8 +5,11 @@ import gossipLearning.utils.jama.LUDecomposition;
 import gossipLearning.utils.jama.QRDecomposition;
 import gossipLearning.utils.jama.SingularValueDecomposition;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -309,6 +312,28 @@ public class Matrix implements Serializable {
         matrix[e.index][i] = v[i] * e.value;
       }
     }
+  }
+  
+  /**
+   * Constructs a matrix by reading them from the specified file.
+   * @param f to be read 
+   * @throws FileNotFoundException 
+   * @throws IOException 
+   */
+  public Matrix(File f) throws FileNotFoundException, IOException {
+    isTransposed = false;
+    BufferedReader br = new BufferedReader(new FileReader(f));
+    String[] split = br.readLine().split("\\s");
+    numberOfRows = Integer.parseInt(split[0]);
+    numberOfColumns = Integer.parseInt(split[1]);
+    matrix = new double[numberOfRows][numberOfColumns];
+    for (int i = 0; i < numberOfRows; i++) {
+      split = br.readLine().split("\\s");
+      for (int j = 0; j < numberOfColumns; j++) {
+        matrix[i][j] = Double.parseDouble(split[j]);
+      }
+    }
+    br.close();
   }
 
   /**
@@ -1194,19 +1219,8 @@ public class Matrix implements Serializable {
    * @throws IOException
    */
   public void writeToFile(File outFile) throws IOException {
-    writeToFile(outFile, false);
-  }
-  
-  /**
-   * Prints the string representation of the object to the 
-   * specified file.
-   * @param outFile file to be written
-   * @param append is append the specified file
-   * @throws IOException
-   */
-  public void writeToFile(File outFile, boolean append) throws IOException {
-    PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(outFile, append)));
-    pw.print(numberOfRows + " " + numberOfColumns);
+    PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(outFile)));
+    pw.println(numberOfRows + " " + numberOfColumns);
     for (int i = 0; i < numberOfRows; i++) {
       for (int j = 0; j < numberOfColumns; j++) {
         if (j != 0) {
