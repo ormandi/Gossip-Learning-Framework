@@ -111,14 +111,14 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
     printProps();
   }
   
-  public void setEvalSet(Matrix UST, Matrix VT, Matrix S) {
+  public void setEvalSet(Matrix U, Matrix V, Matrix S) {
     lock.lock();
     if (LowRankResultAggregator.S == S) {
       lock.unlock();
       return;
     }
-    LowRankResultAggregator.UST = UST;
-    LowRankResultAggregator.VT = VT;
+    LowRankResultAggregator.UST = U.mul(S).transpose();
+    LowRankResultAggregator.VT = V.transpose();
     LowRankResultAggregator.S = S;
     lock.unlock();
     printProps();
@@ -139,6 +139,7 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
     }
     System.out.println("#Eigenvalues: " + Arrays.toString(arr));
     System.out.println("#Information: " + Arrays.toString(perc));
+    
     //System.out.println(Arrays.toString(VT.getRow(0)));
     //System.out.println(Arrays.toString(UST.getRow(0)));
   }
