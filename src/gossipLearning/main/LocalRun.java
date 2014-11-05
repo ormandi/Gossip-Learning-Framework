@@ -27,7 +27,7 @@ import peersim.core.CommonState;
 public class LocalRun {
   public static void main(String[] args) throws Exception {
     if (args.length != 1) {
-      System.err.println("Using: LocalRun LocalConfig");
+      System.err.println("Using: LocalRun ConfigLearning");
       System.exit(0);
     }
     
@@ -78,7 +78,7 @@ public class LocalRun {
     AggregationResult.printPrecision = printPrecision;
     
     // learning
-    System.err.println("Start learing.");
+    System.err.println("Start learning.");
     SparseVector instance;
     double label;
     BQModelHolder modelHolder = new BQModelHolder(1);

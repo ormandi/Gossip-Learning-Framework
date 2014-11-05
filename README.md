@@ -12,7 +12,7 @@ The project is related to our academic research and it is partially
 supported by the Future and Emerging Technologies programme FP7-COSI-ICT
 of the European Commission through project
 [QLectives](http://www.qlectives.eu/) (grant no.: 231200), by the European Union and the European Social Fund through project FuturICT.hu (grant no.: TAMOP-4.2.2.C-11/1/KONV-2012-0013). Some related
-publications can be found on our personal homepages
+publications can be found on our personal home pages
 ([here](http://www.inf.u-szeged.hu/~ormandi/index.php?menu=publications)
 and [here](http://www.inf.u-szeged.hu/~ihegedus/publ.php)) and on
 [arXiv](http://arxiv.org/abs/1109.1396).
@@ -73,10 +73,11 @@ more (by using a comma separated list). Basically this is a [Peersim](http://pee
 * __types of evaluation__
   * 0-1 error: `gossipLearning.evaluators.ZeroOneError`
   * mean absolute error: `gossipLearning.evaluators.MAError`
+  * ...
 
-We assume that the training and evaluation datasets, are presented in [SVMLight
-format](http://svmlight.joachims.org/). The result will be printed on the std. output and 
-the comments on the std. error.
+We assume that the training and evaluation datasets are presented in [SVMLight
+format](http://svmlight.joachims.org/). The result will be printed on the standard output and 
+the comments on the standard error channel.
 
 * __understanding the results__:
 
@@ -84,7 +85,7 @@ For the above shown configuration file the result is the following:
 
     Loading parameters from res/config/LocalLearning.txt
     Reading data set.
-    Start learing.
+    Start learning.
     #iter   mean    dev     min     max             -       -1      gossipLearning.models.learning.P2Pegasos        gossipLearning.evaluators.RMSError
     0       0.6325  0.4899  0.0000  1.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
     10      0.6325  0.0000  0.6325  0.6325  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
@@ -101,11 +102,11 @@ For the above shown configuration file the result is the following:
     gossipLearning.models.learning.P2Pegasos:
     0.0     0.0     0.0     0.0
 
-The first column represents the iteration number, anfter that the mean error rate with 
+The first column represents the iteration number, after that the mean error rate with 
 its deviation, minimum and maximum. Of course here were evaluated only one model, so 
 the error deviation is 0 and the mean, min and max are equals. But in P2P setting they can give important information.
 
-* __runnig a P2P simulation__ 
+* __running a P2P simulation__ 
 `java -cp $classpath peersim.Simulator res/config/configFile`
  * use the `P2PLearning.txt` configuration file.
  * with network failures use the `P2PLearningFailures.txt` configuration file
@@ -113,12 +114,12 @@ the error deviation is 0 and the mean, min and max are equals. But in P2P settin
 Running a recommender system model
 -------------------------------------------------
 
-We have a matrix factorizatoin based recommender system model in our framework, that can be used both local and P2P settings.
+We have a matrix factorization based recommender system model in our framework, that can be used both local and P2P settings.
 
 * __local setting__
-`java -cp $classpath gossipLearning.RecSysRun res/config/LocalRecSys.txt`
+`java -cp $classpath gossipLearning.main.RecSysRun res/config/LocalRecSys.txt`
 * __P2P setting__
-`java -cp $classpath seersim.Simulator res/config/P2PRecSys.txt`
+`java -cp $classpath peersim.Simulator res/config/P2PRecSys.txt`
 
 This is just the tip of the iceberg since the framework provides an
 *API* which makes it extensible, i.e. you can implement new learning

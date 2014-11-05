@@ -27,7 +27,7 @@ import peersim.core.CommonState;
 public class RecSysRun {
   public static void main(String[] args) throws Exception {
     if (args.length != 1) {
-      System.err.println("Using: RecSysRun LocalConfig");
+      System.err.println("Using: RecSysRun ConfigRecSys");
       System.exit(0);
     }
     
@@ -68,7 +68,7 @@ public class RecSysRun {
     AggregationResult.printPrecision = printPrecision;
     
     // learning
-    System.err.println("Start learing.");
+    System.err.println("Start learning.");
     SparseVector instance;
     BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor extractor = new DummyExtractor("");
