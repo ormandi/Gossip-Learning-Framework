@@ -1,0 +1,13 @@
+ITER 100 #number of SGD iterations
+SEED 1234567890 #random seed
+NUMEVALS 10 #number of evaluations
+
+dbReader gossipLearning.utils.DataBaseReader
+trainingFile res/db/iris_versicolor_virginica_train.dat #training set
+evaluationFile res/db/iris_versicolor_virginica_eval.dat #evaluation/test set
+
+learners gossipLearning.models.learning.P2Pegasos #learning method
+learners.P2Pegasos.lambda 0.01 #parameters of the learning method
+
+evaluators gossipLearning.evaluators.RMSError #type of evaluation
+printPrecision 4 #evaluation precision (number of floating points)

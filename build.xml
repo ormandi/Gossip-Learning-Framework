@@ -41,7 +41,7 @@
 
   <target name="compile" depends="init" description="compile the source">
     <!-- Compile the java -->
-    <javac srcdir="${src}" target="1.6" destdir="${build}" includeantruntime="false">
+    <javac srcdir="${src}" target="1.6" source="1.6" destdir="${build}" includeantruntime="false">
       <classpath>
         <pathelement path="${build}"/>
         <fileset dir="${lib}">

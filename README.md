@@ -11,7 +11,7 @@ and Logistic Regression. (More will be coming soon.)
 The project is related to our academic research and it is partially
 supported by the Future and Emerging Technologies programme FP7-COSI-ICT
 of the European Commission through project
-[QLectives](http://www.qlectives.eu/) (grant no.: 231200). Some related
+[QLectives](http://www.qlectives.eu/) (grant no.: 231200), by the European Union and the European Social Fund through project FuturICT.hu (grant no.: TAMOP-4.2.2.C-11/1/KONV-2012-0013). Some related
 publications can be found on our personal homepages
 ([here](http://www.inf.u-szeged.hu/~ormandi/index.php?menu=publications)
 and [here](http://www.inf.u-szeged.hu/~ihegedus/publ.php)) and on
@@ -28,9 +28,8 @@ them you have to perform the following steps:
 
 * __getting the source__: First you have to download the source code of
 the framework. Probably the easiest way to do that is cloning this git
-repository by typing `git clone git://github.com/RobertOrmandi/Gossip-Learning-Framework.git`. 
-Additional possibilities are to download as [zip archive](https://github.com/RobertOrmandi/Gossip-Learning-Framework/zipball/master)
-or as [tar.gz archive](https://github.com/RobertOrmandi/Gossip-Learning-Framework/tarball/master).
+repository by typing `git clone -b multicore https://github.com/RobertOrmandi/Gossip-Learning-Framework.git`. 
+Additional possibilities are to download as [zip archive](https://github.com/RobertOrmandi/Gossip-Learning-Framework/archive/multicore.zip).
 
 * __building it__: The building process is supported with *ant*. To create a jar you have
 to type `ant` in the root directory of the
@@ -39,36 +38,87 @@ directory of the project. (All of the libraries which are necessary for
 building or running the project are included in the *lib* directory of
 the project.)
 
-* __running a predefined simulation__: To run a simulation applying one of the predefined scenarios on the 
+Running a predefined simulation
+---------------------------------------
+To run a simulation applying one of the predefined scenarios on the 
 [Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
-following code snippet: `res/script/run.sh training_db evaluation_db 100 scenario result` 
-(assuming a standard UNIX environment with java and gnuplot installed).The parameters of the 
-`run.sh` are pretty intuitive and you can find examples in the package.
-The first two parameters refer to the training and evaluation datasets, respectively, presented in [SVMLight
-format](http://svmlight.joachims.org/). You can use the `res/db/iris_setosa_versicolor_train.dat` and 
-`res/db/iris_setosa_versicolor_eval.dat` files respectively. The third parameter defines the
-number of iterations. The fourth one describes the simulation environment.
-Basically this is a [Peersim](http://peersim.sourceforge.net/) 
-configuration file template (configuration file with some variables that are 
-instantiated based on the used training set). Here you can use the 
-`res/config/no_failure_applying_more_learners_voting10.txt` configuration file.
-The results are generated in the *res/results* directory given in the fifth parameter 
-(it has to be created before the call of `run.sh`). 
-Make sure to delete previously generated results before you rerun the simulation!
-In the *res* directory of the
-project you can find additional training datasets (*db* subdirectory) and other
-configuration templates (*config* subdirectory). 
+following code in the project directory: 
+`export classpath="bin/gossipLearning.jar:lib/colt-1.2.0.jar:lib/djep-1.0.0.jar:lib/jep-2.3.0.jar:lib/peersim-1.0.5.jar:lib/peersim-extras.jar"`
+`java -cp $classpath gossipLearning.main.LocalRun res/config/LocalLearning.txt`. 
+This will run a local SGD (but not a P2P) learning based on the defined configuration file `LocalLearning.txt`.
 
-* __understanding the results__: The result graphs can be found in the
-*res/results/* directory. It should be similar to
-[this](http://www.inf.u-szeged.hu/rgai/~ormandi/iris_setosa_versicolor.png)
-figure. Each curve belongs to a certain type of learning algorithm
-(see labels) and each point of the curves corresponds to a point in time (see label of x-axis).
-Each point shows the averaged 0-1 error over the
-different machine learning models stored by the nodes of the network
-measured on a separate (i.e. not known by the learning algorithm)
-evaluation set. As you can see, each line drops down after a certain point
-in time which means each algorithm converges.
+The meaning of the configuration file:
+
+    ITER 100 #number of SGD iterations
+    SEED 1234567890 #random seed
+    NUMEVALS 10 #number of evaluations
+
+    dbReader gossipLearning.utils.DataBaseReader
+    trainingFile res/db/iris_versicolor_virginica_train.dat #training set
+    evaluationFile res/db/iris_versicolor_virginica_eval.dat #evaluation/test set
+
+    learners gossipLearning.models.learning.P2Pegasos #learning method
+    learners.P2Pegasos.lambda 0.01 #parameters of the learning method
+
+    evaluators gossipLearning.evaluators.ZeroOneError #type of evaluation
+    printPrecision 4 #evaluation precision (number of floating points)
+
+Here the learning method and the type of evaluation can be changed or can be used
+more (by using a comma separated list). Basically this is a [Peersim](http://peersim.sourceforge.net/) configuration file.
+
+* __learning methods:__
+  * Pegasos SVM: `gossipLearning.models.learning.P2Pegasos`
+  * Logistic Regression: `gossipLearning.models.learning.LogisticRegression`
+  * ...
+* __types of evaluation__
+  * 0-1 error: `gossipLearning.evaluators.ZeroOneError`
+  * mean absolute error: `gossipLearning.evaluators.MAError`
+
+We assume that the training and evaluation datasets, are presented in [SVMLight
+format](http://svmlight.joachims.org/). The result will be printed on the std. output and 
+the comments on the std. error.
+
+* __understanding the results__:
+
+For the above shown configuration file the result is the following:
+
+    Loading parameters from res/config/LocalLearning.txt
+    Reading data set.
+    Start learing.
+    #iter   mean    dev     min     max             -       -1      gossipLearning.models.learning.P2Pegasos        gossipLearning.evaluators.RMSError
+    0       0.6325  0.4899  0.0000  1.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    10      0.6325  0.0000  0.6325  0.6325  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    20      0.6325  0.0000  0.6325  0.6325  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    30      0.7746  0.0000  0.7746  0.7746  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    40      0.7746  0.0000  0.7746  0.7746  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    50      0.6325  0.0000  0.6325  0.6325  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    60      0.3162  0.0000  0.3162  0.3162  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    70      0.7746  0.0000  0.7746  0.7746  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    80      0.0000  0.0000  0.0000  0.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    90      0.0000  0.0000  0.0000  0.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    100     0.0000  0.0000  0.0000  0.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    Final result:
+    gossipLearning.models.learning.P2Pegasos:
+    0.0     0.0     0.0     0.0
+
+The first column represents the iteration number, anfter that the mean error rate with 
+its deviation, minimum and maximum. Of course here were evaluated only one model, so 
+the error deviation is 0 and the mean, min and max are equals. But in P2P setting they can give important information.
+
+* __runnig a P2P simulation__ 
+`java -cp $classpath peersim.Simulator res/config/configFile`
+ * use the `P2PLearning.txt` configuration file.
+ * with network failures use the `P2PLearningFailures.txt` configuration file
+
+Running a recommender system model
+-------------------------------------------------
+
+We have a matrix factorizatoin based recommender system model in our framework, that can be used both local and P2P settings.
+
+* __local setting__
+`java -cp $classpath gossipLearning.RecSysRun res/config/LocalRecSys.txt`
+* __P2P setting__
+`java -cp $classpath seersim.Simulator res/config/P2PRecSys.txt`
 
 This is just the tip of the iceberg since the framework provides an
 *API* which makes it extensible, i.e. you can implement new learning

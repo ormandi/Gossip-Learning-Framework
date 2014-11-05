@@ -1,0 +1,15 @@
+ITER 10000
+SEED 1234567890
+NUMEVALS 100
+
+dbReader gossipLearning.utils.RecSysDataBaseReader
+trainingFile res/db/movielens_small.train
+evaluationFile res/db/movielens_small.test
+
+learners gossipLearning.models.factorization.RecSysModel
+learners.RecSysModel.dimension 2
+learners.RecSysModel.lambda 1E-3
+learners.RecSysModel.alpha 0.0
+
+evaluators gossipLearning.evaluators.MAError
+printPrecision 4

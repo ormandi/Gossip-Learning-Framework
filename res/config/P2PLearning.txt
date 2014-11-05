@@ -1,0 +1,107 @@
+C 100 #number of cycles
+NETWORKSIZE 90 #number of nodes (should be the same as the number of training instances)
+SEED 1234567890 #random seed
+CORES 1 #number of cores for running
+
+ONLINESIZE NETWORKSIZE
+CYCLE C*ONLINESIZE+1
+LOGTIME ONLINESIZE
+
+# Transport parameters
+DROP 0.0
+DELAY 1.0
+MINDELAY NETWORKSIZE*0.9
+MAXDELAY DELAY*NETWORKSIZE*1.1
+
+# Overlay parameters
+NEWSCAST_CACHESIZE 5
+NEWSCAST_FREQ ONLINESIZE/10.0
+
+
+#-------------------- General Simulation Properties --------------------
+network.size NETWORKSIZE
+simulation.endtime CYCLE
+simulation.logtime LOGTIME
+simulation.messagemindelay MINDELAY
+simulation.threadnum CORES
+random.seed SEED
+
+
+#-------------------- Transport layer --------------------
+protocol.urtransport UniformRandomTransport
+protocol.urtransport.mindelay MINDELAY
+protocol.urtransport.maxdelay MAXDELAY
+
+protocol.transport UnreliableTransport
+protocol.transport.transport urtransport
+protocol.transport.drop DROP
+
+
+#-------------------- Connection layer --------------------
+protocol.overlay peersim.extras.mj.ednewscast.EdNewscast
+protocol.overlay.transport transport
+protocol.overlay.cache NEWSCAST_CACHESIZE
+protocol.overlay.baseFreq NEWSCAST_FREQ
+
+
+#-------------------- Extraction layer --------------------
+protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
+protocol.extractionProtocol.linkable overlay
+protocol.extractionProtocol.transport transport
+protocol.extractionProtocol.delayMean ONLINESIZE
+protocol.extractionProtocol.delayVar ONLINESIZE/10.0
+protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.extractionProtocol.modelHolderCapacity 1
+protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
+protocol.extractionProtocol.isUseTMan false
+
+
+#-------------------- Learning layer(s) --------------------
+protocol.learningProtocol gossipLearning.protocols.LearningProtocol
+protocol.learningProtocol.linkable overlay
+protocol.learningProtocol.transport transport
+protocol.learningProtocol.extractorProtocol extractionProtocol
+protocol.learningProtocol.delayMean ONLINESIZE
+protocol.learningProtocol.delayVar ONLINESIZE/10.0
+protocol.learningProtocol.numOfWaitingPeriods 10
+protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.learningProtocol.modelHolderCapacity 3
+protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
+protocol.learningProtocol.modelNames gossipLearning.models.learning.P2Pegasos
+protocol.learningProtocol.P2Pegasos.lambda 1E-2
+protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
+protocol.learningProtocol.evalProbability 1.0
+
+
+#-------------------- Initializers --------------------
+init.overlayInit WireKOut
+init.overlayInit.k NEWSCAST_CACHESIZE
+init.overlayInit.protocol overlay
+
+init.overlayStart peersim.extras.mj.ednewscast.EventInitializer
+init.overlayStart.protocolID overlay
+
+init.instanceLoader gossipLearning.controls.InstanceLoader
+init.instanceLoader.readerClass gossipLearning.utils.DataBaseReader
+init.instanceLoader.extractionProtocol extractionProtocol
+init.instanceLoader.learningProtocols learningProtocol
+init.instanceLoader.trainingFile res/db/iris_setosa_versicolor_train.dat
+init.instanceLoader.evaluationFile res/db/iris_setosa_versicolor_eval.dat
+init.instanceLoader.samplesPerNode 1
+init.instanceLoader.printPrecision 4
+init.instanceLoader.isPrintAges false
+
+init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
+init.learningProtocolStart.protocols learningProtocol
+init.learningProtocolStart.delay 0
+
+
+#-------------------- Define Init Sequence --------------------
+include.init overlayInit overlayStart instanceLoader learningProtocolStart
+
+
+#-------------------- Observers --------------------
+control.prediction gossipLearning.controls.PredictionObserver
+control.prediction.step LOGTIME
+control.prediction.protocol learningProtocol
+control.prediction.format gpt
