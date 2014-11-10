@@ -43,7 +43,7 @@ Running a predefined simulation
 To run a simulation applying one of the predefined scenarios on the 
 [Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
 following code in the project directory: 
-`export classpath="bin/gossipLearning.jar:lib/colt-1.2.0.jar:lib/djep-1.0.0.jar:lib/jep-2.3.0.jar:lib/peersim-1.0.5.jar:lib/peersim-extras.jar"`
+`export classpath="bin/gossipLearning.jar:lib/colt-1.2.0.jar:lib/djep-1.0.0.jar:lib/jep-2.3.0.jar:lib/peersim-1.0.5.jar:lib/peersim-extras.jar:."`
 `java -cp $classpath gossipLearning.main.LocalRun res/config/LocalLearning.txt`. 
 This will run a local SGD (but not a P2P) learning based on the defined configuration file `LocalLearning.txt`.
 
@@ -110,6 +110,52 @@ the error deviation is 0 and the mean, min and max are equals. But in P2P settin
 `java -cp $classpath peersim.Simulator res/config/configFile`
  * use the `P2PLearning.txt` configuration file.
  * with network failures use the `P2PLearningFailures.txt` configuration file
+
+* __write your own model__
+
+Copy this code into the DummyModel.jar in your project folder:
+
+    import gossipLearning.interfaces.models.LearningModel;
+    import gossipLearning.utils.SparseVector;
+    
+    public class DummyModel implements LearningModel {
+      public DummyModel(String prefix) {
+        // get configuration parameters
+      } 
+      public DummyModel(DummyModel a) {
+        // copy constructor
+      }
+      public Object clone() {
+        return new DummyModel(this);
+      }
+      public void update(SparseVector instance, double label) {
+        // do nothing, but updates the model
+      }
+      public double predict(SparseVector instance) {
+        // predicts the label, here always 0
+        return 0.0;
+      }
+      public double getAge() {
+        return 0.0;
+      }
+      // for hadling the multi-class problems...
+      public int getNumberOfClasses() {
+        // this model is used for binary classification
+        return 2;
+      }
+      public void setNumberOfClasses(int numberOfClasses) {
+      }
+    }
+
+Replace this line in the configuration file
+
+    learners gossipLearning.models.learning.P2Pegasos #learning method
+
+to 
+
+    learners gossipLearning.models.learning.P2Pegasos,DummyModel #learning method
+
+run the simulation.
 
 Running a recommender system model
 -------------------------------------------------
