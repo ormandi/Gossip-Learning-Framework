@@ -147,6 +147,9 @@ Copy this code into the DummyModel.jar in your project folder:
       }
     }
 
+Compile the file
+`javac -cp $classpath DummyModel.java`
+
 Replace this line in the configuration file
 
     learners gossipLearning.models.learning.P2Pegasos #learning method
