@@ -85,7 +85,7 @@
       <tag name="fixme" scope="all" description="Fix me:" enabled="true"/>
       <doctitle><![CDATA[<h1>Gossip Learning</h1>]]></doctitle>
       <bottom><![CDATA[<i>Copyright &#169; 2011 Robert Ormandi, Szeged. All Rights Reserved.</i>]]></bottom>
-      <doclet name="org.umlgraph.doclet.UmlGraphDoc" path="${lib}/build/UmlGraph-5.6.jar">
+      <doclet name="org.umlgraph.doclet.UmlGraphDoc" path="${lib}/ext/UmlGraph-5.6.jar">
         <param name="-inferrel" />
         <param name="-attributes" />
         <param name="-operations" />
