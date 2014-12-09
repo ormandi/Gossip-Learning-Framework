@@ -80,6 +80,7 @@ public class MobilTraceChurn implements Control {
         UserTrace ut = new UserTrace(userTraces.get(vi));
         if (ut.isFirstOnline()) {
           node.setFailState(Fallible.OK);
+          initSession(node);
         } else {
           node.setFailState(Fallible.DOWN);
         }
@@ -104,6 +105,7 @@ public class MobilTraceChurn implements Control {
             node.setFailState(Fallible.DOWN);
           } else {
             node.setFailState(Fallible.OK);
+            initSession(node);
           }
           UserTrace ut = assignedUserTrace.get(node.getID());
           if (ut.hasMoreSession()) {
@@ -115,6 +117,7 @@ public class MobilTraceChurn implements Control {
             ut = new UserTrace(userTraces.get(vi));
             if (ut.isFirstOnline()) {
               node.setFailState(Fallible.OK);
+              initSession(node);
             } else {
               node.setFailState(Fallible.DOWN);
             }
@@ -128,5 +131,14 @@ public class MobilTraceChurn implements Control {
       }
     }
     return false;
+  }
+  
+  private void initSession(Node node) {
+    for (int i = 0; i < node.protocolSize(); i++) {
+      if (node.getProtocol(i) instanceof Churnable) {
+        Churnable chp = (Churnable) node.getProtocol(i);
+        chp.initSession(node, i);
+      }
+    }
   }
 }
