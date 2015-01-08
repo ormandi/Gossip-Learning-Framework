@@ -83,6 +83,12 @@ public class UserTrace {
   public Boolean hasMoreSession() {
     return pointer < sessions.length;
   }
+  
+  public int getDayName() {
+    int[] dayName = {3,4,5,6,0,1,2};
+    int days = (int)(startDate/(24.0*60.0*60.0*1000.0));
+    return dayName[days%7];
+  }
 
   @Override
   public String toString() {
