@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TreeMap;
 import java.util.Vector;
 
 import peersim.config.Configuration;
@@ -26,6 +27,8 @@ public class MobilTraceDailyChurn implements Control {
   private final int pid;
   
   private static final String TRACE_FILE = "traceFile";
+  private static final String  DAY_ID = "dayid";
+  
   private final String fName;
   
   private static final String UNITS_IN_STEP = "unitsInStep";
@@ -42,6 +45,8 @@ public class MobilTraceDailyChurn implements Control {
     pid = Configuration.getPid(prefix + "." + PROT);
     fName = Configuration.getString(prefix + "." + TRACE_FILE);
     unitsInStep = Configuration.getLong(prefix + "." + UNITS_IN_STEP);
+    day = Configuration.getInt(prefix + "." + DAY_ID);
+    assignedUserTrace = new TreeMap<Long, UserTrace>();
     for (int i = 0; i < 7; i++) {
       userTraces[i] = new UserTraceVector();
     }
