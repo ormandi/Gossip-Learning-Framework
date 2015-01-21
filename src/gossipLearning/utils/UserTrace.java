@@ -40,13 +40,15 @@ public class UserTrace {
   
   public void useTimeZone() {
     if(!isTimeZoned) {
-      sessions[0] += timeZone;
+      sessions[0] += timeZone*60*60*1000;
+      isTimeZoned = true;
     }
   }
   
   public void switchOffTimeZone() {
     if(isTimeZoned) {
-      sessions[0] -= timeZone;
+      sessions[0] -= timeZone*60*60*1000;
+      isTimeZoned = false;
     }
   }
   
