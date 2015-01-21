@@ -3,17 +3,18 @@ package gossipLearning.main;
 import gossipLearning.evaluators.MAError;
 import gossipLearning.interfaces.Evaluator;
 import gossipLearning.utils.DataBaseReader;
+import gossipLearning.utils.Lanczos;
 import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
-import gossipLearning.utils.jama.SingularValueDecomposition;
 
 import java.io.File;
 import java.util.Arrays;
 
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
+import peersim.core.CommonState;
 
 /**
  * Reads a database based in the specified configuration file, decompose 
@@ -58,7 +59,9 @@ public class MRLowRank {
         M.set(i, e.index, e.value);
       }
     }
-    SingularValueDecomposition svd = new SingularValueDecomposition(M);
+    //SingularValueDecomposition svd = new SingularValueDecomposition(M);
+    Lanczos svd = new Lanczos();
+    svd.run(M, dimension, CommonState.r);
     Matrix UST = svd.getU().mul(svd.getS()).transpose();
     Matrix VT = svd.getV().transpose();
     Matrix S = svd.getS();

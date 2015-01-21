@@ -17,12 +17,13 @@ import peersim.config.Configuration;
 public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Partializable<LowRankDecomposition> {
   private static final long serialVersionUID = -6695974880876825151L;
   private static final String PAR_DIMENSION = "LowRankDecomposition.dimension";
+  private static final String PAR_ORIGDIM = "LowRankDecomposition.origdim";
   private static final String PAR_LAMBDA = "LowRankDecomposition.lambda";
   private static final String PAR_ALPHA = "LowRankDecomposition.alpha";
   
   protected double age;
   protected HashMap<Integer, SparseVector> columnModels;
-  protected SparseVector eigenValues;
+  //protected SparseVector eigenValues;
   protected final int dimension;
   // learning rate
   protected final double lambda;
@@ -42,8 +43,8 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
     age = 0.0;
     columnModels = new HashMap<Integer, SparseVector>();
-    eigenValues = new SparseVector();
-    maxIndex = 1;
+    //eigenValues = new SparseVector();
+    maxIndex = Configuration.getInt(prefix + "." + PAR_ORIGDIM, 1);
   }
   
   public LowRankDecomposition(LowRankDecomposition a) {
@@ -53,15 +54,15 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     while (size <= a.columnModels.size()) {
       size <<= 1;
     }
-    columnModels = new HashMap<Integer, SparseVector>(size, 0.9f);
+    columnModels = new HashMap<Integer, SparseVector>(size, 1.0f);
     for (Entry<Integer, SparseVector> e : a.columnModels.entrySet()) {
       columnModels.put(e.getKey().intValue(), (SparseVector)e.getValue().clone());
     }
-    if (a.eigenValues != null) {
+    /*if (a.eigenValues != null) {
       eigenValues = new SparseVector(a.eigenValues);
     } else {
       eigenValues = new SparseVector();
-    }
+    }*/
     dimension = a.dimension;
     lambda = a.lambda;
     alpha = a.alpha;
@@ -93,7 +94,8 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     
     age ++;
     double value = 0.0;
-    double nu = lambda / Math.log(age + 1);
+    //double nu = lambda / Math.log(age + 1);
+    double nu = lambda;
     
     double[] newVector;
     // initialize a new row-model
@@ -201,7 +203,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
         norm = Utils.hypot(norm, value);
       }
       for (int j = 0; j < maxIndex + 1; j++) {
-        V.set(j, i, V.get(j, i) / norm);
+        V.set(j, i, norm == 0.0 ? 0.0 : V.get(j, i) / norm);
       }
       R.set(i, i, norm);
     }
@@ -222,7 +224,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   }
   
   public SparseVector getEigenValues() {
-    return eigenValues;
+    return null;
   }
   
   @Override

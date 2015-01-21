@@ -73,6 +73,8 @@ public class FactorizationProtocol extends LearningProtocol {
     // send
     if (numberOfIncomingModels == 0) {
       numberOfWaits ++;
+    } else {
+      numberOfWaits = 0;
     }
     if (numberOfWaits == numOfWaitingPeriods) {
       numberOfIncomingModels = 1;

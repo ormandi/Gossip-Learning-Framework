@@ -28,6 +28,7 @@ public class LearningProtocol extends AbstractProtocol {
   private static final String PAR_MODELNAMES = "modelNames";
   private static final String PAR_EVALNAMES = "evalNames";
   private static final String PAR_EVALPROB = "evalProbability";
+  protected static final String PAR_MODELPROB = "initModelProbability";
   
   /**
    * Parameter name in the config file.
@@ -45,6 +46,7 @@ public class LearningProtocol extends AbstractProtocol {
   
   protected ResultAggregator resultAggregator;
   protected final double evaluationProbability;
+  protected final double initModelProbability;
   
   protected final int capacity;
   /** @hidden */
@@ -73,6 +75,7 @@ public class LearningProtocol extends AbstractProtocol {
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
     numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
     numberOfWaits = 0;
+    initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB, 1.0);
     init(prefix);
   }
   
@@ -92,6 +95,7 @@ public class LearningProtocol extends AbstractProtocol {
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
     numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
     numberOfWaits = 0;
+    initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB, 1.0);
     init(prefix);
   }
   
@@ -109,6 +113,7 @@ public class LearningProtocol extends AbstractProtocol {
     numOfWaitingPeriods = a.numOfWaitingPeriods;
     numberOfIncomingModels = a.numberOfIncomingModels;
     numberOfWaits = a.numberOfWaits;
+    initModelProbability = a.initModelProbability;
     init(prefix);
   }
   
@@ -136,6 +141,9 @@ public class LearningProtocol extends AbstractProtocol {
         modelHolders[i].add(model);
       }
       numberOfIncomingModels = 1;
+      if (CommonState.r.nextDouble() > initModelProbability) {
+        numberOfIncomingModels = 0;
+      }
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
     }
@@ -167,6 +175,8 @@ public class LearningProtocol extends AbstractProtocol {
     // send
     if (numberOfIncomingModels == 0) {
       numberOfWaits ++;
+    } else {
+      numberOfWaits = 0;
     }
     if (numberOfWaits == numOfWaitingPeriods) {
       numberOfIncomingModels = 1;
