@@ -137,8 +137,8 @@ public class HungarianMethod {
 			break;
 		case 5: 
 			tmpPermArray[0] = 2;
-			tmpPermArray[1] = 1;
-			tmpPermArray[2] = 0; 
+			tmpPermArray[1] = 0;
+			tmpPermArray[2] = 1; 
 			break;
 		default:
 			tmpPermArray[0] = 2;
