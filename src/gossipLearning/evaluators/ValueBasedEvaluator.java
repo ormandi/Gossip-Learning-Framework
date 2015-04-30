@@ -17,7 +17,6 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   protected double[] values;
   protected String[] names;
   protected double counter;
-  protected double numOfMerges;
   
   public ValueBasedEvaluator() {
     values = new double[4];
@@ -29,7 +28,6 @@ public abstract class ValueBasedEvaluator implements Evaluator {
     values = Arrays.copyOf(a.values, a.values.length);
     names = Arrays.copyOf(a.names, a.names.length);
     counter = a.counter;
-    numOfMerges = a.numOfMerges;
   }
   
   @Override
@@ -38,7 +36,7 @@ public abstract class ValueBasedEvaluator implements Evaluator {
       return false;
     }
     ValueBasedEvaluator e = (ValueBasedEvaluator)o;
-    if (counter != e.counter || numOfMerges != e.numOfMerges || values.length != e.values.length || names.length != e.names.length) {
+    if (counter != e.counter || values.length != e.values.length || names.length != e.names.length) {
       return false;
     }
     for (int i = 0; i < values.length; i++) {
@@ -72,8 +70,8 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   public void evaluate(double expected, double predicted) {
     double value = getValue(expected, predicted);
     counter ++;
-    values[0] = (1.0 - 1.0 / counter) * values[0] + (1.0 / counter) * value;
-    values[1] = (1.0 - 1.0 / counter) * values[1] + (1.0 / counter) * value * value;
+    values[0] += value;
+    values[1] += value * value;
     values[2] = Math.min(values[2], value);
     values[3] = Math.max(values[3], value);
   }
@@ -81,23 +79,22 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   @Override
   public void merge(Evaluator evaluator) {
     if (evaluator instanceof ValueBasedEvaluator) {
-      numOfMerges ++;
       ValueBasedEvaluator e = (ValueBasedEvaluator)evaluator;
-      e.values[0] = e.postProcess(e.values[0]);
-      values[0] = (1.0 - 1.0 / numOfMerges) * values[0] + (1.0 / numOfMerges) * e.values[0];
-      values[1] = (1.0 - 1.0 / numOfMerges) * values[1] + (1.0 / numOfMerges) * e.values[0] * e.values[0];
-      values[2] = Math.min(values[2], e.values[0]);
-      values[3] = Math.max(values[3], e.values[0]);
+      counter += e.counter;
+      values[0] += e.values[0];
+      values[1] += e.values[1];
+      values[2] = Math.min(values[2], e.values[2]);
+      values[3] = Math.max(values[3], e.values[3]);
       ((ValueBasedEvaluator) evaluator).clear();
     }
   }
 
   @Override
   public double[] getResults() {
+    values[0] /= counter;
+    values[1] /= counter;
     values[1] = Math.sqrt(Math.abs(values[1] - values[0] * values[0]));
-    if (numOfMerges == 0.0 && counter > 0.0) {
-      values[0] = postProcess(values[0]);
-    }
+    values[0] = postProcess(values[0]);
     double[] res = Arrays.copyOf(values, values.length);
     clear();
     return res; 
@@ -115,12 +112,11 @@ public abstract class ValueBasedEvaluator implements Evaluator {
     values[2] = Double.POSITIVE_INFINITY;
     values[3] = Double.NEGATIVE_INFINITY;
     counter = 0.0;
-    numOfMerges = 0.0;
   }
   
   @Override
   public String toString() {
-    return (numOfMerges == 0.0 ? postProcess(values[0]) : values[0]) + "\t" + Math.sqrt(Math.abs(values[1] - values[0] * values[0])) + "\t" + values[2] + "\t" + values[3];
+    return (counter == 0.0 ? values[0] : postProcess(values[0]/counter)) + "\t" + Math.sqrt(Math.abs((values[1]/counter) - (values[0]/counter * values[0]/counter))) + "\t" + values[2] + "\t" + values[3];
   }
 
 }

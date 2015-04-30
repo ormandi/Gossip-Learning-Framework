@@ -7,7 +7,6 @@ import gossipLearning.messages.OnlineSessionFollowerActiveThreadMessage;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
-import peersim.core.Fallible;
 import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
@@ -49,6 +48,7 @@ public abstract class AbstractProtocol implements GossipProtocol {
   /** @hidden */
   protected final String prefix;
   
+  
   public AbstractProtocol(String prefix) {
     this.prefix = prefix;
     delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN);
@@ -69,25 +69,8 @@ public abstract class AbstractProtocol implements GossipProtocol {
    * message will be set before sending it.
    */
   protected void sendToRandomNeighbor(ModelMessage message) {
-    //Linkable overlay = getOverlay();
-    //Node randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
-    //getTransport().send(currentNode, randomNode, message, currentProtocolID);
     Linkable overlay = getOverlay();
-    Node[] onlines = new Node[overlay.degree()];
-    int numOnlines = 0;
-    for (int i = 0; i < overlay.degree(); i++) {
-      Node n = overlay.getNeighbor(i);
-      if (n.getFailState() == Fallible.OK) {
-        onlines[numOnlines] = n;
-        numOnlines ++;
-      }
-    }
-    Node randomNode;
-    if (numOnlines == 0) {
-      randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
-    } else {
-      randomNode = onlines[CommonState.r.nextInt(numOnlines)];
-    }
+    Node randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
     getTransport().send(currentNode, randomNode, message, currentProtocolID);
   }
   

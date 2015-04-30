@@ -15,6 +15,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import peersim.config.Configuration;
+import peersim.core.CommonState;
+import peersim.core.Fallible;
+import peersim.core.Linkable;
+import peersim.core.Node;
 
 public class FactorizationProtocol extends LearningProtocol {
   protected static final String PAR_ARRGNAME = "aggrName";
@@ -126,6 +130,29 @@ public class FactorizationProtocol extends LearningProtocol {
   
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
+  }
+  
+  private Node[] onlines = null;
+  protected void sendToRandomNeighbor(ModelMessage message) {
+    Linkable overlay = getOverlay();
+    if (onlines == null) {
+      onlines = new Node[overlay.degree()];
+    }
+    int numOnlines = 0;
+    Node randomNode = null;
+    for (int i = 0; i < overlay.degree(); i++) {
+      Node n = overlay.getNeighbor(i);
+      if (n.getFailState() == Fallible.OK) {
+        onlines[numOnlines] = n;
+        numOnlines ++;
+      }
+    }
+    if (numOnlines != 0) {
+      randomNode = onlines[CommonState.r.nextInt(numOnlines)];
+    } else {
+      randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
+    }
+    getTransport().send(currentNode, randomNode, message, currentProtocolID);
   }
 
 }

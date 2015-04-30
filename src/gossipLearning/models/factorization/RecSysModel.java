@@ -36,25 +36,40 @@ public class RecSysModel extends LowRankDecomposition {
   public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
     double[] newVector;
     if (rowModel == null) {
-      // initialize user-model if its null by uniform random numbers  on [0,1]
-      newVector = new double[dimension];
-      for (int i = 0; i < dimension; i++) {
-        newVector[i] = CommonState.r.nextDouble();
+      double max = 0.0;
+      for (int i = 0; i < instance.size(); i++) {
+        if (instance.valueAt(i) > max) {
+          max = instance.valueAt(i);
+        }
       }
+      // initialize user-model if its null by uniform random numbers  on [0,1]
+      newVector = new double[dimension + 1];
+      for (int i = 0; i < dimension; i++) {
+        //newVector[i] = CommonState.r.nextDouble() / dimension;
+        newVector[i] = CommonState.r.nextDouble() * Math.sqrt(2.0*max) / dimension;
+      }
+      newVector[dimension] = instance.sum() / instance.size();
       rowModel = new SparseVector(newVector);
     }
-    SparseVector newUserModel = (SparseVector)rowModel.clone();
     age ++;
     
-    newUserModel.mul(1.0 - alpha);
+    //SparseVector copy = new SparseVector(rowModel);
     for (VectorEntry e : instance) {
       SparseVector itemModel = columnModels.get(e.index);
       if (itemModel == null) {
-        // initialize item-model is its null by uniform random numbers on [0,1]
-        newVector = new double[dimension];
-        for (int i = 0; i < dimension; i++) {
-          newVector[i] = CommonState.r.nextDouble();
+        double max = 0.0;
+        for (int i = 0; i < instance.size(); i++) {
+          if (instance.valueAt(i) > max) {
+            max = instance.valueAt(i);
+          }
         }
+        // initialize item-model is its null by uniform random numbers on [0,1]
+        newVector = new double[dimension + 1];
+        for (int i = 0; i < dimension; i++) {
+          //newVector[i] = CommonState.r.nextDouble() / dimension;
+          newVector[i] = CommonState.r.nextDouble() * Math.sqrt(2.0*max) / dimension;
+        }
+        newVector[dimension] = 1.0;
         itemModel = new SparseVector(newVector);
         columnModels.put(e.index, itemModel);
       }
@@ -64,18 +79,37 @@ public class RecSysModel extends LowRankDecomposition {
       double error = e.value - prediction;
       
       // update models
-      newUserModel.add(itemModel, lambda * error);
+      double bias = rowModel.get(dimension);
+      rowModel.mul(1.0 - alpha);
+      rowModel.add(dimension, bias - rowModel.get(dimension));
+      rowModel.add(itemModel, lambda * error);
+      
       itemModel.mul(1.0 - alpha);
       itemModel.add(rowModel, lambda * error);
+      itemModel.add(dimension, 1.0 - itemModel.get(dimension));
     }
-    
     // return new user-model
-    return newUserModel;
+    return rowModel;
   }
   
   /*@Override
   public RecSysModel getModelPart(Set<Integer> indices) {
     return new RecSysModel(this);
   }*/
+  
+  @Override
+  public double predict(int rowIndex, SparseVector rowModel, int columnIndex) {
+    // rowIndex - userID
+    // rowModel - userModel
+    // columnIndex - itemID
+    SparseVector itemModel = columnModels.get(columnIndex);
+    if (rowModel == null) {
+      return 0.0;
+    }
+    if (itemModel == null) {
+      return rowModel.get(dimension);
+    }
+    return itemModel.mul(rowModel);
+  }
   
 }
