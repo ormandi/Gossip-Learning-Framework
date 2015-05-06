@@ -34,14 +34,14 @@ public class SamplingLowRankResultAggregator extends LowRankResultAggregator {
           tmpM[i] = new Matrix(UST.getColumnDimension(), v.getColumnDimension());
         }
         pid2US.put(pid, tmpM);
-        tmpM = new Matrix[modelNames.length];
-        for (int i = 0; i < tmpM.length; i++) {
-          tmpM[i] = new Matrix(UST.getRowDimension(), UST.getRowDimension());
+        double[][] tmpT = new double[modelNames.length][];
+        for (int i = 0; i < tmpT.length; i++) {
+          tmpT[i] = new double[UST.getRowDimension()];
         }
-        pid2USTUSp.put(pid, tmpM);
+        pid2USTUSp.put(pid, tmpT);
       }
       Matrix USp = pid2US.get(pid)[index];
-      Matrix USTUSp = pid2USTUSp.get(pid)[index];
+      double[] USTUSp = pid2USTUSp.get(pid)[index];
       
       //for (int idx = 0; idx < ResultAggregator.evalSet.size(); idx ++) {
       Matrix USi = v.mulLeft(ResultAggregator.evalSet.getInstance(userIdx));
@@ -49,9 +49,9 @@ public class SamplingLowRankResultAggregator extends LowRankResultAggregator {
       //Matrix USi = model.getUSi(userModel);
       
       for (int i = 0; i < USi.getNumberOfColumns(); i++) {
-        USTUSp.set(i, i, USTUSp.get(i, i) - (UST.get(i, userIdx) * USp.get(userIdx, i)));
+        USTUSp[i] -= UST.get(i, userIdx) * USp.get(userIdx, i);
         USp.set(userIdx, i, USi.get(0, i));
-        USTUSp.set(i, i, USTUSp.get(i, i) + (UST.get(i, userIdx) * USp.get(userIdx, i)));
+        USTUSp[i] += UST.get(i, userIdx) * USp.get(userIdx, i);
         /*if (Double.isNaN(UST.get(i, userIdx) * USp.get(userIdx, i))) {
           System.out.println("NAN: " + UST.get(i, userIdx) + " " + USp.get(userIdx, i) + " " + USi.get(0, i));
           System.out.println(USi);
@@ -78,7 +78,7 @@ public class SamplingLowRankResultAggregator extends LowRankResultAggregator {
           //System.out.println("1: " + predicted);
           evaluators[index][j].evaluate(expected, predicted);
         }
-        predicted = Math.abs(USTUSp.get(i, i));
+        predicted = Math.abs(USTUSp[i]);
         for (int j = 0; j < evaluators[index].length; j++) {
           //System.out.println("2: " + predicted);
           //evaluators[index][j].evaluate(expected, predicted / (S.get(i, i)*S.get(i, i)));

@@ -45,6 +45,10 @@ public class LocalRun {
     int evalTime = numIters / Configuration.getInt("NUMEVALS");
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
+    String samplingMethod = Configuration.getString("SAMPLING", "uniform");
+    System.err.println("\tSampling method: " + samplingMethod);
+    String normalization = Configuration.getString("NORMALIZATION", "none");
+    System.err.println("\tNormalization method: " + normalization);
     
     // parse learning related parameters
     String dbReaderName = Configuration.getString("dbReader");
@@ -55,17 +59,15 @@ public class LocalRun {
     String[] modelNames = Configuration.getString("learners").split(",");
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
-    boolean isStandardize = Configuration.getBoolean("isStandardize", false);
-    boolean isNormalize = Configuration.getBoolean("isNormalize", false);
     
     // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
-    //reader.w
-    if (isStandardize) {
+    // normalize database
+    if (normalization.equals("standardize")) {
       System.err.println("Standardizing data set.");
       reader.standardize();
-    } else if (isNormalize) {
+    } else if (normalization.equals("normalize")) {
       System.err.println("Normalizing data set.");
       reader.normalize();
     }
@@ -89,13 +91,16 @@ public class LocalRun {
     BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor extractor = new DummyExtractor("");
     
-    int[] sampleIndices = new int[reader.getTrainingSet().size()];
-    for (int i = 0; i < sampleIndices.length; i++) {
-      sampleIndices[i] = i;
+    int[] sampleIndices = null;
+    if (samplingMethod.equals("iterative")) {
+      sampleIndices = new int[reader.getTrainingSet().size()];
+      for (int i = 0; i < sampleIndices.length; i++) {
+        sampleIndices[i] = i;
+      }
     }
     //Utils.arrayShuffle(r, indices);
     for (int iter = 0; iter <= numIters; iter++) {
-      if (iter % sampleIndices.length == 0) {
+      if (sampleIndices != null && iter % sampleIndices.length == 0) {
         Utils.arrayShuffle(r, sampleIndices);
       }
       if (iter % evalTime == 0) {
@@ -115,8 +120,12 @@ public class LocalRun {
       }
       
       // training
-      //int instanceIndex = r.nextInt(reader.getTrainingSet().size());
-      int instanceIndex = sampleIndices[iter % sampleIndices.length];
+      int instanceIndex;
+      if (sampleIndices == null) {
+        instanceIndex = r.nextInt(reader.getTrainingSet().size());
+      } else {
+        instanceIndex = sampleIndices[iter % sampleIndices.length];
+      }
       instance = reader.getTrainingSet().getInstance(instanceIndex);
       label = reader.getTrainingSet().getLabel(instanceIndex);
       for (int i = 0; i < models.length; i++) {

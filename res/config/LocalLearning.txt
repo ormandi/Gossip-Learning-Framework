@@ -1,6 +1,9 @@
-ITER 100 #number of SGD iterations
+ITER 100 #number of selected training instances
 SEED 1234567890 #random seed
 NUMEVALS 10 #number of evaluations
+
+SAMPLING uniform #uniform/iterative default is uniform
+#NORMALIZATION standardize #standardize/normalize not required
 
 dbReader gossipLearning.utils.DataBaseReader
 trainingFile res/db/iris_versicolor_virginica_train.dat #training set

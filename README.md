@@ -53,6 +53,9 @@ The meaning of the configuration file:
     SEED 1234567890 #random seed
     NUMEVALS 10 #number of evaluations
 
+    SAMPLING uniform #uniform/iterative default is uniform
+    #NORMALIZATION standardize #standardize/normalize not required
+
     dbReader gossipLearning.utils.DataBaseReader
     trainingFile res/db/iris_versicolor_virginica_train.dat #training set
     evaluationFile res/db/iris_versicolor_virginica_eval.dat #evaluation/test set
@@ -84,6 +87,12 @@ the comments on the standard error channel.
 For the above shown configuration file the result is the following:
 
     Loading parameters from res/config/LocalLearning.txt
+        Number of iterations: 100
+        Random seed: 1234567890
+        Sampling method: uniform
+        Normalization method: none
+        training file: res\db\iris_versicolor_virginica_train.dat
+        evaluation file: res\db\iris_versicolor_virginica_eval.dat
     Reading data set.
     Start learning.
     #iter   mean    dev     min     max             -       -1      gossipLearning.models.learning.P2Pegasos        gossipLearning.evaluators.RMSError
@@ -198,10 +207,6 @@ You are almost done. But before *you start development* be sure you
 understand __the inner design concepts of the implementation of GoLF__.
 You can read about this part of the project wiki where a class diagram
 is also shown.
-
-*To set up your development environment* you should
-__read our step-by-step guide__ which can be found here specifically
-for Eclipse IDE.
 
 
 Citation
