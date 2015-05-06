@@ -41,8 +41,8 @@ public class LowRankLoader implements Control {
   protected final double pareto_xm = 1.0;
   protected final double pareto_alpha = 1.0;
   
-  protected final Matrix UST;
-  protected final Matrix VT;
+  protected final Matrix U;
+  protected final Matrix V;
   protected final Matrix S;
   protected final Matrix M;
   
@@ -74,10 +74,10 @@ public class LowRankLoader implements Control {
     for (int i = 0; i < rank; i++) {
       S.set(i, i, arr[rank - i - 1]);
     }
-    UST = Utils.butterflyRandomOrthogonalMatrix(n, rank, CommonState.r).mul(S);
-    VT = Utils.butterflyRandomOrthogonalMatrix(dim, rank, CommonState.r).transpose();
-    M = UST.mul(VT);
-    UST.transpose();
+    U = Utils.butterflyRandomOrthogonalMatrix(n, rank, CommonState.r);
+    V = Utils.butterflyRandomOrthogonalMatrix(dim, rank, CommonState.r);
+    M = U.mul(S).mul(V.transpose());
+    V.transpose();
   }
 
   @Override
@@ -100,7 +100,7 @@ public class LowRankLoader implements Control {
     for (int i = 0; i < Network.size(); i++) {
       for (int j = 0; j < pidLS.length; j++) {
         LearningProtocol protocol = (LearningProtocol)Network.get(i).getProtocol(pidLS[j]);
-        ((LowRankResultAggregator)protocol.getResults()).setEvalSet(UST, VT, S);
+        ((LowRankResultAggregator)protocol.getResults()).setEvalSet(U, V, S);
       }
     }
     return false;

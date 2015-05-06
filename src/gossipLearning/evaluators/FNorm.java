@@ -11,7 +11,6 @@ public class FNorm implements Evaluator {
   protected double[] values;
   protected String[] names;
   protected double counter;
-  protected double numOfMerges;
   
   public FNorm() {
     values = new double[1];
@@ -23,7 +22,6 @@ public class FNorm implements Evaluator {
     values = Arrays.copyOf(a.values, a.values.length);
     names = Arrays.copyOf(a.names, a.names.length);
     counter = a.counter;
-    numOfMerges = a.numOfMerges;
   }
   
   @Override
@@ -32,7 +30,7 @@ public class FNorm implements Evaluator {
       return false;
     }
     ValueBasedEvaluator e = (ValueBasedEvaluator)o;
-    if (counter != e.counter || numOfMerges != e.numOfMerges || values.length != e.values.length || names.length != e.names.length) {
+    if (counter != e.counter || values.length != e.values.length || names.length != e.names.length) {
       return false;
     }
     for (int i = 0; i < values.length; i++) {
@@ -56,7 +54,6 @@ public class FNorm implements Evaluator {
   @Override
   public void merge(Evaluator evaluator) {
     FNorm e = (FNorm)evaluator;
-    numOfMerges ++;
     values[0] = Math.hypot(values[0], e.values[0]);
     e.clear();
   }
@@ -76,7 +73,6 @@ public class FNorm implements Evaluator {
   @Override
   public void clear() {
     values[0] = 0.0;
-    numOfMerges = 0.0;
     counter = 0.0;
   }
   

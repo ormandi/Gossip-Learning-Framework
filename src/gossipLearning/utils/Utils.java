@@ -167,7 +167,7 @@ public class Utils {
    */
   public static void arrayShuffle(Random r, int[] array, int from, int to) {
     for (int i=from; i<to; i++) {
-      int randomPosition = from + r.nextInt(to - from);
+      int randomPosition = i + r.nextInt(to - i);
       int temp = array[i];
       array[i] = array[randomPosition];
       array[randomPosition] = temp;
@@ -179,7 +179,7 @@ public class Utils {
    * @param r used for shuffling
    * @param array to be shuffled
    */
-  public static void arraxShuffle(Random r, Object[] array) {
+  public static void arrayShuffle(Random r, Object[] array) {
     arrayShuffle(r, array, 0, array.length);
   }
   
@@ -193,7 +193,7 @@ public class Utils {
    */
   public static void arrayShuffle(Random r, Object[] array, int from, int to) {
     for (int i=from; i<to; i++) {
-      int randomPosition = from + r.nextInt(to - from);
+      int randomPosition = i + r.nextInt(to - i);
       Object temp = array[i];
       array[i] = array[randomPosition];
       array[randomPosition] = temp;

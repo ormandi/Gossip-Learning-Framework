@@ -23,7 +23,7 @@ import peersim.core.CommonState;
 public class LowRankRun {
   public static void main(String[] args) throws Exception {
     if (args.length != 1) {
-      System.err.println("Using: RecSysRun LocalConfig");
+      System.err.println("Using: LowRankRun LocalConfig");
       System.exit(0);
     }
     
@@ -117,11 +117,6 @@ public class LowRankRun {
         Matrix ui = extractor.getUSi(userModels[i]);
         System.err.println(ui);
         //System.err.println((i+1) + "\t" + ui);
-        if (i == 0) {
-          ui.writeToFile(eExFile);
-        } else {
-          ui.writeToFile(eExFile, true);
-        }
         for (int j = 0; j < extractor.getDimension(); j++) {
           eigenvalues[j] = Utils.hypot(eigenvalues[j], ui.get(0, j));
         }

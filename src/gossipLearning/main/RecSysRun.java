@@ -8,9 +8,9 @@ import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 
 import java.io.File;
-import java.util.Random;
 
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
@@ -38,15 +38,17 @@ public class RecSysRun {
     
     // parse general parameters
     int numIters = Configuration.getInt("ITER");
-    long seed = Configuration.getLong("SEED");
-    int evalTime = numIters / Configuration.getInt("NUMEVALS");
-    Random r = new Random(seed);
+    System.err.println("\tnumber of iterations on the training set: " + numIters);
+    long seed = Configuration.getLong("SEED", System.currentTimeMillis());
+    System.err.println("\trandom seed: " + seed);
     CommonState.r.setSeed(seed);
     
     // parse learning related parameters
     String dbReaderName = Configuration.getString("dbReader");
     File tFile = new File(Configuration.getString("trainingFile"));
+    System.err.println("\ttraining file: " + tFile);
     File eFile = new File(Configuration.getString("evaluationFile"));
+    System.err.println("\tevaluation file: " + eFile);
     String[] modelNames = Configuration.getString("learners").split(",");
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
@@ -54,6 +56,10 @@ public class RecSysRun {
     // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    int[] sampleIndices = new int[reader.getTrainingSet().size()];
+    for (int i = 0; i < sampleIndices.length; i++) {
+      sampleIndices[i] = i;
+    }
     
     // create models
     LowRankDecomposition[] models = new LowRankDecomposition[modelNames.length];
@@ -74,30 +80,31 @@ public class RecSysRun {
     FeatureExtractor extractor = new DummyExtractor("");
     
     for (int iter = 0; iter <= numIters; iter++) {
-      if (iter % evalTime == 0) {
-        // evaluate
-        for (int i = 0; i < models.length; i++) {
-          modelHolder.add(models[i]);
-          for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-            resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
-          }
-        }
-        
-        // print results
-        for (AggregationResult result : resultAggregator) {
-          if (iter == 0) {
-            System.out.println("#iter\t" + result.getNames());
-          }
-          System.out.println(iter + "\t" + result);
+      // evaluate
+      for (int i = 0; i < models.length; i++) {
+        modelHolder.add(models[i]);
+        for (int j = 0; j < reader.getTrainingSet().size(); j++) {
+          resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
         }
       }
       
+      // print results
+      for (AggregationResult result : resultAggregator) {
+        if (iter == 0) {
+          System.out.println("#iter\t" + result.getNames());
+        }
+        System.out.println(iter + "\t" + result);
+      }
+      
       // training
-      int instanceIndex = r.nextInt(reader.getTrainingSet().size());
-      instance = reader.getTrainingSet().getInstance(instanceIndex);
-      for (int i = 0; i < models.length; i++) {
-        userModels[i][instanceIndex] = models[i].update(instanceIndex, userModels[i][instanceIndex], instance);
-        modelHolder.add(models[i]);
+      Utils.arrayShuffle(CommonState.r, sampleIndices);
+      for (int i = 0; i < sampleIndices.length; i++) {
+        int instanceIndex = sampleIndices[i];
+        instance = reader.getTrainingSet().getInstance(instanceIndex);
+        for (int j = 0; j < models.length; j++) {
+          userModels[j][instanceIndex] = models[j].update(instanceIndex, userModels[j][instanceIndex], instance);
+          modelHolder.add(models[j]);
+        }
       }
     }
     

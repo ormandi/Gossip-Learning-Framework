@@ -17,7 +17,7 @@ public class SimpleLowRank extends LowRankDecomposition {
     super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
     age = 0.0;
     columnModels = new HashMap<Integer, SparseVector>();
-    eigenValues = new SparseVector();
+    //eigenValues = new SparseVector();
     maxIndex = 1;
   }
   
@@ -112,7 +112,7 @@ public class SimpleLowRank extends LowRankDecomposition {
   }
   
   public SparseVector getEigenValues() {
-    return eigenValues;
+    return null;
   }
   
   @Override

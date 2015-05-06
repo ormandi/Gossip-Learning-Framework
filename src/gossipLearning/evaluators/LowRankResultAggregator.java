@@ -19,12 +19,12 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
   protected static Matrix VT;
   protected static Matrix S;
   protected static Map<Integer, Matrix[]> pid2US;
-  protected static Map<Integer, Matrix[]> pid2USTUSp;
+  protected static Map<Integer, double[][]> pid2USTUSp;
   
   public LowRankResultAggregator(String[] modelNames, String[] evalNames) {
     super(modelNames, evalNames);
     pid2US = new TreeMap<Integer, Matrix[]>();
-    pid2USTUSp = new TreeMap<Integer, Matrix[]>();
+    pid2USTUSp = new TreeMap<Integer, double[][]>();
   }
   
   @Override
@@ -48,19 +48,19 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
           tmpM[i] = new Matrix(UST.getColumnDimension(), v.getColumnDimension());
         }
         pid2US.put(pid, tmpM);
-        tmpM = new Matrix[modelNames.length];
-        for (int i = 0; i < tmpM.length; i++) {
-          tmpM[i] = new Matrix(UST.getRowDimension(), UST.getRowDimension());
+        double[][] tmpT = new double[modelNames.length][];
+        for (int i = 0; i < tmpT.length; i++) {
+          tmpT[i] = new double[UST.getRowDimension()];
         }
-        pid2USTUSp.put(pid, tmpM);
+        pid2USTUSp.put(pid, tmpT);
       }
       Matrix USp = pid2US.get(pid)[index];
-      Matrix USTUSp = pid2USTUSp.get(pid)[index];
+      double[] USTUSp = pid2USTUSp.get(pid)[index];
       Matrix USi = model.getUSi(userModel);
       for (int i = 0; i < USi.getNumberOfColumns(); i++) {
-        USTUSp.set(i, i, USTUSp.get(i, i) - (UST.get(i, userIdx) * USp.get(userIdx, i)));
+        USTUSp[i] -= UST.get(i, userIdx) * USp.get(userIdx, i);
         USp.set(userIdx, i, USi.get(0, i));
-        USTUSp.set(i, i, USTUSp.get(i, i) + (UST.get(i, userIdx) * USp.get(userIdx, i)));
+        USTUSp[i] += UST.get(i, userIdx) * USp.get(userIdx, i);
       }
       lock.unlock();
       
@@ -77,7 +77,7 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
         for (int j = 0; j < evaluators[index].length; j++) {
           evaluators[index][j].evaluate(expected, predicted);
         }
-        predicted = Math.abs(USTUSp.get(i, i));
+        predicted = Math.abs(USTUSp[i]);
         for (int j = 0; j < evaluators[index].length; j++) {
           evaluators[index][j].evaluate(expected, predicted / (S.get(i, i)*S.get(i, i)));
         }
@@ -111,14 +111,14 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
     printProps();
   }
   
-  public void setEvalSet(Matrix UST, Matrix VT, Matrix S) {
+  public void setEvalSet(Matrix U, Matrix V, Matrix S) {
     lock.lock();
     if (LowRankResultAggregator.S == S) {
       lock.unlock();
       return;
     }
-    LowRankResultAggregator.UST = UST;
-    LowRankResultAggregator.VT = VT;
+    LowRankResultAggregator.UST = U.mul(S).transpose();
+    LowRankResultAggregator.VT = V.transpose();
     LowRankResultAggregator.S = S;
     lock.unlock();
     printProps();
@@ -139,6 +139,7 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
     }
     System.out.println("#Eigenvalues: " + Arrays.toString(arr));
     System.out.println("#Information: " + Arrays.toString(perc));
+    
     //System.out.println(Arrays.toString(VT.getRow(0)));
     //System.out.println(Arrays.toString(UST.getRow(0)));
   }

@@ -48,6 +48,7 @@ public abstract class AbstractProtocol implements GossipProtocol {
   /** @hidden */
   protected final String prefix;
   
+  
   public AbstractProtocol(String prefix) {
     this.prefix = prefix;
     delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN);

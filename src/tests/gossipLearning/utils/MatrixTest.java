@@ -7,6 +7,7 @@ import gossipLearning.utils.jama.LUDecomposition;
 import gossipLearning.utils.jama.QRDecomposition;
 import gossipLearning.utils.jama.SingularValueDecomposition;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -479,7 +480,8 @@ public class MatrixTest extends TestCase {
       ObjectInputStream sin = new ObjectInputStream(
           new FileInputStream(tmpname));
       A = (Matrix) sin.readObject();
-
+      out.close();
+      sin.close();
       try {
         assertEquals("", check(A, R));
         try_success("writeObject(Matrix)/readObject(Matrix)...", "");
@@ -487,6 +489,18 @@ public class MatrixTest extends TestCase {
         errorCount = try_failure(errorCount,
             "writeObject(Matrix)/readObject(Matrix)...",
             "Matrix not serialized correctly");
+      }
+      
+      File f = new File(tmpname);
+      R.writeToFile(f);
+      A = new Matrix(f);
+      try {
+        assertEquals("", check(A, R));
+        try_success("Matrix.writeToFile(File)/new Matrix(File)...", "");
+      } catch (java.lang.RuntimeException e) {
+        errorCount = try_failure(errorCount,
+            "Matrix.writeToFile(File)/Matrix(File)...",
+            "Matrix not written correctly");
       }
     } catch (java.io.IOException ioe) {
       warningCount = try_warning(
@@ -685,6 +699,11 @@ public class MatrixTest extends TestCase {
       errorCount = try_failure(errorCount, "EigenvalueDecomposition (hang)...",
           "incorrect termination");
     }
+  }
+  
+  public void testErrors() {
+    print("\nNumber of errors: " + errorCount + "\n");
+    assertEquals(0, errorCount);
   }
 
   /** private utility routines **/

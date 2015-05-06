@@ -8,6 +8,7 @@ import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 
 import java.io.File;
 import java.util.Random;
@@ -38,7 +39,9 @@ public class LocalRun {
     
     // parse general parameters
     int numIters = Configuration.getInt("ITER");
-    long seed = Configuration.getLong("SEED");
+    System.err.println("\tNumber of iterations: " + numIters);
+    long seed = Configuration.getLong("SEED", System.currentTimeMillis());
+    System.err.println("\tRandom seed: " + seed);
     int evalTime = numIters / Configuration.getInt("NUMEVALS");
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
@@ -46,7 +49,9 @@ public class LocalRun {
     // parse learning related parameters
     String dbReaderName = Configuration.getString("dbReader");
     File tFile = new File(Configuration.getString("trainingFile"));
+    System.err.println("\ttraining file: " + tFile);
     File eFile = new File(Configuration.getString("evaluationFile"));
+    System.err.println("\tevaluation file: " + eFile);
     String[] modelNames = Configuration.getString("learners").split(",");
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
@@ -84,7 +89,15 @@ public class LocalRun {
     BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor extractor = new DummyExtractor("");
     
+    int[] sampleIndices = new int[reader.getTrainingSet().size()];
+    for (int i = 0; i < sampleIndices.length; i++) {
+      sampleIndices[i] = i;
+    }
+    //Utils.arrayShuffle(r, indices);
     for (int iter = 0; iter <= numIters; iter++) {
+      if (iter % sampleIndices.length == 0) {
+        Utils.arrayShuffle(r, sampleIndices);
+      }
       if (iter % evalTime == 0) {
         // evaluate
         for (int i = 0; i < models.length; i++) {
@@ -102,7 +115,8 @@ public class LocalRun {
       }
       
       // training
-      int instanceIndex = r.nextInt(reader.getTrainingSet().size());
+      //int instanceIndex = r.nextInt(reader.getTrainingSet().size());
+      int instanceIndex = sampleIndices[iter % sampleIndices.length];
       instance = reader.getTrainingSet().getInstance(instanceIndex);
       label = reader.getTrainingSet().getLabel(instanceIndex);
       for (int i = 0; i < models.length; i++) {
