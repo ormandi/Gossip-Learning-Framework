@@ -67,8 +67,8 @@ protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 1
 protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
-protocol.learningProtocol.modelNames gossipLearning.models.learning.mergeable.MergeablePegasos
-protocol.learningProtocol.MergeablePegasos.lambda 1E-2
+protocol.learningProtocol.modelNames gossipLearning.models.learning.mergeable.slim.SlimPegasos
+protocol.learningProtocol.SlimPegasos.lambda 1E-2
 protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
 protocol.learningProtocol.evalProbability 1.0
 
