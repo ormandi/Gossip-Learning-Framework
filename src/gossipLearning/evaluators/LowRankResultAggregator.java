@@ -27,6 +27,15 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
     pid2USTUSp = new TreeMap<Integer, double[][]>();
   }
   
+  protected LowRankResultAggregator(LowRankResultAggregator a) {
+    super(a);
+  }
+  
+  @Override
+  public Object clone() {
+    return new LowRankResultAggregator(this);
+  }
+  
   @Override
   public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {
     if (modelHolder.size() == 0) {

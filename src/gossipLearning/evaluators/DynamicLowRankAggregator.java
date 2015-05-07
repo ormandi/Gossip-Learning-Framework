@@ -38,6 +38,15 @@ public class DynamicLowRankAggregator extends FactorizationResultAggregator {
     // FIXME: get the rank of factorization...
     dimension = Configuration.getInt("DIMENSION");
   }
+  
+  protected DynamicLowRankAggregator(DynamicLowRankAggregator a) {
+    super(a);
+  }
+  
+  @Override
+  public Object clone() {
+    return new DynamicLowRankAggregator(this);
+  }
 
   @Override
   public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {

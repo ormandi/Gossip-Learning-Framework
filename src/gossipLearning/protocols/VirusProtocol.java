@@ -23,7 +23,7 @@ public class VirusProtocol extends AbstractProtocol {
   }
   
   public VirusProtocol(VirusProtocol a) {
-    super(a.prefix);
+    super(a);
     holder = (ModelHolder)a.holder.clone();
   }
   

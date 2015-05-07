@@ -14,6 +14,15 @@ public class RecSysResultAggregator extends FactorizationResultAggregator {
     super(modelNames, evalNames);
   }
   
+  protected RecSysResultAggregator(RecSysResultAggregator a) {
+    super(a);
+  }
+  
+  @Override
+  public Object clone() {
+    return new RecSysResultAggregator(this);
+  }
+  
   @Override
   public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {
     if (modelHolder.size() == 0) {

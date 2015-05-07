@@ -11,6 +11,10 @@ public abstract class FactorizationResultAggregator extends ResultAggregator {
     super(modelNames, evalNames);
   }
   
+  protected FactorizationResultAggregator(FactorizationResultAggregator a) {
+    super(a);
+  }
+  
   public abstract void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor);
 
 }

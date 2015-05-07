@@ -13,6 +13,15 @@ public class SamplingLowRankResultAggregator extends LowRankResultAggregator {
     super(modelNames, evalNames);
   }
   
+  protected SamplingLowRankResultAggregator(SamplingLowRankResultAggregator a) {
+    super(a);
+  }
+  
+  @Override
+  public Object clone() {
+    return new SamplingLowRankResultAggregator(this);
+  }
+  
   @Override
   public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {
     if (modelHolder.size() == 0) {

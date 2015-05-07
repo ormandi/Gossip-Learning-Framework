@@ -44,7 +44,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     age = 0.0;
     columnModels = new HashMap<Integer, SparseVector>();
     //eigenValues = new SparseVector();
-    maxIndex = Configuration.getInt(prefix + "." + PAR_ORIGDIM, 1);
+    maxIndex = Configuration.getInt(prefix + "." + PAR_ORIGDIM, 2) -1;
   }
   
   public LowRankDecomposition(LowRankDecomposition a) {

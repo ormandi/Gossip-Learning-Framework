@@ -16,7 +16,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ResultAggregator implements Serializable, Iterable<AggregationResult> {
+public class ResultAggregator implements Serializable, Iterable<AggregationResult>, Cloneable {
   private static final long serialVersionUID = 2242497407807240938L;
   protected static final ReentrantLock lock = new ReentrantLock(true);
   
@@ -52,6 +52,25 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     } catch (Exception e) {
       throw new RuntimeException("Exception was occured in ResultAggregator: ", e);
     }
+  }
+  
+  protected ResultAggregator(ResultAggregator a) {
+    modelNames = a.modelNames;
+    evalNames = a.evalNames;
+    modelAges = new double[a.modelAges.length];
+    System.arraycopy(a.modelAges, 0, modelAges, 0, a.modelAges.length);
+    evaluators = new Evaluator[a.evaluators.length][];
+    for (int i = 0; i < evaluators.length; i++) {
+      evaluators[i] = new Evaluator[a.evaluators[i].length];
+      for (int j = 0; j < evaluators[i].length; j++) {
+        evaluators[i][j] = (Evaluator)a.evaluators[i][j].clone();
+      }
+    }
+  }
+  
+  @Override
+  public Object clone() {
+    return new ResultAggregator(this);
   }
   
   public void push(int pid, int index, ModelHolder modelHolder, FeatureExtractor extractor) {

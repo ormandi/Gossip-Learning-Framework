@@ -63,33 +63,7 @@ public class ExtractionProtocol extends AbstractProtocol {
     isUseTMan = Configuration.getBoolean(prefix + "." + PAR_ISUSETMAN, false);
     isSim = Configuration.getBoolean(prefix + "." + PAR_ISSIM, true);
     descriptor = null;
-    init(prefix);
-  }
-  
-  /**
-   * Copy constructor.
-   * 
-   * @param a to be copied
-   */
-  protected ExtractionProtocol(ExtractionProtocol a) {
-    super(a.prefix);
-    capacity = a.capacity;
-    modelHolderName = a.modelHolderName;
-    modelName = a.modelName;
-    isUseTMan = a.isUseTMan;
-    isSim = a.isSim;
-    if (a.descriptor != null) {
-      descriptor = (NodeDescriptor)a.descriptor.clone();
-    }
-    init(prefix);
-  }
-  
-  /**
-   * It initializes the starting modelHolder and model structure.
-   * 
-   * @param prefix
-   */
-  protected void init(String prefix) {
+    
     try {
       // holder for storing the last seen mergeable models for correct merge
       lastSeenMergeableModels = new BQModelHolder(1);
@@ -104,6 +78,26 @@ public class ExtractionProtocol extends AbstractProtocol {
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
     }
+  }
+  
+  /**
+   * Copy constructor.
+   * 
+   * @param a to be copied
+   */
+  protected ExtractionProtocol(ExtractionProtocol a) {
+    super(a);
+    capacity = a.capacity;
+    modelHolderName = a.modelHolderName;
+    modelName = a.modelName;
+    isUseTMan = a.isUseTMan;
+    isSim = a.isSim;
+    if (a.descriptor != null) {
+      descriptor = (NodeDescriptor)a.descriptor.clone();
+    }
+    
+    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone();
+    modelHolder = (ModelHolder)a.modelHolder.clone();
   }
   
   /**

@@ -16,6 +16,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
 
   public RapidFactorizationProtocol(String prefix) {
     super(prefix);
+    numberOfSentModels = 0;
   }
   
   public RapidFactorizationProtocol(RapidFactorizationProtocol a) {
@@ -26,12 +27,6 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
   @Override
   public Object clone() {
     return new RapidFactorizationProtocol(this);
-  }
-  
-  @Override
-  public void init(String prefix) {
-    super.init(prefix);
-    numberOfSentModels = 0;
   }
   
   @Override

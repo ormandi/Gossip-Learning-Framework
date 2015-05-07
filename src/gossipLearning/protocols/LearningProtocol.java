@@ -66,27 +66,12 @@ public class LearningProtocol extends AbstractProtocol {
    * @param prefix
    */
   public LearningProtocol(String prefix) {
-    super(prefix);
-    exrtactorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
-    capacity = Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY);
-    modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
-    modelNames = Configuration.getString(prefix + "." + PAR_MODELNAMES).split(",");
-    evalNames = Configuration.getString(prefix + "." + PAR_EVALNAMES).split(",");
-    evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
-    numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
-    numberOfWaits = 0;
-    initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB, 1.0);
-    init(prefix);
+    this(prefix, Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY));
   }
   
-  /**
-   * Constructor which parses the content of a standard Peersim configuration file.
-   * 
-   * @param prefix
-   * @param capacity holder capacity
-   */
   protected LearningProtocol(String prefix, int capacity) {
     super(prefix);
+    // loading configuration parameters
     exrtactorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
     this.capacity = capacity;
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
@@ -94,35 +79,14 @@ public class LearningProtocol extends AbstractProtocol {
     evalNames = Configuration.getString(prefix + "." + PAR_EVALNAMES).split(",");
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
     numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
-    numberOfWaits = 0;
     initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB, 1.0);
-    init(prefix);
-  }
-  
-  /**
-   * Copy constructor.
-   */
-  protected LearningProtocol(LearningProtocol a) {
-    super(a.prefix);
-    exrtactorProtocolID = a.exrtactorProtocolID;
-    capacity = a.capacity;
-    modelHolderName = a.modelHolderName;
-    modelNames = a.modelNames;
-    evalNames = a.evalNames;
-    evaluationProbability = a.evaluationProbability;
-    numOfWaitingPeriods = a.numOfWaitingPeriods;
-    numberOfIncomingModels = a.numberOfIncomingModels;
-    numberOfWaits = a.numberOfWaits;
-    initModelProbability = a.initModelProbability;
-    init(prefix);
-  }
-  
-  /**
-   * It initializes the starting modelHolder and model structure.
-   * 
-   * @param prefix
-   */
-  protected void init(String prefix) {
+    
+    // setting up learning related variables
+    numberOfWaits = 0;
+    numberOfIncomingModels = 1;
+    if (CommonState.r.nextDouble() > initModelProbability) {
+      numberOfIncomingModels = 0;
+    }
     try {
       String aggrClassName = Configuration.getString(prefix + "." + PAR_ARRGNAME);
       resultAggregator = (ResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(modelNames, evalNames);
@@ -140,12 +104,34 @@ public class LearningProtocol extends AbstractProtocol {
         lastSeenMergeableModels.add(model);
         modelHolders[i].add(model);
       }
-      numberOfIncomingModels = 1;
-      if (CommonState.r.nextDouble() > initModelProbability) {
-        numberOfIncomingModels = 0;
-      }
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
+    }
+  }
+  
+  /**
+   * Copy constructor.
+   */
+  protected LearningProtocol(LearningProtocol a) {
+    super(a);
+    exrtactorProtocolID = a.exrtactorProtocolID;
+    capacity = a.capacity;
+    modelHolderName = a.modelHolderName;
+    modelNames = a.modelNames;
+    evalNames = a.evalNames;
+    evaluationProbability = a.evaluationProbability;
+    numOfWaitingPeriods = a.numOfWaitingPeriods;
+    initModelProbability = a.initModelProbability;
+    
+    numberOfWaits = a.numberOfWaits;
+    numberOfIncomingModels = a.numberOfIncomingModels;
+    
+    resultAggregator = (ResultAggregator)a.resultAggregator.clone();
+    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone();
+    latestModelHolder = (ModelHolder)a.latestModelHolder.clone();
+    modelHolders = new ModelHolder[a.modelHolders.length];
+    for (int i = 0; i < modelHolders.length; i++) {
+      modelHolders[i] = (ModelHolder)a.modelHolders[i].clone();
     }
   }
   

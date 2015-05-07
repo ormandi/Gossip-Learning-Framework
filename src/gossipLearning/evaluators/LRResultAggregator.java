@@ -13,6 +13,15 @@ public class LRResultAggregator extends FactorizationResultAggregator {
     super(modelNames, evalNames);
   }
   
+  protected LRResultAggregator(LRResultAggregator a) {
+    super(a);
+  }
+  
+  @Override
+  public Object clone() {
+    return new LRResultAggregator(this);
+  }
+  
   @Override
   public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {
     if (modelHolder.size() == 0) {

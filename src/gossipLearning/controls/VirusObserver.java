@@ -1,4 +1,4 @@
-package gossipLearning.evaluators;
+package gossipLearning.controls;
 
 import gossipLearning.models.Virus;
 import gossipLearning.protocols.VirusProtocol;

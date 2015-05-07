@@ -16,6 +16,12 @@ public class BanditResultAggregator extends ResultAggregator {
   public BanditResultAggregator(String[] modelNames, String[] evalNames) {
     super(modelNames, evalNames);
   }
+  protected BanditResultAggregator(BanditResultAggregator a) {
+    super(a);
+  }
+  public Object clone() {
+    return new BanditResultAggregator(this);
+  }
   public void setEvalSet(InstanceHolder evalSet) {
   }
   public void push(int pid, int index, ModelHolder modelHolder, FeatureExtractor extractor) {

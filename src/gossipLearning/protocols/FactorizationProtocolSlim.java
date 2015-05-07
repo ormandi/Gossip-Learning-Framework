@@ -24,26 +24,12 @@ public class FactorizationProtocolSlim extends LearningProtocol {
    * One user model for every model
    */
   protected SparseVector[] userModels;
-  protected String aggrClassName;
+  //protected String aggrClassName;
   
   public FactorizationProtocolSlim(String prefix) {
     // sets the holder capacity to 1
     super(prefix, 1);
-  }
-  
-  protected FactorizationProtocolSlim(FactorizationProtocolSlim a) {
-    super(a);
-  }
-  
-  @Override
-  public Object clone() {
-    return new FactorizationProtocolSlim(this);
-  }
-  
-  public void init(String prefix) {
-    super.init(prefix);
-    aggrClassName = Configuration.getString(prefix + "." + PAR_ARRGNAME);
-    //resultAggregator = new RecSysResultAggregator(modelNames, evalNames);
+    String aggrClassName = Configuration.getString(prefix + "." + PAR_ARRGNAME);
     try {
       resultAggregator = (FactorizationResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(modelNames, evalNames);
     } catch (Exception e) {
@@ -51,6 +37,22 @@ public class FactorizationProtocolSlim extends LearningProtocol {
     }
     lastSeenMergeableModels = null;
     userModels = new SparseVector[modelNames.length];
+  }
+  
+  protected FactorizationProtocolSlim(FactorizationProtocolSlim a) {
+    super(a);
+    resultAggregator = (FactorizationResultAggregator)a.resultAggregator.clone();
+    userModels = new SparseVector[a.userModels.length];
+    for (int i = 0; i < userModels.length; i++) {
+      if (a.userModels[i] != null) {
+        userModels[i] = (SparseVector)a.userModels[i].clone();
+      }
+    }
+  }
+  
+  @Override
+  public Object clone() {
+    return new FactorizationProtocolSlim(this);
   }
   
   protected Set<Integer> indices;

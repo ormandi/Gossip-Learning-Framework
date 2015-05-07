@@ -27,7 +27,7 @@ import peersim.transport.Transport;
  * @author Róbert Ormándi
  *
  */
-public abstract class AbstractProtocol implements GossipProtocol {
+public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
   //active thread delay mean and variance
   /** @hidden */
   protected static final String PAR_DELAYMEAN = "delayMean";
@@ -46,13 +46,15 @@ public abstract class AbstractProtocol implements GossipProtocol {
   /** @hidden */
   protected int currentProtocolID = -1;
   /** @hidden */
-  protected final String prefix;
-  
   
   public AbstractProtocol(String prefix) {
-    this.prefix = prefix;
     delayMean = Configuration.getDouble(prefix + "." + PAR_DELAYMEAN);
     delayVar = Configuration.getDouble(prefix + "." + PAR_DELAYVAR);
+  }
+  
+  protected AbstractProtocol(AbstractProtocol a) {
+    delayMean = a.delayMean;
+    delayVar = a.delayVar;
   }
   
   /**

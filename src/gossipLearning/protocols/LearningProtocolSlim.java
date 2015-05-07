@@ -31,17 +31,6 @@ public class LearningProtocolSlim extends LearningProtocol {
     return new LearningProtocolSlim(this);
   }
   
-  public void init(String prefix) {
-    try {
-      super.init(prefix);
-      resultAggregator = new ResultAggregator(modelNames, evalNames);
-      lastSeenMergeableModels = null;
-      numberOfIncomingModels = 1;
-    } catch (Exception e) {
-      throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
-    }
-  }
-  
   protected Set<Integer> indices;
   @Override
   public void activeThread() {
