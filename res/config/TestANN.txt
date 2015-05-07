@@ -1,0 +1,5 @@
+learners gossipLearning.models.learning.multiclass.ANN #learning method
+learners.ANN.hiddenLayers 10,5
+learners.ANN.lambda 1E-5
+learners.ANN.activationFunction gossipLearning.interfaces.functions.Sigmoid
+learners.ANN.gradientFunction gossipLearning.interfaces.functions.SigmoidGradient

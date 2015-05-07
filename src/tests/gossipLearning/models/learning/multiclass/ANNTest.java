@@ -23,7 +23,7 @@ public class ANNTest  extends TestCase implements Serializable {
   public void setUp() {
     
     if (! isConfigured) {
-      Configuration.setConfig(new ParsedProperties(new String[]{"res/config/no_failure_applying_more_learners_voting10.txt"}));
+      Configuration.setConfig(new ParsedProperties(new String[]{"res/config/TestANN.txt"}));
       isConfigured = true;
     }
     // initialize random
@@ -45,7 +45,7 @@ public class ANNTest  extends TestCase implements Serializable {
       InstanceHolder eval = r.getEvalSet();
       
       // initialize learner
-      ann = new ANN("protocol.learningProtocol");
+      ann = new ANN("learners");
       ann.setNumberOfClasses(3);
       double cost = Double.MAX_VALUE;
       
