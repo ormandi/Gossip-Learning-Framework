@@ -181,7 +181,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   @Override
   public SparseVector extract(SparseVector instance) {
     if (R == null) {
-      getV();
+      getV(); //FIXME
     }
     Matrix res = V.mulLeft(instance);
     SparseVector result = new SparseVector(res.getRow(0));

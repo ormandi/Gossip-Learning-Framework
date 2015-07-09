@@ -81,6 +81,55 @@ public class Matrix implements Serializable {
       }
     }
   }
+  
+  /**
+   * Constructs a matrix with the specified number of rows and columns and fills
+   * it based on Achlioptas distribution (sparse) random numbers with specified random seed.
+   * @param numOfRows number of rows
+   * @param numOfColumns number of columns
+   * @param seed random seed
+   */
+  public Matrix(int numOfRows, int numOfColumns, long seed) {
+    this(numOfRows,numOfColumns,seed,RandomDistributionTypes.Achlioptas);
+  }
+
+  /**
+   * Constructs a matrix with the specified number of rows and columns and fills
+   * it based on specified distribution random numbers with specified random seed.
+   * @param numOfRows number of rows
+   * @param numOfColumns number of columns
+   * @param seed random seed
+   * @param randomDistributionType the type of random distribution 
+   */
+  public Matrix(int numOfRows, int numOfColumns, long seed, RandomDistributionTypes randomDistributionType) {
+    this.numberOfRows = numOfRows;
+    this.numberOfColumns = numOfColumns;
+    isTransposed = false;
+    Random rand = new Random(seed);
+    double dice = 0.0;
+    matrix = new double[numberOfRows][numberOfColumns];
+    for (int i = 0; i < numberOfRows; i++) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        switch (randomDistributionType) {
+          case Achlioptas:
+            dice = rand.nextDouble();
+            if(dice <=  1.0/6.0) {
+              matrix[i][j] = Math.sqrt(3)* +1.0;
+            } else if (dice <  5.0/6.0) {
+              matrix[i][j] = Math.sqrt(3) * 0;
+            } else {
+              matrix[i][j] = Math.sqrt(3) * -1.0;
+            }
+            break;
+          case Normal:
+          case Gaussian:  
+          default:
+            matrix[i][j] = dice;
+            break;
+        }
+      }
+    }
+  }
 
   /**
    * Constructs a matrix based on the specified array (wrapping). Copies the 
