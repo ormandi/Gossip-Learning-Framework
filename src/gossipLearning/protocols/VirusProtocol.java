@@ -24,7 +24,7 @@ public class VirusProtocol extends AbstractProtocol {
   
   public VirusProtocol(VirusProtocol a) {
     super(a);
-    holder = (ModelHolder)a.holder.clone();
+    holder = (ModelHolder)a.holder.clone(true);
   }
   
   public Object clone() {
@@ -33,7 +33,7 @@ public class VirusProtocol extends AbstractProtocol {
 
   @Override
   public void activeThread() {
-    sendToRandomNeighbor(new ModelMessage(currentNode, holder, currentProtocolID));
+    sendToRandomNeighbor(new ModelMessage(currentNode, holder, currentProtocolID, true));
   }
 
   @Override

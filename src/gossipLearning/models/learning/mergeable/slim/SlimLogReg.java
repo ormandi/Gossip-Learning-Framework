@@ -11,17 +11,18 @@ public class SlimLogReg extends MergeableLogReg {
   
   /** @hidden */
   private static final String PAR_LAMBDA = "SlimLogReg.lambda";
+  private static final String PAR_ALPHA = "LogisticRegression.alpha";
 
   public SlimLogReg(String prefix){
-    super(prefix, PAR_LAMBDA);
+    super(prefix, PAR_LAMBDA, PAR_ALPHA);
   }
   
   protected SlimLogReg(SlimLogReg a){
     super(a);
   }
   
-  protected SlimLogReg(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses) {
-    super(lambda, w, bias, distribution, age, numberOfClasses);
+  protected SlimLogReg(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses, double approxError, double alpha) {
+    super(lambda, w, bias, distribution, age, numberOfClasses, approxError, alpha);
   }
   
   public Object clone(){
@@ -40,7 +41,7 @@ public class SlimLogReg extends MergeableLogReg {
     for (int index : indices) {
       w.add(index, this.w.get(index));
     }
-    return new SlimLogReg(lambda, w, bias, Arrays.copyOf(distribution, distribution.length), age, numberOfClasses);
+    return new SlimLogReg(lambda, w, bias, Arrays.copyOf(distribution, distribution.length), age, numberOfClasses, apr_err, alpha);
   }
 
 }

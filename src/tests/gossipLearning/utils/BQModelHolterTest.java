@@ -19,7 +19,7 @@ public class BQModelHolterTest extends TestCase implements Serializable {
     DummyModel m2 = new DummyModel(2);
     holder.add(m2);
     assertEquals(holder.toString(), "2\t3\t[1, 2]");
-    BQModelHolder holderc = (BQModelHolder)holder.clone();
+    BQModelHolder holderc = (BQModelHolder)holder.clone(true);
     assertEquals(holderc, holder);
     holderc.add(m1);
     holderc.add(m2);

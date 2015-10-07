@@ -30,7 +30,7 @@ public class MobilTraceChurn implements Control {
   private final String fName;
   
   private static final String UNITS_IN_STEP = "unitsInStep";
-  private final long unitsInStep;
+  public final long unitsInStep;
 
   protected Map<Long, UserTrace> assignedUserTrace;
   protected Vector<UserTrace> userTraces;
@@ -141,4 +141,5 @@ public class MobilTraceChurn implements Control {
       }
     }
   }
+  
 }

@@ -100,7 +100,7 @@ public class FilterBoost extends ProbabilityModel {
     this.weakWeights = a.weakWeights;
     this.constantEdge = a.constantEdge;
     this.constantWeights = a.constantWeights;
-    this.strongLearner = (ModelHolder)a.strongLearner.clone();
+    this.strongLearner = (ModelHolder)a.strongLearner.clone(true);
     if (a.losses != null) {
       this.losses = a.losses.clone();
     }

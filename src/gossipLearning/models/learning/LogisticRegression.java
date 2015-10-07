@@ -23,13 +23,16 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   
   /** @hidden */
   private static final String PAR_LAMBDA = "LogisticRegression.lambda";
+  private static final String PAR_ALPHA = "LogisticRegression.alpha";
   protected final double lambda;
+  protected final double alpha;
   
   /** @hidden */
   protected SparseVector w;
   protected double bias;
   protected double[] distribution;
   protected int numberOfClasses = 2;
+  protected double apr_err;
   
   /**
    * This constructor is for initializing the member variables of the Model.
@@ -37,7 +40,7 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
   public LogisticRegression(String prefix){
-    this(prefix, PAR_LAMBDA);
+    this(prefix, PAR_LAMBDA, PAR_ALPHA);
   }
   
   /**
@@ -47,12 +50,14 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param prefix The ID of the parameters contained in the Peersim configuration file.
    * @param PAR_LAMBDA learning rate configuration string
    */
-  protected LogisticRegression(String prefix, String PAR_LAMBDA) {
+  protected LogisticRegression(String prefix, String PAR_LAMBDA, String PAR_ALPHA) {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
     w = new SparseVector();
     bias = 0.0;
     distribution = new double[numberOfClasses];
     age = 0.0;
+    apr_err = 0.0;
   }
   
   /**
@@ -62,11 +67,13 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    */
   protected LogisticRegression(LogisticRegression a){
     lambda = a.lambda;
+    alpha = a.alpha;
     w = (SparseVector)a.w.clone();
     bias = a.bias;
     distribution = Arrays.copyOf(a.distribution, a.numberOfClasses);
     age = a.age;
     numberOfClasses = a.numberOfClasses;
+    apr_err = a.apr_err;
   }
   
   /**
@@ -78,13 +85,15 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param age number of updates
    * @param numberOfClasses number of classes
    */
-  protected LogisticRegression(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses) {
+  protected LogisticRegression(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses, double approxError, double alpha) {
     this.lambda = lambda;
     this.w = w;
     this.bias = bias;
     this.distribution = distribution;
     this.age = age;
     this.numberOfClasses = numberOfClasses;
+    this.apr_err = approxError;
+    this.alpha = alpha;
   }
   
   /**
@@ -99,11 +108,15 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
     double prob = getPositiveProbability(instance);
     double err = label - prob;
     age ++;
-    double nu = 1.0 / (lambda * age);
+    double nu = 1.0 / (1 + (lambda * age));
     
     w.mul(1.0 - nu * lambda);
     w.add(instance, - nu * err);
     bias -= nu * lambda * err;
+    
+    err = Math.abs(label - Math.round(prob));
+    apr_err *= 1.0 - alpha; 
+    apr_err += alpha * err;
   }
   
   /**
@@ -112,7 +125,7 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param instance instance to compute the probability
    * @return positive label probability of the instance
    */
-  private double getPositiveProbability(SparseVector instance){
+  public double getPositiveProbability(SparseVector instance){
     double predict = w.mul(instance) + bias;
     predict = Math.exp(predict) + 1.0;
     return 1.0 / predict;
@@ -132,6 +145,10 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   @Override
   public int getNumberOfClasses() {
     return numberOfClasses;
+  }
+  
+  public double getApproximatedError(){
+    return apr_err;
   }
 
   @Override

@@ -23,21 +23,22 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
   
   /** @hidden */
   private static final String PAR_LAMBDA = "MergeableLogReg.lambda";
+  private static final String PAR_ALPHA = "LogisticRegression.alpha";
 
   public MergeableLogReg(String prefix){
-    super(prefix, PAR_LAMBDA);
+    super(prefix, PAR_LAMBDA, PAR_ALPHA);
   }
   
-  protected MergeableLogReg(String prefix, String PAR_LAMBDA) {
-    super(prefix, PAR_LAMBDA);
+  protected MergeableLogReg(String prefix, String PAR_LAMBDA, String PAR_ALPHA) {
+    super(prefix, PAR_LAMBDA, PAR_ALPHA);
   }
   
   protected MergeableLogReg(MergeableLogReg a){
     super(a);
   }
   
-  protected MergeableLogReg(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses) {
-    super(lambda, w, bias, distribution, age, numberOfClasses);
+  protected MergeableLogReg(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses, double approxError, double alpha) {
+    super(lambda, w, bias, distribution, age, numberOfClasses, approxError, alpha);
   }
   
   public Object clone(){

@@ -1,26 +1,26 @@
 package gossipLearning.protocols;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import gossipLearning.evaluators.FactorizationResultAggregator;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
+import gossipLearning.interfaces.protocols.DimensionReductionProtocol;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
-
-import java.util.Set;
-import java.util.TreeSet;
-
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Fallible;
 import peersim.core.Linkable;
 import peersim.core.Node;
 
-public class FactorizationProtocol extends LearningProtocol {
+public class FactorizationProtocol extends LearningProtocol implements DimensionReductionProtocol{
   protected static final String PAR_ARRGNAME = "aggrName";
 
   protected SparseVector[] userModels;
@@ -96,7 +96,7 @@ public class FactorizationProtocol extends LearningProtocol {
       }
       if (latestModelHolder.size() == modelHolders.length) {
         // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true));
       }
       latestModelHolder.clear();
     }
@@ -106,7 +106,7 @@ public class FactorizationProtocol extends LearningProtocol {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void updateModels(ModelHolder modelHolder){
     // get instances from the extraction protocol
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    InstanceHolder instances = ((DimensionReductionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
     if (instances.size() > 1) {
       throw new RuntimeException("The number of instances should be one at avery node instead of " + instances.size());
     }
@@ -155,6 +155,12 @@ public class FactorizationProtocol extends LearningProtocol {
       randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
     }
     getTransport().send(currentNode, randomNode, message, currentProtocolID);
+  }
+
+  @Override
+  public InstanceHolder getInstances() {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

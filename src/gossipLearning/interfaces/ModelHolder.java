@@ -14,9 +14,10 @@ public interface ModelHolder extends Serializable, Cloneable {
   
   /**
    * Returns a clone of this object.
+   * @param isDeep deep copy
    * @return the clone of this object
    */
-  public Object clone();
+  public Object clone(boolean isDeep);
   
   /**
    * Returns the number of stored models.

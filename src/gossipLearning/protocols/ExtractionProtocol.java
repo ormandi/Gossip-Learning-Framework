@@ -5,6 +5,7 @@ import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.FeatureExtractorModel;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.protocols.AbstractProtocol;
+import gossipLearning.interfaces.protocols.DimensionReductionProtocol;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.overlays.TMan;
 import gossipLearning.utils.BQModelHolder;
@@ -29,7 +30,7 @@ import peersim.config.Configuration;
  * </ul>
  * @author István Hegedűs
  */
-public class ExtractionProtocol extends AbstractProtocol {
+public class ExtractionProtocol extends AbstractProtocol implements DimensionReductionProtocol{
   private static final String PAR_MODELNAMES = "modelName";
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
@@ -96,8 +97,8 @@ public class ExtractionProtocol extends AbstractProtocol {
       descriptor = (NodeDescriptor)a.descriptor.clone();
     }
     
-    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone();
-    modelHolder = (ModelHolder)a.modelHolder.clone();
+    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone(true);
+    modelHolder = (ModelHolder)a.modelHolder.clone(true);
   }
   
   /**
@@ -121,7 +122,7 @@ public class ExtractionProtocol extends AbstractProtocol {
     latestModelHolder.add(latestModel);
     
     // send the latest models to a random neighbor
-    sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+    sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true));
     
     // initialize or update descriptor
     SparseVector v = new SparseVector();
@@ -162,7 +163,7 @@ public class ExtractionProtocol extends AbstractProtocol {
         FeatureExtractorModel model = (FeatureExtractorModel)m;
         for (int index = 0; index < instances.size(); index ++) {
           // updating the model with the local training samples
-          model.update(instances.getInstance(index));
+          model.update(instances.getInstance(index), instances.getLabel(index));
         }
         // stores the updated model
         modelHolder.add(model);

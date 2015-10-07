@@ -20,7 +20,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   private static final String PAR_ORIGDIM = "LowRankDecomposition.origdim";
   private static final String PAR_LAMBDA = "LowRankDecomposition.lambda";
   private static final String PAR_ALPHA = "LowRankDecomposition.alpha";
-  
+
   protected double age;
   protected HashMap<Integer, SparseVector> columnModels;
   //protected SparseVector eigenValues;
@@ -32,11 +32,11 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   protected int maxIndex;
   protected Matrix R;
   protected Matrix V;
-  
+
   public LowRankDecomposition(String prefix) {
     this(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
   }
-  
+
   public LowRankDecomposition(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA) {
     dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
@@ -46,7 +46,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     //eigenValues = new SparseVector();
     maxIndex = Configuration.getInt(prefix + "." + PAR_ORIGDIM, 2) -1;
   }
-  
+
   public LowRankDecomposition(LowRankDecomposition a) {
     age = a.age;
     // for avoiding size duplications of the HashMap
@@ -68,7 +68,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     alpha = a.alpha;
     maxIndex = a.maxIndex;
   }
-  
+
   public LowRankDecomposition(double age, HashMap<Integer, SparseVector> columnModels, int dimension, double lambda, double alpha, int maxIndex) {
     this.age = age;
     this.columnModels = columnModels;
@@ -77,12 +77,12 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     this.alpha = alpha;
     this.maxIndex = maxIndex;
   }
-  
+
   @Override
   public Object clone() {
     return new LowRankDecomposition(this);
   }
-  
+
   @Override
   public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
     // rowIndex - userID
@@ -91,12 +91,12 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     if (maxIndex < instance.maxIndex()) {
       maxIndex = instance.maxIndex();
     }
-    
+
     age ++;
     double value = 0.0;
     //double nu = lambda / Math.log(age + 1);
     double nu = lambda;
-    
+
     double[] newVector;
     // initialize a new row-model
     if (rowModel == null) {
@@ -107,9 +107,9 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
       }
       rowModel = new SparseVector(newVector);
     }
-    
+
     SparseVector newRowModel = (SparseVector)rowModel.clone();
-    
+
     for (int j = 0; j <= maxIndex; j++) {
       SparseVector columnModel = columnModels.get(j);
       // initialize a new column-model
@@ -129,25 +129,25 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
         double ci = columnModel.get(i);
         double prediction = ri * ci;
         double error = value - prediction;
-        
+
         // update models
         newRowModel.add(i, ci * nu * error);
         columnModel.add(i, ri * nu * error);
-        
+
         // deflate the value of the matrix
         value -= prediction;
       }
     }
-    
+
     //TODO: compute corresponding eigenvalue
-    
+
     // set null for normalizer matrix
     R = null;
-    
+
     // return new user-model
     return newRowModel;
   }
-  
+
   @Override
   public double predict(int rowIndex, SparseVector rowModel, int columnIndex) {
     // rowIndex - userID
@@ -159,12 +159,12 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     }
     return itemModel.mul(rowModel);
   }
-  
+
   @Override
   public double getAge() {
     return age;
   }
-  
+
   @Override
   public InstanceHolder extract(InstanceHolder instances) {
     InstanceHolder result = new InstanceHolder(instances.getNumberOfClasses(), dimension);
@@ -173,21 +173,21 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     }
     return result;
   }
-  
+
   public int getDimension() {
     return dimension;
   }
-  
+
   @Override
   public SparseVector extract(SparseVector instance) {
     if (R == null) {
-      getV(); //FIXME
+      getV();
     }
     Matrix res = V.mulLeft(instance);
     SparseVector result = new SparseVector(res.getRow(0));
     return result;
   }
-  
+
   @Override
   public Matrix getV() {
     if (R != null) {
@@ -210,7 +210,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     //System.err.println(R);
     return V;
   }
-  
+
   @Override
   public Matrix getUSi(SparseVector ui) {
     if (R == null) {
@@ -222,14 +222,17 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     Matrix USi = R.mulLeft(ui);
     return USi;
   }
-  
+
   public SparseVector getEigenValues() {
     return null;
   }
-  
+
   @Override
   public String toString() {
-    return getV().toString();
+    String ost = "";
+    ost += "Model_age: "+getAge()+"\n";
+    ost += ""+getV().toString()+"";
+    return ost; 
   }
 
   @Override

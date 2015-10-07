@@ -7,21 +7,31 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.VectorEntry;
+import peersim.config.Configuration;
+import peersim.core.CommonState;
+import peersim.core.Linkable;
+import peersim.core.Network;
+import peersim.core.Node;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 public class RapidFactorizationProtocol extends FactorizationProtocol {
   protected static final String PAR_MODELPROB = "initModelProbability";
   protected int numberOfSentModels;
+  protected final double maxdelay;
 
   public RapidFactorizationProtocol(String prefix) {
     super(prefix);
     numberOfSentModels = 0;
+    maxdelay = (Configuration.getDouble("MAXDELAY")/Network.size()) * Configuration.getDouble("UNITSINSTEP"); ///((MobilTraceChurn)currentNode.getProtocol(churnProtocolID)).unitsInStep;
   }
   
   public RapidFactorizationProtocol(RapidFactorizationProtocol a) {
     super(a);
     numberOfSentModels = a.numberOfSentModels;
+    maxdelay = a.maxdelay;
   }
   
   @Override
@@ -74,7 +84,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
       if (latestModelHolder.size() == modelHolders.length) {
         //System.out.println("SEND: " + currentNode.getID());
         // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
         //System.out.println(currentNode.getID() + " SEND act");
       }
       latestModelHolder.clear();
@@ -96,7 +106,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
     if (latestModelHolder.size() == modelHolders.length) {
       //System.out.println("SEND(U): " + currentNode.getID());
       // send the latest models to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID,false));
       //System.out.println(currentNode.getID() + " SEND curr " + currentProtocolID);
     }
     latestModelHolder.clear();
@@ -105,4 +115,21 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
     //System.out.println(numberOfIncomingModels);
   }
 
+  @Override
+  protected void sendToRandomNeighbor(ModelMessage message) {
+    Linkable overlay = getOverlay();
+    List<Node> neighbors = new ArrayList<Node>();
+    for (int i = 0; i < overlay.degree(); i++) {
+      if (overlay.getNeighbor(i).isUp() && overlay.getNeighbor(i).getID() != currentNode.getID()){
+        if (((LearningProtocol)overlay.getNeighbor(i).getProtocol(currentProtocolID)).getSessionLength()-maxdelay >= 0) {
+          neighbors.add(overlay.getNeighbor(i));
+        }
+      }
+    }
+    if (neighbors.size() > 0) {
+      Node randomNode = neighbors.get(CommonState.r.nextInt(neighbors.size()));
+      getTransport().send(currentNode, randomNode, message, currentProtocolID);
+    }
+  }
+  
 }

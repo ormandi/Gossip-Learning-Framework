@@ -31,9 +31,9 @@ public class ModelMessage implements ModelHolder, Message {
    * @param models The data part of the message.
    * @param pid The id of the protocol that can handle this message.
    */
-  public ModelMessage(Node src, ModelHolder models, int pid) {
+  public ModelMessage(Node src, ModelHolder models, int pid, boolean isDeep) {
     this.src = src;
-    this.models = (ModelHolder)models.clone();
+    this.models = (ModelHolder)models.clone(isDeep);
     this.pid = pid;
   }
 
@@ -43,8 +43,8 @@ public class ModelMessage implements ModelHolder, Message {
    * @return A copy of the original message containing replicated models.
    */
   @Override
-  public Object clone() {
-    return new ModelMessage(src, models, pid);
+  public Object clone(boolean isDeep) {
+    return new ModelMessage(src, models, pid, isDeep);
   }
 
   /**

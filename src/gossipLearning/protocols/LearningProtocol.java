@@ -6,6 +6,7 @@ import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.protocols.AbstractProtocol;
+import gossipLearning.interfaces.protocols.DimensionReductionProtocol;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
@@ -79,7 +80,7 @@ public class LearningProtocol extends AbstractProtocol {
     evalNames = Configuration.getString(prefix + "." + PAR_EVALNAMES).split(",");
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
     numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
-    initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB, 1.0);
+    initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB);
     
     // setting up learning related variables
     numberOfWaits = 0;
@@ -127,11 +128,17 @@ public class LearningProtocol extends AbstractProtocol {
     numberOfIncomingModels = a.numberOfIncomingModels;
     
     resultAggregator = (ResultAggregator)a.resultAggregator.clone();
-    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone();
-    latestModelHolder = (ModelHolder)a.latestModelHolder.clone();
+    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone(true);
+    latestModelHolder = (ModelHolder)a.latestModelHolder.clone(true);
     modelHolders = new ModelHolder[a.modelHolders.length];
     for (int i = 0; i < modelHolders.length; i++) {
-      modelHolders[i] = (ModelHolder)a.modelHolders[i].clone();
+      modelHolders[i] = (ModelHolder)a.modelHolders[i].clone(true);
+    }
+    // setting up learning related variables
+    numberOfWaits = 0;
+    numberOfIncomingModels = 1;
+    if (CommonState.r.nextDouble() > initModelProbability) {
+      numberOfIncomingModels = 0;
     }
   }
   
@@ -169,18 +176,22 @@ public class LearningProtocol extends AbstractProtocol {
       numberOfWaits = 0;
     }
     for (int id = Math.min(numberOfIncomingModels, capacity); id > 0; id --) {
-      for (int i = 0; i < modelHolders.length; i++) {  
-        // store the latest models in a new modelHolder
-        Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - id);
-        latestModelHolder.add(latestModel);
-      }
-      if (latestModelHolder.size() == modelHolders.length) {
-        // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
-      }
-      latestModelHolder.clear();
+      sendMessage(id);
     }
     numberOfIncomingModels = 0;
+  }
+
+  public void sendMessage(int numberOfMessage) {
+    for (int i = 0; i < modelHolders.length; i++) {  
+      // store the latest models in a new modelHolder
+      Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - numberOfMessage);
+      latestModelHolder.add(latestModel);
+    }
+    if (latestModelHolder.size() == modelHolders.length) {
+      // send the latest models to a random neighbor
+      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID,true));
+    }
+    latestModelHolder.clear();
   }
 
   /**
@@ -202,7 +213,7 @@ public class LearningProtocol extends AbstractProtocol {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void updateModels(ModelHolder modelHolder){
     // get instances from the extraction protocol
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    InstanceHolder instances = ((DimensionReductionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
       LearningModel model = (LearningModel)modelHolder.getModel(i);
@@ -230,6 +241,10 @@ public class LearningProtocol extends AbstractProtocol {
    */
   public ResultAggregator getResults() {
     return resultAggregator;
+  }
+  
+  public Model getModel(){
+    return modelHolders[0].getModel(0);
   }
   
   /**

@@ -67,7 +67,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     this.numberOfClasses = a.numberOfClasses;
     this.prefix = a.prefix;
     if (a.classifiers != null) {
-      this.classifiers = (ModelHolder)a.classifiers.clone();
+      this.classifiers = (ModelHolder)a.classifiers.clone(true);
     } else {
       classifiers = null;
     }

@@ -57,7 +57,7 @@ public class Normalizer implements FeatureExtractorModel {
   }
 
   @Override
-  public void update(SparseVector instance) {
+  public void update(SparseVector instance,double label) {
     for (VectorEntry e : instance) {
       if (e.value < mins.get(e.index)) {
         mins.put(e.index, e.value);
@@ -66,6 +66,12 @@ public class Normalizer implements FeatureExtractorModel {
         maxs.put(e.index, e.value);
       }
     }
+  }
+
+  @Override
+  public FeatureExtractorModel merge(FeatureExtractorModel model) {
+    // TODO Auto-generated method stub
+    return this;
   }
 
 }

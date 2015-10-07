@@ -124,6 +124,7 @@ public class Matrix implements Serializable {
           case Normal:
           case Gaussian:  
           default:
+            dice = rand.nextGaussian();
             matrix[i][j] = dice;
             break;
         }
@@ -1293,11 +1294,15 @@ public class Matrix implements Serializable {
    * character space and the rows are in new lines.
    */
   public String toString() {
+    return toString(" ");
+  }
+  
+  public String toString(String append){
     StringBuffer sb = new StringBuffer();
     for (int i = 0; i < numberOfRows; i++) {
       for (int j = 0; j < numberOfColumns; j++) {
         if (j != 0) {
-          sb.append(' ');
+          sb.append(append);
         }
         if (isTransposed) {
           sb.append(String.format("%.5g", Math.abs(matrix[j][i]) < Utils.EPS ? 0 : matrix[j][i]));

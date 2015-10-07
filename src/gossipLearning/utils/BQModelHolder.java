@@ -50,21 +50,21 @@ public class BQModelHolder implements ModelHolder {
   /**
    * Creates an object from this class by the specified holder.
    * @param mh to be cloned
-   * @param deep deep copy
+   * @param isDeep deep copy
    */
-  protected BQModelHolder(BQModelHolder mh, boolean deep) {
+  protected BQModelHolder(BQModelHolder mh, boolean isDeep) {
     this.bound = mh.bound;
     models = new Model[bound];
     for (int i = 0; i < mh.size(); i ++) {
-      models[i] = deep ? (Model)mh.getModel(i).clone() : mh.getModel(i);
+      models[i] = isDeep ? (Model)mh.getModel(i).clone() : mh.getModel(i);
     }
     start = 0;
     size = mh.size;
   }
   
   @Override
-  public Object clone(){
-    return new BQModelHolder(this, true);
+  public Object clone(boolean isDeep) {
+    return new BQModelHolder(this, isDeep);
   }
   
   @Override
