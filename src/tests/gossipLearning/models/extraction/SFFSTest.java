@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 import org.junit.Test;
 
-import gossipLearning.models.extraction.StochasticForwardFeatureSelectionOld;
+import gossipLearning.models.extraction.StochasticForwardFeatureSelection;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
@@ -40,8 +40,8 @@ public class SFFSTest extends TestCase implements Serializable{
       DataBaseReader r = DataBaseReader.createDataBaseReader("gossipLearning.utils.DataBaseReader", tFile, eFile);
       InstanceHolder training = r.getTrainingSet();
       //InstanceHolder eval = r.getEvalSet();
-      StochasticForwardFeatureSelectionOld rp1 = new StochasticForwardFeatureSelectionOld(prefix);
-      StochasticForwardFeatureSelectionOld rp2 = new StochasticForwardFeatureSelectionOld(prefix);
+      StochasticForwardFeatureSelection rp1 = new StochasticForwardFeatureSelection(prefix);
+      StochasticForwardFeatureSelection rp2 = new StochasticForwardFeatureSelection(prefix);
       for (int i = 0; i < 7000; i ++) {
         if(i % 200 == 0) {
           System.out.println("----"+i+"----");
