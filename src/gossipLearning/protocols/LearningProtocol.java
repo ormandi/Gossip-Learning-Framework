@@ -7,6 +7,7 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.protocols.AbstractProtocol;
 import gossipLearning.interfaces.protocols.DimensionReductionProtocol;
+import gossipLearning.interfaces.protocols.InstanceLoaderConnection;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
@@ -21,7 +22,7 @@ import peersim.core.CommonState;
  * 
  * @author István Hegedűs
  */
-public class LearningProtocol extends AbstractProtocol {
+public class LearningProtocol extends AbstractProtocol implements InstanceLoaderConnection {
   private static final String PAR_EXTRACTORPID = "extractorProtocol";
   protected static final String PAR_ARRGNAME = "aggrName";
   private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";

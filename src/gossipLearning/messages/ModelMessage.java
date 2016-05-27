@@ -82,6 +82,10 @@ public class ModelMessage implements ModelHolder, Message {
   public Model getModel(int index) {
     return models.getModel(index);
   }
+  
+  public ModelHolder getModels() {
+    return models;
+  }
 
   /**
    * It sets the <i>index</i>th model of the underlying ModelHolder to that

@@ -1,0 +1,134 @@
+C ${ITERATIONS} #number of cycles
+NETWORKSIZE ${NETWORK_SIZE} #number of nodes (should be the same as the number of training instances)
+SEED 1134567890 #random seed
+CORES 1 #number of cores for running
+
+ONLINESIZE NETWORKSIZE
+CYCLE C*ONLINESIZE+1
+LOGTIME ONLINESIZE
+
+CHURN_MU 2.9946026534931334
+CHURN_SIGMA 1.7846416518240433
+
+DELAY 0.0001
+
+#MINLATENCY 0.001666666667
+#MESSAGESIZE 0.001666666667
+MINLATENCY 1.0
+MESSAGESIZE 1.0
+
+# Transport parameters
+MINLATENCYDELAY MINLATENCY*ONLINESIZE
+MESSAGEDELAY MESSAGESIZE*ONLINESIZE
+
+MINDELAY DELAY*ONLINESIZE*0.1
+MAXDELAY DELAY*ONLINESIZE
+
+# Overlay parameters
+NEIGHBORS 50
+
+# Protocol parameters
+DELAYMEAN LOGTIME
+
+UNITSINSTEP 100
+#UNITSINSTEP 60000
+
+EXPECTEDMODELNUMBER 1.0
+RANDOMWALKTIMELIMIT 11.0*ONLINESIZE
+MODELSURVIVEPROBABILITY 1.0
+
+#EXPECTEDMODELNUMBER ONLINESIZE
+
+#-------------------- General Simulation Properties --------------------
+network.size NETWORKSIZE
+simulation.endtime CYCLE
+simulation.logtime LOGTIME
+simulation.messagemindelay MINDELAY
+simulation.threadnum CORES
+random.seed SEED
+
+
+#-------------------- Transport layer --------------------
+protocol.transport UniformRandomTransport
+protocol.transport.mindelay MINDELAY
+protocol.transport.maxdelay MAXDELAY
+
+#-------------------- Connection layer --------------------
+protocol.overlay peersim.core.IdleProtocol
+protocol.overlay.transport transport
+
+
+#-------------------- Extraction layer --------------------
+protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
+protocol.extractionProtocol.linkable overlay
+protocol.extractionProtocol.transport transport
+protocol.extractionProtocol.delayMean ONLINESIZE
+protocol.extractionProtocol.delayVar ONLINESIZE/10.0
+protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.extractionProtocol.modelHolderCapacity 20
+protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
+protocol.extractionProtocol.isUseTMan false
+
+
+#-------------------- Learning layer(s) --------------------
+protocol.learningProtocol gossipLearning.protocols.SoloWalkerProtocol
+protocol.learningProtocol.linkable overlay
+protocol.learningProtocol.step LOGTIME
+protocol.learningProtocol.transport transport
+protocol.learningProtocol.extractorProtocol extractionProtocol
+protocol.learningProtocol.messageDelay MESSAGEDELAY
+protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.learningProtocol.modelHolderCapacity 20
+protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
+protocol.learningProtocol.modelNames gossipLearning.models.DummySoloLearningModel
+protocol.learningProtocol.expectedModelNumber EXPECTEDMODELNUMBER
+
+#1E-2
+protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
+protocol.learningProtocol.evalProbability 0.0
+
+
+#-------------------- Initializers --------------------
+init.overlayInit WireKOut
+init.overlayInit.k NEIGHBORS
+init.overlayInit.protocol overlay
+
+init.instanceLoader gossipLearning.controls.InstanceLoader
+init.instanceLoader.readerClass gossipLearning.utils.DataBaseReader
+init.instanceLoader.extractionProtocol extractionProtocol
+init.instanceLoader.learningProtocols learningProtocol
+init.instanceLoader.trainingFile ${TRAINING_DATABASE}
+init.instanceLoader.evaluationFile ${EVALUATION_DATABASE}
+init.instanceLoader.samplesPerNode 1
+init.instanceLoader.printPrecision 6
+init.instanceLoader.isPrintAges false
+
+init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
+init.learningProtocolStart.protocols learningProtocol
+init.learningProtocolStart.delay 1
+
+init.sch CDScheduler
+init.sch.protocol learningProtocol
+
+#-------------------- Define Init Sequence --------------------
+include.init overlayInit instanceLoader sch learningProtocolStart
+
+
+#-------------------- Observers --------------------
+control.prediction gossipLearning.controls.SoloWalkerObsever
+control.prediction.step LOGTIME
+control.prediction.printTime 10
+control.prediction.protocol learningProtocol
+
+#control.churn example.mobileTrace.control.ChurnControl
+#control.churn.protocol virus
+#control.churn.step LOGTIME
+#control.churn.size ONLINESIZE
+#control.churn.mu CHURN_MU
+#control.churn.sigma CHURN_SIGMA
+
+control.churn gossipLearning.controls.MobilTraceChurnForSoloWalker
+control.churn.protocol learningProtocol
+control.churn.step LOGTIME
+control.churn.traceFile ../res/trace/peersim_session_100.txt
+control.churn.unitsInStep UNITSINSTEP

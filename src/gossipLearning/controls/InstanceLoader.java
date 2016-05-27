@@ -1,7 +1,7 @@
 package gossipLearning.controls;
 
+import gossipLearning.interfaces.protocols.InstanceLoaderConnection;
 import gossipLearning.protocols.ExtractionProtocol;
-import gossipLearning.protocols.LearningProtocol;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
@@ -107,10 +107,10 @@ public class InstanceLoader implements Control {
         // sets the number of classes for the learning protocols and the evaluation set for the evaluator.
         for (int j = 0; j < pidLS.length; j++) {
           protocol = node.getProtocol(pidLS[j]);
-          if (protocol instanceof LearningProtocol) {
-            LearningProtocol learningProtocol = (LearningProtocol) protocol;
-            learningProtocol.getResults().setEvalSet(reader.getEvalSet());
-            learningProtocol.setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
+          if (protocol instanceof InstanceLoaderConnection) {
+            InstanceLoaderConnection instanceLoaderConnection = (InstanceLoaderConnection) protocol;
+            instanceLoaderConnection.getResults().setEvalSet(reader.getEvalSet());
+            instanceLoaderConnection.setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
           } else {
             throw new RuntimeException("The protocol " + pidE + " has to implement the LearningProtocol interface!");
           }
