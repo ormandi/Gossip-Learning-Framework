@@ -1,7 +1,7 @@
 package gossipLearning.controls;
 
+import gossipLearning.interfaces.protocols.DimensionReductionProtocol;
 import gossipLearning.interfaces.protocols.InstanceLoaderConnection;
-import gossipLearning.protocols.ExtractionProtocol;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
@@ -91,17 +91,17 @@ public class InstanceLoader implements Control {
       for (int i = 0; i < Network.size(); i++) {
         Node node = Network.get(i);
         Protocol protocol = node.getProtocol(pidE);
-        if (protocol instanceof ExtractionProtocol) {
-          ExtractionProtocol extractionProtocol = (ExtractionProtocol) protocol;
+        if (protocol instanceof DimensionReductionProtocol) {
+          DimensionReductionProtocol dimensionReductionProtocol = (DimensionReductionProtocol) protocol;
           InstanceHolder instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
           for (int j = 0; j < samplesPerNode; j++){
             instances.add(reader.getTrainingSet().getInstance((i * samplesPerNode + j) % numOfSamples), reader.getTrainingSet().getLabel((i * samplesPerNode + j) % numOfSamples));
           }
           
           // set the instances for current node
-          extractionProtocol.setInstanceHolder(instances);
+          dimensionReductionProtocol.setInstanceHolder(instances);
         } else {
-          throw new RuntimeException("The protocol " + pidE + " has to implement the ExtractionProtocol interface!");
+          throw new RuntimeException("The protocol " + pidE + " has to implement the DimensionReductionProtocol interface!");
         }
         
         // sets the number of classes for the learning protocols and the evaluation set for the evaluator.

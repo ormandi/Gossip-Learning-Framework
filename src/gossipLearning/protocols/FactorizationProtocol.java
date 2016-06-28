@@ -5,6 +5,7 @@ import java.util.TreeSet;
 
 import gossipLearning.evaluators.FactorizationResultAggregator;
 import gossipLearning.interfaces.ModelHolder;
+import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
@@ -157,10 +158,27 @@ public class FactorizationProtocol extends LearningProtocol implements Dimension
     getTransport().send(currentNode, randomNode, message, currentProtocolID);
   }
 
+  public FeatureExtractor getModel() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+  
   @Override
   public InstanceHolder getInstances() {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  @Override
+  public InstanceHolder getInstanceHolder() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public void setInstanceHolder(InstanceHolder instances) {
+    // TODO Auto-generated method stub
+    
   }
 
 }

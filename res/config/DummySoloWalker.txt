@@ -34,7 +34,7 @@ UNITSINSTEP 100
 #UNITSINSTEP 60000
 
 EXPECTEDMODELNUMBER 1.0
-RANDOMWALKTIMELIMIT 11.0*ONLINESIZE
+RANDOMWALKTIMELIMIT 101.0*ONLINESIZE
 MODELSURVIVEPROBABILITY 1.0
 
 #EXPECTEDMODELNUMBER ONLINESIZE
@@ -59,16 +59,10 @@ protocol.overlay.transport transport
 
 
 #-------------------- Extraction layer --------------------
-protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
-protocol.extractionProtocol.linkable overlay
-protocol.extractionProtocol.transport transport
-protocol.extractionProtocol.delayMean ONLINESIZE
-protocol.extractionProtocol.delayVar ONLINESIZE/10.0
+protocol.extractionProtocol gossipLearning.protocols.DummyDimensionReductionProtocol
 protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.extractionProtocol.modelHolderCapacity 20
 protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
-protocol.extractionProtocol.isUseTMan false
-
 
 #-------------------- Learning layer(s) --------------------
 protocol.learningProtocol gossipLearning.protocols.SoloWalkerProtocol
@@ -107,11 +101,11 @@ init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
 init.learningProtocolStart.protocols learningProtocol
 init.learningProtocolStart.delay 1
 
-init.sch CDScheduler
-init.sch.protocol learningProtocol
+#init.sch CDScheduler
+#init.sch.protocol learningProtocol
 
 #-------------------- Define Init Sequence --------------------
-include.init overlayInit instanceLoader sch learningProtocolStart
+include.init overlayInit instanceLoader learningProtocolStart
 
 
 #-------------------- Observers --------------------
@@ -130,5 +124,5 @@ control.prediction.protocol learningProtocol
 control.churn gossipLearning.controls.MobilTraceChurnForSoloWalker
 control.churn.protocol learningProtocol
 control.churn.step LOGTIME
-control.churn.traceFile ../res/trace/peersim_session_100.txt
+control.churn.traceFile ../res/trace/peersim_session_twoday_0.txt
 control.churn.unitsInStep UNITSINSTEP

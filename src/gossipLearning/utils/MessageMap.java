@@ -9,7 +9,7 @@ import java.util.Set;
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.SoloLearningModel;
 import gossipLearning.messages.Message;
-import gossipLearning.messages.RestartedModelMessage;
+import gossipLearning.messages.RestartableModelMessage;
 import peersim.core.Node;
 
 public class MessageMap implements Map<Integer, Message>{
@@ -100,8 +100,8 @@ public class MessageMap implements Map<Integer, Message>{
 
   public boolean isSendingThisStepID(int stepID) {
     for (Message message : messagesById.values()) {
-      if (message instanceof RestartedModelMessage ) {
-        ModelHolder models = ((RestartedModelMessage)message).getModels();
+      if (message instanceof RestartableModelMessage ) {
+        ModelHolder models = ((RestartableModelMessage)message).getModels();
         for (int i = 0; i < models.size(); i++) {
           if (models.getModel(i) instanceof SoloLearningModel) 
             if (stepID == ((SoloLearningModel)models.getModel(i)).getStepID())

@@ -1,5 +1,6 @@
 package gossipLearning.interfaces.protocols;
 
+import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.utils.InstanceHolder;
 
 public interface DimensionReductionProtocol {
@@ -9,5 +10,8 @@ public interface DimensionReductionProtocol {
    * @return the extracted instances
    */
   public InstanceHolder getInstances();
+  public FeatureExtractor getModel();
+  public InstanceHolder getInstanceHolder();
+  public void setInstanceHolder(InstanceHolder instances);
   
 }
