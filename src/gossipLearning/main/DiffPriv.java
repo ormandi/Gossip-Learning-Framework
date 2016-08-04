@@ -179,7 +179,7 @@ public class DiffPriv {
               noise[rIdx] = lapValue;
             } else {
               noise[d] = 0.0;
-              //noise[d] = r.nextDouble() * lapValue;
+              noise[d] = r.nextDouble() * lapValue;
             }
           } else {
             throw new RuntimeException("Not supported norm type: " + normType);
