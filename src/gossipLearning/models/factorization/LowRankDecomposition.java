@@ -8,8 +8,6 @@ import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import peersim.config.Configuration;
@@ -22,60 +20,52 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   private static final String PAR_ALPHA = "LowRankDecomposition.alpha";
   
   protected double age;
-  protected HashMap<Integer, SparseVector> columnModels;
-  //protected SparseVector eigenValues;
+  protected final SparseVector[] columnModels;
+  // size of the reduced dimensions
   protected final int dimension;
   // learning rate
   protected final double lambda;
   // regularization parameter
   protected final double alpha;
-  protected int maxIndex;
+  // size of the original dimension
+  protected final int origDimension;
   protected Matrix R;
   protected Matrix V;
   
+  protected boolean isUpdated = true;
+  
   public LowRankDecomposition(String prefix) {
-    this(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
+    this(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_ORIGDIM);
   }
   
-  public LowRankDecomposition(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA) {
+  public LowRankDecomposition(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA, String PAR_ORIGDIM) {
     dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
     age = 0.0;
-    columnModels = new HashMap<Integer, SparseVector>();
-    //eigenValues = new SparseVector();
-    maxIndex = Configuration.getInt(prefix + "." + PAR_ORIGDIM, 2) -1;
+    origDimension = Configuration.getInt(prefix + "." + PAR_ORIGDIM);
+    columnModels = new SparseVector[origDimension];
   }
   
   public LowRankDecomposition(LowRankDecomposition a) {
     age = a.age;
-    // for avoiding size duplications of the HashMap
-    int size = 1;
-    while (size <= a.columnModels.size()) {
-      size <<= 1;
-    }
-    columnModels = new HashMap<Integer, SparseVector>(size, 1.0f);
-    for (Entry<Integer, SparseVector> e : a.columnModels.entrySet()) {
-      columnModels.put(e.getKey().intValue(), (SparseVector)e.getValue().clone());
-    }
-    /*if (a.eigenValues != null) {
-      eigenValues = new SparseVector(a.eigenValues);
-    } else {
-      eigenValues = new SparseVector();
-    }*/
     dimension = a.dimension;
     lambda = a.lambda;
     alpha = a.alpha;
-    maxIndex = a.maxIndex;
+    origDimension = a.origDimension;
+    columnModels = new SparseVector[origDimension];
+    for (int i = 0; i < origDimension; i++) {
+      columnModels[i] = a.columnModels[i] == null ? null : (SparseVector)a.columnModels[i].clone();
+    }
   }
   
-  public LowRankDecomposition(double age, HashMap<Integer, SparseVector> columnModels, int dimension, double lambda, double alpha, int maxIndex) {
+  public LowRankDecomposition(double age, SparseVector[] columnModels, int dimension, double lambda, double alpha, int origDimension) {
     this.age = age;
     this.columnModels = columnModels;
     this.dimension = dimension;
     this.lambda = lambda;
     this.alpha = alpha;
-    this.maxIndex = maxIndex;
+    this.origDimension = origDimension;
   }
   
   @Override
@@ -85,42 +75,29 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   
   @Override
   public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance) {
+    return this.update(rowIndex, rowModel, instance, true);
+  }
+  
+  public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance, boolean updY) {
     // rowIndex - userID
     // rowModel - userModel
     // instance - row of the matrix
-    if (maxIndex < instance.maxIndex()) {
-      maxIndex = instance.maxIndex();
-    }
-    
     age ++;
     double value = 0.0;
-    //double nu = lambda / Math.log(age + 1);
     double nu = lambda;
     
-    double[] newVector;
     // initialize a new row-model
     if (rowModel == null) {
-      newVector = new double[dimension];
-      for (int d = 0; d < dimension; d++) {
-        newVector[d] = 1.0 / maxIndex;
-        //newVector[d] = CommonState.r.nextDouble();
-      }
-      rowModel = new SparseVector(newVector);
+      rowModel = initVector();
     }
     
     SparseVector newRowModel = (SparseVector)rowModel.clone();
     
-    for (int j = 0; j <= maxIndex; j++) {
-      SparseVector columnModel = columnModels.get(j);
-      // initialize a new column-model
+    for (int j = 0; j < origDimension; j++) {
+      SparseVector columnModel = columnModels[j];
       if (columnModel == null) {
-        newVector = new double[dimension];
-        for (int d = 0; d < dimension; d++) {
-          newVector[d] = 1.0 / maxIndex;
-          //newVector[d] = CommonState.r.nextDouble();
-        }
-        columnModel = new SparseVector(newVector);
-        columnModels.put(j, columnModel);
+        columnModel = initVector();
+        columnModels[j] = columnModel;
       }
       value = instance.get(j);
       for (int i = 0; i < dimension; i++) {
@@ -138,11 +115,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
         value -= prediction;
       }
     }
-    
-    //TODO: compute corresponding eigenvalue
-    
-    // set null for normalizer matrix
-    R = null;
+    isUpdated = true;
     
     // return new user-model
     return newRowModel;
@@ -153,7 +126,8 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     // rowIndex - userID
     // rowModel - userModel
     // columnIndex - itemID
-    SparseVector itemModel = columnModels.get(columnIndex);
+    //SparseVector itemModel = columnModels.get(columnIndex);
+    SparseVector itemModel = columnModels[columnIndex];
     if (itemModel == null || rowModel == null) {
       return 0.0;
     }
@@ -180,7 +154,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   
   @Override
   public SparseVector extract(SparseVector instance) {
-    if (R == null) {
+    if (isUpdated) {
       getV();
     }
     Matrix res = V.mulLeft(instance);
@@ -190,30 +164,36 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   
   @Override
   public Matrix getV() {
-    if (R != null) {
+    if (!isUpdated) {
       return V;
     }
-    R = new Matrix(dimension, dimension);
-    V = new Matrix(maxIndex + 1, dimension);
+    if (R == null || V == null) {
+      R = new Matrix(dimension, dimension);
+      V = new Matrix(origDimension, dimension);
+    }
     for (int i = 0; i < dimension; i++) {
       double norm = 0.0;
-      for (Entry<Integer, SparseVector> e : columnModels.entrySet()) {
-        double value = e.getValue().get(i);
-        V.set(e.getKey(), i, value);
+      for (int j = 0; j < origDimension; j++) {
+        if (columnModels[j] == null) {
+          continue;
+        }
+        double value = columnModels[j].get(i);
+        V.set(j, i, value);
         norm = Utils.hypot(norm, value);
       }
-      for (int j = 0; j < maxIndex + 1; j++) {
+      for (int j = 0; j < origDimension; j++) {
         V.set(j, i, norm == 0.0 ? 0.0 : V.get(j, i) / norm);
       }
       R.set(i, i, norm);
     }
     //System.err.println(R);
+    isUpdated = false;
     return V;
   }
   
   @Override
   public Matrix getUSi(SparseVector ui) {
-    if (R == null) {
+    if (isUpdated) {
       getV();
     }
     if (ui == null) {
@@ -221,10 +201,6 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
     }
     Matrix USi = R.mulLeft(ui);
     return USi;
-  }
-  
-  public SparseVector getEigenValues() {
-    return null;
   }
   
   @Override
@@ -235,6 +211,14 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   @Override
   public LowRankDecomposition getModelPart(Set<Integer> indices) {
     return this;
+  }
+  
+  protected SparseVector initVector() {
+    double[] newVector = new double[dimension];
+    for (int d = 0; d < dimension; d++) {
+      newVector[d] = 1.0 / origDimension;
+    }
+    return new SparseVector(newVector);
   }
 
 }

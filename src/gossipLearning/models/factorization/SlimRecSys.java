@@ -1,8 +1,5 @@
 package gossipLearning.models.factorization;
 
-import gossipLearning.utils.SparseVector;
-
-import java.util.HashMap;
 import java.util.Set;
 
 public class SlimRecSys extends MergeableRecSys {
@@ -10,17 +7,16 @@ public class SlimRecSys extends MergeableRecSys {
   private static final String PAR_DIMENSION = "SlimRecSys.dimension";
   private static final String PAR_LAMBDA = "SlimRecSys.lambda";
   private static final String PAR_ALPHA = "SlimRecSys.alpha";
+  private static final String PAR_MIN = "SlimRecSys.min";
+  private static final String PAR_MAX = "SlimRecSys.max";
+  private static final String PAR_NUMITEMS = "SlimRecSys.numItems";
   
   public SlimRecSys(String prefix) {
-    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
+    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_NUMITEMS, PAR_MIN, PAR_MAX);
   }
   
   public SlimRecSys(SlimRecSys a) {
     super(a);
-  }
-  
-  public SlimRecSys(double age, HashMap<Integer, SparseVector> columnModels, int dimension, double lambda, double alpha, int maxIndex) {
-    super(age, columnModels, dimension, lambda, alpha, maxIndex);
   }
   
   public Object clone() {
@@ -35,6 +31,8 @@ public class SlimRecSys extends MergeableRecSys {
   
   @Override
   public SlimRecSys getModelPart(Set<Integer> indices) {
+    return this;
+    /*
     // for avoiding size duplications of the HashMap
     int size = 1;
     while (size <= indices.size()) {
@@ -48,6 +46,7 @@ public class SlimRecSys extends MergeableRecSys {
       }
     }
     return new SlimRecSys(age, columnModels, dimension, lambda, alpha, maxIndex);
+    */
   }
 
 }

@@ -3,30 +3,28 @@ package gossipLearning.models.factorization;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.utils.SparseVector;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
 import java.util.Set;
 
 public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableRecSys> {
   private static final long serialVersionUID = 2481904642423040181L;
   private static final String PAR_DIMENSION = "MergeableRecSys.dimension";
+  private static final String PAR_NUMITEMS = "MergeableRecSys.numItems";
   private static final String PAR_LAMBDA = "MergeableRecSys.lambda";
   private static final String PAR_ALPHA = "MergeableRecSys.alpha";
+  private static final String PAR_MIN = "MergeableRecSys.min";
+  private static final String PAR_MAX = "MergeableRecSys.max";
+  
   
   public MergeableRecSys(String prefix) {
-    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
+    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_NUMITEMS, PAR_MIN, PAR_MAX);
   }
   
-  public MergeableRecSys(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA) {
-    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
+  public MergeableRecSys(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA, String PAR_NUMITEMS, String PAR_MIN, String PAR_MAX) {
+    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_NUMITEMS, PAR_MIN, PAR_MAX);
   }
   
   public MergeableRecSys(MergeableRecSys a) {
     super(a);
-  }
-  
-  public MergeableRecSys(double age, HashMap<Integer, SparseVector> columnModels, int dimension, double lambda, double alpha, int maxIndex) {
-    super(age, columnModels, dimension, lambda, alpha, maxIndex);
   }
   
   public Object clone() {
@@ -35,13 +33,31 @@ public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableR
   
   @Override
   public MergeableRecSys merge(MergeableRecSys model) {
-    for (Entry<Integer, SparseVector> e : model.columnModels.entrySet()) {
+    double sum = age + model.age;
+    double w = age / (sum == 0 ? 1 : sum);
+    double mw = model.age / (sum == 0 ? 1 : sum);
+    age = (age + model.age) / 2.0;
+    if (age + 60 < model.age) {
+      w = 0.0;
+      mw = 1.0;
+      age = model.age;
+    }
+    if (model.age + 60 < age) {
+      w = 1.0;
+      mw = 0.0;
+    }
+    for (int i = 0; i < origDimension; i++) {
+    //for (Entry<Integer, SparseVector> e : model.columnModels.entrySet()) {
       // merge by averaging
-      SparseVector v = columnModels.get(e.getKey());
-      if (v == null) {
-        columnModels.put(e.getKey(), e.getValue());
-      } else {
-        v.mul(0.5).add(e.getValue(), 0.5);
+      //SparseVector v = columnModels.get(e.getKey());
+      SparseVector v = columnModels[i];
+      if (model.columnModels[i] != null) {
+        if (v == null) {
+          columnModels[i] = (SparseVector)model.columnModels[i].clone();
+        } else {
+          //v.mul(0.5).add(model.columnModels[i], 0.5);
+          v.mul(w).add(model.columnModels[i], mw);
+        }
       }
     }
     return this;

@@ -363,6 +363,43 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   }
   
   /**
+   * Adds the specified vector to the vector that is represented by the current object. 
+   * @param vector to be added
+   * @return the sum of the specified vector and this
+   */
+  public SparseVector add(double[] vector) {
+    return add(vector, 1.0);
+  }
+  
+  /**
+   * Adds the specified vector to the vector, that is represented by the current 
+   * object, by the specified alpha times.
+   * @param vector to be added
+   * @param alpha scale factor of the addition
+   * @return the sum of this and the alpha times of the vector
+   */
+  public SparseVector add(double[] vector, double alpha) {
+    int idx = 0;
+    for (int i = 0; i < vector.length; i++) {
+      if (size <= idx) {
+        add(i, vector[i] * alpha);
+      } else if (indices[idx] == i) {
+        values[idx] += vector[i] * alpha;
+        if (values[idx] == sparseValue) {
+          removeIdx(idx);
+          size --;
+        } else {
+          idx ++;
+        }
+      } else if (i < indices[idx]) {
+        add(i, vector[i] * alpha);
+        idx ++;
+      }
+    }
+    return this;
+  }
+  
+  /**
    * Scales the current vector by the specified value.
    * @param alpha the scale factor
    * @return this
@@ -530,6 +567,20 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   }
   
   /**
+   * Returns the infinite norm of the current vector.
+   * @return the infinite norm of the current vector
+   */
+  public double norminf() {
+    double norm = 0.0;
+    for (int i = 0; i < size; i++) {
+      if (norm < Math.abs(values[i])) {
+        norm = Math.abs(values[i]);
+      }
+    }
+    return norm;
+  }
+  
+  /**
    * Returns the norm of the current vector (Euclidean norm).
    * @return the norm of the current vector
    */
@@ -537,6 +588,18 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     double norm = 0.0;
     for (int i = 0; i < size; i++) {
       norm = Utils.hypot(norm, values[i]);
+    }
+    return norm;
+  }
+  
+  /**
+   * Returns the norm 1 of the current vector.
+   * @return the norm 1 of the current vector
+   */
+  public double norm1() {
+    double norm = 0.0;
+    for (int i = 0; i < size; i++) {
+      norm += Math.abs(values[i]);
     }
     return norm;
   }
@@ -559,7 +622,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    * @return maximal stored index
    */
   public int maxIndex() {
-    return size == 0 ? Integer.MIN_VALUE : indices[size -1];
+    return size == 0 ? -1 : indices[size -1];
   }
   
   /**
@@ -591,7 +654,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
    */
   public SparseVector inv() {
     for (int i = 0; i < size; i++) {
-      values[i] = 1.0 / values[i];
+      values[i] = 1.0f / values[i];
     }
     return this;
   }

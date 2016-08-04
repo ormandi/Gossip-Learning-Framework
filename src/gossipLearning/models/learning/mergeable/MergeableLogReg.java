@@ -4,7 +4,6 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.LogisticRegression;
 import gossipLearning.utils.SparseVector;
-import gossipLearning.utils.VectorEntry;
 
 import java.util.Set;
 
@@ -46,15 +45,20 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
   
   @Override
   public MergeableLogReg merge(final MergeableLogReg model) {
-    //age = Math.max(age, model.age);
-    //bias = (bias + model.bias) * 0.5;
-    //w.mul(0.5);
-    //w.add(model.w, 0.5);
-    for (VectorEntry e : model.w) {
+    double sum = age + model.age;
+    if (sum == 0) {
+      return this;
+    }
+    double weight = age / sum;
+    double modelWeight = model.age / sum;
+    age = Math.max(age, model.age);
+    bias = (bias * weight) + (model.bias * modelWeight);
+    w.mul(weight).add(model.w, modelWeight);
+    /*for (VectorEntry e : model.w) {
       double value = w.get(e.index);
       w.add(e.index, (e.value - value) * 0.5);
     }
-    bias = (bias + model.bias) * 0.5;
+    bias = (bias + model.bias) * 0.5;*/
     return this;
   }
 

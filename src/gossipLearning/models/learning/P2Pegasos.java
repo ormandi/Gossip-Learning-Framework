@@ -83,9 +83,12 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
     label = (label == 0.0) ? -1.0 : label;
     age ++;
     double nu = 1.0 / (lambda * age);
+    //double nu = 1.0 / Math.sqrt(age);
+    //double nu = 0.1;
     boolean isSV = label * w.mul(instance) < 1.0;
     
-    w.mul(1.0 - 1.0 / age);
+    //w.mul(1.0 - 1.0 / age);
+    w.mul(1.0 - nu * lambda);
     if (isSV) {
       w.add(instance, nu * label);
     }

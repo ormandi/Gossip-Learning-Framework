@@ -2,23 +2,19 @@ package gossipLearning.models.factorization;
 
 import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
-
-import java.util.HashMap;
-
 import peersim.core.CommonState;
 
 public class SimpleLowRank extends LowRankDecomposition {
   private static final long serialVersionUID = 4718668916550720442L;
   private static final String PAR_DIMENSION = "SimpleLowRank.dimension";
+  private static final String PAR_ORIGDIM = "SimpleLowRank.origdim";
   private static final String PAR_LAMBDA = "SimpleLowRank.lambda";
   private static final String PAR_ALPHA = "SimpleLowRank.alpha";
   
   public SimpleLowRank(String prefix) {
-    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA);
+    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_ORIGDIM);
     age = 0.0;
-    columnModels = new HashMap<Integer, SparseVector>();
     //eigenValues = new SparseVector();
-    maxIndex = 1;
   }
   
   public SimpleLowRank(SimpleLowRank a) {
@@ -35,9 +31,6 @@ public class SimpleLowRank extends LowRankDecomposition {
     // rowIndex - userID
     // rowModel - userModel
     // instance - row of the matrix
-    if (maxIndex < instance.maxIndex()) {
-      maxIndex = instance.maxIndex();
-    }
     
     age ++;
     double value = 0.0;
@@ -54,17 +47,17 @@ public class SimpleLowRank extends LowRankDecomposition {
     
     SparseVector newRowModel = (SparseVector)rowModel.clone();
     
-    for (int j = 0; j <= maxIndex; j++) {
-      SparseVector columnModel = columnModels.get(j);
+    for (int j = 0; j < origDimension; j++) {
+      SparseVector columnModel = columnModels[j];
       // initialize a new column-model
-      if (columnModel == null) {
+      /*if (columnModel == null) {
         newVector = new double[dimension];
         for (int d = 0; d < dimension; d++) {
           newVector[d] = CommonState.r.nextDouble();
         }
         columnModel = new SparseVector(newVector);
         columnModels.put(j, columnModel);
-      }
+      }*/
       value = instance.get(j);
       
       double prediction = rowModel.mul(columnModel);
@@ -82,7 +75,7 @@ public class SimpleLowRank extends LowRankDecomposition {
     // rowIndex - userID
     // rowModel - userModel
     // columnIndex - itemID
-    SparseVector itemModel = columnModels.get(columnIndex);
+    SparseVector itemModel = columnModels[columnIndex];
     if (itemModel == null || rowModel == null) {
       return 0.0;
     }

@@ -123,8 +123,12 @@ public class LearningProtocol extends AbstractProtocol {
     numOfWaitingPeriods = a.numOfWaitingPeriods;
     initModelProbability = a.initModelProbability;
     
-    numberOfWaits = a.numberOfWaits;
-    numberOfIncomingModels = a.numberOfIncomingModels;
+    // setting up learning related variables
+    numberOfWaits = 0;
+    numberOfIncomingModels = 1;
+    if (CommonState.r.nextDouble() > initModelProbability) {
+      numberOfIncomingModels = 0;
+    }
     
     resultAggregator = (ResultAggregator)a.resultAggregator.clone();
     lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone();
@@ -157,7 +161,6 @@ public class LearningProtocol extends AbstractProtocol {
         resultAggregator.push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
       }
     }
-    
     // send
     if (numberOfIncomingModels == 0) {
       numberOfWaits ++;
@@ -176,7 +179,7 @@ public class LearningProtocol extends AbstractProtocol {
       }
       if (latestModelHolder.size() == modelHolders.length) {
         // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true));
       }
       latestModelHolder.clear();
     }

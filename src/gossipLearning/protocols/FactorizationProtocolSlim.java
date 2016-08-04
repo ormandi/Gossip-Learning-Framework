@@ -9,17 +9,18 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-import gossipLearning.utils.VectorEntry;
 
 import java.util.Set;
-import java.util.TreeSet;
 
 import peersim.config.Configuration;
 import peersim.core.CommonState;
+import peersim.core.Fallible;
+import peersim.core.Linkable;
+import peersim.core.Node;
 
 public class FactorizationProtocolSlim extends LearningProtocol {
   protected static final String PAR_ARRGNAME = "aggrName";
-
+  
   /**
    * One user model for every model
    */
@@ -35,7 +36,7 @@ public class FactorizationProtocolSlim extends LearningProtocol {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    lastSeenMergeableModels = null;
+    //lastSeenMergeableModels = null;
     userModels = new SparseVector[modelNames.length];
   }
   
@@ -48,6 +49,7 @@ public class FactorizationProtocolSlim extends LearningProtocol {
         userModels[i] = (SparseVector)a.userModels[i].clone();
       }
     }
+    //System.out.println(numberOfIncomingModels);
   }
   
   @Override
@@ -66,7 +68,7 @@ public class FactorizationProtocolSlim extends LearningProtocol {
     }
     
     // get indices of rated items
-    if (indices == null) {
+    /*if (indices == null) {
       indices = new TreeSet<Integer>();
     } else {
       indices.clear();
@@ -76,24 +78,42 @@ public class FactorizationProtocolSlim extends LearningProtocol {
       for (VectorEntry e : instances.getInstance(i)) {
         indices.add(e.index);
       }
-    }
+    }*/
     
     // send
-    for (int i = 0; i < modelHolders.length; i++) {  
-      // store the latest models in a new modelHolder
-      Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
-      latestModelHolder.add(latestModel);
+    //boolean isWakeUp = false;
+    if (numberOfIncomingModels == 0) {
+      numberOfWaits ++;
+    } else {
+      numberOfWaits = 0;
     }
-    if (latestModelHolder.size() == modelHolders.length) {
-      // send the latest models to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+    if (numberOfWaits == numOfWaitingPeriods) {
+      numberOfIncomingModels = 1;
+      numberOfWaits = 0;
+      //numRestarts ++;
+      //isWakeUp = true;
     }
-    latestModelHolder.clear();
+    //if (numberOfIncomingModels > 0) System.out.println("SEND:" + currentNode.getID() + "\t" + numberOfIncomingModels);
+    for (int id = numberOfIncomingModels; id > 0; id --) {
+      for (int i = 0; i < modelHolders.length; i++) {  
+        // store the latest models in a new modelHolder
+        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
+        latestModelHolder.add(latestModel);
+      }
+      if (latestModelHolder.size() == modelHolders.length) {
+        // send the latest models to a random neighbor
+        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
+        //System.out.println(currentNode.getID());
+      }
+      latestModelHolder.clear();
+    }
     numberOfIncomingModels = 0;
   }
   
   @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void updateModels(ModelHolder modelHolder){
+    //numIncomingModels ++;
+    //System.out.println("RECV:" + currentNode.getID());
     // get instances from the extraction protocol
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
     if (instances.size() > 1) {
@@ -112,12 +132,37 @@ public class FactorizationProtocolSlim extends LearningProtocol {
         userModels[i] = currModel.update((int)currentNode.getID(), userModels[i], x);
       }
       // stores the updated model
-      modelHolders[i].add(currModel);
+      //modelHolders[i].add(currModel);
     }
   }
   
   @Override
   public void setNumberOfClasses(int numberOfClasses) {
+  }
+  
+  private Node[] onlines = null;
+  protected void sendToRandomNeighbor(ModelMessage message) {
+    //numSentModels ++;
+    //System.out.println("SEND");
+    Linkable overlay = getOverlay();
+    if (onlines == null) {
+      onlines = new Node[overlay.degree()];
+    }
+    int numOnlines = 0;
+    Node randomNode = null;
+    for (int i = 0; i < overlay.degree(); i++) {
+      Node n = overlay.getNeighbor(i);
+      if (n.getFailState() == Fallible.OK) {
+        onlines[numOnlines] = n;
+        numOnlines ++;
+      }
+    }
+    if (numOnlines != 0) {
+      randomNode = onlines[CommonState.r.nextInt(numOnlines)];
+    } else {
+      randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
+    }
+    getTransport().send(currentNode, randomNode, message, currentProtocolID);
   }
 
 }

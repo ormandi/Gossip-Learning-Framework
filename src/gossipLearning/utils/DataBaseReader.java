@@ -62,7 +62,6 @@ public class DataBaseReader {
         maxs.put(e.index, Math.max(maxs.get(e.index), e.value));
       }
     }
-    maxs.add(mins, -1.0);
     means.mul(1.0 / (double)trainingSet.size());
     devs.mul(1.0 / (double)trainingSet.size());
     SparseVector m2 = new SparseVector(means);
@@ -208,12 +207,24 @@ public class DataBaseReader {
       return;
     }
     isNormalized = true;
+    SparseVector maxmin = new SparseVector(maxs);
+    maxmin.add(mins, -1.0);
     for (int i = 0; i < trainingSet.size(); i++) {
-      trainingSet.getInstance(i).add(mins, -1.0).div(maxs);
+      // [-1,1] (2x - min - max) /(max - min)
+      //trainingSet.getInstance(i).mul(2.0).add(mins, -1.0).add(maxs, -1.0).div(maxmin);
+      // [0,1] (x - min) /(max - min)
+      trainingSet.getInstance(i).add(mins, -1.0).div(maxmin);
     }
     for (int i = 0; i < evalSet.size(); i++) {
-      evalSet.getInstance(i).add(mins, -1.0).div(maxs);
+      // [-1,1]
+      //evalSet.getInstance(i).mul(2.0).add(mins, -1.0).add(maxs, -1.0).div(maxmin);
+      // [0,1]
+      evalSet.getInstance(i).add(mins, -1.0).div(maxmin);
     }
+  }
+  
+  public void perturbe() {
+    
   }
   
   /**

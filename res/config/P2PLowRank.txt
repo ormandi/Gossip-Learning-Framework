@@ -57,7 +57,11 @@ protocol.extractionProtocol.isUseTMan false
 
 
 #-------------------- Learning layer(s) --------------------
-protocol.learningProtocol gossipLearning.protocols.FactorizationProtocol
+DIMENSION 2
+ORIGDIM 4
+LAMBDA 1E-2
+ALPHA 0
+protocol.learningProtocol gossipLearning.protocols.FactorizationProtocolSlim
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport transport
 protocol.learningProtocol.extractorProtocol extractionProtocol
@@ -67,11 +71,16 @@ protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 3
 protocol.learningProtocol.aggrName gossipLearning.evaluators.LowRankResultAggregator
-protocol.learningProtocol.modelNames gossipLearning.models.factorization.LowRankDecomposition
-protocol.learningProtocol.LowRankDecomposition.dimension 2
-protocol.learningProtocol.LowRankDecomposition.origdim 4
-protocol.learningProtocol.LowRankDecomposition.lambda 1E-1
-protocol.learningProtocol.LowRankDecomposition.alpha 0
+#protocol.learningProtocol.modelNames gossipLearning.models.factorization.LowRankDecomposition
+protocol.learningProtocol.modelNames gossipLearning.models.factorization.MergeableLowRank
+protocol.learningProtocol.LowRankDecomposition.dimension DIMENSION
+protocol.learningProtocol.LowRankDecomposition.origdim ORIGDIM
+protocol.learningProtocol.LowRankDecomposition.lambda LAMBDA
+protocol.learningProtocol.LowRankDecomposition.alpha ALPHA
+protocol.learningProtocol.MergeableLowRank.dimension DIMENSION
+protocol.learningProtocol.MergeableLowRank.origdim ORIGDIM
+protocol.learningProtocol.MergeableLowRank.lambda LAMBDA
+protocol.learningProtocol.MergeableLowRank.alpha ALPHA
 protocol.learningProtocol.evalNames gossipLearning.evaluators.MAError
 protocol.learningProtocol.evalProbability 1.0
 

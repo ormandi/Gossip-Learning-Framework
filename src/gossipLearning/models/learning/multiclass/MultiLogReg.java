@@ -3,6 +3,7 @@ package gossipLearning.models.learning.multiclass;
 import java.util.Arrays;
 
 import gossipLearning.interfaces.models.ProbabilityModel;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
@@ -139,7 +140,10 @@ public class MultiLogReg extends ProbabilityModel {
   @Override
   public void update(SparseVector instance, double label) {
     age ++;
+    //double nu = 1.0 / (1.0 + (lambda * age));
     double nu = 1.0 / (lambda * age);
+    //double nu = 1.0 / Math.sqrt(age);
+    //double nu = 0.1;
     double[] distribution = distributionForInstance(instance);
     
     // update for each classes
@@ -149,7 +153,38 @@ public class MultiLogReg extends ProbabilityModel {
       
       w[i].mul(1.0 - nu * lambda);
       w[i].add(instance, nu * err);
-      bias[i] += nu * lambda * err;
+      bias[i] += nu * err;
+    }
+  }
+  
+  public void update(InstanceHolder instances) {
+    //age += instances.size();
+    age ++;
+    double nu = 1;
+    //double nu = 1.0 / Math.sqrt(age);
+    SparseVector[] gradients = new SparseVector[w.length];
+    double[] biasg = new double[w.length];
+    for (int i = 0; i < instances.size(); i++) {
+      SparseVector instance = instances.getInstance(i);
+      double label = instances.getLabel(i);
+      
+      double[] distribution = distributionForInstance(instance);
+      for (int j = 0; j < numberOfClasses-1; j++) {
+        double cDelta = (label == j) ? 1.0 : 0.0;
+        double err = cDelta - distribution[j];
+        if (i == 0) {
+          gradients[j] = new SparseVector();
+          biasg[j] = 0.0;
+        }
+        gradients[j].add(instance, nu * err);
+        biasg[j] += nu * err;
+      }
+    }
+    
+    for (int i = 0; i < numberOfClasses-1; i++) {
+      w[i].mul(1.0 - nu * lambda);
+      w[i].add(gradients[i], 1.0 / instances.size());
+      bias[i] += biasg[i] / instances.size();
     }
   }
 

@@ -42,7 +42,7 @@ public class LocalRun {
     System.err.println("\tNumber of iterations: " + numIters);
     long seed = Configuration.getLong("SEED", System.currentTimeMillis());
     System.err.println("\tRandom seed: " + seed);
-    int evalTime = numIters / Configuration.getInt("NUMEVALS");
+    int evalTime = 1;
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
     String samplingMethod = Configuration.getString("SAMPLING", "uniform");
@@ -118,6 +118,9 @@ public class LocalRun {
           System.out.println(iter + "\t" + result);
         }
       }
+      if (iter == evalTime * 10) {
+        evalTime *= 10;
+      }
       
       // training
       int instanceIndex;
@@ -140,9 +143,6 @@ public class LocalRun {
       resultAggregator.push(-1, i, modelHolder, extractor);
     }
     System.err.println(resultAggregator);
-    /*for (int i = 0; i < reader.getEvalSet().size(); i++) {
-      System.out.println(i + "\t" + reader.getEvalSet().getLabel(i) + "\t" + Arrays.toString(((ProbabilityModel)models[0]).distributionForInstance(reader.getEvalSet().getInstance(i))));
-    }*/
   }
 
 }

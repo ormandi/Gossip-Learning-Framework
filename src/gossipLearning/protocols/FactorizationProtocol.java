@@ -77,6 +77,7 @@ public class FactorizationProtocol extends LearningProtocol {
     }
     
     // send
+    boolean isWakeUp = false;
     if (numberOfIncomingModels == 0) {
       numberOfWaits ++;
     } else {
@@ -85,6 +86,7 @@ public class FactorizationProtocol extends LearningProtocol {
     if (numberOfWaits == numOfWaitingPeriods) {
       numberOfIncomingModels = 1;
       numberOfWaits = 0;
+      isWakeUp = true;
     }
     
     for (int id = Math.min(numberOfIncomingModels, capacity); id > 0; id --) {
@@ -96,7 +98,7 @@ public class FactorizationProtocol extends LearningProtocol {
       }
       if (latestModelHolder.size() == modelHolders.length) {
         // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, isWakeUp));
       }
       latestModelHolder.clear();
     }

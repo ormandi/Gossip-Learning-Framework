@@ -2,6 +2,7 @@ package gossipLearning.messages;
 
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.utils.BQModelHolder;
 import peersim.core.Node;
 
 /**
@@ -30,10 +31,11 @@ public class ModelMessage implements ModelHolder, Message {
    * @param src It points to the sender node of this message.
    * @param models The data part of the message.
    * @param pid The id of the protocol that can handle this message.
+   * @param deep Makes deep copy of the specified models if true.
    */
-  public ModelMessage(Node src, ModelHolder models, int pid) {
+  public ModelMessage(Node src, ModelHolder models, int pid, boolean deep) {
     this.src = src;
-    this.models = (ModelHolder)models.clone();
+    this.models = new BQModelHolder((BQModelHolder)models, deep);
     this.pid = pid;
   }
 
@@ -44,7 +46,7 @@ public class ModelMessage implements ModelHolder, Message {
    */
   @Override
   public Object clone() {
-    return new ModelMessage(src, models, pid);
+    return new ModelMessage(src, models, pid, true);
   }
 
   /**

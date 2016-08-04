@@ -33,7 +33,7 @@ public class VirusProtocol extends AbstractProtocol {
 
   @Override
   public void activeThread() {
-    sendToRandomNeighbor(new ModelMessage(currentNode, holder, currentProtocolID));
+    sendToRandomNeighbor(new ModelMessage(currentNode, holder, currentProtocolID, true));
   }
 
   @Override

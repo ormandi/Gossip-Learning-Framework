@@ -162,8 +162,8 @@ public class Utils {
    * the specified positions.
    * @param r used for shuffling
    * @param array to be shuffled
-   * @param from from index
-   * @param to to index
+   * @param from from index (inclusive)
+   * @param to to index (exclusive)
    */
   public static void arrayShuffle(Random r, int[] array, int from, int to) {
     for (int i=from; i<to; i++) {
@@ -188,8 +188,8 @@ public class Utils {
    * the specified position to the spefified position.
    * @param r used for shuffling
    * @param array to be shuffled
-   * @param from from index
-   * @param to to index
+   * @param from from index (inclusive)
+   * @param to to index (exclusive)
    */
   public static void arrayShuffle(Random r, Object[] array, int from, int to) {
     for (int i=from; i<to; i++) {
@@ -580,6 +580,15 @@ public class Utils {
     return Math.pow(-(rnd * bounda - rnd * xma - bounda)/(bounda * xma), -1.0/alpha);
   }
   
+  public static double nextLaplace(double mu, double b, Random r) {
+    double u = r.nextDouble() - 0.5;
+    if (u > 0.0) {
+      return mu - b*Math.log(1 - 2*u);
+    } else {
+      return mu + b*Math.log(1 + 2*u);
+    }
+  }
+  
   /**
    * Returns a random number generated from gamma distribution using 
    * the specified parameters.
@@ -649,6 +658,19 @@ public class Utils {
     double x = nextGammaFast(alpha, r);
     double y = nextGammaFast(beta, r);
     return x / (x + y);
+  }
+  
+  public static double[] getRandomVector(int d, Random r) {
+    double[] vector = new double[d];
+    double length = 0.0;
+    for (int i = 0; i < d; i++) {
+      vector[i] = r.nextGaussian();
+      length = hypot(length, vector[i]);
+    }
+    for (int i = 0; i < d; i++) {
+      vector[i] /= length;
+    }
+    return vector;
   }
   
   private static double[] KSTest(double[] a, double[] b) {

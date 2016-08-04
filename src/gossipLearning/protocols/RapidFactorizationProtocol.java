@@ -53,6 +53,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
     }
     
     // send
+    boolean isWakeUp = false;
     if (numberOfIncomingModels == 0) {
       numberOfWaits ++;
     } else {
@@ -62,6 +63,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
       numberOfIncomingModels = 1;
       numberOfWaits = 0;
       //System.out.println(getClass().getCanonicalName());
+      isWakeUp = true;
     }
     
     for (int id = Math.min(numberOfIncomingModels-numberOfSentModels, capacity); id > 0; id --) {
@@ -74,7 +76,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
       if (latestModelHolder.size() == modelHolders.length) {
         //System.out.println("SEND: " + currentNode.getID());
         // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, isWakeUp));
         //System.out.println(currentNode.getID() + " SEND act");
       }
       latestModelHolder.clear();
@@ -96,7 +98,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
     if (latestModelHolder.size() == modelHolders.length) {
       //System.out.println("SEND(U): " + currentNode.getID());
       // send the latest models to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
       //System.out.println(currentNode.getID() + " SEND curr " + currentProtocolID);
     }
     latestModelHolder.clear();

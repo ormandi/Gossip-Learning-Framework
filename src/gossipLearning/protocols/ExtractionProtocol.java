@@ -121,7 +121,7 @@ public class ExtractionProtocol extends AbstractProtocol {
     latestModelHolder.add(latestModel);
     
     // send the latest models to a random neighbor
-    sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID));
+    sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true));
     
     // initialize or update descriptor
     SparseVector v = new SparseVector();
