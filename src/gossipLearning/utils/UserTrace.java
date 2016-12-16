@@ -17,6 +17,15 @@ public class UserTrace {
     this.firstOnline = firstOnline;
   }
   
+  public UserTrace(Boolean firstOnline) {
+    this.userName = "NA";
+    this.timeZone = 0;
+    this.startDate = 0L;
+    this.isTimeZoned = false;
+    this.sessions = new Long[0];
+    this.firstOnline = firstOnline;
+  }
+  
   public UserTrace(Long[] sessions, Boolean firstOnline, String userName, int timeZone, Long startDate) {
     this.userName = userName;
     this.timeZone = timeZone;

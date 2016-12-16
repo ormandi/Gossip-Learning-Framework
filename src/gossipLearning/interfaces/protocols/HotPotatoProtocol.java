@@ -1,6 +1,6 @@
 package gossipLearning.interfaces.protocols;
 
-import gossipLearning.messages.RestartableModelMessage;
+import gossipLearning.messages.Message;
 import peersim.cdsim.CDProtocol;
 import peersim.edsim.EDProtocol;
 
@@ -20,5 +20,5 @@ public interface HotPotatoProtocol extends EDProtocol,CDProtocol,Churnable{
    *
    * @param message The content of the incoming message.
    */
-  public void onReceiveRandomWalk(RestartableModelMessage message);
+  public void onReceiveRandomWalk(Message message);
 }

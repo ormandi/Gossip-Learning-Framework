@@ -6,10 +6,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import gossipLearning.interfaces.ModelHolder;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SoloLearningModel;
 import gossipLearning.messages.Message;
-import gossipLearning.messages.RestartableModelMessage;
+import gossipLearning.messages.RestartableSoloModelMessage;
 import peersim.core.Node;
 
 public class MessageMap implements Map<Integer, Message>{
@@ -100,13 +100,11 @@ public class MessageMap implements Map<Integer, Message>{
 
   public boolean isSendingThisStepID(int stepID) {
     for (Message message : messagesById.values()) {
-      if (message instanceof RestartableModelMessage ) {
-        ModelHolder models = ((RestartableModelMessage)message).getModels();
-        for (int i = 0; i < models.size(); i++) {
-          if (models.getModel(i) instanceof SoloLearningModel) 
-            if (stepID == ((SoloLearningModel)models.getModel(i)).getStepID())
-              return true;
-        }
+      if (message instanceof RestartableSoloModelMessage ) {
+        Model model = ((RestartableSoloModelMessage)message).getModel();
+        if (model instanceof SoloLearningModel) 
+          if (stepID == ((SoloLearningModel)model).getStepID())
+            return true;
       }
     }
     return false;

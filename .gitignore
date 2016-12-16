@@ -1,3 +1,17 @@
+/nohup.out
+/output.txt
+/res/db/blank_10.dat
+/res/db/blank_10000.dat
+/res/db/blank_1000000.dat
+/res/db/hundred.dat
+/res/db/makeBlankDataSet.sh
+/res/script/generate_config.sh
+/res/script/run.sh
+/res/trace/peersim_session_0.txt
+/res/trace/peersim_session_100.txt
+/res/trace/peersim_session_25.txt
+/res/trace/peersim_session_50.txt
+/res/trace/peersim_session_75.txt
 bin/
 build/
 doc/

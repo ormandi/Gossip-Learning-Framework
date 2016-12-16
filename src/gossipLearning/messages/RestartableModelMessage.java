@@ -1,24 +1,37 @@
 package gossipLearning.messages;
 
-import gossipLearning.interfaces.ModelHolder;
+import gossipLearning.interfaces.models.MultiLearningModel;
 import peersim.core.Node;
 
-public class RestartableModelMessage extends ModelMessage {
-  private static final long serialVersionUID = 5621412036497937731L;
-
-  private int restartedStepId;
+public class RestartableModelMessage implements Message {
+  /** @hidden */
+  private final Node src;
+  /** @hidden */
+  private final MultiLearningModel model;
+  private final int pid;
   
-  public RestartableModelMessage(Node src, ModelHolder models, int pid, boolean isDeep, int restartedStepId) {
-    super(src, models, pid, isDeep);
-    this.restartedStepId=restartedStepId;
+  public RestartableModelMessage(Node src, MultiLearningModel model, int pid) {
+    this.src = src;
+    this.model = (MultiLearningModel)model.clone();
+    this.pid = pid;
   }
 
-  public int getRestartedStepId() {
-    return restartedStepId;
+  public Object clone() {
+    return new RestartableModelMessage(this.src, this.model, this.pid);
+  }
+
+  
+  public Node getSource() {
+    return src;
   }
   
-  public void setRestartedStepId(int restartedStepId) {
-    this.restartedStepId = restartedStepId;
+  @Override
+  public int getTargetPid() {
+    return pid;
+  }
+
+  public MultiLearningModel getModel() {
+    return model;
   }
   
 }

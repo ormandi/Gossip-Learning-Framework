@@ -8,7 +8,6 @@ import java.util.Set;
 import gossipLearning.controls.ChurnControl;
 import gossipLearning.controls.MobilTraceChurnForSoloWalker;
 import gossipLearning.evaluators.ResultAggregator;
-import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SoloLearningModel;
 import gossipLearning.interfaces.protocols.DimensionReductionProtocol;
@@ -16,9 +15,8 @@ import gossipLearning.interfaces.protocols.HotPotatoProtocol;
 import gossipLearning.interfaces.protocols.InstanceLoaderConnection;
 import gossipLearning.messages.ConnectionTimeoutMessage;
 import gossipLearning.messages.Message;
-import gossipLearning.messages.RestartableModelMessage;
+import gossipLearning.messages.RestartableSoloModelMessage;
 import gossipLearning.messages.WaitingMessage;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.CurrentRandomWalkStatus;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.MessageMap;
@@ -36,10 +34,8 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
 
   private static final String PAR_EXTRACTORPID = "extractorProtocol";
   protected static final String PAR_ARRGNAME = "aggrName";
-  private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
-  private static final String PAR_MODELHOLDERNAME = "modelHolderName";
-  private static final String PAR_MODELNAMES = "modelNames";
-  private static final String PAR_EVALNAMES = "evalNames";
+  private static final String PAR_MODELNAME = "modelName";
+  private static final String PAR_EVALNAME = "evalName";
   private static final String PAR_EVALPROB = "evalProbability";
 
   // state variables
@@ -49,20 +45,17 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
   protected final int exrtactorProtocolID;
   protected ResultAggregator resultAggregator;
   protected final double evaluationProbability;
-  protected final int capacity;
-  protected final String modelHolderName;
-  protected final String[] modelNames;
-  protected ModelHolder[] modelHolders;
-  protected ModelHolder lastSeenMergeableModels;
-  protected ModelHolder latestModelHolder;
-  protected final String[] evalNames;
+  protected final String modelName;
+  protected final String aggrClassName;
+  protected Model latestModel;
+  protected final String evalName;
 
   // variables for modeling churn
   protected long sessionLength = ChurnControl.INIT_SESSION_LENGTH;
   protected int sessionID = 0;
 
   protected static final long MESSAGE_DELAY = Configuration.getLong("MESSAGEDELAY");  // model message delay
-  protected static final long MIN_MESSAGE_LATENCY  = Configuration.getLong("MINLATENCYDELAY");; // minimum massage latency
+  protected static final long MIN_MESSAGE_LATENCY  = Configuration.getLong("MINLATENCYDELAY"); // minimum massage latency
   private static final double MODEL_SURVIVE_PROBABILITY  = Configuration.getDouble("MODELSURVIVEPROBABILITY");
   public static final long RANDOMWALK_TIME_LIMIT = Configuration.getLong("RANDOMWALKTIMELIMIT");    // time indicates that the random walk is dead
 
@@ -78,35 +71,18 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
   public static Map<Integer, CurrentRandomWalkStatus > knownRandomWalks = new HashMap<Integer, CurrentRandomWalkStatus>();
 
   public SoloWalkerProtocol(String prefix) {
-    this(prefix, Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY));
-  }
-
-  public SoloWalkerProtocol(String prefix, int capacity) {
     // loading configuration parameters
     exrtactorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
-    this.capacity = capacity;
-    modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
-    modelNames = Configuration.getString(prefix + "." + PAR_MODELNAMES).split(",");
-    evalNames = Configuration.getString(prefix + "." + PAR_EVALNAMES).split(",");
+    modelName = Configuration.getString(prefix + "." + PAR_MODELNAME);
+    evalName = Configuration.getString(prefix + "." + PAR_EVALNAME);
+    aggrClassName = Configuration.getString(prefix + "." + PAR_ARRGNAME);
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
     // setting up learning related variables
     try {
-      String aggrClassName = Configuration.getString(prefix + "." + PAR_ARRGNAME);
+      String[] modelNames = {modelName};
+      String[] evalNames = {evalName};
       resultAggregator = (ResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(modelNames, evalNames);
-      // holder for storing the last seen mergeable models for correct merge
-      lastSeenMergeableModels = new BQModelHolder(modelNames.length);
-      latestModelHolder = new BQModelHolder(modelNames.length);
-      modelHolders = new ModelHolder[modelNames.length];
-      for (int i = 0; i < modelNames.length; i++){
-        try {
-          modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).getConstructor(int.class).newInstance(capacity);
-        } catch (NoSuchMethodException e) {
-          modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).newInstance();
-        }
-        Model model = (Model)Class.forName(modelNames[i]).getConstructor(String.class).newInstance(prefix);
-        lastSeenMergeableModels.add(model);
-        modelHolders[i].add(model);
-      }
+      latestModel = (Model)Class.forName(modelName).getConstructor(String.class).newInstance(prefix);
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
     }
@@ -121,18 +97,12 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
 
   public SoloWalkerProtocol(SoloWalkerProtocol a) {
     exrtactorProtocolID = a.exrtactorProtocolID;
-    capacity = a.capacity;
-    modelHolderName = a.modelHolderName;
-    modelNames = a.modelNames;
-    evalNames = a.evalNames;
+    modelName = a.modelName;
+    evalName = a.evalName;
+    aggrClassName = a.aggrClassName;
     evaluationProbability = a.evaluationProbability; 
     resultAggregator = (ResultAggregator)a.resultAggregator.clone();
-    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone(true);
-    latestModelHolder = (ModelHolder)a.latestModelHolder.clone(true);
-    modelHolders = new ModelHolder[a.modelHolders.length];
-    for (int i = 0; i < modelHolders.length; i++) {
-      modelHolders[i] = (ModelHolder)a.modelHolders[i].clone(true);
-    }
+    latestModel = (Model)a.latestModel.clone();
     myFirstModelInited = a.myFirstModelInited;
     rwprop = a.rwprop;
     rwpropNC = a.rwpropNC;
@@ -152,10 +122,10 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
     // the current node and protocol fields are updated
     this.currentNode = currentNode;
     this.currentProtocolID = currentProtocolID;
-    if (messageObj instanceof RestartableModelMessage) {
+    if (messageObj instanceof RestartableSoloModelMessage) {
       // The received message is a model message => calling the passive thread handler
       if(CommonState.r.nextDouble() <= MODEL_SURVIVE_PROBABILITY){
-        onReceiveRandomWalk((RestartableModelMessage)messageObj);
+        onReceiveRandomWalk((RestartableSoloModelMessage)messageObj);
       }
     } else if (messageObj instanceof WaitingMessage) {
       WaitingMessage waitingMessage = ((WaitingMessage) messageObj);
@@ -173,7 +143,7 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
             removeRandomWalkFromGlobalTable(iD);
           } else {
             Message unSendedMessage = messageMap.remove(iD);
-            if(unSendedMessage instanceof RestartableModelMessage){
+            if(unSendedMessage instanceof RestartableSoloModelMessage){
               resendMessage(unSendedMessage,iD,MESSAGE_DELAY);       
             }
           }
@@ -197,51 +167,34 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
     MobilTraceChurnForSoloWalker.numberOfNextCycle++;
     this.currentProtocolID = currentProtocolID;
     if( isAnyOnlineNeighbor() ){
-      /*if (ownStepID == rwprop.getStepID()) {
-        rwprop.setLastSeenTimeStamp(CommonState.getTime());
-      }*/
-
       if (!isGlobalFirstModelCreated && sessionLength > MESSAGE_DELAY) {
         isGlobalFirstModelCreated = true;
         myFirstModelInited = true;
         initModels(true);
-        for (int i = 0; i < lastSeenMergeableModels.size(); i++) {
-          SoloLearningModel lastSeen = (SoloLearningModel)lastSeenMergeableModels.getModel(i);
-          Integer messageID = nextIdForMessageMap();
-          knownRandomWalks.put(messageID, new CurrentRandomWalkStatus(currentNode.getID(), lastSeen.getStepID(), lastSeen.getModelID(), lastSeen.getAge(), true));
-          ownStepID = lastSeen.getStepID();
-          modelHolders[i].add(lastSeen);
-          sendMessage(1,messageID,true,0);
-        }        
+        SoloLearningModel latestSoloLearningModel = (SoloLearningModel)latestModel;
+        Integer messageID = nextIdForMessageMap();
+        knownRandomWalks.put(messageID, new CurrentRandomWalkStatus(currentNode.getID(), latestSoloLearningModel.getStepID(), latestSoloLearningModel.getModelID(), latestSoloLearningModel.getAge(), true));
+        ownStepID = latestSoloLearningModel.getStepID();
+        sendMessage(messageID,true,0);
       }
-
-
       if (!myFirstModelInited) {
         initModels(false);
         myFirstModelInited = true;
       }
       if(rwprop.getAge() >= currentTimeLimit && rwprop.getStep() >= 0){
         if(!messageMap.isSendingThisStepID(rwprop.getStepID())) {
-          for (int i = 0; i < lastSeenMergeableModels.size(); i++) {
-            SoloLearningModel lastSeen = (SoloLearningModel)lastSeenMergeableModels.getModel(i);
-            double diffFromMaxStep = rwprop.getStep() - lastSeen.getStep();
-            if(diffFromMaxStep <= numberOfRestartNodes ) {
-              //System.out.println("\t"+currentNode.getID() + " " + rwprop.getStep() + "-"+lastSeen.getStep()+"="+diffFromMaxStep + " " + rwprop.getAge() + ">" +currentTimeLimit);
-              int stepID =  ((SoloLearningModel)lastSeen).initIDs();
-              int modelID = ((SoloLearningModel)lastSeen).getModelID();
-              //System.out.println("restart "+ CommonState.getTime()+" "+modelID+" "+lastSeen.getAge()+" "+1+" "+currentNode.getID());
-              int restartedStepID = rwprop.getStepID();
-              //rwprop = new RandomWalkProperties(stepID,CommonState.getTime(),(int)lastSeen.getAge()); 
-              Integer messageID = nextIdForMessageMap();
-              knownRandomWalks.put(messageID, new CurrentRandomWalkStatus(currentNode.getID(), stepID, modelID, lastSeen.getStep(), true));
-              ownStepID = stepID;
-              modelHolders[i].add(lastSeen);
-              sendMessage(1,messageID,restartedStepID);
-            }
+          SoloLearningModel latestSoloLearningModel = (SoloLearningModel)latestModel;
+          double diffFromMaxStep = rwprop.getStep() - latestSoloLearningModel.getStep();
+          if(diffFromMaxStep <= numberOfRestartNodes ) {
+            int stepID =  ((SoloLearningModel)latestSoloLearningModel).initIDs();
+            int modelID = ((SoloLearningModel)latestSoloLearningModel).getModelID();
+            int restartedStepID = rwprop.getStepID();
+            Integer messageID = nextIdForMessageMap();
+            knownRandomWalks.put(messageID, new CurrentRandomWalkStatus(currentNode.getID(), stepID, modelID, latestSoloLearningModel.getStep(), true));
+            ownStepID = stepID;
+            sendMessage(messageID,restartedStepID);
           }
-        } /*else {
-          System.err.println(currentNode.getID() + " Sajat Nem Indul!! " + rwprop.getAge() + ">" +currentTimeLimit);
-        }*/
+        } 
         numberOfRestartNodes+=1.0;
         currentTimeLimit+=RANDOMWALK_TIME_LIMIT;
       }
@@ -275,9 +228,9 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
     long currentAge = currentRWProp.getAge();
     long receivedAge =  receivedRWProp.getAge();
     if ( (currentStep <= receivedStep && currentAge <  receivedAge &&  receivedAge < RANDOMWALK_TIME_LIMIT ) ||
-         (currentStep <= receivedStep && currentAge >= receivedAge) ||
-         (currentStep >  receivedStep && currentAge >= receivedAge + RANDOMWALK_TIME_LIMIT) ||
-         (currentStep >  receivedStep && currentAge <  receivedAge + RANDOMWALK_TIME_LIMIT 
+        (currentStep <= receivedStep && currentAge >= receivedAge) ||
+        (currentStep >  receivedStep && currentAge >= receivedAge + RANDOMWALK_TIME_LIMIT) ||
+        (currentStep >  receivedStep && currentAge <  receivedAge + RANDOMWALK_TIME_LIMIT 
             && currentAge >= RANDOMWALK_TIME_LIMIT && receivedAge < RANDOMWALK_TIME_LIMIT) ||
         (receivedRWProp.getStepID() == currentRWProp.getStepID() && currentRWProp.getRwPropStep() > receivedRWProp.getRwPropStep()+1)){
       return new RandomWalkProperties(receivedRWProp.getStepID(),
@@ -294,59 +247,51 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
   }
 
   @Override
-  public void onReceiveRandomWalk(RestartableModelMessage message) {
+  public void onReceiveRandomWalk(Message messageObj) {
+    RestartableSoloModelMessage message = (RestartableSoloModelMessage)messageObj;
     if (message.getTargetPid() == currentProtocolID) {
       // get instances from the extraction protocol
-      ModelHolder modelHolder = message.getModels();
+      Model receivedModel = message.getModel();
       InstanceHolder instances = ((DimensionReductionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
-      for (int i = 0; i < modelHolder.size(); i++){
-        // get the ith model from the modelHolder
-        SoloLearningModel model = (SoloLearningModel)modelHolder.getModel(i);
-        // store the current mode as last seen model
-        SoloLearningModel lastSeen = (SoloLearningModel)lastSeenMergeableModels.getModel(i);
-        // updating the model with the local training samples
-        for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
-          // we use each samples for updating the currently processed model
-          SparseVector x = instances.getInstance(sampleID);
-          double y = instances.getLabel(sampleID);
-          model.update(x, y);
-        }
-        model = model.merge(lastSeen);
-        lastSeenMergeableModels.setModel(i, (SoloLearningModel) model.clone());
-        if (rwprop.getStep() < model.getStep() || 
-            rwprop.getAge() >= RANDOMWALK_TIME_LIMIT ||
-            message.getRestartedStepId() == rwprop.getStepID()) {
-          Integer messageID = nextIdForMessageMap();
-          int stepID = model.getStepID();
-          int modelID = model.getModelID(); 
-          rwprop = new RandomWalkProperties(stepID,CommonState.getTime(),(int)model.getStep(),0);
-          rwpropNC = new RandomWalkProperties(rwprop);
-          ownStepID = stepID;
-          knownRandomWalks.put(messageID, new CurrentRandomWalkStatus(currentNode.getID(), stepID, modelID, model.getAge(), true));
-          // stores the updated model
-          modelHolders[i].add(model);
-          sendMessage(1,messageID,message.getRestartedStepId());
-        } else {
-          // random walk is shut down
-        }
+      SoloLearningModel receivedSoloLearningModel = (SoloLearningModel)receivedModel;
+      SoloLearningModel latestSoloLearningModel = (SoloLearningModel)latestModel;
+      // updating the model with the local training samples
+      for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
+        // we use each samples for updating the currently processed model
+        SparseVector x = instances.getInstance(sampleID);
+        double y = instances.getLabel(sampleID);
+        receivedSoloLearningModel.update(x, y);
       }
+      receivedSoloLearningModel = receivedSoloLearningModel.merge(latestSoloLearningModel);
+      if (rwprop.getStep() < receivedSoloLearningModel.getStep() || 
+          rwprop.getAge() >= RANDOMWALK_TIME_LIMIT ||
+          message.getRestartedStepId() == rwprop.getStepID()) {
+        Integer messageID = nextIdForMessageMap();
+        int stepID = receivedSoloLearningModel.getStepID();
+        int modelID = receivedSoloLearningModel.getModelID(); 
+        rwprop = new RandomWalkProperties(stepID,CommonState.getTime(),(int)receivedSoloLearningModel.getStep(),0);
+        rwpropNC = new RandomWalkProperties(rwprop);
+        ownStepID = stepID;
+        knownRandomWalks.put(messageID, new CurrentRandomWalkStatus(currentNode.getID(), stepID, modelID, receivedSoloLearningModel.getAge(), true));
+        // stores the updated model
+        latestModel = (SoloLearningModel) receivedSoloLearningModel.clone();;
+        sendMessage(messageID,message.getRestartedStepId());
+      } else {
+        // random walk is shut down
+      }
+
     }
   }
 
 
   protected void initModels(boolean isSending){
-    // get instances from the extraction protocol
-    for (int i = 0; i < modelHolders.length; i++) {
-      for (int j = 0; j < modelHolders[i].size(); j++) {
-        SoloLearningModel model = (SoloLearningModel)modelHolders[i].getModel(j);
-        if(isSending){
-          model.initIDs();
-        } else {
-          model.init();
-        }
-        lastSeenMergeableModels.setModel(j,model);
-      }
+    SoloLearningModel modelMergeAble = (SoloLearningModel)latestModel;
+    if(isSending){
+      modelMergeAble.initIDs();
+    } else {
+      modelMergeAble.init();
     }
+    latestModel=modelMergeAble;
   }
 
   public Integer nextIdForMessageMap(){
@@ -388,15 +333,13 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
     Set<Integer> oldIds = new HashSet<Integer>(messageMap.keySet());
     for (Integer iD : oldIds) {
       Message m = messageMap.remove(iD);
-      if (m instanceof RestartableModelMessage){
-        ModelHolder mh = ((RestartableModelMessage) m).getModels();
+      if (m instanceof RestartableSoloModelMessage){
+        Model model = ((RestartableSoloModelMessage) m).getModel();
         boolean isResended = false;
-        for (int i = 0; i < mh.size(); i++) {
-          if (rwprop.getStep() <= mh.getModel(i).getAge()) {
-            resendMessage(m, iD, MESSAGE_DELAY);
-            isResended = true;
-          } 
-        }
+        if (rwprop.getStep() <= model.getAge()) {
+          resendMessage(m, iD, MESSAGE_DELAY);
+          isResended = true;
+        } 
         if (!isResended) {
           removeRandomWalkFromGlobalTable(iD);
         }
@@ -409,27 +352,19 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
     return knownRandomWalks.remove(iD);
   }
 
-  public void sendMessage(int numberOfMessage, int messageID, int restartedStepID){
-    sendMessage(numberOfMessage, messageID, true, restartedStepID);
+  public void sendMessage(int messageID, int restartedStepID){
+    sendMessage(messageID, true, restartedStepID);
   }
 
-  public void sendMessage(int numberOfMessage, int messageID, boolean isProxySend, int restartedStepID) {
-    for (int i = 0; i < modelHolders.length; i++) {  
-      // store the latest models in a new modelHolder
-      Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - numberOfMessage);
-      latestModelHolder.add(latestModel);
+  public void sendMessage(int messageID, boolean isProxySend, int restartedStepID) {
+    // send the latest models to a random neighbor
+    RestartableSoloModelMessage message = new RestartableSoloModelMessage(currentNode, latestModel, currentProtocolID, restartedStepID);
+    if(isProxySend){
+      proxySendToRandomNeighbor(message, messageID, MESSAGE_DELAY);
+    } else {
+      sendMessageImmediatelyToRandomNeighbor(currentNode, message, currentProtocolID);
+      removeRandomWalkFromGlobalTable(messageID);
     }
-    if (latestModelHolder.size() == modelHolders.length) {
-      // send the latest models to a random neighbor
-      RestartableModelMessage message = new RestartableModelMessage(currentNode, latestModelHolder, currentProtocolID, true, restartedStepID);
-      if(isProxySend){
-        proxySendToRandomNeighbor(message, messageID, MESSAGE_DELAY);
-      } else {
-        sendMessageImmediatelyToRandomNeighbor(currentNode, message, currentProtocolID);
-        removeRandomWalkFromGlobalTable(messageID);
-      }
-    }
-    latestModelHolder.clear();
   }
 
   protected Node getRandomNeighbor() {
@@ -540,14 +475,7 @@ public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceL
    * @param numberOfClasses the number of classes to be set
    */
   public void setNumberOfClasses(int numberOfClasses) {
-    for (int i = 0; i < modelHolders.length; i++) {
-      for (int j = 0; j < modelHolders[i].size(); j++) {
-        ((SoloLearningModel)modelHolders[i].getModel(j)).setNumberOfClasses(numberOfClasses);
-      }
-    }
-    for (int i = 0; i < lastSeenMergeableModels.size(); i++) {
-      ((SoloLearningModel)lastSeenMergeableModels.getModel(i)).setNumberOfClasses(numberOfClasses);
-    }
+    ((SoloLearningModel)latestModel).setNumberOfClasses(numberOfClasses);
   }
 
 }
