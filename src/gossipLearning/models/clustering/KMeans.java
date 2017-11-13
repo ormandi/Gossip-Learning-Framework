@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -118,6 +119,12 @@ public class KMeans implements LearningModel {
       double alpha = (1.0 / wSize);
       centroids[idx].mul(1.0 - alpha);
       centroids[idx].add(instance, alpha);
+    }
+  }
+  
+  public void update(InstanceHolder instances) {
+    for (int i = 0; i < instances.size(); i++) {
+      update(instances.getInstance(i), instances.getLabel(i));
     }
   }
   

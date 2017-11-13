@@ -4,6 +4,7 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.BQModelHolder;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Arrays;
@@ -68,10 +69,11 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     this.prefix = a.prefix;
     if (a.classifiers != null) {
       this.classifiers = (ModelHolder)a.classifiers.clone();
+      this.distribution = Arrays.copyOf(a.distribution, a.distribution.length);
     } else {
       classifiers = null;
+      distribution = null;
     }
-    this.distribution = Arrays.copyOf(a.distribution, a.distribution.length);
   }
   
   /**
@@ -101,6 +103,23 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < numberOfClasses; i++) {
       ((LearningModel)classifiers.getModel(i)).update(instance, (label == i) ? 1.0 : 0.0);
     }
+  }
+  
+  public void update(InstanceHolder instances) {
+    double[] labels = new double[instances.size()];
+    for (int i = 0; i < instances.size(); i++) {
+      labels[i] = instances.getLabel(i);
+    }
+    for (int i = 0; i < numberOfClasses; i++) {
+      for (int j = 0; j < instances.size(); j++) {
+        instances.setLabel(j, labels[j] == i ? 1.0 : 0.0);
+      }
+      ((LearningModel)classifiers.getModel(i)).update(instances);
+    }
+    for (int i = 0; i < instances.size(); i++) {
+      instances.setLabel(i, labels[i]);
+    }
+    labels = null;
   }
 
   @Override

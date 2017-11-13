@@ -2,6 +2,7 @@ package gossipLearning.models.learning.adaptive;
 
 import gossipLearning.interfaces.models.ErrorEstimatorModel;
 import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 import peersim.config.Configuration;
@@ -135,6 +136,12 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
     sqMeanError = (1.0 - alpha)*sqMeanError + alpha*(error*error);
     double std = Math.sqrt(sqMeanError - (meanError * meanError));
     confidence = C*std/Math.sqrt(Math.min(age, wsize));
+  }
+  
+  public void update(InstanceHolder instances) {
+    for (int i = 0; i < instances.size(); i++) {
+      update(instances.getInstance(i), instances.getLabel(i));
+    }
   }
 
   @Override

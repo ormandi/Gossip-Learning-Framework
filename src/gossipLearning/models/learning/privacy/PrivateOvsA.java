@@ -2,6 +2,7 @@ package gossipLearning.models.learning.privacy;
 
 import gossipLearning.interfaces.models.PrivateModel;
 import gossipLearning.models.learning.multiclass.OneVsAllMetaClassifier;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Random;
@@ -32,7 +33,7 @@ public class PrivateOvsA extends OneVsAllMetaClassifier implements PrivateModel 
     }
   }
   
-  /*@Override
+  @Override
   public void update(InstanceHolder instances, double budgetProportion, double eps, Random r) {
     double[] labels = new double[instances.size()];
     for (int i = 0; i < instances.size(); i++) {
@@ -48,6 +49,6 @@ public class PrivateOvsA extends OneVsAllMetaClassifier implements PrivateModel 
       instances.setLabel(i, labels[i]);
     }
     labels = null;
-  }*/
+  }
 
 }

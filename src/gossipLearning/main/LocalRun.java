@@ -7,6 +7,7 @@ import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
@@ -49,6 +50,8 @@ public class LocalRun {
     System.err.println("\tSampling method: " + samplingMethod);
     String normalization = Configuration.getString("NORMALIZATION", "none");
     System.err.println("\tNormalization method: " + normalization);
+    int batchSize = Configuration.getInt("BATCHSIZE", 1);
+    System.err.println("\tBatch size: " + batchSize);
     
     // parse learning related parameters
     String dbReaderName = Configuration.getString("dbReader");
@@ -63,6 +66,7 @@ public class LocalRun {
     // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    
     // normalize database
     if (normalization.equals("standardize")) {
       System.err.println("Standardizing data set.");
@@ -98,7 +102,8 @@ public class LocalRun {
         sampleIndices[i] = i;
       }
     }
-    //Utils.arrayShuffle(r, indices);
+    
+    InstanceHolder batch = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
     for (int iter = 0; iter <= numIters; iter++) {
       if (sampleIndices != null && iter % sampleIndices.length == 0) {
         Utils.arrayShuffle(r, sampleIndices);
@@ -131,8 +136,13 @@ public class LocalRun {
       }
       instance = reader.getTrainingSet().getInstance(instanceIndex);
       label = reader.getTrainingSet().getLabel(instanceIndex);
-      for (int i = 0; i < models.length; i++) {
-        models[i].update(extractor.extract(instance), label);
+      batch.add(instance, label);
+      if (batch.size() == batchSize) {
+        for (int i = 0; i < models.length; i++) {
+          models[i].update(extractor.extract(batch));
+          //models[i].update(extractor.extract(instance), label);
+        }
+        batch.clear();
       }
     }
     

@@ -1,10 +1,12 @@
 package gossipLearning.models.learning;
 
-import java.util.Arrays;
-
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.interfaces.models.SimilarityComputable;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Arrays;
+
 import peersim.config.Configuration;
 
 /**
@@ -96,14 +98,46 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
 
   @Override
   public void update(SparseVector instance, double label) {
-    double prob = getPositiveProbability(instance);
-    double err = label - prob;
     age ++;
     double nu = 1.0 / (lambda * age);
     
-    w.mul(1.0 - nu * lambda);
-    w.add(instance, - nu * err);
-    bias -= nu * lambda * err;
+    gradient(instance, label);
+    w.add(gradient, - nu);
+    bias -= nu * biasGradient;
+    
+  }
+  
+  protected SparseVector gradient = new SparseVector();
+  protected double biasGradient = 0.0;
+  public void update(InstanceHolder instances) {
+    age += instances.size();
+    double nu = 1.0 / (lambda * age);
+    
+    gradient(instances);
+    w.add(gradient, - nu);
+    bias -= nu * biasGradient;
+  }
+  
+  protected void gradient(SparseVector instance, double label) {
+    double prob = getPositiveProbability(instance);
+    double err = label - prob;
+    gradient.set(instance).mul(err).add(w, lambda);
+    biasGradient = err;
+  }
+  
+  protected void gradient(InstanceHolder instances) {
+    gradient.clear();
+    biasGradient = 0.0;
+    for (int i = 0; i < instances.size(); i++) {
+      SparseVector instance = instances.getInstance(i);
+      double label = instances.getLabel(i);
+      
+      double prob = getPositiveProbability(instance);
+      double err = label - prob;
+      gradient.add(instance, err);
+      biasGradient += err;
+    }
+    gradient.add(w, lambda * instances.size());
   }
   
   /**
@@ -112,7 +146,7 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param instance instance to compute the probability
    * @return positive label probability of the instance
    */
-  private double getPositiveProbability(SparseVector instance){
+  protected double getPositiveProbability(SparseVector instance){
     double predict = w.mul(instance) + bias;
     predict = Math.exp(predict) + 1.0;
     return 1.0 / predict;

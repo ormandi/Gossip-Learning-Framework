@@ -140,10 +140,7 @@ public class MultiLogReg extends ProbabilityModel {
   @Override
   public void update(SparseVector instance, double label) {
     age ++;
-    //double nu = 1.0 / (1.0 + (lambda * age));
     double nu = 1.0 / (lambda * age);
-    //double nu = 1.0 / Math.sqrt(age);
-    //double nu = 0.1;
     double[] distribution = distributionForInstance(instance);
     
     // update for each classes
@@ -158,10 +155,8 @@ public class MultiLogReg extends ProbabilityModel {
   }
   
   public void update(InstanceHolder instances) {
-    //age += instances.size();
-    age ++;
-    double nu = 1;
-    //double nu = 1.0 / Math.sqrt(age);
+    age += instances.size();
+    double nu = 1.0 / (lambda * age);
     SparseVector[] gradients = new SparseVector[w.length];
     double[] biasg = new double[w.length];
     for (int i = 0; i < instances.size(); i++) {

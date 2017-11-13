@@ -147,6 +147,12 @@ public class NormaSVM implements LearningModel {
     b += nu * lossGrad;
   }
   
+  public void update(InstanceHolder instances) {
+    for (int i = 0; i < instances.size(); i++) {
+      update(instances.getInstance(i), instances.getLabel(i));
+    }
+  }
+  
   /**
    * It returns the value of nu depend on the current state of the model.
    * 

@@ -1,5 +1,6 @@
 package gossipLearning.interfaces.models;
 
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Random;
@@ -12,5 +13,5 @@ public interface PrivateModel extends LearningModel {
    * @param budgetProportion the proportion of the privacy budget will be used
    */
   public void update(SparseVector instance, double label, double budgetProportion, double eps, double numFeatures, Random r);
-  //public void update(InstanceHolder instances, double budgetProportion, double eps, Random r);
+  public void update(InstanceHolder instances, double budgetProportion, double eps, Random r);
 }

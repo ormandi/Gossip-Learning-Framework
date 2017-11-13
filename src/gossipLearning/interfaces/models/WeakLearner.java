@@ -1,5 +1,6 @@
 package gossipLearning.interfaces.models;
 
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Arrays;
@@ -52,6 +53,12 @@ public abstract class WeakLearner extends ProbabilityModel{
     double[] uniformWeights = new double[getNumberOfClasses()];
     Arrays.fill(uniformWeights, 1.0 / (double)getNumberOfClasses());
     update(instance, label, uniformWeights);
+  }
+  
+  public final void update(InstanceHolder instances) {
+    for (int i = 0; i < instances.size(); i++) {
+      update(instances.getInstance(i), instances.getLabel(i));
+    }
   }
   
   /**

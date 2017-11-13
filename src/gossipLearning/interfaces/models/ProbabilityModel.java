@@ -1,5 +1,6 @@
 package gossipLearning.interfaces.models;
 
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
 
@@ -41,6 +42,12 @@ public abstract class ProbabilityModel implements LearningModel {
       }
     }
     return maxLabelIndex;
+  }
+  
+  public void update(InstanceHolder instances) {
+    for (int i = 0; i < instances.size(); i++) {
+      update(instances.getInstance(i), instances.getLabel(i));
+    }
   }
   
   @Override

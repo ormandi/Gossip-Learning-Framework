@@ -3,6 +3,7 @@ package gossipLearning.models.learning.adaptive;
 import gossipLearning.interfaces.models.ErrorEstimatorModel;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.utils.BoundedQueue;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 import peersim.config.Configuration;
@@ -111,6 +112,12 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
       isNewModel = true;
     }
     model.update(instance, label);
+  }
+  
+  public void update(InstanceHolder instances) {
+    for (int i = 0; i < instances.size(); i++) {
+      update(instances.getInstance(i), instances.getLabel(i));
+    }
   }
   
   private double error;

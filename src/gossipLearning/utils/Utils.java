@@ -660,6 +660,13 @@ public class Utils {
     return x / (x + y);
   }
   
+  public static double scaleValueRange(double value, int nbits, Random r) {
+    double correction = r == null ? 0.0 : r.nextDouble() - 0.5;
+    assert value <= 1.0 && value >= -1.0;
+    double scale = (1 << nbits - 1);
+    return Math.round((value * scale) + correction) / scale;
+  }
+  
   public static double[] getRandomVector(int d, Random r) {
     double[] vector = new double[d];
     double length = 0.0;
@@ -706,6 +713,24 @@ public class Utils {
       }
     }
     return -(first + 1);
+  }
+  
+  public static Matrix randomProjectionMatrix(int n, int m, Random r, boolean isSparse) {
+    Matrix R = new Matrix(n, m);
+    for (int i = 0; i < R.getNumberOfRows(); i++) {
+      double norm = 0.0;
+      // generate random row
+      for (int j = 0; j < R.getNumberOfColumns(); j++) {
+        double rand = r.nextDouble();
+        R.set(i, j, isSparse ? rand < 1.0/3.0 ? rand < 1.0/6.0 ? -1 : 1 : 0 : rand - 0.5);
+        norm = Utils.hypot(norm, R.get(i, j));
+      }
+      // normalize row to has unit length
+      for (int j = 0; j < R.getNumberOfColumns(); j++) {
+        R.set(i, j, R.get(i, j) / norm);
+      }
+    }
+    return R;
   }
   
   public static void main(String[] args) {

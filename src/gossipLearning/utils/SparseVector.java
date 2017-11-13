@@ -3,6 +3,7 @@ package gossipLearning.utils;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * This class implements a sparse vector by arrays and sparse for the 0.0 value. <br/>
@@ -158,6 +159,27 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
         return false;
     }
     return true;
+  }
+  
+  /**
+   * Sets the values of the specified vector to the values of the current 
+   * vector.
+   * @param vector to be set.
+   * @return this
+   */
+  public SparseVector set(SparseVector vector) {
+    if (indices.length < vector.indices.length) {
+      indices = new int[vector.indices.length];
+      values = new double[vector.values.length];
+    }
+    System.arraycopy(vector.indices, 0, indices, 0, vector.indices.length);
+    System.arraycopy(vector.values, 0, values, 0, vector.values.length);
+    size = vector.size;
+    for (int i = size; i < indices.length; i++) {
+      indices[i] = 0;
+      values[i] = sparseValue;
+    }
+    return this;
   }
   
   @Override
@@ -688,6 +710,21 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     }
     sb.append('}');
     return sb.toString();
+  }
+  
+  public SparseVector scaleValueRange(int nbits, Random r) {
+    int idx = 0;
+    while (idx < size) {
+      assert values[idx] <= 1 && values[idx] >= -1;
+      values[idx] = Utils.scaleValueRange(values[idx], nbits, r);
+      if (values[idx] == sparseValue) {
+        removeIdx(idx);
+        size --;
+      } else {
+        idx ++;
+      }
+    }
+    return this;
   }
 
   /**

@@ -39,13 +39,17 @@ public class MergeablePerceptron extends Perceptron implements Mergeable<Mergeab
   
   @Override
   public MergeablePerceptron merge(MergeablePerceptron model) {
-    //w.mul(0.5);
-    //w.add(model.w, 0.5);
+    double sum = age + model.age;
+    if (sum == 0) {
+      return this;
+    }
+    double modelWeight = model.age / sum;
+    age = Math.max(age, model.age);
     for (VectorEntry e : model.w) {
       double value = w.get(e.index);
-      w.add(e.index, (e.value - value) * 0.5);
+      w.add(e.index, (e.value - value) * modelWeight);
     }
-    bias = (bias + model.bias) * 0.5;
+    bias += (model.bias - bias) * modelWeight;
     return this;
   }
 

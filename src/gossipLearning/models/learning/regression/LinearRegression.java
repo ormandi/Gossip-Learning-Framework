@@ -4,6 +4,7 @@ import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SimilarityComputable;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Set;
@@ -83,6 +84,12 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
     w.mul(1.0 - nu * lambda);
     w.add(instance, nu * err);
     bias += nu * lambda * err;
+  }
+  
+  public void update(InstanceHolder instances) {
+    for (int i = 0; i < instances.size(); i++) {
+      update(instances.getInstance(i), instances.getLabel(i));
+    }
   }
 
   /**

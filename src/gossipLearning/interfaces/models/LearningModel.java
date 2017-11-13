@@ -1,5 +1,6 @@
 package gossipLearning.interfaces.models;
 
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
 /**
@@ -15,6 +16,12 @@ public interface LearningModel extends Model {
    * @param label the class label of the training instance or Double.NaN in case of clustering
    */
   public void update(SparseVector instance, double label);
+  
+  /**
+   * This method updates the model using the specified batch of training instances.
+   * @param instances batch of training instances
+   */
+  public void update(InstanceHolder instances);
   
   /**
    * This method can predict the label or the category of a given evaluation instance.

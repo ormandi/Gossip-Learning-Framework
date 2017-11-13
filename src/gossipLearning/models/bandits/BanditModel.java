@@ -1,6 +1,7 @@
 package gossipLearning.models.bandits;
 
 import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
@@ -67,6 +68,12 @@ public abstract class BanditModel implements LearningModel {
   public final void update(SparseVector instance, double label) {
     age ++;
     update();
+  }
+  
+  public final void update(InstanceHolder instances) {
+    for (int i = 0; i < instances.size(); i++) {
+      update(instances.getInstance(i), instances.getLabel(i));
+    }
   }
   
   public final double predict(SparseVector instance) {

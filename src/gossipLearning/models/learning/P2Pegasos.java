@@ -1,10 +1,12 @@
 package gossipLearning.models.learning;
 
-import java.util.Arrays;
-
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.interfaces.models.SimilarityComputable;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Arrays;
+
 import peersim.config.Configuration;
 
 public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<P2Pegasos> {
@@ -80,21 +82,56 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
    */
   @Override
   public void update(final SparseVector instance, double label) {
-    label = (label == 0.0) ? -1.0 : label;
+    /*label = (label == 0.0) ? -1.0 : label;
     age ++;
     double nu = 1.0 / (lambda * age);
-    //double nu = 1.0 / Math.sqrt(age);
-    //double nu = 0.1;
     boolean isSV = label * w.mul(instance) < 1.0;
     
-    //w.mul(1.0 - 1.0 / age);
     w.mul(1.0 - nu * lambda);
     if (isSV) {
       w.add(instance, nu * label);
-    }
+    }*/
+    age ++;
+    double nu = 1.0 / (lambda * age);
     
+    gradient(instance, label);
+    w.add(gradient, -nu);
   }
-
+  
+  public void update(InstanceHolder instances) {
+    age += instances.size();
+    double nu = 1.0 / (lambda * age);
+    
+    gradient(instances);
+    w.add(gradient, -nu);
+  }
+  
+  protected SparseVector gradient = new SparseVector();
+  protected void gradient(SparseVector instance, double label) {
+    gradient.clear();
+    label = (label == 0.0) ? -1.0 : label;
+    boolean isSV = label * w.mul(instance) < 1.0;
+    if (isSV) {
+      gradient.add(instance, -label);
+    }
+    gradient.add(w, lambda);
+  }
+  
+  protected void gradient(InstanceHolder instances) {
+    gradient.clear();
+    for (int i = 0; i < instances.size(); i++) {
+      SparseVector instance = instances.getInstance(i);
+      double label = instances.getLabel(i);
+      
+      label = (label == 0.0) ? -1.0 : label;
+      boolean isSV = label * w.mul(instance) < 1.0;
+      if (isSV) {
+        gradient.add(instance, -label);
+      }
+    }
+    gradient.add(w, lambda * instances.size());
+  }
+  
   /**
    * Computes the inner product of the hyperplane and the specified instance. 
    * If it is greater than 0 then the label is positive (1.0), otherwise the label is

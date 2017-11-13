@@ -8,6 +8,7 @@ import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
+import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
@@ -61,6 +62,9 @@ public class DiffPriv {
     boolean isPerturbInput = Configuration.getBoolean("ISPERTURBINPUT");
     System.err.println("\tPrivacy type: " + (isPerturbInput ? "by input perturbation" : "by algorithm"));
     System.err.println("\tPrivacy norm: " + normType);
+    
+    int batchSize = Configuration.getInt("BATCHSIZE", 1);
+    System.err.println("\tBatch size: " + batchSize);
     
     /*for (int i = 0; i < 10000; i++) {
       double x = Utils.nextNormal(0, 1.0, r);
@@ -190,13 +194,11 @@ public class DiffPriv {
           noise[d] *= sensitivity / eps;
         }
         //System.out.println(Arrays.toString(noise));
-        reader.getTrainingSet().getInstance(i).add(noise);
+        if (eps > 0) {
+          reader.getTrainingSet().getInstance(i).add(noise);
+        }
       }
     }
-    //System.out.println("Training:\n" + reader.getTrainingSet());
-    
-    //System.out.println("Test:\n" + reader.getEvalSet());
-    //System.exit(0);
     
     // create models
     LearningModel[] models = new LearningModel[modelNames.length];
@@ -226,7 +228,8 @@ public class DiffPriv {
         sampleIndices[i] = i;
       }
     }
-    //InstanceHolder instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
+    
+    InstanceHolder instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
     for (int iter = 0; iter <= numIters; iter++) {
       if (sampleIndices != null && iter % sampleIndices.length == 0) {
         Utils.arrayShuffle(r, sampleIndices);
@@ -264,6 +267,8 @@ public class DiffPriv {
       instance = reader.getTrainingSet().getInstance(instanceIndex);
       label = reader.getTrainingSet().getLabel(instanceIndex);
       
+      instances.add(instance, label);
+      
       // number of usages
       numUse[instanceIndex] ++;
       double budgetProp = 0.0;
@@ -272,15 +277,22 @@ public class DiffPriv {
       } else if (algType.equals("halfing")) {
         budgetProp = 1.0 / (1l << numUse[instanceIndex]);
       }
-      for (int i = 0; i < models.length; i++) {
-        if (models[i] instanceof PrivateModel) {
-          if (budgetProp == 0.0) {
-            continue;
+      if (instances.size() % batchSize == 0) {
+        for (int i = 0; i < models.length; i++) {
+          if (models[i] instanceof PrivateModel) {
+            if (budgetProp == 0.0) {
+              continue;
+            }
+            if (eps == 0) {
+              models[i].update(extractor.extract(instances));
+            } else {
+              ((PrivateModel)models[i]).update(extractor.extract(instances), budgetProp, eps, CommonState.r);
+            }
+          } else {
+            models[i].update(extractor.extract(instances));
           }
-          ((PrivateModel)models[i]).update(extractor.extract(instance), label, budgetProp, eps, reader.getTrainingSet().getNumberOfFeatures(), CommonState.r);
-        } else {
-          models[i].update(extractor.extract(instance), label);
         }
+        instances.clear();
       }
     }
     
