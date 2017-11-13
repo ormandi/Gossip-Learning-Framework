@@ -1,7 +1,6 @@
 package gossipLearning.interfaces.protocols;
 
 import gossipLearning.messages.Message;
-import peersim.cdsim.CDProtocol;
 import peersim.edsim.EDProtocol;
 
 /**
@@ -12,7 +11,7 @@ import peersim.edsim.EDProtocol;
  * @has 1 "" 1 InstanceHolder
  * @navassoc - - - ModelMessage
  */
-public interface HotPotatoProtocol extends EDProtocol,CDProtocol,Churnable{
+public interface HotPotatoProtocol extends EDProtocol,Churnable{
   
   /**
    * This method is responsible for handling an incoming learning

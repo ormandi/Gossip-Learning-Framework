@@ -11,7 +11,7 @@ import java.util.Vector;
 
 import gossipLearning.interfaces.protocols.Churnable;
 import gossipLearning.messages.ConnectionTimeoutMessage;
-import gossipLearning.messages.WaitingMessage;
+import gossipLearning.messages.multiwalker.WaitingMessage;
 import gossipLearning.protocols.SoloWalkerProtocol;
 import gossipLearning.utils.UserTrace;
 import peersim.cdsim.CDProtocol;

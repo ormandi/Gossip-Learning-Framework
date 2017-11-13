@@ -1,4 +1,6 @@
-package gossipLearning.messages;
+package gossipLearning.messages.multiwalker;
+
+import gossipLearning.messages.Message;
 
 public class WaitingMessage implements Message {  
   //private final boolean isDeepCopied;

@@ -8,7 +8,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import gossipLearning.interfaces.protocols.Churnable;
-import gossipLearning.messages.EventMessage;
+import gossipLearning.messages.multiwalker.EventMessage;
 import gossipLearning.protocols.MultiWalkerProtocol;
 import gossipLearning.utils.EventEnum;
 import gossipLearning.utils.UserTrace;

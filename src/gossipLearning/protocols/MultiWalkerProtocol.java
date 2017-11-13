@@ -11,10 +11,10 @@ import gossipLearning.interfaces.models.MultiLearningModel;
 import gossipLearning.interfaces.protocols.DimensionReductionProtocol;
 import gossipLearning.interfaces.protocols.HotPotatoProtocol;
 import gossipLearning.interfaces.protocols.InstanceLoaderConnection;
-import gossipLearning.messages.EventMessage;
-import gossipLearning.messages.EventWithModelInfoMessage;
 import gossipLearning.messages.Message;
-import gossipLearning.messages.RestartableModelMessage;
+import gossipLearning.messages.multiwalker.EventMessage;
+import gossipLearning.messages.multiwalker.EventWithModelInfoMessage;
+import gossipLearning.messages.multiwalker.RestartableModelMessage;
 import gossipLearning.utils.EventEnum;
 import gossipLearning.utils.EventWithModelInfoEnum;
 import gossipLearning.utils.InstanceHolder;
@@ -24,6 +24,7 @@ import gossipLearning.utils.SendBroadcastInfo;
 import gossipLearning.utils.SendModelInfo;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.SuperviseNodeContainer;
+import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
@@ -32,7 +33,7 @@ import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import peersim.transport.Transport;
 
-public class MultiWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceLoaderConnection {
+public class MultiWalkerProtocol implements HotPotatoProtocol,CDProtocol,Cloneable,InstanceLoaderConnection {
 
   protected static final String PAR_EXTRACTORPID = "extractorProtocol";
   protected static final String PAR_BROADCASTLEVEL = "BROADCASTLEVEL";
@@ -167,7 +168,7 @@ public class MultiWalkerProtocol implements HotPotatoProtocol,Cloneable,Instance
     this.currentProtocolID = currentProtocolID;
     if (messageObj instanceof EventMessage){
       EventMessage message = (EventMessage)messageObj;
-      if (message.getEvent() == EventEnum.WakeUpAndSend){ //true if WAKEUPANDSEND event is occurred and if there is no restart
+      if (message.getEvent() == EventEnum.WakeUpAndSendModel){ //true if WAKEUPANDSEND event is occurred and if there is no restart
         if(sendInfo.isSending()){
           Node dest = sendInfo.getDest();
           if(message.getDest().getID() == dest.getID()){
@@ -558,7 +559,7 @@ public class MultiWalkerProtocol implements HotPotatoProtocol,Cloneable,Instance
       long delay = computeDelay(modelToBeSent.getModelSize());
       sendInfo = new SendModelInfo(modelToBeSent, dest, CommonState.getTime()+delay);
       resetOffTime();
-      EDSimulator.add(delay, new EventMessage(currentNode, dest, EventEnum.WakeUpAndSend), currentNode, currentProtocolID);
+      EDSimulator.add(delay, new EventMessage(currentNode, dest, EventEnum.WakeUpAndSendModel), currentNode, currentProtocolID);
     } else {
       sendQueue.addLast(modelToBeSent);
     }
@@ -566,7 +567,7 @@ public class MultiWalkerProtocol implements HotPotatoProtocol,Cloneable,Instance
 
   private void proxySendModelWithOffTimeDelay(MultiLearningModel modelToBeSent, Node dest, long delay) {
     sendInfo = new SendModelInfo(modelToBeSent, dest, CommonState.getTime()+delay);
-    EDSimulator.add(delay, new EventMessage(currentNode, dest, EventEnum.WakeUpAndSend), currentNode, currentProtocolID);
+    EDSimulator.add(delay, new EventMessage(currentNode, dest, EventEnum.WakeUpAndSendModel), currentNode, currentProtocolID);
     resetOffTime();
   }
 

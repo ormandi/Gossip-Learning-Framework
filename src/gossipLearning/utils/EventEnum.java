@@ -3,5 +3,9 @@ package gossipLearning.utils;
 public enum EventEnum {
   ConnectionTimeout,
   WakeUp,
-  WakeUpAndSend;
+  WakeUpAndSendModel,
+  WakeUpAndResendModel,
+  WakeUpAndSendGradient,
+  WakeUpAndFinishEncrypt,
+  WakeUpAndFinishDecrypt;
 }

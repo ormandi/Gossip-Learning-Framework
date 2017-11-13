@@ -1,6 +1,7 @@
-package gossipLearning.messages;
+package gossipLearning.messages.multiwalker;
 
 import gossipLearning.interfaces.models.MultiLearningModel;
+import gossipLearning.messages.Message;
 import peersim.core.Node;
 
 public class RestartableModelMessage implements Message {

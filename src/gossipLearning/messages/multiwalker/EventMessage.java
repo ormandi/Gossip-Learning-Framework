@@ -1,5 +1,6 @@
-package gossipLearning.messages;
+package gossipLearning.messages.multiwalker;
 
+import gossipLearning.messages.Message;
 import gossipLearning.utils.EventEnum;
 import peersim.core.Node;
 

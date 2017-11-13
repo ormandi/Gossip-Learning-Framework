@@ -16,12 +16,13 @@ import gossipLearning.interfaces.protocols.InstanceLoaderConnection;
 import gossipLearning.messages.ConnectionTimeoutMessage;
 import gossipLearning.messages.Message;
 import gossipLearning.messages.RestartableSoloModelMessage;
-import gossipLearning.messages.WaitingMessage;
+import gossipLearning.messages.multiwalker.WaitingMessage;
 import gossipLearning.utils.CurrentRandomWalkStatus;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.MessageMap;
 import gossipLearning.utils.RandomWalkProperties;
 import gossipLearning.utils.SparseVector;
+import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
 import peersim.config.FastConfig;
 import peersim.core.CommonState;
@@ -30,7 +31,7 @@ import peersim.core.Node;
 import peersim.edsim.EDSimulator;
 import peersim.transport.Transport;
 
-public class SoloWalkerProtocol implements HotPotatoProtocol,Cloneable,InstanceLoaderConnection {
+public class SoloWalkerProtocol implements HotPotatoProtocol,CDProtocol,Cloneable,InstanceLoaderConnection {
 
   private static final String PAR_EXTRACTORPID = "extractorProtocol";
   protected static final String PAR_ARRGNAME = "aggrName";
