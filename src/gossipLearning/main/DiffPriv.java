@@ -204,7 +204,7 @@ public class DiffPriv {
     LearningModel[] models = new LearningModel[modelNames.length];
     for (int i = 0; i < modelNames.length; i++) {
       models[i] = (LearningModel)Class.forName(modelNames[i]).getConstructor(String.class).newInstance("learners");
-      models[i].setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
+      models[i].setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
     }
     
     // initialize evaluator

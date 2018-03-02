@@ -578,12 +578,22 @@ public class MatrixTest extends TestCase {
     }
     Z = new Matrix(A.getRowDimension(), A.getColumnDimension());
     SQ = new Matrix(square);
-    Matrix AClone = new Matrix(A);
+    Matrix AClone = new Matrix(A).transpose();
+    Matrix resSQ = new Matrix(A.getRowDimension(), A.getRowDimension());
     try {
-      assertEquals("", check(A.mul(AClone.transpose()),SQ));
+      assertEquals("", check(A.mul(AClone),SQ));
        try_success("times(Matrix)...","");
     } catch ( java.lang.RuntimeException e ) {
        errorCount = try_failure(errorCount,"times(Matrix)...","incorrect Matrix-Matrix product calculation");
+    }
+    try {
+      assertEquals("", check(resSQ.mulSet(A, AClone),SQ));
+       try_success("timesSet(Matrix)...","");
+      assertEquals("", check(resSQ.mulSet(AClone.transpose(), A.transpose()),SQ));
+       try_success("timesSetT(Matrix)...","");
+      A.transpose();
+    } catch ( java.lang.RuntimeException e ) {
+       errorCount = try_failure(errorCount,"timesSet(Matrix)...","incorrect Matrix-Matrix product calculation");
     }
     try {
       assertEquals("", check(A.mul(0.),Z));

@@ -5,10 +5,6 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
-import gossipLearning.utils.InstanceHolder;
-import gossipLearning.utils.VectorEntry;
-
-import java.util.TreeSet;
 
 public class RapidFactorizationProtocol extends FactorizationProtocol {
   protected static final String PAR_MODELPROB = "initModelProbability";
@@ -40,7 +36,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
     }
     
     // get indices of rated items
-    if (indices == null) {
+    /*if (indices == null) {
       indices = new TreeSet<Integer>();
     } else {
       indices.clear();
@@ -50,7 +46,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
       for (VectorEntry e : instances.getInstance(i)) {
         indices.add(e.index);
       }
-    }
+    }*/
     
     // send
     boolean isWakeUp = false;
@@ -70,7 +66,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
         //Model latestModel = (MatrixBasedModel)modelHolders[i].getModel(modelHolders[i].size() - id);
-        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - id)).getModelPart(indices);
+        Model latestModel = ((Partializable)modelHolders[i].getModel(modelHolders[i].size() - id)).getModelPart();
         latestModelHolder.add(latestModel);
       }
       if (latestModelHolder.size() == modelHolders.length) {
@@ -92,7 +88,7 @@ public class RapidFactorizationProtocol extends FactorizationProtocol {
     for (int i = 0; i < modelHolders.length; i++) {
       // store the latest models in a new modelHolder
       //Model latestModel = (MatrixBasedModel)modelHolders[i].getModel(modelHolders[i].size() - id);
-      Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
+      Model latestModel = ((Partializable)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart();
       latestModelHolder.add(latestModel);
     }
     if (latestModelHolder.size() == modelHolders.length) {

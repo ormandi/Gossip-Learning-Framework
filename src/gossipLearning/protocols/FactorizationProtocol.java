@@ -9,11 +9,6 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-import gossipLearning.utils.VectorEntry;
-
-import java.util.Set;
-import java.util.TreeSet;
-
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Fallible;
@@ -53,7 +48,7 @@ public class FactorizationProtocol extends LearningProtocol {
     return new FactorizationProtocol(this);
   }
   
-  protected Set<Integer> indices;
+  //protected Set<Integer> indices;
   @Override
   public void activeThread() {
     // evaluate
@@ -64,7 +59,7 @@ public class FactorizationProtocol extends LearningProtocol {
     }
     
     // get indices of rated items
-    if (indices == null) {
+    /*if (indices == null) {
       indices = new TreeSet<Integer>();
     } else {
       indices.clear();
@@ -74,7 +69,7 @@ public class FactorizationProtocol extends LearningProtocol {
       for (VectorEntry e : instances.getInstance(i)) {
         indices.add(e.index);
       }
-    }
+    }*/
     
     // send
     boolean isWakeUp = false;
@@ -93,7 +88,7 @@ public class FactorizationProtocol extends LearningProtocol {
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
         //Model latestModel = (MatrixBasedModel)modelHolders[i].getModel(modelHolders[i].size() - id);
-        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - id)).getModelPart(indices);
+        Model latestModel = ((Partializable)modelHolders[i].getModel(modelHolders[i].size() - id)).getModelPart();
         latestModelHolder.add(latestModel);
       }
       if (latestModelHolder.size() == modelHolders.length) {
@@ -130,10 +125,6 @@ public class FactorizationProtocol extends LearningProtocol {
       // stores the updated model
       modelHolders[i].add(model);
     }
-  }
-  
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
   }
   
   private Node[] onlines = null;

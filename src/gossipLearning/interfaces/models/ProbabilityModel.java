@@ -1,5 +1,7 @@
 package gossipLearning.interfaces.models;
 
+import java.util.Arrays;
+
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
@@ -14,6 +16,25 @@ import gossipLearning.utils.SparseVector;
 public abstract class ProbabilityModel implements LearningModel {
   private static final long serialVersionUID = -7154362879969974691L;
   protected double age;
+  protected int numberOfClasses;
+  protected int numberOfFeatures;
+  protected double[] distribution;
+  
+  public ProbabilityModel() {
+    age = 0.0;
+    numberOfClasses = 0;
+    numberOfFeatures = 0;
+    distribution = null;
+  }
+  
+  public ProbabilityModel(ProbabilityModel a) {
+    age = a.age;
+    numberOfClasses = a.numberOfClasses;
+    numberOfFeatures = a.numberOfFeatures;
+    if (a.distribution != null) {
+      distribution = Arrays.copyOf(a.distribution, a.numberOfClasses);
+    }
+  }
   
   @Override
   public abstract Object clone();
@@ -35,7 +56,7 @@ public abstract class ProbabilityModel implements LearningModel {
     int maxLabelIndex = 0;
     double maxValue = Double.NEGATIVE_INFINITY;
     double[] distribution = distributionForInstance(instance);
-    for (int i = 0; i < getNumberOfClasses(); i++){
+    for (int i = 0; i < numberOfClasses; i++){
       if (distribution[i] > maxValue){
         maxValue = distribution[i];
         maxLabelIndex = i;
@@ -53,5 +74,12 @@ public abstract class ProbabilityModel implements LearningModel {
   @Override
   public final double getAge() {
     return age;
+  }
+  
+  @Override
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    this.numberOfClasses = numberOfClasses;
+    this.numberOfFeatures = numberOfFeatures;
+    distribution = new double[numberOfClasses];
   }
 }

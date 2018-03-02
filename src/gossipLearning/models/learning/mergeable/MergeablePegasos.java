@@ -3,10 +3,7 @@ package gossipLearning.models.learning.mergeable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.P2Pegasos;
-import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
-
-import java.util.Set;
 
 /**
  * A mergeable version of the Pegasos algorithm.
@@ -17,7 +14,7 @@ import java.util.Set;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePegasos>, Partializable<MergeablePegasos> {
+public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePegasos>, Partializable {
   private static final long serialVersionUID = 5703095161342004957L;
   
   /** @hidden */
@@ -38,10 +35,6 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
    */
   protected MergeablePegasos(MergeablePegasos a){
     super(a);
-  }
-  
-  protected MergeablePegasos(SparseVector w, double age, double[] distribution, double lambda, int numberOfClasses) {
-    super(w, age, distribution, lambda, numberOfClasses);
   }
   
   public Object clone(){
@@ -67,7 +60,7 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable<MergeablePe
   }
 
   @Override
-  public MergeablePegasos getModelPart(Set<Integer> indices) {
+  public MergeablePegasos getModelPart() {
     return new MergeablePegasos(this);
   }
 

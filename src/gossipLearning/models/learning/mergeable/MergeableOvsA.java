@@ -1,14 +1,11 @@
 package gossipLearning.models.learning.mergeable;
 
-import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.OneVsAllMetaClassifier;
 
-import java.util.Set;
-
-public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<MergeableOvsA>, Partializable<MergeableOvsA> {
+public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<MergeableOvsA>, Partializable {
   private static final long serialVersionUID = -2294873002764150476L;
   
   /** @hidden */
@@ -30,18 +27,6 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<M
     super(a);
   }
   
-  /**
-   * Constructs an object and sets the specified parameters.
-   * @param baseLearnerName name of the used learning algorithm
-   * @param numberOfClasses number of classes
-   * @param prefix
-   * @param classifiers
-   * @param distribution
-   */
-  protected MergeableOvsA(String baseLearnerName, int numberOfClasses, String prefix, ModelHolder classifiers, double[] distribution) {
-    super(baseLearnerName, numberOfClasses, prefix, classifiers, distribution);
-  }
-  
   @Override
   public Object clone() {
     return new MergeableOvsA(this);
@@ -58,7 +43,7 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<M
   }
 
   @Override
-  public MergeableOvsA getModelPart(Set<Integer> indices) {
+  public MergeableOvsA getModelPart() {
     return new MergeableOvsA(this);
   }
 

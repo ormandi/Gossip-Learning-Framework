@@ -11,9 +11,6 @@ import gossipLearning.utils.SparseVector;
 public class ConstantLearner extends WeakLearner {
   private static final long serialVersionUID = -1090945222157723437L;
   
-  private double[] distribution;
-  private int numberOfClasses;
-  
   /**
    * Constructs a default learner.
    */
@@ -61,17 +58,6 @@ public class ConstantLearner extends WeakLearner {
     return distribution;
   }
 
-  @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    this.numberOfClasses = numberOfClasses;
-    distribution = new double[numberOfClasses];
-  }
-  
   public String toString() {
     StringBuffer sb = new StringBuffer();
     sb.append("Constant[Alpha=" + alpha);

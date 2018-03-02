@@ -35,17 +35,14 @@ public class MultiLogReg extends ProbabilityModel {
    * @hidden
    */
   protected SparseVector[] w;
+  protected SparseVector[] gradients;
   /**
    * The biases of the model.
    */
   protected double[] bias;
-  protected double[] distribution;
   protected double[] v;
-  /**
-   * The number of classes of the current classification problem.
-   */
-  protected int numberOfClasses = 0;
-
+  protected double[] biasGradients;
+  
   /**
    * This constructor is for initializing the member variables of the Model.
    * 
@@ -64,8 +61,6 @@ public class MultiLogReg extends ProbabilityModel {
    */
   protected MultiLogReg(String prefix, String PAR_LAMBDA) {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    w = null;
-    age = 0.0;
   }
   
   /**
@@ -74,41 +69,19 @@ public class MultiLogReg extends ProbabilityModel {
    * @param a to copy
    */
   public MultiLogReg(MultiLogReg a) {
+    super(a);
     lambda = a.lambda;
-    age = a.age;
-    numberOfClasses = a.numberOfClasses;
-    if (a.w == null) {
-      w = null;
-      bias = null;
-    } else {
+    if (a.w != null) {
       w = new SparseVector[numberOfClasses -1];
+      gradients = new SparseVector[numberOfClasses -1];
       for (int i = 0; i < numberOfClasses -1; i++) {
         w[i] = (SparseVector)a.w[i].clone();
+        gradients[i] = (SparseVector)a.gradients[i].clone();
       }
-      distribution = Arrays.copyOf(a.distribution, a.numberOfClasses);
       v = Arrays.copyOf(a.v, a.numberOfClasses);
       bias = Arrays.copyOf(a.bias, a.bias.length);
+      biasGradients = Arrays.copyOf(a.biasGradients, a.biasGradients.length);
     }
-  }
-  
-  /**
-   * Constructs an object and sets the specified parameters.
-   * @param lambda learning parameter
-   * @param age number of updates
-   * @param numberOfClasses number of classes
-   * @param w array of hyperplanes
-   * @param distribution template variable for the class distribution
-   * @param v template variable for the class distribution
-   * @param bias array of biases
-   */
-  protected MultiLogReg(double lambda, double age, int numberOfClasses, SparseVector[] w, double[] distribution, double[] v, double[] bias) {
-    this.lambda = lambda;
-    this.age = age;
-    this.numberOfClasses = numberOfClasses;
-    this.w = w;
-    this.distribution = distribution;
-    this.v = v;
-    this.bias = bias;
   }
   
   /**
@@ -118,7 +91,6 @@ public class MultiLogReg extends ProbabilityModel {
     return new MultiLogReg(this);
   }
 
-  
   @Override
   public double[] distributionForInstance(SparseVector instance) {
     double sum = 0.0;
@@ -141,24 +113,42 @@ public class MultiLogReg extends ProbabilityModel {
   public void update(SparseVector instance, double label) {
     age ++;
     double nu = 1.0 / (lambda * age);
+    
+    gradient(instance, label);
+    for (int i = 0; i < w.length; i++) {
+      w[i].add(gradients[i], - nu);
+      bias[i] -= nu * biasGradients[i];
+    }
+  }
+  
+  protected void gradient(SparseVector instance, double label) {
     double[] distribution = distributionForInstance(instance);
     
-    // update for each classes
     for (int i = 0; i < numberOfClasses -1; i++) {
       double cDelta = (label == i) ? 1.0 : 0.0;
       double err = cDelta - distribution[i];
       
-      w[i].mul(1.0 - nu * lambda);
-      w[i].add(instance, nu * err);
-      bias[i] += nu * err;
+      gradients[i].set(w[i]).mul(lambda).add(instance, -err);
+      biasGradients[i] = lambda * -err;
     }
   }
   
   public void update(InstanceHolder instances) {
     age += instances.size();
     double nu = 1.0 / (lambda * age);
-    SparseVector[] gradients = new SparseVector[w.length];
-    double[] biasg = new double[w.length];
+    
+    gradient(instances);
+    for (int i = 0; i < numberOfClasses-1; i++) {
+      w[i].add(gradients[i], - nu);
+      bias[i] -= nu * biasGradients[i];
+    }
+  }
+  
+  protected void gradient(InstanceHolder instances) {
+    for (int i = 0; i < w.length; i++) {
+      gradients[i].set(w[i]).mul(lambda * instances.size());
+      biasGradients[i] = 0.0;
+    }
     for (int i = 0; i < instances.size(); i++) {
       SparseVector instance = instances.getInstance(i);
       double label = instances.getLabel(i);
@@ -167,41 +157,23 @@ public class MultiLogReg extends ProbabilityModel {
       for (int j = 0; j < numberOfClasses-1; j++) {
         double cDelta = (label == j) ? 1.0 : 0.0;
         double err = cDelta - distribution[j];
-        if (i == 0) {
-          gradients[j] = new SparseVector();
-          biasg[j] = 0.0;
-        }
-        gradients[j].add(instance, nu * err);
-        biasg[j] += nu * err;
+        gradients[j].add(instance, -err);
+        biasGradients[j] += lambda * -err;
       }
     }
-    
-    for (int i = 0; i < numberOfClasses-1; i++) {
-      w[i].mul(1.0 - nu * lambda);
-      w[i].add(gradients[i], 1.0 / instances.size());
-      bias[i] += biasg[i] / instances.size();
-    }
   }
-
+  
   @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    if (numberOfClasses < 2) {
-      throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
-    }
-    if (this.numberOfClasses != numberOfClasses) {
-      this.numberOfClasses = numberOfClasses;
-      distribution = new double[numberOfClasses];
-      v = new double[numberOfClasses];
-      w = new SparseVector[numberOfClasses -1];
-      bias = new double[numberOfClasses -1];
-      for (int i = 0; i < numberOfClasses -1; i++) {
-        w[i] = new SparseVector();
-      }
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    super.setParameters(numberOfClasses, numberOfFeatures);
+    v = new double[numberOfClasses];
+    w = new SparseVector[numberOfClasses -1];
+    gradients = new SparseVector[numberOfClasses -1];
+    bias = new double[numberOfClasses -1];
+    biasGradients = new double[numberOfClasses -1];
+    for (int i = 0; i < numberOfClasses -1; i++) {
+      w[i] = new SparseVector();
+      gradients[i] = new SparseVector();
     }
   }
 

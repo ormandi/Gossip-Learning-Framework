@@ -1,11 +1,5 @@
 package gossipLearning.models.factorization;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import peersim.config.Configuration;
-
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Partializable;
@@ -14,7 +8,12 @@ import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
-public class LowRankYYT implements MatrixBasedModel, FeatureExtractor, Partializable<LowRankYYT> {
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import peersim.config.Configuration;
+
+public class LowRankYYT implements MatrixBasedModel, FeatureExtractor, Partializable {
   private static final long serialVersionUID = 3547157543302503919L;
   
   private static final String PAR_DIMENSION = "LowRankYYT.dimension";
@@ -229,7 +228,7 @@ public class LowRankYYT implements MatrixBasedModel, FeatureExtractor, Partializ
   }
 
   @Override
-  public LowRankYYT getModelPart(Set<Integer> indices) {
+  public LowRankYYT getModelPart() {
     return this;
   }
 

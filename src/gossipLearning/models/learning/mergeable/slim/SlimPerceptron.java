@@ -1,28 +1,27 @@
 package gossipLearning.models.learning.mergeable.slim;
 
-import gossipLearning.interfaces.Function;
 import gossipLearning.models.learning.mergeable.MergeablePerceptron;
-import gossipLearning.utils.SparseVector;
-
-import java.util.Arrays;
-import java.util.Set;
+import gossipLearning.utils.VectorEntry;
+import peersim.config.Configuration;
+import peersim.core.CommonState;
 
 public class SlimPerceptron extends MergeablePerceptron {
   private static final long serialVersionUID = -7462501717472741554L;
   protected static final String PAR_LAMBDA = "SlimPerceptron.lambda";
   protected static final String PAR_AFUNC = "SlimPerceptron.activation";
   protected static final String PAR_GFUNC = "SlimPerceptron.gradient";
+  private static final String PAR_SIZE = "SlimPerceptron.size";
+  
+  protected final int modelSize;
   
   public SlimPerceptron(String prefix) {
     super(prefix, PAR_LAMBDA, PAR_AFUNC, PAR_GFUNC);
+    modelSize = Configuration.getInt(prefix + "." + PAR_SIZE);
   }
   
   public SlimPerceptron(SlimPerceptron a) {
     super(a);
-  }
-  
-  protected SlimPerceptron (double age, double lambda, Function fAct, Function fGrad, int numberOfClasses, double[] distribution, SparseVector w, double bias) {
-    super(age, lambda, fAct, fGrad, numberOfClasses, distribution, w, bias);
+    modelSize = a.modelSize;
   }
   
   @Override
@@ -36,13 +35,32 @@ public class SlimPerceptron extends MergeablePerceptron {
     return this;
   }
   
+  /*@Override
+  public void update(InstanceHolder instances) {
+    int idx = CommonState.r.nextInt(instances.size());
+    SparseVector instance = instances.getInstance(idx);
+    double label = instances.getLabel(idx);
+    super.update(instance, label);
+  }*/
+  
   @Override
-  public SlimPerceptron getModelPart(Set<Integer> indices) {
-    SparseVector w = new SparseVector(indices.size());
-    for (int index : indices) {
-      w.add(index, this.w.get(index));
+  public SlimPerceptron getModelPart() {
+    double prob;
+    double sum = gradient.norm1();
+    SlimPerceptron result = new SlimPerceptron(this);
+    result.w.clear();
+    for (VectorEntry e : gradient) {
+      // proportional
+      prob = Math.abs(e.value) / sum;
+      // uniform
+      //prob = 1.0 / numberOfFeatures;
+      prob = Math.exp(modelSize * Math.log(1.0 - prob));
+      prob = 1.0 - prob;
+      if (CommonState.r.nextDouble() <= prob) {
+        result.w.add(e.index, w.get(e.index));
+      }
     }
-    return new SlimPerceptron(age, lambda, fAct, fGrad, numberOfClasses, Arrays.copyOf(distribution, distribution.length), w, bias);
+    return result;
   }
 
 }

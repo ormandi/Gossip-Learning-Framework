@@ -4,9 +4,6 @@ import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.interfaces.models.SimilarityComputable;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-
-import java.util.Arrays;
-
 import peersim.config.Configuration;
 
 /**
@@ -30,8 +27,9 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   /** @hidden */
   protected SparseVector w;
   protected double bias;
-  protected double[] distribution;
-  protected int numberOfClasses = 2;
+  protected SparseVector gradient;
+  protected double biasGradient;
+  
   
   /**
    * This constructor is for initializing the member variables of the Model.
@@ -53,8 +51,8 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     w = new SparseVector();
     bias = 0.0;
-    distribution = new double[numberOfClasses];
-    age = 0.0;
+    gradient = new SparseVector();
+    biasGradient = 0.0;
   }
   
   /**
@@ -63,30 +61,12 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param learner to be cloned
    */
   protected LogisticRegression(LogisticRegression a){
+    super(a);
     lambda = a.lambda;
     w = (SparseVector)a.w.clone();
     bias = a.bias;
-    distribution = Arrays.copyOf(a.distribution, a.numberOfClasses);
-    age = a.age;
-    numberOfClasses = a.numberOfClasses;
-  }
-  
-  /**
-   * Constructs an object and sets the specified parameters.
-   * @param lambda learning parameter
-   * @param w hyperplane
-   * @param bias bias variable
-   * @param distribution template variable for the class distribution
-   * @param age number of updates
-   * @param numberOfClasses number of classes
-   */
-  protected LogisticRegression(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses) {
-    this.lambda = lambda;
-    this.w = w;
-    this.bias = bias;
-    this.distribution = distribution;
-    this.age = age;
-    this.numberOfClasses = numberOfClasses;
+    gradient = (SparseVector)a.gradient.clone();
+    biasGradient = a.biasGradient;
   }
   
   /**
@@ -107,8 +87,6 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
     
   }
   
-  protected SparseVector gradient = new SparseVector();
-  protected double biasGradient = 0.0;
   public void update(InstanceHolder instances) {
     age += instances.size();
     double nu = 1.0 / (lambda * age);
@@ -121,12 +99,12 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   protected void gradient(SparseVector instance, double label) {
     double prob = getPositiveProbability(instance);
     double err = label - prob;
-    gradient.set(instance).mul(err).add(w, lambda);
-    biasGradient = err;
+    gradient.set(w).mul(lambda).add(instance, err);
+    biasGradient = lambda * err;
   }
   
   protected void gradient(InstanceHolder instances) {
-    gradient.clear();
+    gradient.set(w).mul(lambda * instances.size());
     biasGradient = 0.0;
     for (int i = 0; i < instances.size(); i++) {
       SparseVector instance = instances.getInstance(i);
@@ -135,9 +113,8 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
       double prob = getPositiveProbability(instance);
       double err = label - prob;
       gradient.add(instance, err);
-      biasGradient += err;
+      biasGradient += lambda * err;
     }
-    gradient.add(w, lambda * instances.size());
   }
   
   /**
@@ -161,19 +138,6 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
   @Override
   public double computeSimilarity(LogisticRegression model) {
     return w.cosSim(model.w);
-  }
-
-  @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    if (numberOfClasses != 2) {
-      throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
-    }
-    this.numberOfClasses = numberOfClasses;
   }
   
   @Override

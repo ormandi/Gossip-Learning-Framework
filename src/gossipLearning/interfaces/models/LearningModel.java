@@ -31,19 +31,10 @@ public interface LearningModel extends Model {
   public double predict(SparseVector instance);
   
   /**
-   * Returns the number of classes which were used during the training of this model.
-   * Here 0 means no class label was used i.e. it indicates that it is an unsupervised problem.
-   * Any N integer denotes a classic classification problem where the number of classes is N.
-   * Integer.MAX_VALUE means that this is a regression model
-   * 
-   * @return number of classes
+   * Sets the number of classes that will be used during the training phase 
+   * and the number features of the instances.
+   * @param numberOfClasses number of classes
+   * @param numberOfFeatures number of features
    */
-  public int getNumberOfClasses();
-  
-  /**
-   * Sets the number of classes that will be used during the training phase.
-   * 
-   * @param number of classes
-   */
-  public void setNumberOfClasses(int numberOfClasses);
+  public void setParameters(int numberOfClasses, int numberOfFeatures);
 }

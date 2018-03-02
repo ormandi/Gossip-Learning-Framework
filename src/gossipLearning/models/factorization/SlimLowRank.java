@@ -1,9 +1,6 @@
 package gossipLearning.models.factorization;
 
 import gossipLearning.utils.SparseVector;
-
-import java.util.Set;
-
 import peersim.config.Configuration;
 
 public class SlimLowRank extends MergeableLowRank {
@@ -46,7 +43,7 @@ public class SlimLowRank extends MergeableLowRank {
   }
   
   @Override
-  public SlimLowRank getModelPart(Set<Integer> indices) {
+  public SlimLowRank getModelPart() {
     return this;
     /*
     double[] norms = new double[origDimension];

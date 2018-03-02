@@ -110,7 +110,7 @@ public class InstanceLoader implements Control {
           if (protocol instanceof LearningProtocol) {
             LearningProtocol learningProtocol = (LearningProtocol) protocol;
             learningProtocol.getResults().setEvalSet(reader.getEvalSet());
-            learningProtocol.setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
+            learningProtocol.setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
           } else {
             throw new RuntimeException("The protocol " + pidE + " has to implement the LearningProtocol interface!");
           }

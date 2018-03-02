@@ -46,7 +46,7 @@ public class ANNTest  extends TestCase implements Serializable {
       
       // initialize learner
       ann = new ANN("learners");
-      ann.setNumberOfClasses(3);
+      ann.setParameters(training.getNumberOfClasses(), training.getNumberOfFeatures());
       double cost = Double.MAX_VALUE;
       
       // training

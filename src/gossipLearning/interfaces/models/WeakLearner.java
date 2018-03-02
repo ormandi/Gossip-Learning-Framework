@@ -50,11 +50,12 @@ public abstract class WeakLearner extends ProbabilityModel{
    * Calls the weighted version of update function with initial and uniform weights.
    */
   public final void update(final SparseVector instance, final double label){
-    double[] uniformWeights = new double[getNumberOfClasses()];
-    Arrays.fill(uniformWeights, 1.0 / (double)getNumberOfClasses());
+    double[] uniformWeights = new double[numberOfClasses];
+    Arrays.fill(uniformWeights, 1.0 / (double)numberOfClasses);
     update(instance, label, uniformWeights);
   }
   
+  @Override
   public final void update(InstanceHolder instances) {
     for (int i = 0; i < instances.size(); i++) {
       update(instances.getInstance(i), instances.getLabel(i));

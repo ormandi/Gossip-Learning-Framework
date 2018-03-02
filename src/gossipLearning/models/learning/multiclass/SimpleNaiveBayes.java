@@ -20,33 +20,23 @@ public class SimpleNaiveBayes extends ProbabilityModel {
   protected SparseVector[] mus;
   protected SparseVector[] sigmas;
   protected double[] counts;
-  protected int numberOfClasses;
-  protected int maxIndex;
-
+  
   public SimpleNaiveBayes(String prefix) {
     mus = null;
     sigmas = null;
     counts = null;
-    distribution = null;
-    age = 0.0;
-    maxIndex = 0;
-    numberOfClasses = 0;
   }
   
   public SimpleNaiveBayes(SimpleNaiveBayes a) {
+    super(a);
     mus = new SparseVector[a.numberOfClasses];
     sigmas = new SparseVector[a.numberOfClasses];
     counts = new double[a.numberOfClasses];
-    distribution = new double[a.numberOfClasses];
     for (int i = 0; i < a.numberOfClasses; i++) {
       mus[i] = (SparseVector)a.mus[i].clone();
       sigmas[i] = (SparseVector)a.sigmas[i].clone();
       counts[i] = a.counts[i];
-      distribution[i] = a.distribution[i];
     }
-    age = a.age;
-    numberOfClasses = a.numberOfClasses;
-    maxIndex = a.maxIndex;
   }
   
   @Override
@@ -56,9 +46,6 @@ public class SimpleNaiveBayes extends ProbabilityModel {
   
   @Override
   public void update(SparseVector instance, double label) {
-    if (instance.maxIndex() >= maxIndex) {
-      maxIndex = instance.maxIndex() + 1;
-    }
     age ++;
     double count = counts[(int)label] + 1.0;
     counts[(int)label] =  count;
@@ -70,8 +57,6 @@ public class SimpleNaiveBayes extends ProbabilityModel {
   }
   //private boolean isPrint = true;
   
-  protected double[] distribution;
-  
   @Override
   public double[] distributionForInstance(SparseVector instance) {
     //double[] featureCoefs = new double[maxIndex];
@@ -82,7 +67,7 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     for (int i = 0; i < numberOfClasses; i++) {
       distribution[i] = 0.0;
       pc = Math.log(counts[i] / age);
-      p = condLogProb(instance, mus[i], sigmas[i], maxIndex);
+      p = condLogProb(instance, mus[i], sigmas[i], numberOfFeatures);
       
       distribution[i] = pc + p;
       if (distribution[i] > 0.0 || Double.isNaN(distribution[i]) || Double.isInfinite(distribution[i])) {
@@ -111,27 +96,17 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     }*/
     return distribution;
   }
-
+  
   @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    if (numberOfClasses < 2) {
-      throw new RuntimeException("The specified value sould be greater than 1 instead " + numberOfClasses);
-    }
-    this.numberOfClasses = numberOfClasses;
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    super.setParameters(numberOfClasses, numberOfFeatures);
     mus = new SparseVector[numberOfClasses];
     sigmas = new SparseVector[numberOfClasses];
     counts = new double[numberOfClasses];
-    distribution = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
-      mus[i] = new SparseVector();
-      sigmas[i] = new SparseVector();
+      mus[i] = new SparseVector(numberOfFeatures);
+      sigmas[i] = new SparseVector(numberOfFeatures);
       counts[i] = 0.0;
-      distribution[i] = 0.0;
     }
   }
   

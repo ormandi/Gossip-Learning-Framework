@@ -3,8 +3,6 @@ package gossipLearning.models.factorization;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.utils.SparseVector;
 
-import java.util.Set;
-
 public class MergeableLowRank extends LowRankDecomposition implements Mergeable<MergeableLowRank> {
   private static final long serialVersionUID = -8892302266739538821L;
   private static final String PAR_DIMENSION = "MergeableLowRank.dimension";
@@ -57,7 +55,7 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable<
   }
   
   @Override
-  public MergeableLowRank getModelPart(Set<Integer> indices) {
+  public MergeableLowRank getModelPart() {
     return this;
   }
 

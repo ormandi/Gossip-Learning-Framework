@@ -179,12 +179,7 @@ public class NormaSVM implements LearningModel {
   }
   
   @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
     this.numberOfClasses = numberOfClasses;
   }
   

@@ -6,12 +6,11 @@ import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Random;
-import java.util.Set;
 import java.util.Vector;
 
 import peersim.config.Configuration;
 
-public class PowerMethod implements MatrixBasedModel, Partializable<PowerMethod> {
+public class PowerMethod implements MatrixBasedModel, Partializable {
   private static final long serialVersionUID = 3933436730124024955L;
   private static final double EPS = 1E-200;
   
@@ -161,7 +160,7 @@ public class PowerMethod implements MatrixBasedModel, Partializable<PowerMethod>
   }
   
   @Override
-  public PowerMethod getModelPart(Set<Integer> indices) {
+  public PowerMethod getModelPart() {
     return this;
   }
 

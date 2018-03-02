@@ -1,15 +1,11 @@
 package gossipLearning.models.learning.mergeable;
 
-import gossipLearning.interfaces.Function;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.Perceptron;
-import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 
-import java.util.Set;
-
-public class MergeablePerceptron extends Perceptron implements Mergeable<MergeablePerceptron>, Partializable<MergeablePerceptron> {
+public class MergeablePerceptron extends Perceptron implements Mergeable<MergeablePerceptron>, Partializable {
   private static final long serialVersionUID = -2338065907068327013L;
   protected static final String PAR_LAMBDA = "MergeablePerceptron.lambda";
   protected static final String PAR_AFUNC = "MergeablePerceptron.activation";
@@ -26,10 +22,6 @@ public class MergeablePerceptron extends Perceptron implements Mergeable<Mergeab
   
   protected MergeablePerceptron(MergeablePerceptron a) {
     super(a);
-  }
-  
-  protected MergeablePerceptron (double age, double lambda, Function fAct, Function fGrad, int numberOfClasses, double[] distribution, SparseVector w, double bias) {
-    super(age, lambda, fAct, fGrad, numberOfClasses, distribution, w, bias);
   }
   
   @Override
@@ -54,7 +46,7 @@ public class MergeablePerceptron extends Perceptron implements Mergeable<Mergeab
   }
 
   @Override
-  public MergeablePerceptron getModelPart(Set<Integer> indices) {
+  public MergeablePerceptron getModelPart() {
     return new MergeablePerceptron(this);
   }
 

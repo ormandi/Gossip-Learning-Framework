@@ -38,6 +38,7 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
    * The number of classes of the classification problem.
    */
   protected int numberOfClasses;
+  protected int numberOfFeatures;
   
   /**
    * The classification model.
@@ -100,6 +101,7 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
     }
     prefix = a.prefix;
     numberOfClasses = a.numberOfClasses;
+    numberOfFeatures = a.numberOfFeatures;
     age = a.age;
     maximalAge = a.maximalAge;
     meanError = a.meanError;
@@ -121,7 +123,7 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
       confidence = 0.0;
       try {
         model = (LearningModel)Class.forName(modelName).getConstructor(String.class).newInstance(prefix);
-        model.setNumberOfClasses(numberOfClasses);
+        model.setParameters(numberOfClasses, numberOfFeatures);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -148,18 +150,14 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
   public double predict(SparseVector instance) {
     return model.predict(instance);
   }
-
-  @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    this.numberOfClasses = numberOfClasses;
-    model.setNumberOfClasses(numberOfClasses);
-  }
   
+  @Override
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    this.numberOfClasses = numberOfClasses;
+    this.numberOfFeatures = numberOfFeatures;
+    model.setParameters(numberOfClasses, numberOfFeatures);
+  }
+
   /**
    * Returns the estimated error plus the confidence.
    */

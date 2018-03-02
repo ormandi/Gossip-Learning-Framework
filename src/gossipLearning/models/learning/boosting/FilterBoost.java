@@ -40,7 +40,6 @@ public class FilterBoost extends ProbabilityModel {
   protected ModelHolder strongLearner;
   
   private String prefix;
-  private int numberOfClasses;
   
   protected int T = 1;
   private int C = 1;
@@ -89,6 +88,7 @@ public class FilterBoost extends ProbabilityModel {
     this.prefix = a.prefix;
     this.useCache = a.useCache;
     this.numberOfClasses = a.numberOfClasses;
+    this.numberOfFeatures = a.numberOfFeatures;
     this.weakLearnerClassName = a.weakLearnerClassName;
     if (a.actualWeakLearner != null) {
       this.actualWeakLearner = (WeakLearner)a.actualWeakLearner.clone();
@@ -147,9 +147,9 @@ public class FilterBoost extends ProbabilityModel {
       constantWeights = 0.0;
       try {
         actualWeakLearner = (WeakLearner)Class.forName(weakLearnerClassName).getConstructor(String.class).newInstance(prefix + ".FilterBoost");
-        actualWeakLearner.setNumberOfClasses(numberOfClasses);
+        actualWeakLearner.setParameters(numberOfClasses, numberOfFeatures);
         constantWeakLearner = new ConstantLearner(prefix + ".FilterBoost");
-        constantWeakLearner.setNumberOfClasses(numberOfClasses);
+        constantWeakLearner.setParameters(numberOfClasses, numberOfFeatures);
       } catch (Exception e) {
         e.printStackTrace();
         throw new RuntimeException("Exception in FilterBoost at new week learner construction", e);
@@ -303,22 +303,21 @@ public class FilterBoost extends ProbabilityModel {
    * @param instance compute distribution for
    * @return computed class distribution
    */
-  private double[] distribution_qqq;
   private double[] computeDistributionForInstance(SparseVector instance) {
-    if (distribution_qqq == null) {
-      distribution_qqq = new double[numberOfClasses];
+    if (distribution == null) {
+      distribution = new double[numberOfClasses];
     }
-    Arrays.fill(distribution_qqq, 0.0);
+    Arrays.fill(distribution, 0.0);
     // iterating through the week learners and aggregating the distributions
     for (int i = 0; i < strongLearner.size(); i++) {
       double[] tmpDist = ((WeakLearner)strongLearner.getModel(i)).distributionForInstance(instance);
       double alpha = ((WeakLearner)strongLearner.getModel(i)).getAlpha();
-      for (int j = 0; j < distribution_qqq.length; j++){
+      for (int j = 0; j < distribution.length; j++){
         // updating the distribution
-        distribution_qqq[j] += alpha * (tmpDist[j] < 0.0 ? -1.0 : 1.0);
+        distribution[j] += alpha * (tmpDist[j] < 0.0 ? -1.0 : 1.0);
       }
     }
-    return distribution_qqq;
+    return distribution;
   }
   
   @Override
@@ -365,20 +364,15 @@ public class FilterBoost extends ProbabilityModel {
       }
     }
   }
-
+  
   @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    this.numberOfClasses = numberOfClasses;
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    super.setParameters(numberOfClasses, numberOfFeatures);
     if (sWeigths == null) {
       sWeigths = new double[numberOfClasses];
     }
   }
-  
+
   /**
    * String representation of the current object.
    */

@@ -76,7 +76,7 @@ public class RapidSlimFactorizationProtocol extends FactorizationProtocolSlim {
     for (int id = numberOfIncomingModels - numberOfSentModels; id > 0; id --) {
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
-        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
+        Model latestModel = ((Partializable)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart();
         latestModelHolder.add(latestModel);
       }
       if (latestModelHolder.size() == modelHolders.length) {
@@ -96,7 +96,7 @@ public class RapidSlimFactorizationProtocol extends FactorizationProtocolSlim {
     for (int i = 0; i < modelHolders.length; i++) {
       // store the latest models in a new modelHolder
       //Model latestModel = (MatrixBasedModel)modelHolders[i].getModel(modelHolders[i].size() - id);
-      Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
+      Model latestModel = ((Partializable)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart();
       latestModelHolder.add(latestModel);
     }
     if (latestModelHolder.size() == modelHolders.length) {

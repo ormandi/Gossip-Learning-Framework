@@ -37,7 +37,6 @@ public class SigmoidStumpLearner extends WeakLearner {
   protected Map<Integer, Double> ds; // sparse for 0.0
   protected Map<Integer, Double> edges; // sparse for 0.0
   
-  private int numberOfClasses;
   private long seed;
   
   private static long c;
@@ -187,7 +186,6 @@ public class SigmoidStumpLearner extends WeakLearner {
   /**
    * This method normalizes the length of the result array to one.
    */
-  private double[] distribution;
   @Override
   public double[] distributionForInstance(SparseVector instance) {
     Double xjd = instance.get(bestIndex);
@@ -236,19 +234,6 @@ public class SigmoidStumpLearner extends WeakLearner {
    */
   private double sigmoid(double value, double c, double d) {
     return 1.0 / (1.0 + Math.exp(-c*value - d));
-  }
-  
-  @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    if (numberOfClasses < 2 || numberOfClasses == Integer.MAX_VALUE) {
-      throw new RuntimeException("This class can handle classification tasks only!");
-    }
-    this.numberOfClasses = numberOfClasses; 
   }
   
   public String toString() {

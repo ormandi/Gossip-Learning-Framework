@@ -263,7 +263,7 @@ public class BaseLineControl implements Control {
         for (int j = 0; j < pidLS.length; j++) {
           LearningProtocol protocol = (LearningProtocol)Network.get(id).getProtocol(pidLS[j]);
           protocol.getResults().setEvalSet(evaluation);
-          protocol.setNumberOfClasses(training.getNumberOfClasses());
+          protocol.setParameters(training.getNumberOfClasses(), training.getNumberOfFeatures());
         }
       }
       // at the first time set an instance for nodes and evaluate them

@@ -32,7 +32,8 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
   private int historyLength;
   
   private LearningModel model = null;
-  private int numOfClasses;
+  private int numberOfClasses;
+  private int numberOfFeatures;
   private BoundedQueue<Double> history;
   
   public SelfAdaptiveModelTH(String prefix) {
@@ -61,7 +62,8 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
   protected SelfAdaptiveModelTH(SelfAdaptiveModelTH a) {
     age = a.age;
     isNewModel = a.isNewModel;
-    numOfClasses = a.numOfClasses;
+    numberOfClasses = a.numberOfClasses;
+    numberOfFeatures = a.numberOfFeatures;
     historyLength = a.historyLength;
     prefix = a.prefix;
     history = new BoundedQueue<Double>(historyLength);
@@ -107,7 +109,7 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
-      model.setNumberOfClasses(numOfClasses);
+      model.setParameters(numberOfClasses, numberOfFeatures);
       age = 0;
       isNewModel = true;
     }
@@ -166,18 +168,14 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
   public double predict(SparseVector instance) {
     return model.predict(instance);
   }
-
-  @Override
-  public int getNumberOfClasses() {
-    return numOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    model.setNumberOfClasses(numberOfClasses);
-    this.numOfClasses = numberOfClasses;
-  }
   
+  @Override
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    this.numberOfClasses = numberOfClasses;
+    this.numberOfFeatures = numberOfFeatures;
+    model.setParameters(numberOfClasses, numberOfFeatures);
+  }
+
   /**
    * Returns true if the model is restarted.
    * @return the model is restarted.

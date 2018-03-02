@@ -3,8 +3,6 @@ package gossipLearning.models.factorization;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.utils.SparseVector;
 
-import java.util.Set;
-
 public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableRecSys> {
   private static final long serialVersionUID = 2481904642423040181L;
   private static final String PAR_DIMENSION = "MergeableRecSys.dimension";
@@ -64,7 +62,7 @@ public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableR
   }
   
   @Override
-  public MergeableRecSys getModelPart(Set<Integer> indices) {
+  public MergeableRecSys getModelPart() {
     //return new MergeableRecSys(this);
     return this;
   }

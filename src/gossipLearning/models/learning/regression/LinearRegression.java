@@ -6,9 +6,6 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SimilarityComputable;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-
-import java.util.Set;
-
 import peersim.config.Configuration;
 
 /**
@@ -20,7 +17,7 @@ import peersim.config.Configuration;
  * </ul>
  * @author István Hegedűs
  */
-public class LinearRegression implements LearningModel, Mergeable<LinearRegression>, Partializable<LinearRegression>, SimilarityComputable<LinearRegression> {
+public class LinearRegression implements LearningModel, Mergeable<LinearRegression>, Partializable, SimilarityComputable<LinearRegression> {
   private static final long serialVersionUID = -1468280308189482885L;
   
   /** @hidden */
@@ -31,8 +28,6 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   private SparseVector w;
   private double bias;
   private double age;
-  
-  private int numberOfClasses;
   
   /**
    * This constructor is for initializing the member variables of the Model.
@@ -51,7 +46,6 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
     bias = a.bias;
     age = a.age;
     lambda = a.lambda;
-    numberOfClasses = a.numberOfClasses;
   }
   
   /**
@@ -67,7 +61,6 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
     this.bias = bias;
     this.age = age;
     this.lambda = lambda;
-    this.numberOfClasses = numberOfClasses;
   }
   
   public Object clone(){
@@ -113,17 +106,11 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
     w.add(model.w, 0.5);
     return this;
   }
-
-  @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    this.numberOfClasses = numberOfClasses;
-  }
   
+  @Override
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+  }
+
   @Override
   public double getAge() {
     return age;
@@ -135,12 +122,15 @@ public class LinearRegression implements LearningModel, Mergeable<LinearRegressi
   }
 
   @Override
-  public LinearRegression getModelPart(Set<Integer> indices) {
+  public LinearRegression getModelPart() {
+    return this;
+    /*
     SparseVector w = new SparseVector(indices.size());
     for (int index : indices) {
       w.add(index, this.w.get(index));
     }
     return new LinearRegression(w, bias, age, lambda, numberOfClasses);
+    */
   }
 
 }

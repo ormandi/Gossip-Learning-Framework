@@ -15,7 +15,6 @@ public class AdaLineLearner extends WeakLearner {
   
   private SparseVector w;
   private double[] v;
-  private int numberOfClasses;
   private double lambda;
   private Random r;
   private long seed;
@@ -48,19 +47,14 @@ public class AdaLineLearner extends WeakLearner {
   }
   
   @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    this.numberOfClasses = numberOfClasses;
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    super.setParameters(numberOfClasses, numberOfFeatures);
     v = new double[numberOfClasses];
     for (int i = 0; i < numberOfClasses; i++) {
       v[i] = r.nextBoolean() ? 1.0 : -1.0;
     }
   }
-
+  
   @Override
   public Object clone() {
     return new AdaLineLearner(this);

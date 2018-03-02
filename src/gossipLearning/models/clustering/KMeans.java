@@ -276,17 +276,12 @@ public class KMeans implements LearningModel {
   }
   
   @Override
-  public int getNumberOfClasses() {
-    return 0;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
+  public double getAge() {
+    return age;
   }
   
   @Override
-  public double getAge() {
-    return age;
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
   }
   
   public SparseVector[] getCentroids() {

@@ -33,6 +33,7 @@ public class LocalRun {
       System.exit(0);
     }
     
+    long time = System.currentTimeMillis();
     // set up configuration parser
     String configName = args[0];
     Configuration.setConfig(new ParsedProperties(configName));
@@ -66,6 +67,8 @@ public class LocalRun {
     // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
+    time = System.currentTimeMillis();
     
     // normalize database
     if (normalization.equals("standardize")) {
@@ -75,12 +78,14 @@ public class LocalRun {
       System.err.println("Normalizing data set.");
       reader.normalize();
     }
+    System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
+    time = System.currentTimeMillis();
     
     // create models
     LearningModel[] models = new LearningModel[modelNames.length];
     for (int i = 0; i < modelNames.length; i++) {
       models[i] = (LearningModel)Class.forName(modelNames[i]).getConstructor(String.class).newInstance("learners");
-      models[i].setNumberOfClasses(reader.getTrainingSet().getNumberOfClasses());
+      models[i].setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
     }
     
     // initialize evaluator
@@ -153,6 +158,7 @@ public class LocalRun {
       resultAggregator.push(-1, i, modelHolder, extractor);
     }
     System.err.println(resultAggregator);
+    System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
   }
 
 }

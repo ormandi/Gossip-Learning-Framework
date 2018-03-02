@@ -14,7 +14,6 @@ public class SequentialLearner extends WeakLearner {
   private static final String PAR_NUMLEARNERS = "SequentialLearner.numLearners";
   private static final String PAR_LEARNERNAME = "SequentialLearner.learnerName";
   
-  private int numberOfClasses;
   private int numberOfLearners;
   
   private String baseLearnerName;
@@ -48,18 +47,13 @@ public class SequentialLearner extends WeakLearner {
   }
   
   @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    this.numberOfClasses = numberOfClasses;
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    super.setParameters(numberOfClasses, numberOfFeatures);
     for (int i = 0; i < numberOfLearners; i++) {
-      baseLearners[i].setNumberOfClasses(numberOfClasses);
+      baseLearners[i].setParameters(numberOfClasses, numberOfFeatures);
     }
   }
-
+  
   @Override
   public Object clone() {
     return new SequentialLearner(this);

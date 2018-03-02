@@ -5,9 +5,7 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.SimpleNaiveBayes;
 import gossipLearning.utils.SparseVector;
 
-import java.util.Set;
-
-public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<MergeableNaiveBayes>, Partializable<MergeableNaiveBayes> {
+public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<MergeableNaiveBayes>, Partializable {
   private static final long serialVersionUID = 2340506780082847579L;
   
   public MergeableNaiveBayes(String prefix) {
@@ -24,7 +22,6 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<
 
   @Override
   public MergeableNaiveBayes merge(MergeableNaiveBayes model) {
-    maxIndex = Math.max(maxIndex, model.maxIndex);
     for (int i = 0; i < numberOfClasses; i++) {
       if (counts[i] != 0.0) {
         counts[i] = (counts[i] + model.counts[i]) * 0.5;
@@ -40,7 +37,7 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable<
   }
 
   @Override
-  public MergeableNaiveBayes getModelPart(Set<Integer> indices) {
+  public MergeableNaiveBayes getModelPart() {
     return new MergeableNaiveBayes(this);
   }
 

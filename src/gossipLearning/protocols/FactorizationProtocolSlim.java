@@ -97,7 +97,7 @@ public class FactorizationProtocolSlim extends LearningProtocol {
     for (int id = numberOfIncomingModels; id > 0; id --) {
       for (int i = 0; i < modelHolders.length; i++) {  
         // store the latest models in a new modelHolder
-        Model latestModel = ((Partializable<?>)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart(indices);
+        Model latestModel = ((Partializable)modelHolders[i].getModel(modelHolders[i].size() - 1)).getModelPart();
         latestModelHolder.add(latestModel);
       }
       if (latestModelHolder.size() == modelHolders.length) {
@@ -134,10 +134,6 @@ public class FactorizationProtocolSlim extends LearningProtocol {
       // stores the updated model
       //modelHolders[i].add(currModel);
     }
-  }
-  
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
   }
   
   private Node[] onlines = null;

@@ -566,6 +566,92 @@ public class Matrix implements Serializable {
     
     return result;
   }
+  
+  /**
+   * Sets the result of the multiplication of the specified matrices for the 
+   * matrix represented by the current object.
+   * @param A to be multiplied by
+   * @param B to be multiplied with
+   * @return this, set with A*B
+   * @note in place operation!
+   */
+  public Matrix mulSet(Matrix A, Matrix B) {
+    if (numberOfRows != A.numberOfRows || 
+        numberOfColumns != B.numberOfColumns || 
+        A.numberOfColumns != B.numberOfRows) {
+      throw new IllegalArgumentException("Matrix with dimensions "
+          + A.numberOfRows + "x" + A.numberOfColumns
+          + " cannot be multiplied by a matrix with dimensions "
+          + B.numberOfRows + "x" + B.numberOfColumns 
+          + " or can not be set for a matrix with dimensions " 
+          + numberOfRows + "x" + numberOfColumns);
+    }
+    for (int i = 0; i < numberOfRows; i++) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        double sum = 0.0;
+        for (int k = 0; k < A.numberOfColumns; k++) {
+          if (A.isTransposed && B.isTransposed) {
+            sum += A.matrix[k][i] * B.matrix[j][k];
+          } else if (!A.isTransposed && B.isTransposed) {
+            sum += A.matrix[i][k] * B.matrix[j][k];
+          } else if (A.isTransposed && !B.isTransposed) {
+            sum += A.matrix[k][i] * B.matrix[k][j];
+          } else {
+            sum += A.matrix[i][k] * B.matrix[k][j];
+          }
+        }
+        if (isTransposed) {
+          matrix[j][i] = sum;
+        } else {
+          matrix[i][j] = sum;
+        }
+      }
+    }
+    return this;
+  }
+  
+  /**
+   * Adds the result of the multiplication of the specified matrices for the 
+   * matrix represented by the current object.
+   * @param A to be multiplied by
+   * @param B to be multiplied with
+   * @return this, set with A*B
+   * @note in place operation!
+   */
+  public Matrix mulAdd(Matrix A, Matrix B) {
+    if (numberOfRows != A.numberOfRows || 
+        numberOfColumns != B.numberOfColumns || 
+        A.numberOfColumns != B.numberOfRows) {
+      throw new IllegalArgumentException("Matrix with dimensions "
+          + A.numberOfRows + "x" + A.numberOfColumns
+          + " cannot be multiplied by a matrix with dimensions "
+          + B.numberOfRows + "x" + B.numberOfColumns 
+          + " or can not be set for a matrix with dimensions " 
+          + numberOfRows + "x" + numberOfColumns);
+    }
+    for (int i = 0; i < numberOfRows; i++) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        double sum = 0.0;
+        for (int k = 0; k < A.numberOfColumns; k++) {
+          if (A.isTransposed && B.isTransposed) {
+            sum += A.matrix[k][i] * B.matrix[j][k];
+          } else if (!A.isTransposed && B.isTransposed) {
+            sum += A.matrix[i][k] * B.matrix[j][k];
+          } else if (A.isTransposed && !B.isTransposed) {
+            sum += A.matrix[k][i] * B.matrix[k][j];
+          } else {
+            sum += A.matrix[i][k] * B.matrix[k][j];
+          }
+        }
+        if (isTransposed) {
+          matrix[j][i] += sum;
+        } else {
+          matrix[i][j] += sum;
+        }
+      }
+    }
+    return this;
+  }
 
   /**
    * Returns a new matrix (C) object that is the current matrix (A) multiplied

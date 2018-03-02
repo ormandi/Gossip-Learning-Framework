@@ -3,10 +3,7 @@ package gossipLearning.models.learning.mergeable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.LogisticRegression;
-import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
-
-import java.util.Set;
 
 /**
  * This class represents the logistic regression classifier that 
@@ -18,7 +15,7 @@ import java.util.Set;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableLogReg extends LogisticRegression implements Mergeable<MergeableLogReg>, Partializable<MergeableLogReg> {
+public class MergeableLogReg extends LogisticRegression implements Mergeable<MergeableLogReg>, Partializable {
   private static final long serialVersionUID = -4465428750554412761L;
   
   /** @hidden */
@@ -34,10 +31,6 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
   
   protected MergeableLogReg(MergeableLogReg a){
     super(a);
-  }
-  
-  protected MergeableLogReg(double lambda, SparseVector w, double bias, double[] distribution, double age, int numberOfClasses) {
-    super(lambda, w, bias, distribution, age, numberOfClasses);
   }
   
   public Object clone(){
@@ -61,7 +54,8 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
   }
 
   @Override
-  public MergeableLogReg getModelPart(Set<Integer> indices) {
+  public MergeableLogReg getModelPart() {
     return new MergeableLogReg(this);
   }
+  
 }

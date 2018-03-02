@@ -236,17 +236,18 @@ public class LearningProtocol extends AbstractProtocol {
   }
   
   /**
-   * Sets the specified number of classes for the models.
+   * Sets the specified number of classes and number of features for the models.
    * @param numberOfClasses the number of classes to be set
+   * @param numberOfFeatures the number of features to be set
    */
-  public void setNumberOfClasses(int numberOfClasses) {
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
     for (int i = 0; i < modelHolders.length; i++) {
       for (int j = 0; j < modelHolders[i].size(); j++) {
-        ((LearningModel)modelHolders[i].getModel(j)).setNumberOfClasses(numberOfClasses);
+        ((LearningModel)modelHolders[i].getModel(j)).setParameters(numberOfClasses, numberOfFeatures);
       }
     }
     for (int i = 0; i < lastSeenMergeableModels.size(); i++) {
-      ((LearningModel)lastSeenMergeableModels.getModel(i)).setNumberOfClasses(numberOfClasses);
+      ((LearningModel)lastSeenMergeableModels.getModel(i)).setParameters(numberOfClasses, numberOfFeatures);
     }
   }
   

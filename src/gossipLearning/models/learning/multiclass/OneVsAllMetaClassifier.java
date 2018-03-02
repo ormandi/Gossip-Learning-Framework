@@ -6,9 +6,6 @@ import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-
-import java.util.Arrays;
-
 import peersim.config.Configuration;
 
 /**
@@ -30,14 +27,12 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
   /** @hidden */
   private static final String PAR_BNAME = "OvsA";
   
-  protected int numberOfClasses;
   protected ModelHolder classifiers;
   /** @hidden */
   protected String baseLearnerName;
   /** @hidden */
   protected final String prefix;
-  protected double[] distribution;
-
+  
   /**
    * This constructor is for initializing the member variables of the Model.
    * 
@@ -64,32 +59,14 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
    * @param a to copy
    */
   public OneVsAllMetaClassifier(OneVsAllMetaClassifier a) {
+    super(a);
     this.baseLearnerName = a.baseLearnerName;
-    this.numberOfClasses = a.numberOfClasses;
     this.prefix = a.prefix;
     if (a.classifiers != null) {
       this.classifiers = (ModelHolder)a.classifiers.clone();
-      this.distribution = Arrays.copyOf(a.distribution, a.distribution.length);
     } else {
       classifiers = null;
-      distribution = null;
     }
-  }
-  
-  /**
-   * Constructs an object and sets the specified parameters.
-   * @param baseLearnerName name of the used learning algorithm
-   * @param numberOfClasses number of classes
-   * @param prefix
-   * @param classifiers
-   * @param distribution
-   */
-  protected OneVsAllMetaClassifier(String baseLearnerName, int numberOfClasses, String prefix, ModelHolder classifiers, double[] distribution) {
-    this.baseLearnerName = baseLearnerName;
-    this.numberOfClasses = numberOfClasses;
-    this.prefix = prefix;
-    this.classifiers = classifiers;
-    this.distribution = distribution;
   }
   
   @Override
@@ -130,24 +107,15 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     }
     return distribution;
   }
-
+  
   @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
-
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    if (numberOfClasses < 2) {
-      throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
-    }
-    this.numberOfClasses = numberOfClasses;
-    distribution = new double[numberOfClasses];
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+    super.setParameters(numberOfClasses, numberOfFeatures);
     classifiers = new BQModelHolder(numberOfClasses);
     for (int i = 0; i < numberOfClasses; i++) {
       try {
         ProbabilityModel model = (ProbabilityModel)Class.forName(baseLearnerName).getConstructor(String.class).newInstance(prefix);
-        model.setNumberOfClasses(2);
+        model.setParameters(numberOfClasses, numberOfFeatures);
         classifiers.add(model);
       } catch (Exception e) {
         throw new RuntimeException("Exception in class " + getClass().getCanonicalName(), e);

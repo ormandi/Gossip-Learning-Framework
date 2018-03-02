@@ -3,10 +3,7 @@ package gossipLearning.models.learning.mergeable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.MultiLogReg;
-import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
-
-import java.util.Set;
 
 /**
  * This class represents a multi-class logistic regression classifier 
@@ -18,7 +15,7 @@ import java.util.Set;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<MergeableMultiLogReg>, Partializable<MergeableMultiLogReg> {
+public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<MergeableMultiLogReg>, Partializable {
   private static final long serialVersionUID = -7800995106591726828L;
 
   /** @hidden */
@@ -41,10 +38,6 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
    */
   public MergeableMultiLogReg(MergeableMultiLogReg a) {
     super(a);
-  }
-  
-  protected MergeableMultiLogReg(double lambda, double age, int numberOfClasses, SparseVector[] w, double[] distribution, double[] v, double[] bias) {
-    super(lambda, age, numberOfClasses, w, distribution, v, bias);
   }
   
   public Object clone() {
@@ -70,7 +63,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
   }
 
   @Override
-  public MergeableMultiLogReg getModelPart(Set<Integer> indices) {
+  public MergeableMultiLogReg getModelPart() {
     return new MergeableMultiLogReg(this);
   }
 

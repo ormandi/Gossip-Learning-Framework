@@ -1,6 +1,5 @@
 package gossipLearning.models.factorization;
 
-import java.util.Set;
 
 public class SlimRecSys extends MergeableRecSys {
   private static final long serialVersionUID = -2675295901691742814L;
@@ -30,7 +29,7 @@ public class SlimRecSys extends MergeableRecSys {
   }
   
   @Override
-  public SlimRecSys getModelPart(Set<Integer> indices) {
+  public SlimRecSys getModelPart() {
     return this;
     /*
     // for avoiding size duplications of the HashMap

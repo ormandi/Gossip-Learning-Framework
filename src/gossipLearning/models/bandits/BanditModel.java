@@ -80,15 +80,12 @@ public abstract class BanditModel implements LearningModel {
     return 0.0;
   }
   
-  public final int getNumberOfClasses() {
-    return 0;
-  }
-  
-  public final void setNumberOfClasses(int numberOfClasses) {
-  }
-  
   public final double getAge() {
     return age;
+  }
+  
+  @Override
+  public final void setParameters(int numberOfClasses, int numberOfFeatures) {
   }
   
 }

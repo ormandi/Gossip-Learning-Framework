@@ -7,12 +7,9 @@ import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
-
-import java.util.Set;
-
 import peersim.config.Configuration;
 
-public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Partializable<LowRankDecomposition> {
+public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Partializable {
   private static final long serialVersionUID = -6695974880876825151L;
   private static final String PAR_DIMENSION = "LowRankDecomposition.dimension";
   private static final String PAR_ORIGDIM = "LowRankDecomposition.origdim";
@@ -209,7 +206,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   }
 
   @Override
-  public LowRankDecomposition getModelPart(Set<Integer> indices) {
+  public LowRankDecomposition getModelPart() {
     return this;
   }
   

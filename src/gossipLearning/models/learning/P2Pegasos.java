@@ -4,9 +4,6 @@ import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.interfaces.models.SimilarityComputable;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-
-import java.util.Arrays;
-
 import peersim.config.Configuration;
 
 public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<P2Pegasos> {
@@ -18,8 +15,7 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
   
   /** @hidden */
   protected SparseVector w;
-  protected double[] distribution;
-  protected int numberOfClasses = 2;
+  protected SparseVector gradient;
   
   /**
    * This constructor is for initializing the member variables of the Model.
@@ -40,8 +36,7 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
   public P2Pegasos(String prefix, String PAR_LAMBDA) {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     w = new SparseVector();
-    age = 0.0;
-    distribution = new double[numberOfClasses];
+    gradient = new SparseVector();
   }
   
   /**
@@ -50,27 +45,10 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
    * @param a learner to be cloned
    */
   protected P2Pegasos(P2Pegasos a){
+    super(a);
     w = (SparseVector)a.w.clone();
-    age = a.age;
-    distribution = Arrays.copyOf(a.distribution, a.numberOfClasses);
     lambda = a.lambda;
-    numberOfClasses = a.numberOfClasses;
-  }
-  
-  /**
-   * Constructs an object and sets the specified parameters.
-   * @param w hyperplane
-   * @param age number of updates
-   * @param distribution template variable for the class distribution
-   * @param lambda learning parameter
-   * @param numberOfClasses number of classes
-   */
-  protected P2Pegasos(SparseVector w, double age, double[] distribution, double lambda, int numberOfClasses) {
-    this.w = w;
-    this.age = age;
-    this.distribution = distribution;
-    this.lambda = lambda;
-    this.numberOfClasses = numberOfClasses;
+    gradient = (SparseVector)a.gradient.clone();
   }
   
   public Object clone(){
@@ -104,21 +82,20 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
     
     gradient(instances);
     w.add(gradient, -nu);
+    //bias -= nu * biasGradient;
   }
   
-  protected SparseVector gradient = new SparseVector();
   protected void gradient(SparseVector instance, double label) {
-    gradient.clear();
+    gradient.set(w).mul(lambda);
     label = (label == 0.0) ? -1.0 : label;
     boolean isSV = label * w.mul(instance) < 1.0;
     if (isSV) {
       gradient.add(instance, -label);
     }
-    gradient.add(w, lambda);
   }
   
   protected void gradient(InstanceHolder instances) {
-    gradient.clear();
+    gradient.set(w).mul(lambda * instances.size());
     for (int i = 0; i < instances.size(); i++) {
       SparseVector instance = instances.getInstance(i);
       double label = instances.getLabel(i);
@@ -129,7 +106,6 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
         gradient.add(instance, -label);
       }
     }
-    gradient.add(w, lambda * instances.size());
   }
   
   /**
@@ -163,17 +139,5 @@ public class P2Pegasos extends ProbabilityModel implements SimilarityComputable<
   public String toString() {
     return w.toString() + ", age: " + age;
   }
-  
-  @Override
-  public int getNumberOfClasses() {
-    return numberOfClasses;
-  }
 
-  @Override
-  public void setNumberOfClasses(int numberOfClasses) {
-    if (numberOfClasses != 2) {
-      throw new RuntimeException("Not supported number of classes in " + getClass().getCanonicalName() + " which is " + numberOfClasses + "!");
-    }
-    this.numberOfClasses = numberOfClasses;
-  }
 }
