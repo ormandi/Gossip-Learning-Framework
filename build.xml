@@ -27,6 +27,9 @@
   <property name="remoteRunHost" value="rgai"/>
   <property name="sshKeyFile" value="${env.HOME}/.ssh/id_rsa"/>
    
+   <tstamp>
+    <format property="TODAY" pattern="yyyy-MM-dd" />
+  </tstamp>
   
   <target name="init">
     <!-- Initialize -->
@@ -58,6 +61,21 @@
       <fileset dir="${build}">
         <exclude name="tests/**/*Test*.class"/>
       </fileset>
+    </jar>
+  </target>
+  
+  <target name="fat" depends="compile" description="generate fat jar">
+    <!-- Create jar -->
+    <jar jarfile="${bin}/${jarName}" filesonly="true">
+      <manifest>
+        <attribute name="Main-Class" value="gossipLearning.main.LocalRun"/>
+        <attribute name="Class-Path" value="."/>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Built-Date" value="${TODAY}"/>
+      </manifest>
+      <fileset dir="${build}" excludes="**/tests/**" />
+      <fileset dir="${src}" excludes="**/tests/**" />
+      <zipgroupfileset dir="${lib}" includes="**/*.jar" excludes="junit-4.12.jar"/>
     </jar>
   </target>
 
