@@ -2,9 +2,12 @@ package gossipLearning.controls;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -27,12 +30,16 @@ public class TraceChurnWithNAT implements Control, SchedulerI {
   private static final String TRACE_FILE = "traceFile";
   private static final String CONTAB_FILE = "connectionTableFile";
 
-  TreeMap<Session, List<NodeUserTrace> > heap = new TreeMap<Session, List<NodeUserTrace> >();
+  protected TreeMap<Session, List<NodeUserTrace> > heap;
   protected Map<NATpair,Long> connectionTable;
+  protected Set<Integer> possibleNatType;
   
   public TraceChurnWithNAT(String prefix) {
     final String fName = Configuration.getString(prefix + "." + TRACE_FILE);
     final String fNameConnectionTableFile = Configuration.getString(prefix + "." + CONTAB_FILE);
+    heap = new TreeMap<Session, List<NodeUserTrace> >();
+    connectionTable = new HashMap<NATpair,Long>();
+    possibleNatType = new HashSet<Integer>();
     Vector<UserTrace> userTraces = new Vector<UserTrace>();
     try {
       BufferedReader br = new BufferedReader(new FileReader(fName));
@@ -50,7 +57,7 @@ public class TraceChurnWithNAT implements Control, SchedulerI {
         long sum = 0;
         sum += Long.parseLong(tokens.nextToken());
         int NATtype = Integer.parseInt(tokens.nextToken());
-        Boolean online = isFirstOnline(NATtype);
+        Boolean online = isOnline(NATtype);
         sessions.add(new Session(sum, NATtype));
         while (tokens.hasMoreTokens()) {
           sum += Long.parseLong(tokens.nextToken());
@@ -64,6 +71,8 @@ public class TraceChurnWithNAT implements Control, SchedulerI {
       while ((line = br.readLine()) != null) {
         String[] fields = line.split(";");
         connectionTable.put(new NATpair(Integer.parseInt(fields[0]), Integer.parseInt(fields[1])), Long.parseLong(fields[2]));
+        possibleNatType.add(Integer.parseInt(fields[0]));
+        possibleNatType.add(Integer.parseInt(fields[1]));
       }
       br.close();
     } catch (Exception e) {
@@ -87,9 +96,15 @@ public class TraceChurnWithNAT implements Control, SchedulerI {
       Node node = tp.getNode();
       if (node.getFailState() == Fallible.DEAD)
         continue;
-      node.setFailState(node.isUp() ? Fallible.DOWN : Fallible.OK);
-      if (tp.hasMoreSession())
-        insert(tp.nextSession(),tp);
+      if (tp.hasMoreSession()) {
+        Session recentSession = tp.nextSession();
+        insert(recentSession,tp);
+        //TODO ezt kell fejleszteni !!!
+        node.setFailState(isOnline(recentSession.getType()) ? Fallible.OK : Fallible.DOWN);
+      }
+      else {
+        node.setFailState(Fallible.DEAD);
+      }
     }
     return false;
   }
@@ -114,15 +129,16 @@ public class TraceChurnWithNAT implements Control, SchedulerI {
 
   public boolean active() { throw new UnsupportedOperationException("Not implemented for efficiency."); }
 
-  private boolean isFirstOnline(int NATtype) {
-    switch (NATtype) {
-    case -2: case -1: case 1:
-      return false;
-    case 0: case 2: case 3: case 4: case 5: case 6:
-      return true;  
-    default:
-      return false;
+  private boolean isOnline(int NATtype) {
+    for (Integer otherPossibleType : possibleNatType) {
+      NATpair pair = new NATpair(NATtype, otherPossibleType);
+      if(connectionTable.containsKey(pair)) {
+        if(connectionTable.get(pair) > -1) {
+          return true;
+        }
+      }
     }
+    return false;
   }
   
 }
