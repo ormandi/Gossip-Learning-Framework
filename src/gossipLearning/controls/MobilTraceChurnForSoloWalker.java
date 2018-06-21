@@ -13,6 +13,7 @@ import gossipLearning.interfaces.protocols.Churnable;
 import gossipLearning.messages.ConnectionTimeoutMessage;
 import gossipLearning.messages.multiwalker.WaitingMessage;
 import gossipLearning.protocols.SoloWalkerProtocol;
+import gossipLearning.utils.Session;
 import gossipLearning.utils.UserTrace;
 import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
@@ -60,18 +61,20 @@ public class MobilTraceChurnForSoloWalker implements Control {
       String line;
       while ((line = br.readLine()) != null) {
         if (line != null) {
-          Vector<Long> sessions = new Vector<Long>();
+          Vector<Session> sessions = new Vector<Session>();
           StringTokenizer tokens = new StringTokenizer(line);
           String username = tokens.nextToken();
           String onlineToken = tokens.nextToken();
           Boolean online = ('1' == onlineToken.charAt(0));
           Long startDate = Long.parseLong(tokens.nextToken());
           int timeZone = Integer.parseInt(tokens.nextToken());
-          sessions.add(Long.parseLong(tokens.nextToken()));    
+          sessions.add(new Session(Long.parseLong(tokens.nextToken()),online?1:0));
+          boolean nextStatus = online;
           while (tokens.hasMoreTokens()) {
-            sessions.add(Long.parseLong(tokens.nextToken()));
+            sessions.add(new Session(Long.parseLong(tokens.nextToken()),(nextStatus?1:0)));
+            nextStatus=!nextStatus;;
           }
-          Long[] sessArr = sessions.toArray(new Long[sessions.size()]);
+          Session[] sessArr = sessions.toArray(new Session[sessions.size()]);
           userTraces.add(new UserTrace(sessArr, online, username, timeZone, startDate));
         }
       }
@@ -96,7 +99,7 @@ public class MobilTraceChurnForSoloWalker implements Control {
         } else {
           node.setFailState(Fallible.DOWN);
         }
-        sessionLength = ut.nextSession();
+        sessionLength = ut.nextSession().getLength();
         churnableProt.setSessionLength(sessionLength);
         assignedUserTrace.put(node.getID(), ut);
       }
@@ -128,7 +131,7 @@ public class MobilTraceChurnForSoloWalker implements Control {
           }
           UserTrace ut = assignedUserTrace.get(node.getID());
           if (ut.hasMoreSession()) {
-            sessionLength = ut.nextSession();
+            sessionLength = ut.nextSession().getLength();
             assignedUserTrace.put(node.getID(), ut);
           } else {
             ut.resetPointer();
@@ -140,7 +143,7 @@ public class MobilTraceChurnForSoloWalker implements Control {
             } else {
               node.setFailState(Fallible.DOWN);
             }
-            sessionLength = ut.nextSession();
+            sessionLength = ut.nextSession().getLength();
             assignedUserTrace.put(node.getID(), ut);
           }          
           churnableProt.setSessionLength(churnableProt.getSessionLength() + sessionLength);

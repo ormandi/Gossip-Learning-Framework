@@ -10,7 +10,7 @@ import java.util.Vector;
 
 import gossipLearning.protocols.TreeBuilderProtocol;
 import gossipLearning.utils.Session;
-import gossipLearning.utils.TracePointer;
+import gossipLearning.utils.NodeUserTraceLow;
 import gossipLearning.utils.UserTraceLow;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -31,7 +31,7 @@ public class TraceChurnForTreeBuilder implements Control, SchedulerI {
   private static final String STEP = "step";
   private final long step;
 
-	TreeMap<Session, List<TracePointer> > heap = new TreeMap<Session, List<TracePointer> >();
+	TreeMap<Session, List<NodeUserTraceLow> > heap = new TreeMap<Session, List<NodeUserTraceLow> >();
 
 	public TraceChurnForTreeBuilder(String prefix) {
 		final String fName = Configuration.getString(prefix + "." + TRACE_FILE);
@@ -52,7 +52,7 @@ public class TraceChurnForTreeBuilder implements Control, SchedulerI {
 				boolean nextStatus = online;
 				while (tokens.hasMoreTokens()) {
 					sum += Long.parseLong(tokens.nextToken())*step;
-					sessions.add(new Session((nextStatus?1:0),sum));
+					sessions.add(new Session(sum,(nextStatus?1:0)));
 					nextStatus=!nextStatus;
 				}
 				userTraces.add(new UserTraceLow(sessions.toArray(new Session[sessions.size()])));
@@ -67,7 +67,7 @@ public class TraceChurnForTreeBuilder implements Control, SchedulerI {
 			if (!rp.hasNext()) rp.reset(userTraces.size());
 			UserTraceLow ut = userTraces.get(rp.next());
 			node.setFailState(ut.isFirstOnline() ? Fallible.OK : Fallible.DOWN);
-			TracePointer tp = new TracePointer(ut,node);
+			NodeUserTraceLow tp = new NodeUserTraceLow(ut,node);
 			if (tp.hasMoreSession())///
 				insert(tp.nextSession(),tp);
 		}
@@ -75,7 +75,7 @@ public class TraceChurnForTreeBuilder implements Control, SchedulerI {
 	
 	public boolean execute() {
 		assert heap.firstKey().getLength() == CommonState.getTime();
-		for (TracePointer tp : heap.pollFirstEntry().getValue()) {
+		for (NodeUserTraceLow tp : heap.pollFirstEntry().getValue()) {
 			Node node = tp.getNode();
 			if (node.getFailState() == Fallible.DEAD)
 				continue;
@@ -96,7 +96,7 @@ public class TraceChurnForTreeBuilder implements Control, SchedulerI {
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-  void insert(Session key, TracePointer value) {
+  void insert(Session key, NodeUserTraceLow value) {
 		if (!heap.containsKey(key))
 			heap.put(key,new LinkedList());
 		heap.get(key).add(value);

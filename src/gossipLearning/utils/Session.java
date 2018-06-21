@@ -1,10 +1,10 @@
 package gossipLearning.utils;
 
 public class Session implements Comparable<Session>{
-  private final Integer type;
-  private final Long length;
+  private Integer type;
+  private Long length;
   
-  public Session(Integer type, Long length) {
+  public Session(Long length, Integer type) {
     this.type = type;
     this.length = length;
   }
@@ -12,9 +12,17 @@ public class Session implements Comparable<Session>{
   public Long getLength() {
     return length;
   }
+
+  public void setLength(Long length) {
+    this.length = length;
+  }
   
   public Integer getType() {
     return type;
+  }
+
+  public void setType(Integer type) {
+    this.type = type;
   }
 
   @Override
