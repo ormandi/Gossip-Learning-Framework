@@ -44,31 +44,39 @@ public class LocalRun {
     System.err.println("\tNumber of iterations: " + numIters);
     long seed = Configuration.getLong("SEED", System.currentTimeMillis());
     System.err.println("\tRandom seed: " + seed);
-    int evalTime = 1;
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
+    String dbReaderName = Configuration.getString("dbReader");
+    File tFile = new File(Configuration.getString("trainingFile"));
+    System.err.println("\ttraining file: " + tFile);
+    File eFile = new File(Configuration.getString("evaluationFile"));
+    System.err.println("\tevaluation file: " + eFile);
     String samplingMethod = Configuration.getString("SAMPLING", "uniform");
     System.err.println("\tSampling method: " + samplingMethod);
     String normalization = Configuration.getString("NORMALIZATION", "none");
     System.err.println("\tNormalization method: " + normalization);
     int batchSize = Configuration.getInt("BATCHSIZE", 1);
     System.err.println("\tBatch size: " + batchSize);
+    int evalTime = 1;
     
     // parse learning related parameters
-    String dbReaderName = Configuration.getString("dbReader");
-    File tFile = new File(Configuration.getString("trainingFile"));
-    System.err.println("\ttraining file: " + tFile);
-    File eFile = new File(Configuration.getString("evaluationFile"));
-    System.err.println("\tevaluation file: " + eFile);
-    String[] modelNames = Configuration.getString("learners").split(",");
+    String include = Configuration.getString("include", null);
+    String[] includes = include == null ? null : include.split("\\s");
+    String[] modelNames = Configuration.getNames("learner");
+    if (includes != null) {
+      modelNames = new String[includes.length];
+      for (int i = 0; i < includes.length; i++) {
+        modelNames[i] = "learner." + includes[i];
+      }
+    }
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
     
     // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
-    System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
-    time = System.currentTimeMillis();
+    //System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
+    //time = System.currentTimeMillis();
     
     // normalize database
     if (normalization.equals("standardize")) {
@@ -78,13 +86,13 @@ public class LocalRun {
       System.err.println("Normalizing data set.");
       reader.normalize();
     }
-    System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
+    //System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
     time = System.currentTimeMillis();
     
     // create models
     LearningModel[] models = new LearningModel[modelNames.length];
     for (int i = 0; i < modelNames.length; i++) {
-      models[i] = (LearningModel)Class.forName(modelNames[i]).getConstructor(String.class).newInstance("learners");
+      models[i] = (LearningModel)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
       models[i].setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
     }
     
@@ -113,7 +121,7 @@ public class LocalRun {
       if (sampleIndices != null && iter % sampleIndices.length == 0) {
         Utils.arrayShuffle(r, sampleIndices);
       }
-      if (iter % evalTime == 0) {
+      if (iter == 0 || iter % evalTime == 0) {
         // evaluate
         for (int i = 0; i < models.length; i++) {
           modelHolder.add(models[i]);
@@ -144,7 +152,7 @@ public class LocalRun {
       batch.add(instance, label);
       if (batch.size() == batchSize) {
         for (int i = 0; i < models.length; i++) {
-          models[i].update(extractor.extract(batch));
+          models[i].update(extractor.extract(batch), 1, 0);
           //models[i].update(extractor.extract(instance), label);
         }
         batch.clear();
@@ -158,7 +166,7 @@ public class LocalRun {
       resultAggregator.push(-1, i, modelHolder, extractor);
     }
     System.err.println(resultAggregator);
-    System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
+    System.err.println("ELAPSED TIME: " + (System.currentTimeMillis() - time) + "ms");
   }
 
 }

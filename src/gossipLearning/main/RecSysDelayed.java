@@ -86,9 +86,9 @@ public class RecSysDelayed {
     int[] numUse = new int[reader.getTrainingSet().size()];
     
     int evalTime = 1;
-    int numThreads = 1;
-    Worker[] workers = new Worker[numThreads];
-    int batchSize = sampleIndices.length / numThreads;
+    //int numThreads = 1;
+    //Worker[] workers = new Worker[numThreads];
+    //int batchSize = sampleIndices.length / numThreads;
     long time = System.currentTimeMillis();
     for (int iter = 0; iter <= numIters; iter++) {
       // evaluate

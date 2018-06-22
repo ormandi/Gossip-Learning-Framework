@@ -95,7 +95,15 @@ public class DiffPriv {
     System.err.println("\ttraining file: " + tFile);
     File eFile = new File(Configuration.getString("evaluationFile"));
     System.err.println("\tevaluation file: " + eFile);
-    String[] modelNames = Configuration.getString("learners").split(",");
+    String include = Configuration.getString("include", null);
+    String[] includes = include == null ? null : include.split("\\s");
+    String[] modelNames = Configuration.getNames("learner");
+    if (includes != null) {
+      modelNames = new String[includes.length];
+      for (int i = 0; i < includes.length; i++) {
+        modelNames[i] = "learner." + includes[i];
+      }
+    }
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
     
@@ -203,7 +211,7 @@ public class DiffPriv {
     // create models
     LearningModel[] models = new LearningModel[modelNames.length];
     for (int i = 0; i < modelNames.length; i++) {
-      models[i] = (LearningModel)Class.forName(modelNames[i]).getConstructor(String.class).newInstance("learners");
+      models[i] = (LearningModel)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
       models[i].setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
     }
     
