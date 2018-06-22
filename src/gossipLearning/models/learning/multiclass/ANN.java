@@ -6,9 +6,9 @@ import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 
 /**
  * <b>Update rule: </b>
@@ -34,23 +34,25 @@ import peersim.core.CommonState;
  */
 public class ANN extends ProbabilityModel {
   private static final long serialVersionUID = 5187257180709173833L;
-  protected static final String PAR_HIDDEN = "ANN.hiddenLayers";
-  protected static final String PAR_ACTF = "ANN.activationFunction";
-  protected static final String PAR_GRADF = "ANN.gradientFunction";
-  protected static final String PAR_LAMBDA = "ANN.lambda";
-
-  protected final double lambda;
+  protected static final String PAR_HIDDEN = "hiddenLayers";
+  protected static final String PAR_ACTF = "activationFunction";
+  protected static final String PAR_GRADF = "gradientFunction";
+  protected static final String PAR_SEED = "seed";
+  
   protected final Function fAct;
   protected final Function fGrad;
 
   /** parameter matrices of the layers */
   protected Matrix[] thetas;
+  protected Matrix[] gradients;
   /** output of the layers without applying activation function */
   protected Matrix[] products;
   protected Matrix[] activations;
   /** size of the layers including the number of features + 1 (first)
    * and the number of classes (last)*/
   protected int[] layersSizes;
+  protected final long seed;
+  protected int numParams = 0;
 
   /**
    * This constructor is for initializing the member variables of the Model.
@@ -58,7 +60,7 @@ public class ANN extends ProbabilityModel {
    * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
   public ANN(String prefix) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    super(prefix);
     String layers = Configuration.getString(prefix + "." + PAR_HIDDEN, null);
     try {
       fAct = (Function)Class.forName(Configuration.getString(prefix + "." + PAR_ACTF)).newInstance();
@@ -66,9 +68,11 @@ public class ANN extends ProbabilityModel {
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
     }
+    seed = Configuration.getLong(prefix + "." + PAR_SEED, 1234567890);
     String[] layersSizes = null;
     int numLayers = layers == null ? 0 : (layersSizes = layers.split(",")).length;
     thetas = new Matrix[numLayers + 1];
+    gradients = new Matrix[numLayers + 1];
     products = new Matrix[numLayers + 1];
     activations = new Matrix[numLayers + 1];
     // first is numOfFeatures + 1, last is numOfClasses
@@ -81,22 +85,29 @@ public class ANN extends ProbabilityModel {
 
   public ANN(ANN a) {
     super(a);
-    lambda = a.lambda;
     fAct = a.fAct;
     fGrad = a.fGrad;
+    seed = a.seed;
     if (a.thetas != null) {
       thetas = new Matrix[a.thetas.length];
+      gradients = new Matrix[a.thetas.length];
       products = new Matrix[a.products.length];
+      activations = new Matrix[a.activations.length];
       for (int i = 0; i < a.thetas.length && a.thetas[i] != null; i++) {
         thetas[i] = (Matrix)a.thetas[i].clone();
+        gradients[i] = (Matrix)a.gradients[i].clone();
       }
       for (int i = 0; i < a.products.length && a.products[i] != null; i++) {
         products[i] = (Matrix)a.products[i].clone();
+      }
+      for (int i = 0; i < a.activations.length && a.activations[i] != null; i++) {
+        activations[i] = (Matrix)a.activations[i].clone();
       }
     }
     if (a.layersSizes != null) {
       layersSizes = Arrays.copyOf(a.layersSizes, a.layersSizes.length);
     }
+    numParams = a.numParams;
   }
 
   @Override
@@ -127,7 +138,7 @@ public class ANN extends ProbabilityModel {
   private void update(SparseVector instance, Matrix expected) {
     age ++;
     double nu = 1.0 / (lambda * age);
-    Matrix gradient;
+    //Matrix gradient;
 
     // evaluate instance
     Matrix predicted = evaluate(instance);
@@ -140,27 +151,35 @@ public class ANN extends ProbabilityModel {
 
     // hidden layers
     for (int i = thetas.length - 1; i > 0; i--) {
-      gradient = products[i - 1].apply(fAct).transpose().mul(delta);
+      gradients[i].mulSet(products[i - 1].apply(fAct).transpose(), delta);
+      //gradient = products[i - 1].apply(fAct).transpose().mul(delta);
       // next delta
       delta = thetas[i].mul(delta.transpose()).transpose().pointMulEquals(products[i - 1].applyEquals(fGrad));
       // avoiding bias regularization
       thetas[i].mulEquals(0, layersSizes[i] - 2, 0, layersSizes[i + 1] - 1, 1.0 - nu * lambda);
       // scaling with learning rate
-      gradient.mulEquals(0, layersSizes[i] - 2, 0, layersSizes[i + 1] - 1, nu);
-      gradient.mulEquals(layersSizes[i] - 1, layersSizes[i] - 1, 0, layersSizes[i + 1] - 1, nu * lambda);
+      //gradient.mulEquals(0, layersSizes[i] - 2, 0, layersSizes[i + 1] - 1, nu);
+      //gradient.mulEquals(layersSizes[i] - 1, layersSizes[i] - 1, 0, layersSizes[i + 1] - 1, nu * lambda);
+      gradients[i].mulEquals(0, layersSizes[i] - 2, 0, layersSizes[i + 1] - 1, nu);
+      gradients[i].mulEquals(layersSizes[i] - 1, layersSizes[i] - 1, 0, layersSizes[i + 1] - 1, nu * lambda);
       // update
-      thetas[i].addEquals(gradient, -1.0);
+      //thetas[i].addEquals(gradient], -1.0);
+      thetas[i].addEquals(gradients[i], -1.0);
     }
 
     // input layer
-    gradient = new Matrix(instance, delta.getRow(0), layersSizes[0]);
+    //gradient = new Matrix(instance, delta.getRow(0), layersSizes[0]);
+    gradients[0].setMatrix(new Matrix(instance, delta.getRow(0), layersSizes[0]));
     // avoiding bias regularization
     thetas[0].mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, 1.0 - nu * lambda);
     // scaling with learning rate
-    gradient.mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, nu);
-    gradient.mulEquals(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[0 + 1] - 1, nu * lambda);
+    //gradient.mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, nu);
+    //gradient.mulEquals(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[0 + 1] - 1, nu * lambda);
+    gradients[0].mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, nu);
+    gradients[0].mulEquals(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[0 + 1] - 1, nu * lambda);
     // update
-    thetas[0].addEquals(gradient, -1.0);
+    //thetas[0].addEquals(gradient, -1.0);
+    thetas[0].addEquals(gradients[0], -1.0);
   }
   
   private Matrix evaluate(SparseVector instance) {
@@ -201,9 +220,20 @@ public class ANN extends ProbabilityModel {
     // thetas are initialized uniform randomly from [-scale : scale] (ML-Class)
     for (int i = 0; i < thetas.length; i++) {
       double scale = Math.sqrt(6)/Math.sqrt(layersSizes[i] + layersSizes[i+1]);
-      thetas[i] = new Matrix(layersSizes[i], layersSizes[i + 1], CommonState.r).mulEquals(2.0 * scale).addEquals(-scale);
+      thetas[i] = new Matrix(layersSizes[i], layersSizes[i + 1], new Random(seed)).mulEquals(2.0 * scale).addEquals(-scale);
+      gradients[i] = new Matrix(layersSizes[i], layersSizes[i + 1]);
       products[i] = new Matrix(1, thetas[i].getColumnDimension());
       activations[i] = new Matrix(1, thetas[i].getColumnDimension());
+      numParams += layersSizes[i] * layersSizes[i + 1];
+    }
+  }
+  
+  @Override
+  public void clear() {
+    super.clear();
+    // TODO: fix it
+    for (int i = 0; i < thetas.length; i++) {
+      thetas[i].fill(0.0);
     }
   }
 

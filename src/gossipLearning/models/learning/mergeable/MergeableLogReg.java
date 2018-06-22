@@ -1,6 +1,7 @@
 package gossipLearning.models.learning.mergeable;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.LogisticRegression;
 import gossipLearning.utils.VectorEntry;
@@ -15,18 +16,15 @@ import gossipLearning.utils.VectorEntry;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableLogReg extends LogisticRegression implements Mergeable<MergeableLogReg>, Partializable {
+public class MergeableLogReg extends LogisticRegression implements Mergeable, Partializable {
   private static final long serialVersionUID = -4465428750554412761L;
   
-  /** @hidden */
-  private static final String PAR_LAMBDA = "MergeableLogReg.lambda";
-
-  public MergeableLogReg(String prefix){
-    super(prefix, PAR_LAMBDA);
+  public MergeableLogReg(double lambda) {
+    super(lambda);
   }
   
-  protected MergeableLogReg(String prefix, String PAR_LAMBDA) {
-    super(prefix, PAR_LAMBDA);
+  public MergeableLogReg(String prefix){
+    super(prefix);
   }
   
   protected MergeableLogReg(MergeableLogReg a){
@@ -38,23 +36,39 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable<Mer
   }
   
   @Override
-  public MergeableLogReg merge(final MergeableLogReg model) {
-    double sum = age + model.age;
+  public Model merge(Model model) {
+    MergeableLogReg m = (MergeableLogReg)model;
+    double sum = age + m.age;
     if (sum == 0) {
       return this;
     }
-    double modelWeight = model.age / sum;
-    age = Math.max(age, model.age);
-    for (VectorEntry e : model.w) {
+    double modelWeight = m.age / sum;
+    age = Math.max(age, m.age);
+    for (VectorEntry e : m.w) {
       double value = w.get(e.index);
-      w.add(e.index, (e.value - value) * modelWeight);
+      //w.add(e.index, (e.value - value) * modelWeight);
+      w.add(e.index, (e.value - value) * (value == 0 ? 1.0 : modelWeight));
     }
-    bias += (model.bias - bias) * modelWeight;
+    bias += (m.bias - bias) * modelWeight;
+    return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    MergeableLogReg m = (MergeableLogReg)model;
+    age += m.age * times;
+    w.add(m.w, times);
+    bias += m.bias * times;
     return this;
   }
 
   @Override
-  public MergeableLogReg getModelPart() {
+  public Model getModelPart() {
     return new MergeableLogReg(this);
   }
   

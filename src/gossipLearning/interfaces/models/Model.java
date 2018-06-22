@@ -19,4 +19,5 @@ public interface Model extends Serializable, Cloneable {
    * @return the age
    */
   public double getAge();
+  
 }

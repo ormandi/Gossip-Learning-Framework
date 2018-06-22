@@ -128,6 +128,22 @@ public class KMeans implements LearningModel {
     }
   }
   
+  @Override
+  public void update(InstanceHolder instances, int epoch, int batchSize) {
+    for (int i = 0; i < epoch; i++) {
+      update(instances);
+    }
+  }
+  
+  @Override
+  public void clear() {
+    age = 0.0;
+    for (int i = 0; i < K; i++) {
+      centroidAge[i] = 0.0;
+      centroids[i].clear();
+    }
+  }
+  
   /**
    * Returns the index of the first uninitialized cluster centroid.
    * @return the index of uninitialized centroid
@@ -278,6 +294,11 @@ public class KMeans implements LearningModel {
   @Override
   public double getAge() {
     return age;
+  }
+  
+  @Override
+  public void setAge(double age) {
+    this.age = age;
   }
   
   @Override

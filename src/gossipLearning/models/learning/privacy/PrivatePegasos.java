@@ -11,12 +11,10 @@ import java.util.Random;
 public class PrivatePegasos extends P2Pegasos implements PrivateModel {
   private static final long serialVersionUID = 1361721163541934819L;
 
-  protected static final String PAR_LAMBDA = "PrivatePegasos.lambda";
-  
   protected double[] noise;
   
   public PrivatePegasos(String prefix) {
-    super(prefix, PAR_LAMBDA);
+    super(prefix);
   }
   
   public PrivatePegasos(PrivatePegasos a) {

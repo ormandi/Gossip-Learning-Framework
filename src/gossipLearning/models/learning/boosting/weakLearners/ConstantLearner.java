@@ -14,9 +14,8 @@ public class ConstantLearner extends WeakLearner {
   /**
    * Constructs a default learner.
    */
-  public ConstantLearner(String prefix) {
-    super(prefix);
-    age = 0;
+  public ConstantLearner(String prefix, double lambda, long seed) {
+    super(prefix, lambda, seed);
   }
   
   /**
@@ -24,10 +23,8 @@ public class ConstantLearner extends WeakLearner {
    * @param a to copy
    */
   public ConstantLearner(ConstantLearner a) {
-    super(a.prefix);
-    this.age = a.age;
+    super(a);
     this.alpha = a.alpha;
-    this.numberOfClasses = a.numberOfClasses;
     if (a.distribution != null) {
       this.distribution = new double[numberOfClasses];
       for (int i = 0; i < numberOfClasses; i++) {

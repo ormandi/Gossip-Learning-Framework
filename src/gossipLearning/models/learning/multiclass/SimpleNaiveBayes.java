@@ -22,6 +22,7 @@ public class SimpleNaiveBayes extends ProbabilityModel {
   protected double[] counts;
   
   public SimpleNaiveBayes(String prefix) {
+    super(0.0);
     mus = null;
     sigmas = null;
     counts = null;

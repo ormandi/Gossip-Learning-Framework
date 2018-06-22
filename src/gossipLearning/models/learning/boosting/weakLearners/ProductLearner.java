@@ -14,19 +14,19 @@ public class ProductLearner extends WeakLearner {
   private static final String PAR_NUMLEARNERS = "ProductLearner.numLearners";
   private static final String PAR_LEARNERNAME = "ProductLearner.learnerName";
   
-  private int numberOfLearners;
+  private final int numberOfLearners;
   
-  private String baseLearnerName;
+  private final String baseLearnerName;
   private WeakLearner[] baseLearners;
   
-  public ProductLearner(String prefix) {
-    super(prefix);
+  public ProductLearner(String prefix, double lambda, long seed) {
+    super(prefix, lambda, seed);
     numberOfLearners = Configuration.getInt(prefix + "." + PAR_NUMLEARNERS);
     baseLearnerName = Configuration.getString(prefix + "." + PAR_LEARNERNAME);
     baseLearners = new WeakLearner[numberOfLearners];
     for (int i = 0; i < numberOfLearners; i++) {
       try {
-        baseLearners[i] = (WeakLearner)Class.forName(baseLearnerName).getConstructor(String.class).newInstance(prefix + ".ProductLearner");
+        baseLearners[i] = (WeakLearner)Class.forName(baseLearnerName).getConstructor(String.class, double.class, long.class).newInstance(prefix + "." + getClass().getSimpleName(), lambda, seed);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -34,8 +34,7 @@ public class ProductLearner extends WeakLearner {
   }
   
   public ProductLearner(ProductLearner a) {
-    super(a.prefix);
-    numberOfClasses = a.numberOfClasses;
+    super(a);
     numberOfLearners = a.numberOfLearners;
     baseLearnerName = a.baseLearnerName;
     if (a.baseLearners != null) {

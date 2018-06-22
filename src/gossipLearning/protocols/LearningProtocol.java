@@ -9,7 +9,6 @@ import gossipLearning.interfaces.protocols.AbstractProtocol;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
-import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
@@ -25,10 +24,13 @@ public class LearningProtocol extends AbstractProtocol {
   protected static final String PAR_ARRGNAME = "aggrName";
   private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
-  private static final String PAR_MODELNAMES = "modelNames";
+  private static final String PAR_LEARNER = "learner";
   private static final String PAR_EVALNAMES = "evalNames";
   private static final String PAR_EVALPROB = "evalProbability";
   protected static final String PAR_MODELPROB = "initModelProbability";
+  
+  private static final String PAR_EPOCH = "epoch";
+  private static final String PAR_BATCH = "batch";
   
   /**
    * Parameter name in the config file.
@@ -47,6 +49,8 @@ public class LearningProtocol extends AbstractProtocol {
   protected ResultAggregator resultAggregator;
   protected final double evaluationProbability;
   protected final double initModelProbability;
+  protected final int epoch;
+  protected final int batch;
   
   protected final int capacity;
   /** @hidden */
@@ -75,11 +79,20 @@ public class LearningProtocol extends AbstractProtocol {
     exrtactorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
     this.capacity = capacity;
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
-    modelNames = Configuration.getString(prefix + "." + PAR_MODELNAMES).split(",");
+    modelNames = Configuration.getNames(prefix + "." + PAR_LEARNER);
     evalNames = Configuration.getString(prefix + "." + PAR_EVALNAMES).split(",");
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
     numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
     initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB, 1.0);
+    epoch = Configuration.getInt(prefix + "." + PAR_EPOCH);
+    batch = Configuration.getInt(prefix + "." + PAR_BATCH);
+    
+    if (epoch < 0) {
+      throw new IllegalArgumentException("Parameter epoch can not be negative: " + epoch);
+    }
+    if (batch < 0) {
+      throw new IllegalArgumentException("Parameter batch can not be negative: " + batch);
+    }
     
     // setting up learning related variables
     numberOfWaits = 0;
@@ -100,7 +113,7 @@ public class LearningProtocol extends AbstractProtocol {
         } catch (NoSuchMethodException e) {
           modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).newInstance();
         }
-        Model model = (Model)Class.forName(modelNames[i]).getConstructor(String.class).newInstance(prefix);
+        Model model = (Model)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
         lastSeenMergeableModels.add(model);
         modelHolders[i].add(model);
       }
@@ -122,6 +135,8 @@ public class LearningProtocol extends AbstractProtocol {
     evaluationProbability = a.evaluationProbability;
     numOfWaitingPeriods = a.numOfWaitingPeriods;
     initModelProbability = a.initModelProbability;
+    epoch = a.epoch;
+    batch = a.batch;
     
     // setting up learning related variables
     numberOfWaits = 0;
@@ -202,7 +217,6 @@ public class LearningProtocol extends AbstractProtocol {
    * Updates the models of the specified model holder and merges them if it is possible.
    * @param modelHolder container of models to update
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void updateModels(ModelHolder modelHolder){
     // get instances from the extraction protocol
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
@@ -216,12 +230,14 @@ public class LearningProtocol extends AbstractProtocol {
         model = (LearningModel)((Mergeable) model).merge(lastSeen);
       }
       // updating the model with the local training samples
+      model.update(instances, epoch, batch);
+      /*
       for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
         // we use each samples for updating the currently processed model
         SparseVector x = instances.getInstance(sampleID);
         double y = instances.getLabel(sampleID);
         model.update(x, y);
-      }
+      }*/
       // stores the updated model
       modelHolders[i].add(model);
     }

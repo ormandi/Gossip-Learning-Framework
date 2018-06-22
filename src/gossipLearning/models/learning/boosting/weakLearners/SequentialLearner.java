@@ -11,22 +11,22 @@ import peersim.config.Configuration;
 public class SequentialLearner extends WeakLearner {
   private static final long serialVersionUID = 6400546153303842520L;
   
-  private static final String PAR_NUMLEARNERS = "SequentialLearner.numLearners";
-  private static final String PAR_LEARNERNAME = "SequentialLearner.learnerName";
+  private static final String PAR_NUMLEARNERS = "numLearners";
+  private static final String PAR_LEARNERNAME = "learnerName";
   
-  private int numberOfLearners;
+  private final int numberOfLearners;
   
-  private String baseLearnerName;
+  private final String baseLearnerName;
   private WeakLearner[] baseLearners;
   
-  public SequentialLearner(String prefix) {
-    super(prefix);
-    numberOfLearners = Configuration.getInt(prefix + "." + PAR_NUMLEARNERS);
-    baseLearnerName = Configuration.getString(prefix + "." + PAR_LEARNERNAME);
+  public SequentialLearner(String prefix, double lambda, long seed) {
+    super(prefix, lambda, seed);
+    numberOfLearners = Configuration.getInt(prefix + "." + getClass().getSimpleName() + "." + PAR_NUMLEARNERS);
+    baseLearnerName = Configuration.getString(prefix + "." + getClass().getSimpleName() + "." + PAR_LEARNERNAME);
     baseLearners = new WeakLearner[numberOfLearners];
     for (int i = 0; i < numberOfLearners; i++) {
       try {
-        baseLearners[i] = (WeakLearner)Class.forName(baseLearnerName).getConstructor(String.class).newInstance(prefix + ".SequentialLearner");
+        baseLearners[i] = (WeakLearner)Class.forName(baseLearnerName).getConstructor(String.class, double.class, long.class).newInstance(prefix + "." + getClass().getSimpleName(), lambda, seed);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -34,8 +34,7 @@ public class SequentialLearner extends WeakLearner {
   }
   
   public SequentialLearner(SequentialLearner a) {
-    super(a.prefix);
-    numberOfClasses = a.numberOfClasses;
+    super(a);
     numberOfLearners = a.numberOfLearners;
     baseLearnerName = a.baseLearnerName;
     if (a.baseLearners != null) {

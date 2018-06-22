@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import peersim.config.Configuration;
-
 /**
  * This class represents a sigmoid based stump learner for solving the problem 
  * of multiple labeled classification. It learns the index of the feature and 
@@ -26,10 +24,7 @@ import peersim.config.Configuration;
 public class SigmoidStumpLearner extends WeakLearner {
   private static final long serialVersionUID = 4026037688835333121L;
   
-  private static final String PAR_LAMBDA = "SigmoidStumpLearner.lambda";
-  
   protected int bestIndex;
-  private double lambda;
   private Random r;
   
   protected Map<Integer, double[]> vs; // sparse for null
@@ -37,22 +32,16 @@ public class SigmoidStumpLearner extends WeakLearner {
   protected Map<Integer, Double> ds; // sparse for 0.0
   protected Map<Integer, Double> edges; // sparse for 0.0
   
-  private long seed;
-  
   private static long c;
   
   /**
    * Constructs an initially learner.
    */
-  public SigmoidStumpLearner(String prefix) {
-    super(prefix);
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    seed = Configuration.getLong("random.seed");
+  public SigmoidStumpLearner(String prefix, double lambda, long seed) {
+    super(prefix, lambda, seed);
     r = new Random(seed | c++);
     age = 1;
     bestIndex = 0;
-    lambda = 0.001;
-    numberOfClasses = 2;
     vs = new HashMap<Integer, double[]>();
     cs = new HashMap<Integer, Double>();
     ds = new HashMap<Integer, Double>();
@@ -64,13 +53,9 @@ public class SigmoidStumpLearner extends WeakLearner {
    * @param a to copy
    */
   private SigmoidStumpLearner(SigmoidStumpLearner a) {
-    super(a.prefix);
-    this.age = a.age;
-    this.lambda = a.lambda;
-    this.numberOfClasses = a.numberOfClasses;
+    super(a);
     this.bestIndex = a.bestIndex;
     this.alpha = a.alpha;
-    this.seed = a.seed;
     r = new Random(seed | c++);
     this.vs = new HashMap<Integer, double[]>();
     this.cs = new HashMap<Integer, Double>();

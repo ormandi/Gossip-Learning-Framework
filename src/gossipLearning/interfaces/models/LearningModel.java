@@ -23,6 +23,8 @@ public interface LearningModel extends Model {
    */
   public void update(InstanceHolder instances);
   
+  public void update(InstanceHolder instances, int epoch, int batchSize);
+  
   /**
    * This method can predict the label or the category of a given evaluation instance.
    * @param instance the features that represent the instance
@@ -37,4 +39,8 @@ public interface LearningModel extends Model {
    * @param numberOfFeatures number of features
    */
   public void setParameters(int numberOfClasses, int numberOfFeatures);
+  
+  public void clear();
+  
+  public void setAge(double age);
 }

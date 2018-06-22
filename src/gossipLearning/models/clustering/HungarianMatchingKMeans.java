@@ -1,6 +1,7 @@
 package gossipLearning.models.clustering;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.HungarianMethod;
 import peersim.config.Configuration;
 
@@ -11,7 +12,7 @@ import peersim.config.Configuration;
  * 
  * @author Arpad Berta
  */
-public class HungarianMatchingKMeans extends KMeans implements Mergeable<HungarianMatchingKMeans> {
+public class HungarianMatchingKMeans extends KMeans implements Mergeable {
 
   private static final long serialVersionUID = 2224933510524588173L;
   private static final String PAR_WSIZE = "HungarianMatchingKMeans.wsize";
@@ -49,19 +50,31 @@ public class HungarianMatchingKMeans extends KMeans implements Mergeable<Hungari
   }
 
   @Override
-  public HungarianMatchingKMeans merge(HungarianMatchingKMeans model) {
-    boolean hasEmptyCentroidInModel = hasEmptyCentroid(model);
+  public Model merge(Model model) {
+    HungarianMatchingKMeans m = (HungarianMatchingKMeans)model;
+    boolean hasEmptyCentroidInModel = hasEmptyCentroid(m);
     boolean hasEmptyCentroidInThis = hasEmptyCentroid(this);
     if (hasEmptyCentroidInThis || hasEmptyCentroidInModel) {
       if (hasEmptyCentroidInThis) {
-        fillEmptyCentroids(model);
+        fillEmptyCentroids(m);
       } // if hasEmptyCentroidInModel is true than do nothing
       return this;
     } else {
       
       HungarianMatchingKMeans mkm= new HungarianMatchingKMeans(this);
-      return crossover(model, mkm);/**/
+      return crossover(m, mkm);/**/
     }
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    // TODO Auto-generated method stub
+    return null;
   }
   
   protected HungarianMatchingKMeans crossover(HungarianMatchingKMeans model, HungarianMatchingKMeans mkm) {

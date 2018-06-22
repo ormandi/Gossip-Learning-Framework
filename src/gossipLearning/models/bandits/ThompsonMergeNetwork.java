@@ -2,11 +2,12 @@ package gossipLearning.models.bandits;
 
 import gossipLearning.controls.bandits.Machine;
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.Utils;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-public class ThompsonMergeNetwork extends Thompson implements Mergeable<ThompsonMergeNetwork> {
+public class ThompsonMergeNetwork extends Thompson implements Mergeable {
   private static final long serialVersionUID = -2950995113604982921L;
   
   private static final String PAR_N = "ThompsonMergeNetwork.N";
@@ -50,10 +51,26 @@ public class ThompsonMergeNetwork extends Thompson implements Mergeable<Thompson
   }
   
   @Override
-  public ThompsonMergeNetwork merge(ThompsonMergeNetwork model) {
+  public Model merge(Model model) {
+    ThompsonMergeNetwork m = (ThompsonMergeNetwork)model;
     for (int i = 0; i < K; i++) {
-      plays[i] = (plays[i] + model.plays[i]) * 0.5;
-      rewards[i] = (rewards[i] + model.rewards[i]) * 0.5;
+      plays[i] = (plays[i] + m.plays[i]) * 0.5;
+      rewards[i] = (rewards[i] + m.rewards[i]) * 0.5;
+    }
+    return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    ThompsonMergeNetwork m = (ThompsonMergeNetwork)model;
+    for (int i = 0; i < K; i++) {
+      plays[i] += m.plays[i] * times;
+      rewards[i] += m.rewards[i] * times;
     }
     return this;
   }

@@ -24,9 +24,6 @@ import peersim.config.Configuration;
  */
 public class OneVsAllMetaClassifier extends ProbabilityModel {
   private static final long serialVersionUID = 1650527797690827114L;
-  /** @hidden */
-  private static final String PAR_BNAME = "OvsA";
-  
   protected ModelHolder classifiers;
   /** @hidden */
   protected String baseLearnerName;
@@ -39,19 +36,9 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
    * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
   public OneVsAllMetaClassifier(String prefix) {
-    this(prefix, PAR_BNAME);
-  }
-  
-  /**
-   * This constructor is for initializing the member variables of the Model. </br>
-   * And special configuration parameters can be set.
-   * 
-   * @param prefix The ID of the parameters contained in the Peersim configuration file.
-   * @param PAR_BNAME the prefix name in the configuration file
-   */
-  protected OneVsAllMetaClassifier(String prefix, String PAR_BNAME) {
-    this.prefix = prefix + "." + PAR_BNAME;
-    baseLearnerName = Configuration.getString(this.prefix + ".modelName");
+    super(0.0);
+    this.prefix = prefix;
+    baseLearnerName = Configuration.getString(prefix + ".model");
   }
   
   /**
@@ -115,7 +102,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < numberOfClasses; i++) {
       try {
         ProbabilityModel model = (ProbabilityModel)Class.forName(baseLearnerName).getConstructor(String.class).newInstance(prefix);
-        model.setParameters(numberOfClasses, numberOfFeatures);
+        model.setParameters(2, numberOfFeatures);
         classifiers.add(model);
       } catch (Exception e) {
         throw new RuntimeException("Exception in class " + getClass().getCanonicalName(), e);
@@ -126,6 +113,15 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
   @Override
   public String toString() {
     return classifiers.toString();
+  }
+  
+  @Override
+  public void clear() {
+    super.clear();
+    for (int i = 0; i < numberOfClasses; i++) {
+      ProbabilityModel model = (ProbabilityModel)classifiers.getModel(i);
+      model.clear();
+    }
   }
 
 }

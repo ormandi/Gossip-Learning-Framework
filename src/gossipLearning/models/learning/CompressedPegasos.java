@@ -7,13 +7,12 @@ import peersim.core.CommonState;
 
 public class CompressedPegasos extends P2Pegasos {
   private static final long serialVersionUID = 970207044267171686L;
-  private static final String PAR_LAMBDA = CompressedPegasos.class.getSimpleName() + ".lambda";
-  private static final String PAR_NBITS = CompressedPegasos.class.getSimpleName() + ".nbits";
+  private static final String PAR_NBITS = "nbits";
   
   protected final int nbits;
 
   public CompressedPegasos(String prefix) {
-    super(prefix, PAR_LAMBDA);
+    super(prefix);
     nbits = Configuration.getInt(prefix + "." + PAR_NBITS);
   }
   

@@ -996,6 +996,10 @@ public class Matrix implements Serializable {
   public int getColumnDimension() {
     return numberOfColumns;
   }
+  
+  public int size() {
+    return numberOfRows * numberOfColumns;
+  }
 
   /**
    * Returns a deep copy of the matrix's row at the specified index.

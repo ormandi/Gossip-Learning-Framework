@@ -10,10 +10,8 @@ import java.util.Random;
 public class PrivateOvsA extends OneVsAllMetaClassifier implements PrivateModel {
   private static final long serialVersionUID = 3977109418245000412L;
 
-  private static final String PAR_BNAME = "PrivateOvsA";
-  
   public PrivateOvsA(String prefix) {
-    super(prefix, PAR_BNAME);
+    super(prefix);
   }
   
   public PrivateOvsA(PrivateOvsA a) {

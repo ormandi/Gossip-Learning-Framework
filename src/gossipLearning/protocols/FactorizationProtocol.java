@@ -100,7 +100,6 @@ public class FactorizationProtocol extends LearningProtocol {
     numberOfIncomingModels = 0;
   }
   
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void updateModels(ModelHolder modelHolder){
     // get instances from the extraction protocol
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();

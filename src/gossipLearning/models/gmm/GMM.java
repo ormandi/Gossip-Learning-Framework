@@ -5,7 +5,7 @@ import gossipLearning.interfaces.models.Model;
 
 import java.util.Random;
 
-public class GMM implements Model, Mergeable<GMM>{
+public class GMM implements Model, Mergeable {
   private static final long serialVersionUID = 5724245405575938223L;
   
   protected GaussModel[] models;
@@ -66,10 +66,11 @@ public class GMM implements Model, Mergeable<GMM>{
   }
   
   @Override
-  public GMM merge(GMM model) {
+  public Model merge(Model model) {
+    GMM m = (GMM)model;
     age = 0.0;
     for (int i = 0; i < k; i++) {
-      models[i].merge(model.models[i]);
+      models[i].merge(m.models[i]);
       age += models[i].age;
       coefs[i] = models[i].age;
     }
@@ -77,6 +78,25 @@ public class GMM implements Model, Mergeable<GMM>{
       coefs[i] = age == 0.0 ? 1.0 / k: coefs[i] / age;
     }
     return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    GMM m = (GMM)model;
+    for (int i = 0; i < k; i++) {
+      models[i].add(m.models[i], times);
+      age += models[i].age;
+      coefs[i] = models[i].age;
+    }
+    for (int i = 0; i < k; i++) {
+      coefs[i] = age == 0.0 ? 1.0 / k: coefs[i] / age;
+    }
+    return null;
   }
   
   @Override

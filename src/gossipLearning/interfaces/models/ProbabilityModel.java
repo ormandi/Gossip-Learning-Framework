@@ -1,9 +1,11 @@
 package gossipLearning.interfaces.models;
 
-import java.util.Arrays;
-
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Arrays;
+
+import peersim.config.Configuration;
 
 
 
@@ -15,12 +17,24 @@ import gossipLearning.utils.SparseVector;
  */
 public abstract class ProbabilityModel implements LearningModel {
   private static final long serialVersionUID = -7154362879969974691L;
+  private static final String PAR_LAMBDA = "lambda";
+  
+  protected final double lambda;
   protected double age;
   protected int numberOfClasses;
   protected int numberOfFeatures;
   protected double[] distribution;
   
-  public ProbabilityModel() {
+  public ProbabilityModel(double lambda) {
+    age = 0.0;
+    numberOfClasses = 0;
+    numberOfFeatures = 0;
+    distribution = null;
+    this.lambda = lambda;
+  }
+  
+  public ProbabilityModel(String prefix) {
+    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     age = 0.0;
     numberOfClasses = 0;
     numberOfFeatures = 0;
@@ -28,6 +42,7 @@ public abstract class ProbabilityModel implements LearningModel {
   }
   
   public ProbabilityModel(ProbabilityModel a) {
+    lambda = a.lambda;
     age = a.age;
     numberOfClasses = a.numberOfClasses;
     numberOfFeatures = a.numberOfFeatures;
@@ -65,9 +80,36 @@ public abstract class ProbabilityModel implements LearningModel {
     return maxLabelIndex;
   }
   
+  @Override
   public void update(InstanceHolder instances) {
     for (int i = 0; i < instances.size(); i++) {
       update(instances.getInstance(i), instances.getLabel(i));
+    }
+  }
+  
+  @Override
+  public final void update(InstanceHolder instances, int epoch, int batchSize) {
+    if (batchSize == 0 || instances.size() <= batchSize) {
+      // full batch update
+      for (int e = 0; e < epoch; e++) {
+        update(instances);
+      }
+    } else {
+      // mini-batch/SGD update
+      InstanceHolder batch = new InstanceHolder(instances.getNumberOfClasses(), instances.getNumberOfFeatures());
+      for (int e = 0; e < epoch; e++) {
+        for (int i = 0; i < instances.size(); i++) {
+          batch.add(instances.getInstance(i), instances.getLabel(i));
+          if (0 < batchSize && batch.size() % batchSize == 0) {
+            update(batch);
+            batch.clear();
+          }
+        }
+      }
+      if (0 < batch.size()) {
+        update(batch);
+        batch.clear();
+      }
     }
   }
   
@@ -77,9 +119,27 @@ public abstract class ProbabilityModel implements LearningModel {
   }
   
   @Override
+  public final void setAge(double age) {
+    this.age = age;
+  }
+  
+  @Override
   public void setParameters(int numberOfClasses, int numberOfFeatures) {
     this.numberOfClasses = numberOfClasses;
     this.numberOfFeatures = numberOfFeatures;
     distribution = new double[numberOfClasses];
+  }
+  
+  @Override
+  public void clear() {
+    age = 0.0;
+    for (int i = 0; i < numberOfClasses; i++) {
+      distribution[i] = 0.0;
+    }
+  }
+  
+  @Override
+  public String toString() {
+    return "age: " + age;
   }
 }

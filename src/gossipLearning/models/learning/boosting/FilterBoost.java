@@ -29,10 +29,11 @@ import peersim.config.Configuration;
 public class FilterBoost extends ProbabilityModel {
   private static final long serialVersionUID = 1654351368769565L;
   
-  private static final String PAR_T = "FilterBoost.T";
-  private static final String PAR_C = "FilterBoost.C";
-  private static final String PAR_USECACHE = "FilterBoost.useCache";
-  private static final String PAR_WEAKLEARNERNAME = "FilterBoost.weakLearnerName";
+  private static final String PAR_T = "T";
+  private static final String PAR_C = "C";
+  private static final String PAR_USECACHE = "useCache";
+  private static final String PAR_WEAKLEARNERNAME = "weakLearnerName";
+  private static final String PAR_SEED = "seed";
   
   private String weakLearnerClassName;
   private WeakLearner actualWeakLearner;
@@ -44,6 +45,7 @@ public class FilterBoost extends ProbabilityModel {
   protected int T = 1;
   private int C = 1;
   private boolean useCache;
+  private final long seed;
   
   /**
    * The number of stored weak learners.
@@ -64,7 +66,9 @@ public class FilterBoost extends ProbabilityModel {
    * @NOTE: Object is not usable until calling init(String prefix) function!
    */
   public FilterBoost(String prefix) {
+    super(prefix);
     this.prefix = prefix;
+    seed = Configuration.getLong(prefix + "." + PAR_SEED);
     T = Configuration.getInt(prefix + "." + PAR_T);
     C = Configuration.getInt(prefix + "." + PAR_C);
     useCache = Configuration.getBoolean(prefix + "." + PAR_USECACHE);
@@ -80,6 +84,7 @@ public class FilterBoost extends ProbabilityModel {
    * @param a to copy
    */
   protected FilterBoost(FilterBoost a) {
+    super(a);
     this.T = a.T;
     this.C = a.C;
     this.t = a.t;
@@ -87,8 +92,9 @@ public class FilterBoost extends ProbabilityModel {
     this.ct = a.ct;
     this.prefix = a.prefix;
     this.useCache = a.useCache;
-    this.numberOfClasses = a.numberOfClasses;
-    this.numberOfFeatures = a.numberOfFeatures;
+    this.seed = a.seed;
+    //this.numberOfClasses = a.numberOfClasses;
+    //this.numberOfFeatures = a.numberOfFeatures;
     this.weakLearnerClassName = a.weakLearnerClassName;
     if (a.actualWeakLearner != null) {
       this.actualWeakLearner = (WeakLearner)a.actualWeakLearner.clone();
@@ -146,9 +152,9 @@ public class FilterBoost extends ProbabilityModel {
       weakWeights = 0.0;
       constantWeights = 0.0;
       try {
-        actualWeakLearner = (WeakLearner)Class.forName(weakLearnerClassName).getConstructor(String.class).newInstance(prefix + ".FilterBoost");
+        actualWeakLearner = (WeakLearner)Class.forName(weakLearnerClassName).getConstructor(String.class, double.class, long.class).newInstance(prefix, lambda, seed);
         actualWeakLearner.setParameters(numberOfClasses, numberOfFeatures);
-        constantWeakLearner = new ConstantLearner(prefix + ".FilterBoost");
+        constantWeakLearner = new ConstantLearner(prefix, lambda, seed);
         constantWeakLearner.setParameters(numberOfClasses, numberOfFeatures);
       } catch (Exception e) {
         e.printStackTrace();

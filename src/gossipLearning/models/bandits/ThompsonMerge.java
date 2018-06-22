@@ -2,10 +2,11 @@ package gossipLearning.models.bandits;
 
 import gossipLearning.controls.bandits.Machine;
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.Utils;
 import peersim.core.CommonState;
 
-public class ThompsonMerge extends Thompson implements Mergeable<ThompsonMerge> {
+public class ThompsonMerge extends Thompson implements Mergeable {
   private static final long serialVersionUID = -6683877819716369178L;
 
   public ThompsonMerge(String prefix) {
@@ -41,13 +42,29 @@ public class ThompsonMerge extends Thompson implements Mergeable<ThompsonMerge> 
   }
   
   @Override
-  public ThompsonMerge merge(ThompsonMerge model) {
+  public Model merge(Model model) {
+    ThompsonMerge m = (ThompsonMerge)model;
     if (age == 0) return this;
     for (int i = 0; i < K; i++) {
       //plays[i] = (plays[i] + model.plays[i]) / (1.0);// - 1.0/age);
       //rewards[i] = (rewards[i] + model.rewards[i]) / (1.0);// - 1.0/age);
-      plays[i] = (plays[i] + model.plays[i]) * 0.5;
-      rewards[i] = (rewards[i] + model.rewards[i]) * 0.5;
+      plays[i] = (plays[i] + m.plays[i]) * 0.5;
+      rewards[i] = (rewards[i] + m.rewards[i]) * 0.5;
+    }
+    return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    ThompsonMerge m = (ThompsonMerge)model;
+    for (int i = 0; i < K; i++) {
+      plays[i] += m.plays[i] * times;
+      rewards[i] += m.rewards[i] * times;
     }
     return this;
   }

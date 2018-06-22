@@ -37,12 +37,6 @@ public class SlimLowRank extends MergeableLowRank {
   }
   
   @Override
-  public SlimLowRank merge(MergeableLowRank model) {
-    super.merge(model);
-    return this;
-  }
-  
-  @Override
   public SlimLowRank getModelPart() {
     return this;
     /*

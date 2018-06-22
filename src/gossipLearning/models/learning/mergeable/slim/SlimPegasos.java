@@ -1,22 +1,24 @@
 package gossipLearning.models.learning.mergeable.slim;
 
 import gossipLearning.models.learning.mergeable.MergeablePegasos;
-import gossipLearning.utils.VectorEntry;
+
+import java.util.Random;
+
 import peersim.config.Configuration;
-import peersim.core.CommonState;
+import peersim.util.WeightedRandPerm;
 
 public class SlimPegasos extends MergeablePegasos {
   private static final long serialVersionUID = 6849809999453437967L;
   
-  /** @hidden */
-  protected static final String PAR_LAMBDA = "SlimPegasos.lambda";
-  protected static final String PAR_SIZE = "SlimPegasos.size";
+  protected static final String PAR_SIZE = "size";
   
   protected final int modelSize;
+  protected final Random r;
   
   public SlimPegasos(String prefix){
-    super(prefix, PAR_LAMBDA);
+    super(prefix);
     modelSize = Configuration.getInt(prefix + "." + PAR_SIZE);
+    r = new Random(0);
   }
   
   /**
@@ -27,77 +29,32 @@ public class SlimPegasos extends MergeablePegasos {
   protected SlimPegasos(SlimPegasos a){
     super(a);
     modelSize = a.modelSize;
+    r = a.r;
   }
   
   public Object clone(){
     return new SlimPegasos(this);
   }
   
-  /**
-   * In linear case the merge is the averaging of the vectors.
-   */
-  @Override
-  public SlimPegasos merge(MergeablePegasos model) {
-    super.merge(model);
-    return this;
-  }
-  
-  /*@Override
-  public void update(InstanceHolder instances) {
-    int idx = CommonState.r.nextInt(instances.size());
-    SparseVector instance = instances.getInstance(idx);
-    double label = instances.getLabel(idx);
-    super.update(instance, label);
-  }*/
-
   @Override
   public SlimPegasos getModelPart() {
-    double prob;
-    double sum = gradient.norm1();
     SlimPegasos result = new SlimPegasos(this);
     result.w.clear();
-    for (VectorEntry e : gradient) {
-      // proportional
-      prob = Math.abs(e.value) / sum;
-      // uniform
-      //prob = 1.0 / numberOfFeatures;
-      prob = Math.exp(modelSize * Math.log(1.0 - prob));
-      prob = 1.0 - prob;
-      if (CommonState.r.nextDouble() <= prob) {
-        result.w.add(e.index, w.get(e.index));
-      }
+    if (gradient.size() == 0) {
+      return result;
     }
-    
-    /*double sum = gradient.norm1();
-    //double sum = gradient.size();
-    double[] probs = new double[modelSize];
-    for (int i = 0; i < probs.length; i++) {
-      probs[i] = CommonState.r.nextDouble() * sum;
+    double[] weights = new double[gradient.size()];
+    for (int i = 0; i < gradient.size(); i++) {
+      weights[i] = modelSize < 0 ? 1.0 : Math.abs(gradient.valueAt(i));
     }
-    Arrays.sort(probs);
-    sum = 0.0;
-    int idx = 0;
-    
-    SlimPegasos result = new SlimPegasos(this);
-    result.w.clear();
-    
-    for (VectorEntry e : gradient) {
-      sum += Math.abs(e.value);
-      //sum += 1.0;
-      if (probs[idx] <= sum) {
-        result.w.add(e.index, this.w.get(e.index));
-      }
-      while (idx < probs.length && probs[idx] <= sum) {
-        idx ++;
-      }
-      if (probs.length <= idx) {
-        break;
-      }
-    }*/
-    //SparseVector w = new SparseVector(probs.length);
-    /*for (int index : indices) {
-      w.add(index, this.w.get(index));
-    }*/
+    WeightedRandPerm rp = new WeightedRandPerm(r, weights);
+    rp.reset(gradient.size());
+    int iter = Math.abs(modelSize);
+    while (0 < iter && rp.hasNext()) {
+      iter --;
+      int idx = gradient.indexAt(rp.next());
+      result.w.add(idx, w.get(idx));
+    }
     return result;
   }
 

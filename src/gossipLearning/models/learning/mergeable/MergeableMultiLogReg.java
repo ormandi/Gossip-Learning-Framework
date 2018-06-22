@@ -1,6 +1,7 @@
 package gossipLearning.models.learning.mergeable;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.MultiLogReg;
 import gossipLearning.utils.VectorEntry;
@@ -15,21 +16,14 @@ import gossipLearning.utils.VectorEntry;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<MergeableMultiLogReg>, Partializable {
+public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Partializable {
   private static final long serialVersionUID = -7800995106591726828L;
 
-  /** @hidden */
-  protected static final String PAR_LAMBDA = "MergeableMultiLogReg.lambda";
-  
   /**
    * Default constructor that calls the super();
    */
   public MergeableMultiLogReg(String prefix) {
-    super(prefix, PAR_LAMBDA);
-  }
-  
-  public MergeableMultiLogReg(String prefix, String PAR_LAMBDA) {
-    super(prefix, PAR_LAMBDA);
+    super(prefix);
   }
   
   /**
@@ -45,19 +39,37 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable<Merge
   }
   
   @Override
-  public MergeableMultiLogReg merge(MergeableMultiLogReg model) {
-    double sum = age + model.age;
+  public Model merge(Model model) {
+    MergeableMultiLogReg m = (MergeableMultiLogReg)model;
+    double sum = age + m.age;
     if (sum == 0) {
       return this;
     }
-    double modelWeight = model.age / sum;
-    age = Math.max(age, model.age);
+    double modelWeight = m.age / sum;
+    age = Math.max(age, m.age);
     for (int i = 0; i < numberOfClasses -1; i++) {
-      for (VectorEntry e : model.w[i]) {
+      for (VectorEntry e : m.w[i]) {
         double value = w[i].get(e.index);
-        w[i].add(e.index, (e.value - value) * modelWeight);
+        //w[i].add(e.index, (e.value - value) * modelWeight);
+        w[i].add(e.index, (e.value - value) * (value == 0 ? 1.0 : modelWeight));
       }
-      bias[i] += (model.bias[i] - bias[i]) * modelWeight;
+      bias[i] += (m.bias[i] - bias[i]) * modelWeight;
+    }
+    return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    MergeableMultiLogReg m = (MergeableMultiLogReg)model;
+    age += m.age * times;
+    for (int i = 0; i < numberOfClasses -1; i++) {
+      w[i].add(m.w[i], times);
+      bias[i] += m.bias[i] * times;
     }
     return this;
   }

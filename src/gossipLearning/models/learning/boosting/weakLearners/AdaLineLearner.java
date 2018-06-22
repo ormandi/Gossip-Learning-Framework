@@ -6,36 +6,22 @@ import gossipLearning.utils.Utils;
 
 import java.util.Random;
 
-import peersim.config.Configuration;
-
 public class AdaLineLearner extends WeakLearner {
   private static final long serialVersionUID = -1540156152482197419L;
   
-  private static final String PAR_LAMBDA = "AdaLineLearner.lambda";
-  
   private SparseVector w;
   private double[] v;
-  private double lambda;
   private Random r;
-  private long seed;
-  
   private static long c;
 
-  public AdaLineLearner(String prefix) {
-    super(prefix);
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    seed = Configuration.getLong("random.seed");
+  public AdaLineLearner(String prefix, double lambda, long seed) {
+    super(prefix, lambda, seed);
     r = new Random(seed | c++);
     w = new SparseVector();
-    age = 0.0;
   }
   
   public AdaLineLearner(AdaLineLearner a) {
-    super(a.prefix);
-    numberOfClasses = a.numberOfClasses;
-    age = a.age;
-    lambda = a.lambda;
-    this.seed = a.seed;
+    super(a);
     r = new Random(seed | c++);
     w = (SparseVector)a.w.clone();
     v = new double[numberOfClasses];

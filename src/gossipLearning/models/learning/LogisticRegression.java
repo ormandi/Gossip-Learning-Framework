@@ -1,10 +1,8 @@
 package gossipLearning.models.learning;
 
-import gossipLearning.interfaces.models.ProbabilityModel;
-import gossipLearning.interfaces.models.SimilarityComputable;
+import gossipLearning.interfaces.models.LinearModel;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-import peersim.config.Configuration;
 
 /**
  * This class represents the logistic regression classifier. Using a Map<Integer,Double> 
@@ -17,19 +15,8 @@ import peersim.config.Configuration;
  * </ul>
  * @author István Hegedűs
  */
-public class LogisticRegression extends ProbabilityModel implements SimilarityComputable<LogisticRegression> {
+public class LogisticRegression extends LinearModel {
   private static final long serialVersionUID = -6445114719685631031L;
-  
-  /** @hidden */
-  private static final String PAR_LAMBDA = "LogisticRegression.lambda";
-  protected final double lambda;
-  
-  /** @hidden */
-  protected SparseVector w;
-  protected double bias;
-  protected SparseVector gradient;
-  protected double biasGradient;
-  
   
   /**
    * This constructor is for initializing the member variables of the Model.
@@ -37,22 +24,11 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
   public LogisticRegression(String prefix){
-    this(prefix, PAR_LAMBDA);
+    super(prefix);
   }
   
-  /**
-   * This constructor is for initializing the member variables of the Model. </br>
-   * And special configuration parameters can be set.
-   * 
-   * @param prefix The ID of the parameters contained in the Peersim configuration file.
-   * @param PAR_LAMBDA learning rate configuration string
-   */
-  protected LogisticRegression(String prefix, String PAR_LAMBDA) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
-    w = new SparseVector();
-    bias = 0.0;
-    gradient = new SparseVector();
-    biasGradient = 0.0;
+  public LogisticRegression(double lambda) {
+    super(lambda);
   }
   
   /**
@@ -62,11 +38,6 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
    */
   protected LogisticRegression(LogisticRegression a){
     super(a);
-    lambda = a.lambda;
-    w = (SparseVector)a.w.clone();
-    bias = a.bias;
-    gradient = (SparseVector)a.gradient.clone();
-    biasGradient = a.biasGradient;
   }
   
   /**
@@ -76,26 +47,6 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
     return new LogisticRegression(this);
   }
 
-  @Override
-  public void update(SparseVector instance, double label) {
-    age ++;
-    double nu = 1.0 / (lambda * age);
-    
-    gradient(instance, label);
-    w.add(gradient, - nu);
-    bias -= nu * biasGradient;
-    
-  }
-  
-  public void update(InstanceHolder instances) {
-    age += instances.size();
-    double nu = 1.0 / (lambda * age);
-    
-    gradient(instances);
-    w.add(gradient, - nu);
-    bias -= nu * biasGradient;
-  }
-  
   protected void gradient(SparseVector instance, double label) {
     double prob = getPositiveProbability(instance);
     double err = label - prob;
@@ -133,16 +84,6 @@ public class LogisticRegression extends ProbabilityModel implements SimilarityCo
     distribution[1] = getPositiveProbability(instance);
     distribution[0] = 1.0 - distribution[1];
     return distribution;
-  }
-
-  @Override
-  public double computeSimilarity(LogisticRegression model) {
-    return w.cosSim(model.w);
-  }
-  
-  @Override
-  public String toString() {
-    return bias + "\t" + w.toString();
   }
 
 }

@@ -5,6 +5,7 @@ import gossipLearning.protocols.LearningProtocol;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
+import gossipLearning.utils.SparseVector;
 
 import java.io.File;
 
@@ -44,7 +45,7 @@ public class InstanceLoader implements Control {
   private static final String PAR_READERCLASS = "readerClass";
   private static final String PAR_TFILE = "trainingFile";
   private static final String PAR_EFILE = "evaluationFile";
-  private static final String PAR_SIZE = "samplesPerNode";
+  private static final String PAR_NORMALIZATION = "normalization";
   private static final String PAR_PRINTPRECISION = "printPrecision";
   private static final String PAR_ISPRINTAGES = "isPrintAges";
   
@@ -60,7 +61,7 @@ public class InstanceLoader implements Control {
   /** @hidden */
   protected final File eFile;
   /** Specifies the number of training samples per node.*/
-  protected final int samplesPerNode;
+  protected final int normalization;
     
   /**
    * Reads the parameters from the configuration file based on the specified prefix.
@@ -75,36 +76,45 @@ public class InstanceLoader implements Control {
     }
     tFile = new File(Configuration.getString(prefix + "." + PAR_TFILE));
     eFile = new File(Configuration.getString(prefix + "." + PAR_EFILE));
-    samplesPerNode = Configuration.getInt(prefix + "." + PAR_SIZE);
     readerClassName = Configuration.getString(prefix + "." + PAR_READERCLASS);
     AggregationResult.printPrecision = Configuration.getInt(prefix + "." + PAR_PRINTPRECISION);
     AggregationResult.isPrintAges = Configuration.getBoolean(prefix + "." + PAR_ISPRINTAGES, false);
+    normalization = Configuration.getInt(prefix + "." + PAR_NORMALIZATION, 0);
   }
   
   public boolean execute(){
     try {
       // read instances
       reader = DataBaseReader.createDataBaseReader(readerClassName, tFile, eFile);
+      if (normalization == 1) {
+        reader.normalize();
+      } else if (normalization == 2) {
+        reader.standardize();
+      }
       
       // init the nodes by adding the instances read before
-      int numOfSamples = reader.getTrainingSet().size();
-      for (int i = 0; i < Network.size(); i++) {
-        Node node = Network.get(i);
+      for (int i = 0; i < reader.getTrainingSet().size(); i++) {
+        SparseVector instance = reader.getTrainingSet().getInstance(i);
+        double label = reader.getTrainingSet().getLabel(i);
+        int nodeIdx = i % Network.size();
+        Node node = Network.get(nodeIdx);
         Protocol protocol = node.getProtocol(pidE);
         if (protocol instanceof ExtractionProtocol) {
           ExtractionProtocol extractionProtocol = (ExtractionProtocol) protocol;
-          InstanceHolder instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
-          for (int j = 0; j < samplesPerNode; j++){
-            instances.add(reader.getTrainingSet().getInstance((i * samplesPerNode + j) % numOfSamples), reader.getTrainingSet().getLabel((i * samplesPerNode + j) % numOfSamples));
+          InstanceHolder instances = extractionProtocol.getInstanceHolder();
+          if (instances == null) {
+             instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
+             extractionProtocol.setInstanceHolder(instances);
           }
-          
-          // set the instances for current node
-          extractionProtocol.setInstanceHolder(instances);
+          instances.add(instance, label);
         } else {
           throw new RuntimeException("The protocol " + pidE + " has to implement the ExtractionProtocol interface!");
         }
-        
-        // sets the number of classes for the learning protocols and the evaluation set for the evaluator.
+      }
+      // sets the number of classes for the learning protocols and the evaluation set for the evaluator.
+      for (int i = 0; i < Network.size(); i++) {
+        Node node = Network.get(i);
+        Protocol protocol = node.getProtocol(pidE);
         for (int j = 0; j < pidLS.length; j++) {
           protocol = node.getProtocol(pidLS[j]);
           if (protocol instanceof LearningProtocol) {

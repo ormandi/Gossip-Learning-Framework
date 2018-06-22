@@ -2,6 +2,7 @@ package gossipLearning.models.bandits;
 
 import gossipLearning.controls.bandits.Machine;
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.Utils;
 
 import java.util.Arrays;
@@ -11,7 +12,7 @@ import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
 
-public class EGreedyMerge extends BanditModel implements Mergeable<EGreedyMerge> {
+public class EGreedyMerge extends BanditModel implements Mergeable {
   private static final long serialVersionUID = -7737703030675783241L;
   private static final String PAR_C = "EGreedyMerge.c";
   private static final String PAR_D = "EGreedyMerge.d";
@@ -151,7 +152,8 @@ public class EGreedyMerge extends BanditModel implements Mergeable<EGreedyMerge>
   }
 
   @Override
-  public EGreedyMerge merge(EGreedyMerge m) {
+  public Model merge(Model model) {
+    EGreedyMerge m = (EGreedyMerge)model;
     addAndSetTo0(s, m.s);
     addAndSetTo0(w, m.w);
     addAndSetTo0(r, m.r);
@@ -167,6 +169,17 @@ public class EGreedyMerge extends BanditModel implements Mergeable<EGreedyMerge>
       g[i] /= 2.0;
     }
     return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

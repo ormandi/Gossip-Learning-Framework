@@ -23,7 +23,7 @@ import peersim.core.CommonState;
  * </ul>
  * @author István Hegedűs
  */
-public class SelfAdaptiveModel implements ErrorEstimatorModel {
+public class SelfAdaptiveModel  implements ErrorEstimatorModel {
   private static final long serialVersionUID = 3943356691729519672L;
   private static final String PAR_MODELNAME = "SelfAdaptiveModel.model";
   private static final double mu = 8.0;
@@ -145,6 +145,13 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
       update(instances.getInstance(i), instances.getLabel(i));
     }
   }
+  
+  @Override
+  public void update(InstanceHolder instances, int epoch, int batchSize) {
+    for (int i = 0; i < epoch; i++) {
+      update(instances);
+    }
+  }
 
   @Override
   public double predict(SparseVector instance) {
@@ -157,6 +164,16 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
     this.numberOfFeatures = numberOfFeatures;
     model.setParameters(numberOfClasses, numberOfFeatures);
   }
+  
+  @Override
+  public void clear() {
+    maximalAge = Utils.nextLogNormal(mu, sigma, CommonState.r);
+    model.clear();
+    age = 2.0;
+    meanError = 0.5;
+    sqMeanError = 0.5;
+    confidence = 0.0;
+  }
 
   /**
    * Returns the estimated error plus the confidence.
@@ -168,6 +185,11 @@ public class SelfAdaptiveModel implements ErrorEstimatorModel {
   @Override
   public double getAge() {
     return age;
+  }
+  
+  @Override
+  public void setAge(double age) {
+    this.age = age;
   }
   
   public String toString() {

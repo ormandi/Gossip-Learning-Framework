@@ -2,9 +2,10 @@ package gossipLearning.models.bandits;
 
 import gossipLearning.controls.bandits.Machine;
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import peersim.core.Network;
 
-public class UCBMerge extends UCB implements Mergeable<UCBMerge> {
+public class UCBMerge extends UCB implements Mergeable {
   private static final long serialVersionUID = 2840791660561009595L;
   
   public UCBMerge(String prefix) {
@@ -23,9 +24,10 @@ public class UCBMerge extends UCB implements Mergeable<UCBMerge> {
   }
 
   @Override
-  public UCBMerge merge(UCBMerge model) {
-    if (model.sumPlays == 0.0) {
-      model.initArms();
+  public Model merge(Model model) {
+    UCBMerge m = (UCBMerge)model;
+    if (m.sumPlays == 0.0) {
+      m.initArms();
     }
     // play the best arm and merge models
     int I = bestArmIdx();
@@ -34,23 +36,34 @@ public class UCBMerge extends UCB implements Mergeable<UCBMerge> {
     double alpha = 1.0 - (1.0 / N);
     for (int i = 0; i < K; i++) {
       if (i == I) {
-        rewards[i] += model.rewards[i] + xi;
-        plays[i] += model.plays[i] + 1;
-        sumPlays += model.plays[i] + 1;
+        rewards[i] += m.rewards[i] + xi;
+        plays[i] += m.plays[i] + 1;
+        sumPlays += m.plays[i] + 1;
         
-        model.rewards[i] += xi;
-        model.sumPlays += (model.plays[i] + 1) * alpha - model.plays[i];
-        model.plays[i] = (model.plays[i] + 1) * alpha;
+        m.rewards[i] += xi;
+        m.sumPlays += (m.plays[i] + 1) * alpha - m.plays[i];
+        m.plays[i] = (m.plays[i] + 1) * alpha;
       } else {
-        rewards[i] += model.rewards[i];
-        plays[i] += model.plays[i];
-        sumPlays += model.plays[i];
+        rewards[i] += m.rewards[i];
+        plays[i] += m.plays[i];
+        sumPlays += m.plays[i];
         
-        model.sumPlays += model.plays[i] * alpha - model.plays[i];
-        model.plays[i] *= alpha;
+        m.sumPlays += m.plays[i] * alpha - m.plays[i];
+        m.plays[i] *= alpha;
       }
     }
     return model;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

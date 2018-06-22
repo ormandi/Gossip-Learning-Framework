@@ -11,13 +11,10 @@ import java.util.Random;
 public class PrivateMultiLogreg extends MultiLogReg implements PrivateModel {
   private static final long serialVersionUID = -8947684933095643280L;
   
-  /** @hidden */
-  protected static final String PAR_LAMBDA = "PrivateMultiLogreg.lambda";
-  
   protected double[] noise;
   
   public PrivateMultiLogreg(String prefix) {
-    super(prefix, PAR_LAMBDA);
+    super(prefix);
   }
   
   public PrivateMultiLogreg(PrivateMultiLogreg a) {

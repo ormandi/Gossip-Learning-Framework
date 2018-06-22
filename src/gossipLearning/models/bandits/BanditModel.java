@@ -76,12 +76,35 @@ public abstract class BanditModel implements LearningModel {
     }
   }
   
+  @Override
+  public void update(InstanceHolder instances, int epoch, int batchSize) {
+    for (int i = 0; i < epoch; i++) {
+      update(instances);
+    }
+  }
+  
+  @Override
+  public void clear() {
+    age = 0.0;
+    sumPlays = 0.0;
+    sumRewards = 0.0;
+    for (int i = 0; i < plays.length; i++) {
+      plays[i] = 0.0;
+      rewards[i] = 0.0;
+    }
+  }
+  
   public final double predict(SparseVector instance) {
     return 0.0;
   }
   
   public final double getAge() {
     return age;
+  }
+  
+  @Override
+  public final void setAge(double age) {
+    this.age = age;
   }
   
   @Override

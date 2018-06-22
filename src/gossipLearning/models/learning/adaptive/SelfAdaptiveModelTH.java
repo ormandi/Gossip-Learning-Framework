@@ -122,6 +122,13 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
     }
   }
   
+  @Override
+  public void update(InstanceHolder instances, int epoch, int batchSize) {
+    for (int i = 0; i < epoch; i++) {
+      update(instances);
+    }
+  }
+
   private double error;
   private double[] errors;
   private double[] ab;
@@ -175,6 +182,17 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
     this.numberOfFeatures = numberOfFeatures;
     model.setParameters(numberOfClasses, numberOfFeatures);
   }
+  
+  @Override
+  public void clear() {
+    model.clear();
+    isNewModel = true;
+    age = 0.0;
+    error = 0.0;
+    errors = null;
+    ab = null;
+    history.clear();
+  }
 
   /**
    * Returns true if the model is restarted.
@@ -210,6 +228,11 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
   @Override
   public double getAge() {
     return age;
+  }
+  
+  @Override
+  public void setAge(double age) {
+    this.age = age;
   }
 
 }

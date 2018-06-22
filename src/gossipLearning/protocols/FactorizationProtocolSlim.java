@@ -110,7 +110,6 @@ public class FactorizationProtocolSlim extends LearningProtocol {
     numberOfIncomingModels = 0;
   }
   
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   protected void updateModels(ModelHolder modelHolder){
     //numIncomingModels ++;
     //System.out.println("RECV:" + currentNode.getID());

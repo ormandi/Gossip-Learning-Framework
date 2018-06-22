@@ -6,7 +6,7 @@ import gossipLearning.utils.Utils;
 
 import java.util.Random;
 
-public class GaussModel implements Model, Mergeable<GaussModel>{
+public class GaussModel implements Model, Mergeable {
   private static final long serialVersionUID = -37608538566714846L;
   
   protected double mean;
@@ -41,15 +41,30 @@ public class GaussModel implements Model, Mergeable<GaussModel>{
   }
   
   @Override
-  public GaussModel merge(GaussModel model) {
-    double sum = age + model.age;
+  public Model merge(Model model) {
+    GaussModel m = (GaussModel)model;
+    double sum = age + m.age;
     if (sum == 0) {
       return this;
     }
-    double modelWeight = model.age / sum;
-    age += (model.age - age) * modelWeight;
-    mean += (model.mean - mean) * modelWeight;
-    mean2 += (model.mean2 - mean2) * modelWeight;
+    double modelWeight = m.age / sum;
+    age += (m.age - age) * modelWeight;
+    mean += (m.mean - mean) * modelWeight;
+    mean2 += (m.mean2 - mean2) * modelWeight;
+    return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    GaussModel m = (GaussModel)model;
+    age += m.age * times;
+    mean += m.mean * times;
+    mean2 += m.mean2 * times;
     return this;
   }
 
@@ -79,6 +94,14 @@ public class GaussModel implements Model, Mergeable<GaussModel>{
     double sigma = getSigma();
     double z = (x - mean) / sigma;
     return Math.exp(-z*z / 2.0) / (Utils.SQRT2PI * sigma);
+  }
+  
+  public double logpdf(double x) {
+    double sigma = getSigma();
+    double z = (x - mean) / sigma;
+    double frac = -Math.log(Utils.SQRT2PI * sigma);
+    double pow = (-z * z) / 2.0;
+    return frac + pow;
   }
   
   public String toString() {

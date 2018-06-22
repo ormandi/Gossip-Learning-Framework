@@ -1,9 +1,10 @@
 package gossipLearning.models.factorization;
 
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.SparseVector;
 
-public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableRecSys> {
+public class MergeableRecSys extends RecSysModel implements Mergeable {
   private static final long serialVersionUID = 2481904642423040181L;
   private static final String PAR_DIMENSION = "MergeableRecSys.dimension";
   private static final String PAR_NUMITEMS = "MergeableRecSys.numItems";
@@ -30,17 +31,18 @@ public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableR
   }
   
   @Override
-  public MergeableRecSys merge(MergeableRecSys model) {
-    double sum = age + model.age;
+  public Model merge(Model model) {
+    MergeableRecSys m = (MergeableRecSys)model;
+    double sum = age + m.age;
     double w = age / (sum == 0 ? 1 : sum);
-    double mw = model.age / (sum == 0 ? 1 : sum);
-    age = (age + model.age) / 2.0;
-    if (age + 60 < model.age) {
+    double mw = m.age / (sum == 0 ? 1 : sum);
+    age = (age + m.age) / 2.0;
+    if (age + 60 < m.age) {
       w = 0.0;
       mw = 1.0;
-      age = model.age;
+      age = m.age;
     }
-    if (model.age + 60 < age) {
+    if (m.age + 60 < age) {
       w = 1.0;
       mw = 0.0;
     }
@@ -49,12 +51,34 @@ public class MergeableRecSys extends RecSysModel implements Mergeable<MergeableR
       // merge by averaging
       //SparseVector v = columnModels.get(e.getKey());
       SparseVector v = columnModels[i];
-      if (model.columnModels[i] != null) {
+      if (m.columnModels[i] != null) {
         if (v == null) {
-          columnModels[i] = (SparseVector)model.columnModels[i].clone();
+          columnModels[i] = (SparseVector)m.columnModels[i].clone();
         } else {
           //v.mul(0.5).add(model.columnModels[i], 0.5);
-          v.mul(w).add(model.columnModels[i], mw);
+          v.mul(w).add(m.columnModels[i], mw);
+        }
+      }
+    }
+    return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    MergeableRecSys m = (MergeableRecSys)model;
+    for (int i = 0; i < origDimension; i++) {
+      SparseVector v = columnModels[i];
+      if (m.columnModels[i] != null) {
+        if (v == null) {
+          columnModels[i] = (SparseVector)m.columnModels[i].clone();
+        } else {
+          //v.mul(0.5).add(model.columnModels[i], 0.5);
+          v.add(m.columnModels[i], times);
         }
       }
     }

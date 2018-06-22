@@ -1,11 +1,10 @@
 package gossipLearning.models.learning.multiclass;
 
-import java.util.Arrays;
-
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-import peersim.config.Configuration;
+
+import java.util.Arrays;
 
 /**
  * This class represents the multi-class logistic regression classifier. 
@@ -22,13 +21,6 @@ import peersim.config.Configuration;
  */
 public class MultiLogReg extends ProbabilityModel {
   private static final long serialVersionUID = -3918448404565337980L;
-  
-  /** @hidden */
-  protected static final String PAR_LAMBDA = "MultiLogReg.lambda";
-  /**
-   * Learning parameter.
-   */
-  protected final double lambda;
   
   /**
    * The hyperplanes of the model.
@@ -49,18 +41,7 @@ public class MultiLogReg extends ProbabilityModel {
    * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
   public MultiLogReg(String prefix) {
-    this(prefix, PAR_LAMBDA);
-  }
-  
-  /**
-   * This constructor is for initializing the member variables of the Model. </br>
-   * And special configuration parameters can be set.
-   * 
-   * @param prefix The ID of the parameters contained in the Peersim configuration file.
-   * @param PAR_LAMBDA learning rate configuration string
-   */
-  protected MultiLogReg(String prefix, String PAR_LAMBDA) {
-    lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    super(prefix);
   }
   
   /**
@@ -70,7 +51,6 @@ public class MultiLogReg extends ProbabilityModel {
    */
   public MultiLogReg(MultiLogReg a) {
     super(a);
-    lambda = a.lambda;
     if (a.w != null) {
       w = new SparseVector[numberOfClasses -1];
       gradients = new SparseVector[numberOfClasses -1];

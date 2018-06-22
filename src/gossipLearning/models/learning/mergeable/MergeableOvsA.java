@@ -5,18 +5,11 @@ import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.OneVsAllMetaClassifier;
 
-public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<MergeableOvsA>, Partializable {
+public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, Partializable {
   private static final long serialVersionUID = -2294873002764150476L;
   
-  /** @hidden */
-  private static final String PAR_BNAME = "MergeableOvsA";
-  
   public MergeableOvsA(String prefix) {
-    super(prefix, PAR_BNAME);
-  }
-  
-  protected MergeableOvsA(String prefix, String PAR_BNAME) {
-    super(prefix, PAR_BNAME);
+    super(prefix);
   }
   
   /**
@@ -32,19 +25,34 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable<M
     return new MergeableOvsA(this);
   }
 
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   @Override
-  public MergeableOvsA merge(MergeableOvsA model) {
+  public Model merge(Model model) {
+    MergeableOvsA m = (MergeableOvsA)model;
     for (int i = 0; i < classifiers.size(); i++) {
-      Model result = ((Mergeable)classifiers.getModel(i)).merge(model.classifiers.getModel(i));
+      Model result = ((Mergeable)classifiers.getModel(i)).merge(m.classifiers.getModel(i));
       classifiers.setModel(i, result);
+    }
+    return this;
+  }
+  
+  @Override
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  @Override
+  public Model add(Model model, double times) {
+    MergeableOvsA m = (MergeableOvsA)model;
+    for (int i = 0; i < numberOfClasses; i++) {
+      ((Mergeable)classifiers.getModel(i)).add(m.classifiers.getModel(i), times);
     }
     return this;
   }
 
   @Override
-  public MergeableOvsA getModelPart() {
+  public Model getModelPart() {
+    // TODO: fix it -> call classifiers' model part
     return new MergeableOvsA(this);
   }
-
+  
 }

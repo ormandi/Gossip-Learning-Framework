@@ -8,12 +8,13 @@ import peersim.core.CommonState;
 
 public class GaussianModel extends ProbabilityModel {
   private static final long serialVersionUID = -2123083125764994578L;
-  private static final String PAR_K = "GaussianModel.k";
+  private static final String PAR_K = "K";
 
   protected GMM[][] models;
   protected final int k;
   protected double[] ages;
   public GaussianModel(String prefix) {
+    super(0.0);
     k = Configuration.getInt(prefix + "." + PAR_K);
   }
   

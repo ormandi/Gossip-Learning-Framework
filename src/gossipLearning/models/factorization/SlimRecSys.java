@@ -23,12 +23,6 @@ public class SlimRecSys extends MergeableRecSys {
   }
   
   @Override
-  public SlimRecSys merge(MergeableRecSys model) {
-    super.merge(model);
-    return this;
-  }
-  
-  @Override
   public SlimRecSys getModelPart() {
     return this;
     /*

@@ -8,13 +8,12 @@ import peersim.core.CommonState;
 
 public class CompressedLogReg extends LogisticRegression {
   private static final long serialVersionUID = 3906634332190699663L;
-  private static final String PAR_LAMBDA = CompressedLogReg.class.getSimpleName() + ".lambda";
-  private static final String PAR_NBITS = CompressedLogReg.class.getSimpleName() + ".nbits";
+  private static final String PAR_NBITS = "nbits";
   
   protected final int nbits;
   
   public CompressedLogReg(String prefix) {
-    super(prefix, PAR_LAMBDA);
+    super(prefix);
     nbits = Configuration.getInt(prefix + "." + PAR_NBITS);
   }
   
