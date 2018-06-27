@@ -31,7 +31,7 @@ import peersim.edsim.EDSimulator;
 import peersim.transport.Transport;
 import peersim.util.RandPermutation;
 
-public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, InstanceLoaderConnection, ProtocolWithNatInfo  {
+public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable, InstanceLoaderConnection, ProtocolWithNatInfo {
 
   protected static final String PAR_EXTRACTORPID = "extractorProtocol";
   protected static final String PAR_ARRGNAME = "aggrName";
@@ -69,7 +69,6 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
   protected long sessionLength;
   protected int sessionID;
 
-
   protected final String prefix;
   protected final String modelName;
   protected final String aggrClassName;
@@ -77,19 +76,16 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
   protected final int exrtactorProtocolID;
   protected ResultAggregator resultAggregator;
 
-
   protected Integer treeID;
   protected Integer levelInTree;
   protected HashSet<NodeWithIDCompare> childrenNodes;
   protected HashMap<NodeWithIDCompare, DummySumLearningModelWithEncryption > gradientsForDecoding;
-
 
   protected Node recSendTo;
   protected Integer binomParam;
 
   protected static Integer s;
   protected static Integer kBinomTreeParam;
-
 
   protected DummySizedModel model;
   protected DummySumLearningModelWithEncryption gradient;
@@ -103,7 +99,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
   //protected Node connectionTimeOutNode;
   protected boolean isConflictOnDecrypt;
 
-  public TreeBuilderProtocol(String prefix) {
+  public TreeBuilderProtocolWithNat(String prefix) {
     MAX_MODEL_SIZE = Configuration.getDouble(prefix + "." + PAR_MAX_MODEL_SIZE);
     MIN_MODEL_SIZE = Configuration.getDouble(prefix + "." + PAR_MIN_MODEL_SIZE);
     MAX_GRADIENT_SIZE = Configuration.getDouble(prefix + "." + PAR_MAX_GRADIENT_SIZE);
@@ -151,7 +147,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
     isConflictOnDecrypt = false;
   }
 
-  public TreeBuilderProtocol(TreeBuilderProtocol o) {
+  public TreeBuilderProtocolWithNat(TreeBuilderProtocolWithNat o) {
     parentNode = o.parentNode;
     currentnode = o.currentnode;
     currentprotocolid = o.currentprotocolid;
@@ -185,7 +181,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
 
   @Override
   public Object clone() {
-    return new TreeBuilderProtocol(this);
+    return new TreeBuilderProtocolWithNat(this);
   }
 
   @Override
@@ -213,7 +209,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
                 }
               } else {
                 //System.err.println("UNSUBSCRIBE_NOTIME_TOSEND "+currentnode.getID()+" "+treeID+" "+dest.getID());
-                ((TreeBuilderProtocol)dest.getProtocol(currentprotocolid)).unSubscribeFromTree(treeID); 
+                ((TreeBuilderProtocolWithNat)dest.getProtocol(currentprotocolid)).unSubscribeFromTree(treeID); 
                 binomParam=0;
                 if(isAlreadyEncryptedGradient) {
                   stopModelSendAndProxySendAndEncryptLastGradientMessage();
@@ -370,31 +366,6 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
     }
   }
    */
-  
-  @Override
-  public void connectionChanged(int newNatType) {
-    if ( TraceChurnWithNat.isOnline(this.natType) && TraceChurnWithNat.isOnline(newNatType) ) {
-      quitFromTree(currentnode, currentprotocolid);
-      wakeUpAndForgetEverything(currentnode, currentprotocolid);
-    } else if ( !TraceChurnWithNat.isOnline(this.natType) && TraceChurnWithNat.isOnline(newNatType) ) {
-      wakeUpAndForgetEverything(currentnode, currentprotocolid);
-    } else if ( TraceChurnWithNat.isOnline(this.natType) && !TraceChurnWithNat.isOnline(newNatType) ) {
-      quitFromTree(currentnode, currentprotocolid);
-    } 
-    this.natType = newNatType;
-  }
-
-  @Override
-  public int getNatType() {
-    return this.natType;
-  }
-  
-  public void wakeUpAndForgetEverything(Node currentNode, int currentProtocolID){
-    this.currentprotocolid = currentProtocolID;
-    this.currentnode = currentNode;
-    ////System.err.println("wakeUpAndForgetEverything "+CommonState.getTime()+" "+currentnode.getID()+" "+treeID);
-    unSubscribeFromTree(treeID); 
-  }
 
   public void startATree(Integer treeID, Node currentNode, int currentProtocolID) {
     this.treeID=treeID;
@@ -425,7 +396,13 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
     }
   }
 
-
+  public void wakeUpAndForgetEverything(Node currentNode, int currentProtocolID){
+    this.currentprotocolid = currentProtocolID;
+    this.currentnode = currentNode;
+    ////System.err.println("wakeUpAndForgetEverything "+CommonState.getTime()+" "+currentnode.getID()+" "+treeID);
+    unSubscribeFromTree(treeID); 
+  }
+  
   public void quitFromTree(Node currentNode, int currentProtocolID) {
     //System.err.print("quitFromTree "+CommonState.getTime()+" "+currentNode.getID()+" "+treeID);
     this.currentnode = currentNode;
@@ -437,7 +414,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
         //System.err.print(" Parent: "+parentNode.getID());
         EDSimulator.add(Math.round(OFFLINE_DELAY), new EventMessage(this.currentnode, parentNode, EventEnum.ConnectionTimeout), parentNode, this.currentprotocolid);
         if(isOnSendGradient) {
-          ((TreeBuilderProtocol)parentNode.getProtocol(currentProtocolID)).removeGradientFromQueue(new NodeWithIDCompare(this.currentnode));
+          ((TreeBuilderProtocolWithNat)parentNode.getProtocol(currentProtocolID)).removeGradientFromQueue(new NodeWithIDCompare(this.currentnode));
         }
         //((TreeBuilderProtocol)parentNode.getProtocol(currentProtocolID)).connectionTimeOutNode = this.currentNode;
       }
@@ -471,7 +448,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
   private void proxySendAndEncryptLastGradientMessage(){
     isOnSendGradient = true;
     long delay = Math.round(gradient.getModelSize());
-    boolean isNewGradientSend = ((TreeBuilderProtocol)parentNode.getProtocol(currentprotocolid)).putGradientToQueue(new NodeWithIDCompare(currentnode), gradient, treeID);
+    boolean isNewGradientSend = ((TreeBuilderProtocolWithNat)parentNode.getProtocol(currentprotocolid)).putGradientToQueue(new NodeWithIDCompare(currentnode), gradient, treeID);
     ////System.err.println("GRADIENT_SEND_START "+parentNode.getID()+" "+CommonState.getTime()+" "+" "+currentnode.getID()+" "+treeID+" "+binomParam+" "+levelInTree+" "+isOnSendGradient+" "+childrenNodes.size()+" "+isNewGradientSend);
     if(isNewGradientSend) {
       EDSimulator.add(delay, new EventMessage(currentnode, parentNode, EventEnum.WakeUpAndSendGradient), currentnode, currentprotocolid);
@@ -490,7 +467,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
       if(dest.getID() != currentnode.getID()) {
         childrenNodes.add(new NodeWithIDCompare(dest));
         recSendTo=dest;
-        ((TreeBuilderProtocol)dest.getProtocol(currentprotocolid)).setTreeInfo(dest,currentprotocolid,currentnode,treeID,levelInTree,binomParam);
+        ((TreeBuilderProtocolWithNat)dest.getProtocol(currentprotocolid)).setTreeInfo(dest,currentprotocolid,currentnode,treeID,levelInTree,binomParam);
         EDSimulator.add(delay, new EventMessage(currentnode, dest, EventEnum.WakeUpAndSendModel), currentnode, currentprotocolid);
         //System.out.println("MODEL_SEND_START2 "+" "+currentnode.getID()+" "+treeID+" "+((TreeBuilderProtocol)dest.getProtocol(currentprotocolid)).treeID);
       } else {
@@ -504,6 +481,25 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
     }
   }
 
+  @Override
+  public void connectionChanged(int newNatType) {
+    if ( TraceChurnWithNat.isOnline(this.natType) && TraceChurnWithNat.isOnline(newNatType) ) {
+      quitFromTree(currentnode, currentprotocolid);
+      wakeUpAndForgetEverything(currentnode, currentprotocolid);
+    } else if ( !TraceChurnWithNat.isOnline(this.natType) && TraceChurnWithNat.isOnline(newNatType) ) {
+      wakeUpAndForgetEverything(currentnode, currentprotocolid);
+    } else if ( TraceChurnWithNat.isOnline(this.natType) && !TraceChurnWithNat.isOnline(newNatType) ) {
+      quitFromTree(currentnode, currentprotocolid);
+    } 
+    this.natType = newNatType;
+  }
+
+  @Override
+  public int getNatType() {
+    return this.natType;
+  }
+  
+  
   public void connectionTimeout(Node currentNode, int currentProtocolID, Node offlineNode){
     this.currentnode = currentNode;
     this.currentprotocolid = currentProtocolID;
@@ -517,7 +513,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
         if(parentNode.getID() == offlineNode.getID()) { // my parent has gone
           //if parentNode==recSendTo then nothing special needs to be done, just forget everything 
           if(levelInTree == 2) {
-            ((TreeBuilderProtocol)parentNode.getProtocol(this.currentprotocolid)).endOfTree(treeID,0);
+            ((TreeBuilderProtocolWithNat)parentNode.getProtocol(this.currentprotocolid)).endOfTree(treeID,0);
             return;
           }
           if(!childrenNodes.isEmpty()) {
@@ -560,7 +556,7 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
       Node randomOnlineNode = overlay.getNeighbor(rp.get(i));
       if( randomOnlineNode.isUp() &&
           randomOnlineNode.getID()!=currentnode.getID() &&
-          ((TreeBuilderProtocol)randomOnlineNode.getProtocol(currentprotocolid)).isFreeNode()) {
+          ((TreeBuilderProtocolWithNat)randomOnlineNode.getProtocol(currentprotocolid)).isFreeNode()) {
         return randomOnlineNode;
       }
     }
@@ -571,11 +567,11 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
     //System.err.println("SEND_NOW "+CommonState.getTime()+" "+currentnode.getID()+" "+treeID+" "+dest.getID()+" "+dest.isUp()+" "+message.getParentLevel()+" "+
     //      (((TreeBuilderProtocol)dest.getProtocol(currentprotocolid)).parentNode==null)+" "+
     //      (((TreeBuilderProtocol)dest.getProtocol(currentprotocolid)).treeID+" "));
-    ((TreeBuilderProtocol)dest.getProtocol(currentprotocolid)).processEvent(dest, currentprotocolid, message);
+    ((TreeBuilderProtocolWithNat)dest.getProtocol(currentprotocolid)).processEvent(dest, currentprotocolid, message);
   }
 
   private void sendMessage(Node dest, TreeGradientEncryptionUpMessage message) {
-    ((TreeBuilderProtocol)dest.getProtocol(currentprotocolid)).processEvent(dest, currentprotocolid, message);
+    ((TreeBuilderProtocolWithNat)dest.getProtocol(currentprotocolid)).processEvent(dest, currentprotocolid, message);
   }
 
   private boolean isNotAnyFurtherChild() {
@@ -737,7 +733,6 @@ public class TreeBuilderProtocol implements HotPotatoProtocol, Cloneable, Instan
 
   @Override
   public void setNumberOfClasses(int numberOfClasses) {}
-
 
 
 }

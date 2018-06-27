@@ -106,8 +106,7 @@ public class TraceChurnWithNat implements Control, SchedulerI {
         Session recentSession = tp.nextSession();
         insert(recentSession,tp);
         if(prot instanceof ProtocolWithNatInfo) {
-          ProtocolWithNatInfo pwnat = (ProtocolWithNatInfo)prot;
-          pwnat.connectionChanged(recentSession.getType());
+          ((ProtocolWithNatInfo)prot).connectionChanged(recentSession.getType());
         }
         node.setFailState(isOnline(recentSession.getType()) ? Fallible.OK : Fallible.DOWN);
       }
@@ -138,7 +137,16 @@ public class TraceChurnWithNat implements Control, SchedulerI {
 
   public boolean active() { throw new UnsupportedOperationException("Not implemented for efficiency."); }
 
-  private boolean isOnline(int natType) {
+  public static long getConnectionTime(int senderNatType, int receiverNatType) {
+    NatPair np = new NatPair(senderNatType, receiverNatType);
+    return getConnectionTime(np);
+  }
+  
+  public static long getConnectionTime(NatPair natPair) {
+    return connectionTable.get(natPair);
+  }
+  
+  public static boolean isOnline(int natType) {
     for (Integer otherPossibleType : possibleNatType) {
       NatPair pair = new NatPair(natType, otherPossibleType);
       if(connectionTable.containsKey(pair)) {

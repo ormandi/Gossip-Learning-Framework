@@ -1,20 +1,20 @@
 package gossipLearning.utils;
 
 public class NatPair {
-  private final int senderNATtype;
-  private final int receiverNATtype;
+  private final int senderNatType;
+  private final int receiverNatType;
   
-  public NatPair(int senderNATtype, int receiverNATtype) {
-    this.senderNATtype = senderNATtype;
-    this.receiverNATtype = receiverNATtype;
+  public NatPair(int senderNatType, int receiverNatType) {
+    this.senderNatType = senderNatType;
+    this.receiverNatType = receiverNatType;
   }
 
   public int getSenderNATtype() {
-    return senderNATtype;
+    return senderNatType;
   }
 
   public int getReceiverNATtype() {
-    return receiverNATtype;
+    return receiverNatType;
   }
   
   
