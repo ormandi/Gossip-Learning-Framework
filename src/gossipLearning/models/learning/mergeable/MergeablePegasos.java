@@ -1,10 +1,8 @@
 package gossipLearning.models.learning.mergeable;
 
 import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.P2Pegasos;
-import gossipLearning.utils.VectorEntry;
 
 /**
  * A mergeable version of the Pegasos algorithm.
@@ -35,39 +33,6 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable, Partializa
     return new MergeablePegasos(this);
   }
   
-  /**
-   * In linear case the merge is the averaging of the vectors.
-   */
-  @Override
-  public Model merge(Model model) {
-    MergeablePegasos m = (MergeablePegasos)model;
-    double sum = age + m.age;
-    if (sum == 0) {
-      return this;
-    }
-    double modelWeight = m.age / sum;
-    age = Math.max(age, m.age);
-    for (VectorEntry e : m.w) {
-      double value = w.get(e.index);
-      //w.add(e.index, (e.value - value) * modelWeight);
-      w.add(e.index, (e.value - value) * (value == 0 ? 1.0 : modelWeight));
-    }
-    return this;
-  }
-  
-  @Override
-  public Model add(Model model) {
-    return add(model, 1.0);
-  }
-  
-  @Override
-  public Model add(Model model, double times) {
-    MergeablePegasos m = (MergeablePegasos)model;
-    age += m.age * times;
-    w.add(m.w, times);
-    return this;
-  }
-
   @Override
   public MergeablePegasos getModelPart() {
     return new MergeablePegasos(this);

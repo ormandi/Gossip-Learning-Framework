@@ -140,6 +140,7 @@ public class SelfAdaptiveModel  implements ErrorEstimatorModel {
     confidence = C*std/Math.sqrt(Math.min(age, wsize));
   }
   
+  @Override
   public void update(InstanceHolder instances) {
     for (int i = 0; i < instances.size(); i++) {
       update(instances.getInstance(i), instances.getLabel(i));

@@ -192,10 +192,8 @@ public class LearningProtocol extends AbstractProtocol {
         Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - id);
         latestModelHolder.add(latestModel);
       }
-      if (latestModelHolder.size() == modelHolders.length) {
-        // send the latest models to a random neighbor
-        sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true));
-      }
+      // send the latest models to a random neighbor
+      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true));
       latestModelHolder.clear();
     }
     numberOfIncomingModels = 0;

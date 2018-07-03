@@ -40,10 +40,8 @@ public class LearningProtocolSlim extends LearningProtocol {
       Model latestModel = ((Partializable)modelHolders[i].getModel(0)).getModelPart();
       latestModelHolder.add(latestModel);
     }
-    if (latestModelHolder.size() == modelHolders.length) {
-      // send the latest models to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
-    }
+    // send the latest models to a random neighbor
+    sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
     latestModelHolder.clear();
     numberOfIncomingModels = 0;
   }

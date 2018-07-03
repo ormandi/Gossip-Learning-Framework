@@ -1,31 +1,27 @@
 package gossipLearning.models.learning.mergeable.slim;
 
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeableANN;
 import gossipLearning.utils.Utils;
-
-import java.util.Random;
-
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.util.WeightedRandPerm;
 
-public class SlimANN extends MergeableANN {
+public class SlimANN extends MergeableANN implements SlimModel {
   private static final long serialVersionUID = -1489213271550290187L;
   private static final String PAR_SIZE = "size";
   
   protected final int modelSize;
-  protected final Random r;
   
   public SlimANN(String prefix) {
     super(prefix);
     modelSize = Configuration.getInt(prefix + "." + PAR_SIZE);
-    r = new Random(0);
   }
   
   protected SlimANN(SlimANN a) {
     super(a);
     modelSize = a.modelSize;
-    r = a.r;
   }
   
   public Object clone() {
@@ -74,7 +70,7 @@ public class SlimANN extends MergeableANN {
       }
       size += thetas[i].size();
     }
-    WeightedRandPerm rp = new WeightedRandPerm(r, weights);
+    WeightedRandPerm rp = new WeightedRandPerm(CommonState.r, weights);
     rp.reset(numParams);
     int iter = (int)(numParams * (Math.abs(modelSize) / (double)numberOfFeatures));
     SlimANN result = new SlimANN(this);

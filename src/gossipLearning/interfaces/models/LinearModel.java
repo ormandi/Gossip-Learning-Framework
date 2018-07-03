@@ -51,6 +51,9 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
 
   @Override
   public final void update(InstanceHolder instances) {
+    if (instances == null || instances.size() == 0) {
+      return;
+    }
     age += instances.size();
     double nu = 1.0 / (lambda * age);
     
@@ -76,6 +79,31 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
   @Override
   public final String toString() {
     return super.toString() + ", b: " + bias + ", w: " + w;
+  }
+  
+  public Model merge(Model model) {
+    LinearModel m = (LinearModel)model;
+    double sum = age + m.age;
+    if (sum == 0) {
+      return this;
+    }
+    double modelWeight = m.age / sum;
+    age = Math.max(age, m.age);
+    w.mul(age / sum).add(m.w, modelWeight);
+    bias += (m.bias - bias) * modelWeight;
+    return this;
+  }
+  
+  public Model add(Model model) {
+    return add(model, 1.0);
+  }
+  
+  public Model add(Model model, double times) {
+    LinearModel m = (LinearModel)model;
+    age += m.age * times;
+    w.add(m.w, times);
+    bias += m.bias * times;
+    return this;
   }
 
 }

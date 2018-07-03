@@ -4,6 +4,8 @@ import gossipLearning.evaluators.ResultAggregator;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Partializable;
+import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.main.fedAVG.ModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.models.extraction.DummyExtractor;
@@ -85,9 +87,12 @@ public class FederatedLearning {
     
     // create models
     LearningModel[] globalModels = new LearningModel[modelNames.length];
+    LearningModel[] avgModels = new LearningModel[modelNames.length];
     for (int i = 0; i < modelNames.length; i++) {
       globalModels[i] = (LearningModel)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
       globalModels[i].setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
+      avgModels[i] = (LearningModel)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
+      avgModels[i].setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
     }
     
     // initialize evaluator
@@ -138,8 +143,6 @@ public class FederatedLearning {
           localModels[idx] = (LearningModel)globalModels[m].clone();
         }
         
-        // reset global model
-        globalModels[m].clear();
         double usedSamples = 0.0;
         for (int i = 0; i < numUsedClients; i++) {
           int idx = clientIndices[i];
@@ -152,6 +155,12 @@ public class FederatedLearning {
           localModels[idx].update(localInstances[idx], E, B);
         }*/
         
+        // reset global model
+        avgModels[m].clear();
+        if (!(globalModels[m] instanceof SlimModel)) {
+          globalModels[m].clear();
+        }
+        
         // update local models (multi thread)
         for (int i = 0; i < numUsedClients; i++) {
           int idx = clientIndices[i];
@@ -163,8 +172,15 @@ public class FederatedLearning {
         for (int i = 0; i < numUsedClients; i++) {
           int idx = clientIndices[i];
           double coef = localInstances[idx].size() / usedSamples;
-          ((Mergeable)globalModels[m]).add(localModels[idx], coef);
+          // TODO: check slim merge sparsity!!!
+          ((Mergeable)avgModels[m]).add(((Partializable)localModels[idx]).getModelPart(), coef);
         }
+        if (globalModels[m] instanceof SlimModel) {
+          ((Mergeable)globalModels[m]).merge(avgModels[m]);
+        } else {
+          ((Mergeable)globalModels[m]).add(avgModels[m]);
+        }
+        //System.out.println(globalModels[m].getAge() + "\t" + globalModels[m]);
       }
     }
     System.err.println("Final result:");

@@ -33,6 +33,7 @@ public class PrivateOvsA extends OneVsAllMetaClassifier implements PrivateModel 
   
   @Override
   public void update(InstanceHolder instances, double budgetProportion, double eps, Random r) {
+    age += instances.size();
     double[] labels = new double[instances.size()];
     for (int i = 0; i < instances.size(); i++) {
       labels[i] = instances.getLabel(i);
@@ -46,7 +47,6 @@ public class PrivateOvsA extends OneVsAllMetaClassifier implements PrivateModel 
     for (int i = 0; i < instances.size(); i++) {
       instances.setLabel(i, labels[i]);
     }
-    labels = null;
   }
 
 }

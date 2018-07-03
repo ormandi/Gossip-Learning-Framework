@@ -60,7 +60,12 @@ public class InstanceLoader implements Control {
   protected DataBaseReader reader;
   /** @hidden */
   protected final File eFile;
-  /** Specifies the number of training samples per node.*/
+  /** Specifies the type of instance normalization.
+   * <ul>
+   * <li>1: normalization, [0-1]</li>
+   * <li>2: standardization, 0 mean, 1 std</li>
+   * </ul>
+   * */
   protected final int normalization;
     
   /**
@@ -92,6 +97,9 @@ public class InstanceLoader implements Control {
         reader.standardize();
       }
       
+      if (reader.getTrainingSet().size() < Network.size()) {
+        System.err.println("WARNING: training set size (" + reader.getTrainingSet().size() + ") is less then the network size (" + Network.size() + ")");
+      }
       // init the nodes by adding the instances read before
       for (int i = 0; i < reader.getTrainingSet().size(); i++) {
         SparseVector instance = reader.getTrainingSet().getInstance(i);
@@ -114,15 +122,15 @@ public class InstanceLoader implements Control {
       // sets the number of classes for the learning protocols and the evaluation set for the evaluator.
       for (int i = 0; i < Network.size(); i++) {
         Node node = Network.get(i);
-        Protocol protocol = node.getProtocol(pidE);
+        //Protocol protocol = node.getProtocol(pidE);
         for (int j = 0; j < pidLS.length; j++) {
-          protocol = node.getProtocol(pidLS[j]);
+          Protocol protocol = node.getProtocol(pidLS[j]);
           if (protocol instanceof LearningProtocol) {
             LearningProtocol learningProtocol = (LearningProtocol) protocol;
             learningProtocol.getResults().setEvalSet(reader.getEvalSet());
             learningProtocol.setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
           } else {
-            throw new RuntimeException("The protocol " + pidE + " has to implement the LearningProtocol interface!");
+            throw new RuntimeException("The protocol " + pidLS[j] + " has to implement the LearningProtocol interface!");
           }
         }
       }

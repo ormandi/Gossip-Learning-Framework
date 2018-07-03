@@ -114,6 +114,9 @@ public class MultiLogReg extends ProbabilityModel {
   }
   
   public void update(InstanceHolder instances) {
+    if (instances == null || instances.size() == 0) {
+      return;
+    }
     age += instances.size();
     double nu = 1.0 / (lambda * age);
     

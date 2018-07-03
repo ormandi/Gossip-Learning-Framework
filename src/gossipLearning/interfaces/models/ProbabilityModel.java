@@ -82,6 +82,12 @@ public abstract class ProbabilityModel implements LearningModel {
   
   @Override
   public void update(InstanceHolder instances) {
+    if (instances == null || instances.size() == 0) {
+      return;
+    }
+    if (1 < instances.size()) {
+      throw new RuntimeException("Batch update is not implemented for this learner!");
+    }
     for (int i = 0; i < instances.size(); i++) {
       update(instances.getInstance(i), instances.getLabel(i));
     }
@@ -89,6 +95,9 @@ public abstract class ProbabilityModel implements LearningModel {
   
   @Override
   public final void update(InstanceHolder instances, int epoch, int batchSize) {
+    if (instances == null || instances.size() == 0) {
+      return;
+    }
     if (batchSize == 0 || instances.size() <= batchSize) {
       // full batch update
       for (int e = 0; e < epoch; e++) {
@@ -100,7 +109,7 @@ public abstract class ProbabilityModel implements LearningModel {
       for (int e = 0; e < epoch; e++) {
         for (int i = 0; i < instances.size(); i++) {
           batch.add(instances.getInstance(i), instances.getLabel(i));
-          if (0 < batchSize && batch.size() % batchSize == 0) {
+          if (batch.size() == batchSize) {
             update(batch);
             batch.clear();
           }

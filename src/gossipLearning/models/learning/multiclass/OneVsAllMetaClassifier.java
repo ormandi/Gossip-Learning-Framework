@@ -69,7 +69,11 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     }
   }
   
-  public void update(InstanceHolder instances) {
+  public final void update(InstanceHolder instances) {
+    if (instances == null || instances.size() == 0) {
+      return;
+    }
+    age += instances.size();
     double[] labels = new double[instances.size()];
     for (int i = 0; i < instances.size(); i++) {
       labels[i] = instances.getLabel(i);
@@ -83,7 +87,6 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < instances.size(); i++) {
       instances.setLabel(i, labels[i]);
     }
-    labels = null;
   }
 
   @Override

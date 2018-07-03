@@ -4,7 +4,6 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.MultiLogReg;
-import gossipLearning.utils.VectorEntry;
 
 /**
  * This class represents a multi-class logistic regression classifier 
@@ -48,11 +47,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Part
     double modelWeight = m.age / sum;
     age = Math.max(age, m.age);
     for (int i = 0; i < numberOfClasses -1; i++) {
-      for (VectorEntry e : m.w[i]) {
-        double value = w[i].get(e.index);
-        //w[i].add(e.index, (e.value - value) * modelWeight);
-        w[i].add(e.index, (e.value - value) * (value == 0 ? 1.0 : modelWeight));
-      }
+      w[i].mul(age / sum).add(m.w[i], modelWeight);
       bias[i] += (m.bias[i] - bias[i]) * modelWeight;
     }
     return this;
