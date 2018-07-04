@@ -3,6 +3,11 @@ NETWORKSIZE 90 #number of nodes (should be the same as the number of training in
 SEED 1234567890 #random seed
 CORES 1 #number of cores for running
 
+NORMALIZATION 0 #0: none, 1: normalize, 2: standardize
+LAMBDA 1E-4 #learning rate
+EPOCH 1 #number of local epochs
+BATCH 1 #local min-batch size
+
 ONLINESIZE NETWORKSIZE
 CYCLE C*ONLINESIZE+1
 LOGTIME ONLINESIZE
@@ -67,10 +72,12 @@ protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 3
 protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
-protocol.learningProtocol.modelNames gossipLearning.models.learning.P2Pegasos
-protocol.learningProtocol.P2Pegasos.lambda 1E-2
+protocol.learningProtocol.learner.PegasosSVM gossipLearning.models.learning.P2Pegasos
+protocol.learningProtocol.learner.PegasosSVM.lambda LAMBDA
 protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
 protocol.learningProtocol.evalProbability 1.0
+protocol.learningProtocol.epoch EPOCH
+protocol.learningProtocol.batch BATCH
 
 
 #-------------------- Initializers --------------------
@@ -87,9 +94,9 @@ init.instanceLoader.extractionProtocol extractionProtocol
 init.instanceLoader.learningProtocols learningProtocol
 init.instanceLoader.trainingFile res/db/iris_setosa_versicolor_train.dat
 init.instanceLoader.evaluationFile res/db/iris_setosa_versicolor_eval.dat
-init.instanceLoader.samplesPerNode 1
 init.instanceLoader.printPrecision 4
 init.instanceLoader.isPrintAges false
+init.instanceLoader.normalization NORMALIZATION
 
 init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
 init.learningProtocolStart.protocols learningProtocol

@@ -49,9 +49,10 @@ public class RecSysRun {
     System.err.println("\ttraining file: " + tFile);
     File eFile = new File(Configuration.getString("evaluationFile"));
     System.err.println("\tevaluation file: " + eFile);
-    String[] modelNames = Configuration.getString("learners").split(",");
+    String[] modelNames = Configuration.getNames("learner");
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
+    int evalTime = 1;
     
     // read database
     System.err.println("Reading data set.");
@@ -65,7 +66,7 @@ public class RecSysRun {
     LowRankDecomposition[] models = new LowRankDecomposition[modelNames.length];
     SparseVector userModels[][] = new SparseVector[modelNames.length][reader.getTrainingSet().size()];
     for (int i = 0; i < modelNames.length; i++) {
-      models[i] = (LowRankDecomposition)Class.forName(modelNames[i]).getConstructor(String.class).newInstance("learners");
+      models[i] = (LowRankDecomposition)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
     }
     
     // initialize evaluator
@@ -80,20 +81,25 @@ public class RecSysRun {
     FeatureExtractor extractor = new DummyExtractor("");
     
     for (int iter = 0; iter <= numIters; iter++) {
-      // evaluate
-      for (int i = 0; i < models.length; i++) {
-        modelHolder.add(models[i]);
-        for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-          resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
+      if (iter % evalTime == 0) {
+        // evaluate
+        for (int i = 0; i < models.length; i++) {
+          modelHolder.add(models[i]);
+          for (int j = 0; j < reader.getTrainingSet().size(); j++) {
+            resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
+          }
+        }
+        
+        // print results
+        for (AggregationResult result : resultAggregator) {
+          if (iter == 0) {
+            System.out.println("#iter\t" + result.getNames());
+          }
+          System.out.println(iter + "\t" + result);
         }
       }
-      
-      // print results
-      for (AggregationResult result : resultAggregator) {
-        if (iter == 0) {
-          System.out.println("#iter\t" + result.getNames());
-        }
-        System.out.println(iter + "\t" + result);
+      if (iter == evalTime * 10) {
+        evalTime *= 10;
       }
       
       // training

@@ -92,8 +92,10 @@ public class InstanceLoader implements Control {
       // read instances
       reader = DataBaseReader.createDataBaseReader(readerClassName, tFile, eFile);
       if (normalization == 1) {
+        System.err.println("WARNING: feature values will be normalized into the [0-1] interval");
         reader.normalize();
       } else if (normalization == 2) {
+        System.err.println("WARNING: feature values will be standardized (have 0 mean and 1 standard deviation)");
         reader.standardize();
       }
       

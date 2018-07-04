@@ -180,7 +180,7 @@ public class FederatedLearning {
         } else {
           ((Mergeable)globalModels[m]).add(avgModels[m]);
         }
-        //System.out.println(globalModels[m].getAge() + "\t" + globalModels[m]);
+        System.out.println(globalModels[m].getAge() + "\t" + globalModels[m]);
       }
     }
     System.err.println("Final result:");

@@ -43,7 +43,7 @@ Running a predefined simulation
 To run a simulation applying one of the predefined scenarios on the 
 [Iris](http://archive.ics.uci.edu/ml/datasets/Iris) dataset you have to type the 
 following code in the project directory: 
-`export classpath="bin/gossipLearning.jar:lib/colt-1.2.0.jar:lib/djep-1.0.0.jar:lib/jep-2.3.0.jar:lib/peersim-1.0.5.jar:lib/peersim-extras.jar:."`
+`export classpath="bin/gossipLearning.jar:."`
 `java -cp $classpath gossipLearning.main.LocalRun res/config/LocalLearning.txt`. 
 This will run a local SGD (but not a P2P) learning based on the defined configuration file `LocalLearning.txt`.
 
@@ -60,8 +60,8 @@ The meaning of the configuration file:
     trainingFile res/db/iris_versicolor_virginica_train.dat #training set
     evaluationFile res/db/iris_versicolor_virginica_eval.dat #evaluation/test set
 
-    learners gossipLearning.models.learning.P2Pegasos #learning method
-    learners.P2Pegasos.lambda 0.01 #parameters of the learning method
+    learner.PegasosSVM gossipLearning.models.learning.P2Pegasos #learning method
+    learner.PegasosSVM.lambda 0.01 #parameters of the learning method
 
     evaluators gossipLearning.evaluators.ZeroOneError #type of evaluation
     printPrecision 4 #evaluation precision (number of floating points)
@@ -89,27 +89,39 @@ For the above shown configuration file the result is the following:
     Loading parameters from res/config/LocalLearning.txt
         Number of iterations: 100
         Random seed: 1234567890
-        Sampling method: uniform
-        Normalization method: none
         training file: res\db\iris_versicolor_virginica_train.dat
         evaluation file: res\db\iris_versicolor_virginica_eval.dat
+        Sampling method: uniform
+        Normalization method: none
+        Batch size: 1
     Reading data set.
     Start learning.
-    #iter   mean    dev     min     max             -       -1      gossipLearning.models.learning.P2Pegasos        gossipLearning.evaluators.RMSError
-    0       0.6325  0.4899  0.0000  1.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    10      0.6325  0.0000  0.6325  0.6325  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    20      0.6325  0.0000  0.6325  0.6325  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    30      0.7746  0.0000  0.7746  0.7746  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    40      0.7746  0.0000  0.7746  0.7746  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    50      0.6325  0.0000  0.6325  0.6325  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    60      0.3162  0.0000  0.3162  0.3162  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    70      0.7746  0.0000  0.7746  0.7746  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    80      0.0000  0.0000  0.0000  0.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    90      0.0000  0.0000  0.0000  0.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
-    100     0.0000  0.0000  0.0000  0.0000  -       -1      gossipLearning.models.learning.P2Pegasos    gossipLearning.evaluators.RMSError
+    #iter   mean    dev     min     max             -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    0       0.6325  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    1       0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    2       0.6325  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    3       0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    4       0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    5       0.6325  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    6       0.6325  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    7       0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    8       0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    9       0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    10      0.6325  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    20      0.6325  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    30      0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    40      0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    50      0.6325  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    60      0.3162  0.3000  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    70      0.7746  0.4899  0.0000  1.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    80      0.0000  0.0000  0.0000  0.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    90      0.0000  0.0000  0.0000  0.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
+    100     0.0000  0.0000  0.0000  0.0000  -       -1      learner.PegasosSVM      gossipLearning.evaluators.RMSError
     Final result:
-    gossipLearning.models.learning.P2Pegasos:
+    learner.PegasosSVM:
     0.0     0.0     0.0     0.0
+    
+    ELAPSED TIME: ???ms
 
 The first column represents the iteration number, after that the mean error rate with 
 its deviation, minimum and maximum. Of course here were evaluated only one model, so 
@@ -122,7 +134,7 @@ the error deviation is 0 and the mean, min and max are equals. But in P2P settin
 
 * __write your own model__
 
-Copy this code into the DummyModel.jar in your project folder:
+Copy this code into the DummyModel.java in your project folder:
 
     import gossipLearning.interfaces.models.LearningModel;
     import gossipLearning.utils.SparseVector;
@@ -140,6 +152,12 @@ Copy this code into the DummyModel.jar in your project folder:
       public void update(SparseVector instance, double label) {
         // do nothing, but updates the model
       }
+      public void update(InstanceHolder instances) {
+        // for full batch update
+      }
+      public void update(InstanceHolder instances, int epoch, int batchSize) {
+        // for mini-batch update
+      }
       public double predict(SparseVector instance) {
         // predicts the label, here always 0
         return 0.0;
@@ -147,25 +165,23 @@ Copy this code into the DummyModel.jar in your project folder:
       public double getAge() {
         return 0.0;
       }
-      // for hadling the multi-class problems...
-      public int getNumberOfClasses() {
-        // this model is used for binary classification
-        return 2;
+      public void setAge(double age) {
       }
-      public void setNumberOfClasses(int numberOfClasses) {
+      public void setParameters(int numberOfClasses, int numberOfFeatures) {
+        // to handle database related parameters
       }
+      public void clear() {
+        // to clear the model
+      }
+      
     }
 
 Compile the file
 `javac -cp $classpath DummyModel.java`
 
-Replace this line in the configuration file
+Add this line to the configuration file
 
-    learners gossipLearning.models.learning.P2Pegasos #learning method
-
-to 
-
-    learners gossipLearning.models.learning.P2Pegasos,DummyModel #learning method
+    learner.Dummy DummyModel
 
 run the simulation.
 

@@ -148,5 +148,9 @@ public class FactorizationProtocol extends LearningProtocol {
     }
     getTransport().send(currentNode, randomNode, message, currentProtocolID);
   }
+  
+  @Override
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
+  }
 
 }

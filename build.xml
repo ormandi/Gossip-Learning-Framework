@@ -1,4 +1,4 @@
-<project name="Gossip Learning Framework" default="dist" basedir=".">
+<project name="Gossip Learning Framework" default="fat" basedir=".">
   <description>
     Build file of Gossip Learning Framework project. 
   </description>

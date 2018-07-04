@@ -28,6 +28,7 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, 
   @Override
   public Model merge(Model model) {
     MergeableOvsA m = (MergeableOvsA)model;
+    age = Math.max(age, m.age);
     for (int i = 0; i < classifiers.size(); i++) {
       Model result = ((Mergeable)classifiers.getModel(i)).merge(m.classifiers.getModel(i));
       classifiers.setModel(i, result);

@@ -7,12 +7,12 @@ import peersim.core.CommonState;
 
 public class RecSysModel extends LowRankDecomposition {
   private static final long serialVersionUID = 237945358449513368L;
-  private static final String PAR_DIMENSION = "RecSysModel.dimension";
-  private static final String PAR_LAMBDA = "RecSysModel.lambda";
-  private static final String PAR_ALPHA = "RecSysModel.alpha";
-  private static final String PAR_MIN = "RecSysModel.min";
-  private static final String PAR_MAX = "RecSysModel.max";
-  private static final String PAR_NUMITEMS = "RecSysModel.numItems";
+  private static final String PAR_DIMENSION = "dimension";
+  private static final String PAR_LAMBDA = "lambda";
+  private static final String PAR_ALPHA = "alpha";
+  private static final String PAR_MIN = "min";
+  private static final String PAR_MAX = "max";
+  private static final String PAR_NUMITEMS = "numItems";
   protected final double minRating;
   protected final double maxRating;
   

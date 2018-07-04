@@ -84,8 +84,8 @@ public class LearningProtocol extends AbstractProtocol {
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
     numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
     initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB, 1.0);
-    epoch = Configuration.getInt(prefix + "." + PAR_EPOCH);
-    batch = Configuration.getInt(prefix + "." + PAR_BATCH);
+    epoch = Configuration.getInt(prefix + "." + PAR_EPOCH, 1);
+    batch = Configuration.getInt(prefix + "." + PAR_BATCH, 1);
     
     if (epoch < 0) {
       throw new IllegalArgumentException("Parameter epoch can not be negative: " + epoch);

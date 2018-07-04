@@ -70,13 +70,13 @@ protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 3
 protocol.learningProtocol.aggrName gossipLearning.evaluators.RecSysResultAggregator
-protocol.learningProtocol.modelNames gossipLearning.models.factorization.RecSysModel
-protocol.learningProtocol.RecSysModel.dimension DIMENSION
-protocol.learningProtocol.RecSysModel.lambda LAMBDA
-protocol.learningProtocol.RecSysModel.alpha ALPHA
-protocol.learningProtocol.RecSysModel.min 1
-protocol.learningProtocol.RecSysModel.max 5
-protocol.learningProtocol.RecSysModel.numItems 1682
+protocol.learningProtocol.learner.RecSysModel gossipLearning.models.factorization.RecSysModel
+protocol.learningProtocol.learner.RecSysModel.dimension DIMENSION
+protocol.learningProtocol.learner.RecSysModel.lambda LAMBDA
+protocol.learningProtocol.learner.RecSysModel.alpha ALPHA
+protocol.learningProtocol.learner.RecSysModel.min 1
+protocol.learningProtocol.learner.RecSysModel.max 5
+protocol.learningProtocol.learner.RecSysModel.numItems 1682
 protocol.learningProtocol.evalNames gossipLearning.evaluators.RMSError
 protocol.learningProtocol.evalProbability 1.0
 
