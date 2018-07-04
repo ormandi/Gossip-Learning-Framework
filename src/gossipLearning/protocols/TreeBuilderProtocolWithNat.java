@@ -17,6 +17,7 @@ import gossipLearning.messages.tree.TreeGradientEncryptionUpMessage;
 import gossipLearning.messages.tree.TreeModelDownMessage;
 import gossipLearning.models.DummySizedModel;
 import gossipLearning.models.DummySumLearningModelWithEncryption;
+import gossipLearning.utils.ConnectionInfo;
 import gossipLearning.utils.EventEnum;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.NodeWithIDCompare;
@@ -81,7 +82,7 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
   protected HashSet<NodeWithIDCompare> childrenNodes;
   protected HashMap<NodeWithIDCompare, DummySumLearningModelWithEncryption > gradientsForDecoding;
 
-  protected Node recSendTo;
+  protected ConnectionInfo connectionInfo;
   protected Integer binomParam;
 
   protected static Integer s;
@@ -132,7 +133,7 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
     levelInTree = 0;
     childrenNodes = new HashSet<NodeWithIDCompare>();
     gradientsForDecoding = new HashMap<NodeWithIDCompare, DummySumLearningModelWithEncryption>();
-    recSendTo = null;
+    connectionInfo = null;
     binomParam = 0;
     s = Configuration.getInt(prefix + "." + PAR_S);
     kBinomTreeParam = Configuration.getInt(prefix + "." + PAR_K);
@@ -166,7 +167,7 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
     childrenNodes.addAll(o.childrenNodes);
     gradientsForDecoding = new HashMap<NodeWithIDCompare, DummySumLearningModelWithEncryption>();
     gradientsForDecoding.putAll(o.gradientsForDecoding);
-    recSendTo = o.recSendTo;
+    connectionInfo = (ConnectionInfo)o.connectionInfo.clone();
     binomParam = o.binomParam;
     model = (DummySizedModel)o.model.clone();
     gradient = (DummySumLearningModelWithEncryption)o.gradient.clone();
@@ -194,9 +195,9 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
         EventMessage message = (EventMessage)messageObj;
         Node dest = message.getDest();
         if (message.getEvent() == EventEnum.WakeUpAndSendModel){ 
-          if(recSendTo != null) {
+          if(connectionInfo != null) {
             ////System.err.println("SendNOW "+CommonState.getTime()+" "+currentnode.getID()+" "+treeID+" "+recSendTo.getID()+" "+recSendTo.isUp()+" "+dest.getID()+" "+dest.isUp()+" "+(CommonState.getTime()-modelSendSince <= timeForModelSend));
-            if(dest.getID() == recSendTo.getID()) {
+            if(dest.getID() == connectionInfo.getReceiverNode().getID()) {
               if(CommonState.getTime()-modelSendSince <= timeForModelSend) {
                 sendMessage(dest, new TreeModelDownMessage(this.currentnode,model,levelInTree,binomParam,treeID,this.currentprotocolid));
                 binomParam--;
@@ -434,7 +435,7 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
 
 
   private void stopModelSendAndProxySendAndEncryptLastGradientMessage(){
-    recSendTo=null;
+    connectionInfo=null;
     timeForModelSend=0L;
     modelSendSince=0L;
     /////System.err.println("STOPMODELSEND"+CommonState.getTime()+" "+" "+currentnode.getID()+" "+treeID+" "+binomParam+" "+levelInTree+" "+isOnSendGradient+" "+childrenNodes.size());
@@ -458,20 +459,19 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
   }
 
   private void proxySendModelMessage(){
-    Node dest = getRandomNeighbor();
-    long delay =  Math.round(model.getModelSize());
-    long predDurationOfModelSendTime = (CommonState.getTime()+delay)-modelSendSince;
+    connectionInfo = estabilishConnectionToARandomNeighbor();
+    long predDurationOfModelSendTime =
+        (connectionInfo.getDataTransferStartTimeStamp()+connectionInfo.getConnectionEstabilishingTime()+connectionInfo.getDataTransferTime())-modelSendSince;
     //System.out.println("MODEL_SEND_START "+" "+currentNode.getID()+" "+treeID+" "+binomParam+" "+levelInTree+" "+dest.getID());
     //System.err.println("MODEL_SEND_START "+" "+currentnode.getID()+" "+treeID+" "+binomParam+" "+levelInTree+" "+dest.getID()+" "+predDurationOfModelSendTime+" "+timeForModelSend);
     if(predDurationOfModelSendTime <= timeForModelSend) {
-      if(dest.getID() != currentnode.getID()) {
-        childrenNodes.add(new NodeWithIDCompare(dest));
-        recSendTo=dest;
-        ((TreeBuilderProtocolWithNat)dest.getProtocol(currentprotocolid)).setTreeInfo(dest,currentprotocolid,currentnode,treeID,levelInTree,binomParam);
-        EDSimulator.add(delay, new EventMessage(currentnode, dest, EventEnum.WakeUpAndSendModel), currentnode, currentprotocolid);
+      if(connectionInfo.getReceiverNode().getID() != currentnode.getID()) {
+        childrenNodes.add(new NodeWithIDCompare(connectionInfo.getReceiverNode()));
+        ((TreeBuilderProtocolWithNat)connectionInfo.getReceiverNode().getProtocol(currentprotocolid)).setTreeInfo(connectionInfo.getReceiverNode(),currentprotocolid,currentnode,treeID,levelInTree,binomParam);
+        EDSimulator.add(connectionInfo.getConnectionEstabilishingTime()+connectionInfo.getDataTransferTime(), new EventMessage(currentnode, connectionInfo.getReceiverNode(), EventEnum.WakeUpAndSendModel), currentnode, currentprotocolid);
         //System.out.println("MODEL_SEND_START2 "+" "+currentnode.getID()+" "+treeID+" "+((TreeBuilderProtocol)dest.getProtocol(currentprotocolid)).treeID);
       } else {
-        EDSimulator.add(delay, new EventMessage(currentnode, currentnode, EventEnum.WakeUpAndResendModel), currentnode, currentprotocolid);
+        EDSimulator.add(connectionInfo.getDataTransferTime(), new EventMessage(currentnode, currentnode, EventEnum.WakeUpAndResendModel), currentnode, currentprotocolid);
       }
     } else {
       binomParam=0;
@@ -531,9 +531,9 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
         if (childrenNodes.contains(offlinenode)) { // my child has gone
           childrenNodes.remove(offlinenode);
           //System.out.println(isNotAnyFurtherChild() +" "+(recSendTo != null) );
-          if(recSendTo != null) {
-            if(recSendTo.getID() == offlineNode.getID()) {
-              recSendTo=null;
+          if(connectionInfo != null) {
+            if(connectionInfo.getReceiverNode().getID() == offlineNode.getID()) {
+              connectionInfo=null;
               proxySendModelMessage();
               return;
             }
@@ -548,19 +548,24 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
     }
   }
 
-  private Node getRandomNeighbor() {
+  private ConnectionInfo estabilishConnectionToARandomNeighbor() {
+    Long dataTransferStartTimeStamp = CommonState.getTime();
+    Long dataTransferTime =  Math.round(this.model.getModelSize());
     Linkable overlay = getOverlay();
     RandPermutation rp = new RandPermutation(overlay.degree(),CommonState.r);
     for (int i = 0; i < overlay.degree(); i++) {
       //System.out.println("GET_RANDOM_NEIGHBOR - "+rp.get(i));
       Node randomOnlineNode = overlay.getNeighbor(rp.get(i));
-      if( randomOnlineNode.isUp() &&
+      int otherNodesNatType = ((ProtocolWithNatInfo)randomOnlineNode.getProtocol(currentprotocolid)).getNatType();
+      Long connectionEstabilishingTime = TraceChurnWithNat.getConnectionTime(this.natType, otherNodesNatType);
+      if( connectionEstabilishingTime >= 0 &&
           randomOnlineNode.getID()!=currentnode.getID() &&
           ((TreeBuilderProtocolWithNat)randomOnlineNode.getProtocol(currentprotocolid)).isFreeNode()) {
-        return randomOnlineNode;
+        
+        return new ConnectionInfo(randomOnlineNode, otherNodesNatType, connectionEstabilishingTime, dataTransferStartTimeStamp, dataTransferTime);
       }
     }
-    return currentnode;
+    return new ConnectionInfo(currentnode, this.getNatType(), 0L, dataTransferStartTimeStamp, dataTransferTime);
   }
 
   private void sendMessage(Node dest, TreeModelDownMessage message) {
@@ -617,7 +622,7 @@ public class TreeBuilderProtocolWithNat implements HotPotatoProtocol, Cloneable,
       levelInTree = 0;
       childrenNodes = new HashSet<NodeWithIDCompare>();
       gradientsForDecoding = new HashMap<NodeWithIDCompare, DummySumLearningModelWithEncryption>();
-      recSendTo = null;
+      connectionInfo = null;
       binomParam = 0;
       treeStartFromTimeStamp = 0L;
       modelSendSince = 0L;
