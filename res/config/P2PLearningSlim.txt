@@ -3,14 +3,14 @@ NETWORKSIZE 90 #number of nodes
 SEED 1234567890 #random seed
 CORES 1 #number of cores for running
 
+NORMALIZATION 1 #0: none, 1: normalize, 2: standardize
 LAMBDA 1E-4 #learning rate
 SIZE 4 #number of features
-EPOCH 5 #number of local epochs
+EPOCH 1 #number of local epochs
 BATCH 10 #local min-batch size
 
-ONLINESIZE NETWORKSIZE
-CYCLE C*ONLINESIZE+1
-LOGTIME ONLINESIZE
+CYCLE (C+1)*NETWORKSIZE
+LOGTIME NETWORKSIZE
 
 # Transport parameters
 DROP 0.0
@@ -20,7 +20,7 @@ MAXDELAY DELAY*NETWORKSIZE*1.1
 
 # Overlay parameters
 NEWSCAST_CACHESIZE 5
-NEWSCAST_FREQ ONLINESIZE/10.0
+NEWSCAST_FREQ NETWORKSIZE/10.0
 
 
 #-------------------- General Simulation Properties --------------------
@@ -53,8 +53,8 @@ protocol.overlay.baseFreq NEWSCAST_FREQ
 protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
 protocol.extractionProtocol.linkable overlay
 protocol.extractionProtocol.transport transport
-protocol.extractionProtocol.delayMean ONLINESIZE
-protocol.extractionProtocol.delayVar ONLINESIZE/10.0
+protocol.extractionProtocol.delayMean NETWORKSIZE
+protocol.extractionProtocol.delayVar NETWORKSIZE/10.0
 protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.extractionProtocol.modelHolderCapacity 1
 protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
@@ -66,17 +66,17 @@ protocol.learningProtocol gossipLearning.protocols.LearningProtocolSlim
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport transport
 protocol.learningProtocol.extractorProtocol extractionProtocol
-protocol.learningProtocol.delayMean ONLINESIZE
-protocol.learningProtocol.delayVar ONLINESIZE/10.0
+protocol.learningProtocol.delayMean NETWORKSIZE
+protocol.learningProtocol.delayVar NETWORKSIZE/10.0
 protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 1
 protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
-protocol.learningProtocol.learner.OVSASlimPegasos gossipLearning.models.learning.mergeable.slim.SlimOvsA
-
-protocol.learningProtocol.learner.OVSASlimPegasos.model gossipLearning.models.learning.mergeable.slim.SlimPegasos
-protocol.learningProtocol.learner.OVSASlimPegasos.lambda LAMBDA
-protocol.learningProtocol.learner.OVSASlimPegasos.size SIZE/4
+protocol.learningProtocol.learner.MergePegasos gossipLearning.models.learning.mergeable.MergeablePegasos
+protocol.learningProtocol.learner.SlimPegasos05 gossipLearning.models.learning.mergeable.slim.SlimPegasos
+protocol.learningProtocol.learner.MergePegasos.lambda LAMBDA
+protocol.learningProtocol.learner.SlimPegasos05.lambda LAMBDA
+protocol.learningProtocol.learner.SlimPegasos05.size SIZE/2
 
 protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
 protocol.learningProtocol.evalProbability 1.0
@@ -101,7 +101,7 @@ init.instanceLoader.evaluationFile res/db/iris_setosa_versicolor_eval.dat
 
 init.instanceLoader.printPrecision 4
 init.instanceLoader.isPrintAges false
-init.instanceLoader.normalization 1
+init.instanceLoader.normalization NORMALIZATION
 
 init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
 init.learningProtocolStart.protocols learningProtocol
@@ -114,6 +114,7 @@ include.init overlayInit overlayStart instanceLoader learningProtocolStart
 
 #-------------------- Observers --------------------
 control.prediction gossipLearning.controls.PredictionObserver
+control.prediction.from 1
 control.prediction.step LOGTIME
 control.prediction.protocol learningProtocol
 control.prediction.format gpt
