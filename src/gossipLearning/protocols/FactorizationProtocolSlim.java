@@ -63,7 +63,7 @@ public class FactorizationProtocolSlim extends LearningProtocol {
     // evaluate
     for (int i = 0; i < modelHolders.length; i++) {
       if (CommonState.r.nextDouble() < evaluationProbability) {
-        ((FactorizationResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
+        ((FactorizationResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
       }
     }
     
@@ -114,7 +114,7 @@ public class FactorizationProtocolSlim extends LearningProtocol {
     //numIncomingModels ++;
     //System.out.println("RECV:" + currentNode.getID());
     // get instances from the extraction protocol
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     if (instances.size() > 1) {
       throw new RuntimeException("The number of instances should be one at avery node instead of " + instances.size());
     }
@@ -158,6 +158,10 @@ public class FactorizationProtocolSlim extends LearningProtocol {
       randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
     }
     getTransport().send(currentNode, randomNode, message, currentProtocolID);
+  }
+  
+  @Override
+  public void setParameters(int numberOfClasses, int numberOfFeatures) {
   }
 
 }

@@ -119,7 +119,7 @@ public class BaseLineControl implements Control {
     to = new double[dimension];
     w = new SparseVector(dimension);
     
-    // generate from and to hyperPlanes
+    // generate from and to hyperPlanes, avoid 0 vector
     from[0] = 1.0;
     from[1] = 0.0;
     to[0] = 0.0;

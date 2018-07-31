@@ -6,20 +6,9 @@ import gossipLearning.utils.SparseVector;
 
 public class MergeableRecSys extends RecSysModel implements Mergeable {
   private static final long serialVersionUID = 2481904642423040181L;
-  private static final String PAR_DIMENSION = "MergeableRecSys.dimension";
-  private static final String PAR_NUMITEMS = "MergeableRecSys.numItems";
-  private static final String PAR_LAMBDA = "MergeableRecSys.lambda";
-  private static final String PAR_ALPHA = "MergeableRecSys.alpha";
-  private static final String PAR_MIN = "MergeableRecSys.min";
-  private static final String PAR_MAX = "MergeableRecSys.max";
-  
   
   public MergeableRecSys(String prefix) {
-    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_NUMITEMS, PAR_MIN, PAR_MAX);
-  }
-  
-  public MergeableRecSys(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA, String PAR_NUMITEMS, String PAR_MIN, String PAR_MAX) {
-    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_NUMITEMS, PAR_MIN, PAR_MAX);
+    super(prefix);
   }
   
   public MergeableRecSys(MergeableRecSys a) {
@@ -87,7 +76,6 @@ public class MergeableRecSys extends RecSysModel implements Mergeable {
   
   @Override
   public MergeableRecSys getModelPart() {
-    //return new MergeableRecSys(this);
-    return this;
+    return new MergeableRecSys(this);
   }
 }

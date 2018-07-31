@@ -47,7 +47,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Part
     double modelWeight = m.age / sum;
     age = Math.max(age, m.age);
     for (int i = 0; i < numberOfClasses -1; i++) {
-      w[i].mul(age / sum).add(m.w[i], modelWeight);
+      w[i].mul(1.0 - modelWeight).add(m.w[i], modelWeight);
       bias[i] += (m.bias[i] - bias[i]) * modelWeight;
     }
     return this;

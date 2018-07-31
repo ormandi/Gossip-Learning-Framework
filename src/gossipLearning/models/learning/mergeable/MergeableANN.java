@@ -29,7 +29,7 @@ public class MergeableANN extends ANN implements Mergeable, Partializable {
     }
     double modelWeight = m.age / sum;
     for (int i = 0; i < thetas.length; i++) {
-      thetas[i].mulEquals(age / sum).addEquals(m.thetas[i], modelWeight);
+      thetas[i].mulEquals(1.0 - modelWeight).addEquals(m.thetas[i], modelWeight);
     }
     age = Math.max(age, m.age);
     return this;

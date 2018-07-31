@@ -115,7 +115,7 @@ public class ExtractionProtocol extends AbstractProtocol {
    */
   @Override
   public void activeThread() {
-    ModelHolder latestModelHolder = new BQModelHolder(1);
+    BQModelHolder latestModelHolder = new BQModelHolder(1);
     // store the latest models in a new modelHolder
     Model latestModel = modelHolder.getModel(modelHolder.size() - 1);
     latestModelHolder.add(latestModel);

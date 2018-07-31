@@ -11,10 +11,10 @@ import peersim.config.Configuration;
 
 public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor, Partializable {
   private static final long serialVersionUID = -6695974880876825151L;
-  private static final String PAR_DIMENSION = "LowRankDecomposition.dimension";
-  private static final String PAR_ORIGDIM = "LowRankDecomposition.origdim";
-  private static final String PAR_LAMBDA = "LowRankDecomposition.lambda";
-  private static final String PAR_ALPHA = "LowRankDecomposition.alpha";
+  private static final String PAR_DIMENSION = "dimension";
+  private static final String PAR_ORIGDIM = "origdim";
+  private static final String PAR_LAMBDA = "lambda";
+  private static final String PAR_ALPHA = "alpha";
   
   protected double age;
   protected final SparseVector[] columnModels;
@@ -32,15 +32,11 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
   protected boolean isUpdated = true;
   
   public LowRankDecomposition(String prefix) {
-    this(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_ORIGDIM);
-  }
-  
-  public LowRankDecomposition(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA, String PAR_ORIGDIM) {
+    origDimension = Configuration.getInt(prefix + "." + PAR_ORIGDIM);
     dimension = Configuration.getInt(prefix + "." + PAR_DIMENSION);
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
     alpha = Configuration.getDouble(prefix + "." + PAR_ALPHA);
     age = 0.0;
-    origDimension = Configuration.getInt(prefix + "." + PAR_ORIGDIM);
     columnModels = new SparseVector[origDimension];
   }
   
@@ -207,7 +203,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor,
 
   @Override
   public LowRankDecomposition getModelPart() {
-    return this;
+    return new LowRankDecomposition(this);
   }
   
   protected SparseVector initVector() {

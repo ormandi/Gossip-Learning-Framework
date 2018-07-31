@@ -257,7 +257,7 @@ public class DiffPriv {
           System.out.println(iter + "\t" + result);
         }
       }
-      if (isLogEval && iter == evalTime * 100) {// && evalTime < reader.getTrainingSet().size() / 100) {
+      if (isLogEval && iter == evalTime * 10) {// && evalTime < reader.getTrainingSet().size() / 100) {
         evalTime *= 10;
       }
       

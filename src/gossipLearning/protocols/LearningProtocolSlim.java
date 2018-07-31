@@ -30,7 +30,7 @@ public class LearningProtocolSlim extends LearningProtocol {
     // evaluate
     for (int i = 0; i < modelHolders.length; i++) {
       if (CommonState.r.nextDouble() < evaluationProbability) {
-        ((ResultAggregator)resultAggregator).push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
+        ((ResultAggregator)resultAggregator).push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
       }
     }
     
@@ -48,7 +48,7 @@ public class LearningProtocolSlim extends LearningProtocol {
   
   protected void updateModels(ModelHolder modelHolder){
     // get instances from the extraction protocol
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
       LearningModel recvModel = (LearningModel)modelHolder.getModel(i);

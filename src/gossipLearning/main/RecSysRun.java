@@ -38,9 +38,9 @@ public class RecSysRun {
     
     // parse general parameters
     int numIters = Configuration.getInt("ITER");
-    System.err.println("\tnumber of iterations on the training set: " + numIters);
-    long seed = Configuration.getLong("SEED", System.currentTimeMillis());
-    System.err.println("\trandom seed: " + seed);
+    System.err.println("\tNumber of iterations: " + numIters);
+    long seed = Configuration.getLong("SEED", Utils.getSeed());
+    System.err.println("\tRandom seed: " + seed);
     CommonState.r.setSeed(seed);
     
     // parse learning related parameters

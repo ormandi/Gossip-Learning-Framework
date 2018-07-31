@@ -11,18 +11,25 @@ import gossipLearning.utils.SparseVector;
  */
 public interface LearningModel extends Model {
   /**
-   * This method updates the actual model with a training instance.
+   * Updates the actual model with a training instance.
    * @param instance the features that represent the instance
    * @param label the class label of the training instance or Double.NaN in case of clustering
    */
   public void update(SparseVector instance, double label);
   
   /**
-   * This method updates the model using the specified batch of training instances.
+   * Updates the model using the specified batch of training instances.
    * @param instances batch of training instances
    */
   public void update(InstanceHolder instances);
   
+  /**
+   * Updates the model by using the specified training instances, runs the 
+   * specified epoch, with the specified size of batches. 
+   * @param instances used for update
+   * @param epoch number of update rounds
+   * @param batchSize mini-batch size
+   */
   public void update(InstanceHolder instances, int epoch, int batchSize);
   
   /**
@@ -40,7 +47,14 @@ public interface LearningModel extends Model {
    */
   public void setParameters(int numberOfClasses, int numberOfFeatures);
   
+  /**
+   * Clears/resets the model.
+   */
   public void clear();
   
+  /**
+   * Sets the specified age to the model.
+   * @param age to be set.
+   */
   public void setAge(double age);
 }

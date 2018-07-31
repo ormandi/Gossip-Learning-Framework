@@ -733,6 +733,10 @@ public class Utils {
     return R;
   }
   
+  public static long getSeed() {
+    return System.nanoTime() % (long)1E9;
+  }
+  
   public static void main(String[] args) {
     Random r = new Random(System.currentTimeMillis());
     int size = 100;

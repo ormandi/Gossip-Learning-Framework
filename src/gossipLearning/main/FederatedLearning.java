@@ -32,7 +32,7 @@ public class FederatedLearning {
     
     int numIters = Configuration.getInt("ITER");
     System.err.println("\tNumber of iterations: " + numIters);
-    long seed = Configuration.getLong("SEED", System.nanoTime());
+    long seed = Configuration.getLong("SEED", Utils.getSeed());
     System.err.println("\tRandom seed: " + seed);
     CommonState.r.setSeed(seed);
     
@@ -42,8 +42,8 @@ public class FederatedLearning {
     System.err.println("\ttraining file: " + tFile);
     File eFile = new File(Configuration.getString("evaluationFile"));
     System.err.println("\tevaluation file: " + eFile);
-    String normalization = Configuration.getString("NORMALIZATION", "none");
-    System.err.println("\tNormalization method: " + normalization);
+    int normalization = Configuration.getInt("NORMALIZATION", 0);
+    System.err.println("\tNormalization method: " + LocalRun.NORMALIZATION.values()[normalization]);
     
     // number of clients
     int K = Configuration.getInt("CLIENTS");
@@ -77,10 +77,10 @@ public class FederatedLearning {
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
     
     // normalize database
-    if (normalization.equals("standardize")) {
+    if (normalization == 2) {
       System.err.println("Standardizing data set.");
       reader.standardize();
-    } else if (normalization.equals("normalize")) {
+    } else if (normalization == 1) {
       System.err.println("Normalizing data set.");
       reader.normalize();
     }
@@ -155,11 +155,8 @@ public class FederatedLearning {
           localModels[idx].update(localInstances[idx], E, B);
         }*/
         
-        // reset global model
+        // reset model collector
         avgModels[m].clear();
-        if (!(globalModels[m] instanceof SlimModel)) {
-          globalModels[m].clear();
-        }
         
         // update local models (multi thread)
         for (int i = 0; i < numUsedClients; i++) {
@@ -172,15 +169,18 @@ public class FederatedLearning {
         for (int i = 0; i < numUsedClients; i++) {
           int idx = clientIndices[i];
           double coef = localInstances[idx].size() / usedSamples;
+          // averaging updated models
           // TODO: check slim merge sparsity!!!
           ((Mergeable)avgModels[m]).add(((Partializable)localModels[idx]).getModelPart(), coef);
         }
         if (globalModels[m] instanceof SlimModel) {
-          ((Mergeable)globalModels[m]).merge(avgModels[m]);
+          ((SlimModel)globalModels[m]).merge(avgModels[m]);
         } else {
+          // reset and set global model
+          globalModels[m].clear();
           ((Mergeable)globalModels[m]).add(avgModels[m]);
         }
-        System.out.println(globalModels[m].getAge() + "\t" + globalModels[m]);
+        //System.out.println(globalModels[m].getAge() + "\t" + globalModels[m]);
       }
     }
     System.err.println("Final result:");

@@ -54,7 +54,7 @@ public class FactorizationProtocol extends LearningProtocol {
     // evaluate
     for (int i = 0; i < modelHolders.length; i++) {
       //if (CommonState.r.nextDouble() < evaluationProbability) {
-        ((FactorizationResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
+        ((FactorizationResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
       //}
     }
     
@@ -102,7 +102,7 @@ public class FactorizationProtocol extends LearningProtocol {
   
   protected void updateModels(ModelHolder modelHolder){
     // get instances from the extraction protocol
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     if (instances.size() > 1) {
       throw new RuntimeException("The number of instances should be one at avery node instead of " + instances.size());
     }

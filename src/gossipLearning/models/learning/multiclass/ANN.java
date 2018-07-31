@@ -218,9 +218,11 @@ public class ANN extends ProbabilityModel {
     layersSizes[layersSizes.length - 1] = numberOfClasses;
     
     // thetas are initialized uniform randomly from [-scale : scale] (ML-Class)
+    Random r = new Random(seed);
     for (int i = 0; i < thetas.length; i++) {
+      //Random r = new Random(seed);
       double scale = Math.sqrt(6)/Math.sqrt(layersSizes[i] + layersSizes[i+1]);
-      thetas[i] = new Matrix(layersSizes[i], layersSizes[i + 1], new Random(seed)).mulEquals(2.0 * scale).addEquals(-scale);
+      thetas[i] = new Matrix(layersSizes[i], layersSizes[i + 1], r).mulEquals(2.0 * scale).addEquals(-scale);
       gradients[i] = new Matrix(layersSizes[i], layersSizes[i + 1]);
       products[i] = new Matrix(1, thetas[i].getColumnDimension());
       activations[i] = new Matrix(1, thetas[i].getColumnDimension());

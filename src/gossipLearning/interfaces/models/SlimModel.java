@@ -1,3 +1,4 @@
 package gossipLearning.interfaces.models;
 
-public interface SlimModel {}
+public interface SlimModel extends Mergeable, Partializable {
+}

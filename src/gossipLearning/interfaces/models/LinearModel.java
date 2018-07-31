@@ -89,7 +89,7 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     }
     double modelWeight = m.age / sum;
     age = Math.max(age, m.age);
-    w.mul(age / sum).add(m.w, modelWeight);
+    w.mul(1.0 - modelWeight).add(m.w, modelWeight);
     bias += (m.bias - bias) * modelWeight;
     return this;
   }

@@ -27,6 +27,9 @@ import peersim.core.CommonState;
  * @author István Hegedűs
  */
 public class LocalRun {
+  enum NORMALIZATION {
+    NONE, NORMALIZE, STANDARDIZE;
+  }
   public static void main(String[] args) throws Exception {
     if (args.length != 1) {
       System.err.println("Using: LocalRun ConfigLearning");
@@ -42,7 +45,7 @@ public class LocalRun {
     // parse general parameters
     int numIters = Configuration.getInt("ITER");
     System.err.println("\tNumber of iterations: " + numIters);
-    long seed = Configuration.getLong("SEED", System.currentTimeMillis());
+    long seed = Configuration.getLong("SEED", Utils.getSeed());
     System.err.println("\tRandom seed: " + seed);
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
@@ -53,8 +56,8 @@ public class LocalRun {
     System.err.println("\tevaluation file: " + eFile);
     String samplingMethod = Configuration.getString("SAMPLING", "uniform");
     System.err.println("\tSampling method: " + samplingMethod);
-    String normalization = Configuration.getString("NORMALIZATION", "none");
-    System.err.println("\tNormalization method: " + normalization);
+    int normalization = Configuration.getInt("NORMALIZATION", 0);
+    System.err.println("\tNormalization method: " + NORMALIZATION.values()[normalization]);
     int batchSize = Configuration.getInt("BATCHSIZE", 1);
     System.err.println("\tBatch size: " + batchSize);
     int evalTime = 1;
@@ -79,10 +82,10 @@ public class LocalRun {
     //time = System.currentTimeMillis();
     
     // normalize database
-    if (normalization.equals("standardize")) {
+    if (normalization == 2) {
       System.err.println("Standardizing data set.");
       reader.standardize();
-    } else if (normalization.equals("normalize")) {
+    } else if (normalization == 1) {
       System.err.println("Normalizing data set.");
       reader.normalize();
     }

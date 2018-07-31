@@ -6,36 +6,34 @@ import gossipLearning.utils.Utils;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-public class CompressedLogReg extends LogisticRegression {
-  private static final long serialVersionUID = 3906634332190699663L;
+public class CompressedPerceptron extends Perceptron {
+  private static final long serialVersionUID = -2727461616417241381L;
   private static final String PAR_NBITS = "nbits";
   
   protected final int nbits;
   
-  public CompressedLogReg(String prefix) {
+  public CompressedPerceptron(String prefix) {
     super(prefix);
     nbits = Configuration.getInt(prefix + "." + PAR_NBITS);
   }
   
-  protected CompressedLogReg(CompressedLogReg a) {
+  public CompressedPerceptron(CompressedPerceptron a) {
     super(a);
     nbits = a.nbits;
   }
   
   @Override
   public Object clone() {
-    return new CompressedLogReg(this);
+    return new CompressedPerceptron(this);
   }
   
   @Override
   protected void gradient(SparseVector instance, double label) {
-    double prob = getPositiveProbability(instance);
-    double err = label - prob;
-    //gradient.set(w).mul(lambda).add(instance, err);
-    //biasGradient = lambda * err;
-    gradient.set(instance).mul(err).scaleValueRange(nbits, CommonState.r);
+    double product = w.mul(instance) + bias;
+    double grad = (fAct.execute(product) - label) * fGrad.execute(product);
+    gradient.set(instance).mul(grad).scaleValueRange(nbits, CommonState.r);
     gradient.add(w, lambda);
-    biasGradient = Utils.scaleValueRange(err, nbits, CommonState.r) * lambda;
+    biasGradient = Utils.scaleValueRange(grad, nbits, CommonState.r) * lambda;
   }
   
   protected SparseVector inst_tmp = new SparseVector();
@@ -47,15 +45,14 @@ public class CompressedLogReg extends LogisticRegression {
       SparseVector instance = instances.getInstance(i);
       double label = instances.getLabel(i);
       
-      double prob = getPositiveProbability(instance);
-      double err = label - prob;
-      inst_tmp.set(instance).mul(err).scaleValueRange(nbits, CommonState.r);
+      double product = w.mul(instance) + bias;
+      double grad = (fAct.execute(product) - label) * fGrad.execute(product);
+      inst_tmp.set(instance).mul(grad).scaleValueRange(nbits, CommonState.r);
       gradient.add(inst_tmp);
-      biasGradient += Utils.scaleValueRange(err, nbits, CommonState.r);
+      biasGradient += Utils.scaleValueRange(grad, nbits, CommonState.r);
     }
     gradient.add(w, lambda * instances.size());
     biasGradient *= lambda;
   }
-  
 
 }

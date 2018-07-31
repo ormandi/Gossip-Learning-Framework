@@ -40,6 +40,7 @@ public class Perceptron extends LinearModel {
     return new Perceptron(this);
   }
 
+  @Override
   protected void gradient(SparseVector instance, double label) {
     double product = w.mul(instance) + bias;
     double grad = (fAct.execute(product) - label) * fGrad.execute(product);
@@ -47,6 +48,7 @@ public class Perceptron extends LinearModel {
     biasGradient = lambda * grad;
   }
   
+  @Override
   protected void gradient(InstanceHolder instances) {
     gradient.set(w).mul(lambda * instances.size());
     biasGradient = 0.0;

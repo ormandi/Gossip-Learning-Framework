@@ -1,6 +1,5 @@
 package gossipLearning.protocols;
 
-import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.protocols.AbstractProtocol;
 import gossipLearning.messages.ModelMessage;
@@ -13,7 +12,7 @@ import peersim.core.Node;
 
 public class VirusProtocol extends AbstractProtocol {
   
-  protected ModelHolder holder;
+  protected BQModelHolder holder;
 
   public VirusProtocol(String prefix) {
     super(prefix);
@@ -24,7 +23,7 @@ public class VirusProtocol extends AbstractProtocol {
   
   public VirusProtocol(VirusProtocol a) {
     super(a);
-    holder = (ModelHolder)a.holder.clone();
+    holder = (BQModelHolder)a.holder.clone();
   }
   
   public Object clone() {

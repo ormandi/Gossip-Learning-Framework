@@ -6,17 +6,8 @@ import gossipLearning.utils.SparseVector;
 
 public class MergeableLowRank extends LowRankDecomposition implements Mergeable {
   private static final long serialVersionUID = -8892302266739538821L;
-  private static final String PAR_DIMENSION = "MergeableLowRank.dimension";
-  private static final String PAR_ORIGDIM = "MergeableLowRank.origdim";
-  private static final String PAR_LAMBDA = "MergeableLowRank.lambda";
-  private static final String PAR_ALPHA = "MergeableLowRank.alpha";
-  
   public MergeableLowRank(String prefix) {
-    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_ORIGDIM);
-  }
-  
-  public MergeableLowRank(String prefix, String PAR_DIMENSION, String PAR_LAMBDA, String PAR_ALPHA, String PAR_ORIGDIM) {
-    super(prefix, PAR_DIMENSION, PAR_LAMBDA, PAR_ALPHA, PAR_ORIGDIM);
+    super(prefix);
   }
   
   public MergeableLowRank(MergeableLowRank a) {
@@ -82,7 +73,7 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable 
   
   @Override
   public MergeableLowRank getModelPart() {
-    return this;
+    return new MergeableLowRank(this);
   }
 
 }

@@ -44,7 +44,7 @@ public class LearningProtocol extends AbstractProtocol {
   protected long numberOfWaits;
   protected int numberOfIncomingModels;
   
-  protected final int exrtactorProtocolID;
+  protected final int extractorProtocolID;
   
   protected ResultAggregator resultAggregator;
   protected final double evaluationProbability;
@@ -76,7 +76,7 @@ public class LearningProtocol extends AbstractProtocol {
   protected LearningProtocol(String prefix, int capacity) {
     super(prefix);
     // loading configuration parameters
-    exrtactorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
+    extractorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
     this.capacity = capacity;
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     modelNames = Configuration.getNames(prefix + "." + PAR_LEARNER);
@@ -127,7 +127,7 @@ public class LearningProtocol extends AbstractProtocol {
    */
   protected LearningProtocol(LearningProtocol a) {
     super(a);
-    exrtactorProtocolID = a.exrtactorProtocolID;
+    extractorProtocolID = a.extractorProtocolID;
     capacity = a.capacity;
     modelHolderName = a.modelHolderName;
     modelNames = a.modelNames;
@@ -146,11 +146,11 @@ public class LearningProtocol extends AbstractProtocol {
     }
     
     resultAggregator = (ResultAggregator)a.resultAggregator.clone();
-    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone();
-    latestModelHolder = (ModelHolder)a.latestModelHolder.clone();
-    modelHolders = new ModelHolder[a.modelHolders.length];
+    lastSeenMergeableModels = (BQModelHolder)a.lastSeenMergeableModels.clone();
+    latestModelHolder = (BQModelHolder)a.latestModelHolder.clone();
+    modelHolders = new BQModelHolder[a.modelHolders.length];
     for (int i = 0; i < modelHolders.length; i++) {
-      modelHolders[i] = (ModelHolder)a.modelHolders[i].clone();
+      modelHolders[i] = (BQModelHolder)a.modelHolders[i].clone();
     }
   }
   
@@ -164,7 +164,7 @@ public class LearningProtocol extends AbstractProtocol {
     return new LearningProtocol(this);
   }
   
-  protected ModelHolder latestModelHolder;
+  protected BQModelHolder latestModelHolder;
   /**
    * It sends the latest models to a uniformly selected random neighbor.
    */
@@ -173,7 +173,7 @@ public class LearningProtocol extends AbstractProtocol {
     // evaluate
     for (int i = 0; i < modelHolders.length; i++) {
       if (CommonState.r.nextDouble() < evaluationProbability) {
-        resultAggregator.push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getModel());
+        resultAggregator.push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
       }
     }
     // send
@@ -217,7 +217,7 @@ public class LearningProtocol extends AbstractProtocol {
    */
   protected void updateModels(ModelHolder modelHolder){
     // get instances from the extraction protocol
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(exrtactorProtocolID)).getInstances();
+    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
       LearningModel model = (LearningModel)modelHolder.getModel(i);

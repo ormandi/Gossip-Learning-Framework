@@ -22,7 +22,7 @@ public class ModelMessage implements ModelHolder, Message {
   /** @hidden */
   private final Node src;
   /** @hidden */
-  private final ModelHolder models;
+  private final BQModelHolder models;
   private final int pid;
 
   /**
@@ -33,9 +33,9 @@ public class ModelMessage implements ModelHolder, Message {
    * @param pid The id of the protocol that can handle this message.
    * @param deep Makes deep copy of the specified models if true.
    */
-  public ModelMessage(Node src, ModelHolder models, int pid, boolean deep) {
+  public ModelMessage(Node src, BQModelHolder models, int pid, boolean deep) {
     this.src = src;
-    this.models = new BQModelHolder((BQModelHolder)models, deep);
+    this.models = new BQModelHolder(models, deep);
     this.pid = pid;
   }
 

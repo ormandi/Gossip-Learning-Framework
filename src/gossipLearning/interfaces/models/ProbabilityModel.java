@@ -85,9 +85,6 @@ public abstract class ProbabilityModel implements LearningModel {
     if (instances == null || instances.size() == 0) {
       return;
     }
-    if (1 < instances.size()) {
-      throw new RuntimeException("Batch update is not implemented for this learner!");
-    }
     for (int i = 0; i < instances.size(); i++) {
       update(instances.getInstance(i), instances.getLabel(i));
     }
@@ -120,6 +117,7 @@ public abstract class ProbabilityModel implements LearningModel {
         batch.clear();
       }
     }
+    // TODO: sum up grads
   }
   
   @Override

@@ -211,6 +211,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     }
     indices[size-1] = 0;
     values[size-1] = sparseValue;
+    size --;
   }
   
   /**
@@ -262,7 +263,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
       // if the insertion is default value then remove
       if (value == sparseValue) {
         removeIdx(idx);
-        size --;
         return this;
       }
       // insert the value
@@ -302,7 +302,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
     if (idx >= 0) {
       double res = values[idx];
       removeIdx(idx);
-      size --;
       return res;
     }
     return sparseValue;
@@ -321,7 +320,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
       }
       if (values[idx] == sparseValue) {
         removeIdx(idx);
-        size --;
       }
     } else {
       if (value == sparseValue) {
@@ -366,7 +364,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
         values[idx] += vector.values[idx2] * alpha;
         if (values[idx] == sparseValue) {
           removeIdx(idx);
-          size --;
         } else {
           idx ++;
         }
@@ -409,7 +406,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
         values[idx] += vector[i] * alpha;
         if (values[idx] == sparseValue) {
           removeIdx(idx);
-          size --;
         } else {
           idx ++;
         }
@@ -719,7 +715,6 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
       values[idx] = Utils.scaleValueRange(values[idx], nbits, r);
       if (values[idx] == sparseValue) {
         removeIdx(idx);
-        size --;
       } else {
         idx ++;
       }

@@ -35,7 +35,7 @@ public class LowRankRun {
     // parse general parameters
     int numIters = Configuration.getInt("ITER");
     long seed = Configuration.getLong("SEED");
-    int evalTime = numIters / Configuration.getInt("NUMEVALS");
+    int evalTime = 1;
     Random r = new Random(seed);
     CommonState.r.setSeed(seed);
     
@@ -46,7 +46,7 @@ public class LowRankRun {
     File tExFile = new File(Configuration.getString("trainingFileOut"));
     File eExFile = new File(Configuration.getString("evaluationFileOut"));
     
-    String extractorName = Configuration.getString("extractor");
+    String modelName = Configuration.getNames("extractor")[0];
     String[] evalNames = Configuration.getString("evaluators").split(",");
     int printPrecision = Configuration.getInt("printPrecision");
     boolean isPrintResults = Configuration.getBoolean("isPrintResults", false);
@@ -58,11 +58,11 @@ public class LowRankRun {
     //reader.standardize();
     
     // create models
-    LowRankDecomposition extractor = (LowRankDecomposition)Class.forName(extractorName).getConstructor(String.class).newInstance("extractor");
+    LowRankDecomposition extractor = (LowRankDecomposition)Class.forName(Configuration.getString(modelName)).getConstructor(String.class).newInstance(modelName);
     SparseVector userModels[] = new SparseVector[reader.getTrainingSet().size()];
     
     // initialize evaluator
-    FactorizationResultAggregator lrResultAggregator = (FactorizationResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(new String[]{extractorName}, evalNames);
+    FactorizationResultAggregator lrResultAggregator = (FactorizationResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(new String[]{modelName}, evalNames);
     lrResultAggregator.setEvalSet(reader.getTrainingSet());
     AggregationResult.printPrecision = printPrecision;
     
@@ -86,6 +86,9 @@ public class LowRankRun {
           }
           System.out.println(iter + "\t" + result);
         }
+      }
+      if (iter == evalTime * 10) {
+        evalTime *= 10;
       }
       
       // training
@@ -131,10 +134,13 @@ public class LowRankRun {
     }
     
     // extracting
-    System.err.print("Extracting...");
+    System.err.println("Extracting...");
+    System.err.print("\t" + tExFile);
     InstanceHolder extracted = extractor.extract(reader.getTrainingSet());
-    InstanceHolder evalSet = extractor.extract(reader.getEvalSet());
     extracted.writeToFile(tExFile);
+    System.err.println("\tdone!");
+    System.err.print("\t" + eExFile);
+    InstanceHolder evalSet = extractor.extract(reader.getEvalSet());
     evalSet.writeToFile(eExFile);
     System.err.println("\tdone!");
     
