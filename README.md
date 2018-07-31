@@ -54,7 +54,7 @@ The meaning of the configuration file:
     NUMEVALS 10 #number of evaluations
 
     SAMPLING uniform #uniform/iterative default is uniform
-    #NORMALIZATION standardize #standardize/normalize not required
+    #NORMALIZATION 2 #0: none, 1: normalize, 2: standardize not required
 
     dbReader gossipLearning.utils.DataBaseReader
     trainingFile res/db/iris_versicolor_virginica_train.dat #training set
