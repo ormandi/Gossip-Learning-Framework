@@ -8,20 +8,18 @@ LAMBDA 1E-4 #learning rate
 EPOCH 1 #number of local epochs
 BATCH 1 #local min-batch size
 
-ONLINESIZE NETWORKSIZE
-CYCLE C*ONLINESIZE+1
-LOGTIME ONLINESIZE
+CYCLE (C+1)*NETWORKSIZE
+LOGTIME NETWORKSIZE
 
 # Transport parameters
 DROP 0.0
 DELAY 1.0
-MINDELAY NETWORKSIZE*0.9
+MINDELAY DELAY*NETWORKSIZE*0.9
 MAXDELAY DELAY*NETWORKSIZE*1.1
 
 # Overlay parameters
 NEWSCAST_CACHESIZE 5
-NEWSCAST_FREQ ONLINESIZE/10.0
-
+NEWSCAST_FREQ NETWORKSIZE/10.0
 
 #-------------------- General Simulation Properties --------------------
 network.size NETWORKSIZE
@@ -53,8 +51,8 @@ protocol.overlay.baseFreq NEWSCAST_FREQ
 protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
 protocol.extractionProtocol.linkable overlay
 protocol.extractionProtocol.transport transport
-protocol.extractionProtocol.delayMean ONLINESIZE
-protocol.extractionProtocol.delayVar ONLINESIZE/10.0
+protocol.extractionProtocol.delayMean NETWORKSIZE
+protocol.extractionProtocol.delayVar NETWORKSIZE/10.0
 protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.extractionProtocol.modelHolderCapacity 1
 protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
@@ -66,14 +64,16 @@ protocol.learningProtocol gossipLearning.protocols.LearningProtocol
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport transport
 protocol.learningProtocol.extractorProtocol extractionProtocol
-protocol.learningProtocol.delayMean ONLINESIZE
-protocol.learningProtocol.delayVar ONLINESIZE/10.0
+protocol.learningProtocol.delayMean NETWORKSIZE
+protocol.learningProtocol.delayVar NETWORKSIZE/10.0
 protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 3
 protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
 protocol.learningProtocol.learner.PegasosSVM gossipLearning.models.learning.P2Pegasos
 protocol.learningProtocol.learner.PegasosSVM.lambda LAMBDA
+protocol.learningProtocol.learner.LogReg gossipLearning.models.learning.LogisticRegression
+protocol.learningProtocol.learner.LogReg.lambda LAMBDA
 protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
 protocol.learningProtocol.evalProbability 1.0
 protocol.learningProtocol.epoch EPOCH
@@ -109,6 +109,7 @@ include.init overlayInit overlayStart instanceLoader learningProtocolStart
 
 #-------------------- Observers --------------------
 control.prediction gossipLearning.controls.PredictionObserver
+control.prediction.from 1
 control.prediction.step LOGTIME
 control.prediction.protocol learningProtocol
 control.prediction.format gpt

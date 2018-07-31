@@ -3,9 +3,8 @@ NETWORKSIZE 943
 SEED 1234567890
 CORES 1
 
-ONLINESIZE NETWORKSIZE
-CYCLE C*ONLINESIZE+1
-LOGTIME ONLINESIZE
+CYCLE (C+1)*NETWORKSIZE
+LOGTIME NETWORKSIZE
 
 # Transport parameters
 DROP 0.0
@@ -15,7 +14,7 @@ MAXDELAY DELAY*NETWORKSIZE*1.5
 
 # Overlay parameters
 NEIGHBORS 10
-NEWSCAST_FREQ ONLINESIZE/10.0
+NEWSCAST_FREQ NETWORKSIZE/10.0
 
 
 #-------------------- General Simulation Properties --------------------
@@ -48,8 +47,8 @@ protocol.overlay.baseFreq NEWSCAST_FREQ
 protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
 protocol.extractionProtocol.linkable overlay
 protocol.extractionProtocol.transport transport
-protocol.extractionProtocol.delayMean ONLINESIZE
-protocol.extractionProtocol.delayVar ONLINESIZE/10.0
+protocol.extractionProtocol.delayMean NETWORKSIZE
+protocol.extractionProtocol.delayVar NETWORKSIZE/10.0
 protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.extractionProtocol.modelHolderCapacity 1
 protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
@@ -57,27 +56,28 @@ protocol.extractionProtocol.isUseTMan false
 
 
 #-------------------- Learning layer(s) --------------------
-LAMBDA 1E-2
-ALPHA 1E-3
-DIMENSION 5
+LAMBDA 1E-3
+ALPHA 1E-4
+DIMENSION 2
+ORIGDIM 1682
 protocol.learningProtocol gossipLearning.protocols.FactorizationProtocol
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport transport
 protocol.learningProtocol.extractorProtocol extractionProtocol
-protocol.learningProtocol.delayMean ONLINESIZE
-protocol.learningProtocol.delayVar ONLINESIZE/10.0
+protocol.learningProtocol.delayMean NETWORKSIZE
+protocol.learningProtocol.delayVar NETWORKSIZE/10.0
 protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 3
 protocol.learningProtocol.aggrName gossipLearning.evaluators.RecSysResultAggregator
 protocol.learningProtocol.learner.RecSysModel gossipLearning.models.factorization.RecSysModel
 protocol.learningProtocol.learner.RecSysModel.dimension DIMENSION
+protocol.learningProtocol.learner.RecSysModel.origdim ORIGDIM
 protocol.learningProtocol.learner.RecSysModel.lambda LAMBDA
 protocol.learningProtocol.learner.RecSysModel.alpha ALPHA
 protocol.learningProtocol.learner.RecSysModel.min 1
 protocol.learningProtocol.learner.RecSysModel.max 5
-protocol.learningProtocol.learner.RecSysModel.numItems 1682
-protocol.learningProtocol.evalNames gossipLearning.evaluators.RMSError
+protocol.learningProtocol.evalNames gossipLearning.evaluators.MAError
 protocol.learningProtocol.evalProbability 1.0
 
 
@@ -111,6 +111,7 @@ include.init overlayInit overlayStart instanceLoader learningProtocolStart
 
 #-------------------- Observers --------------------
 control.prediction gossipLearning.controls.PredictionObserver
+control.prediction.from 1
 control.prediction.step LOGTIME
 control.prediction.protocol learningProtocol
 control.prediction.format gpt

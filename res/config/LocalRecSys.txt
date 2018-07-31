@@ -7,11 +7,11 @@ evaluationFile res/db/movielens_small.test
 
 learner.RecSysModel gossipLearning.models.factorization.RecSysModel
 learner.RecSysModel.dimension 2
+learner.RecSysModel.origdim 1682
 learner.RecSysModel.lambda 1E-3
-learner.RecSysModel.alpha 0.0
+learner.RecSysModel.alpha 1E-4
 learner.RecSysModel.min 1
 learner.RecSysModel.max 5
-learner.RecSysModel.numItems 1682
 
 evaluators gossipLearning.evaluators.MAError
 printPrecision 4
