@@ -2,6 +2,7 @@ package gossipLearning.controls;
 
 import gossipLearning.messages.ActiveThreadMessage;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -33,7 +34,7 @@ public class StartMessageInitializer implements Control {
       for (int i = 0; i < Network.size(); i++) {
         Node node = Network.get(i);
         // schedule starter alarm
-        EDSimulator.add(delay, ActiveThreadMessage.getInstance(), node, pid[index]);
+        EDSimulator.add(delay == 0 ? 0 : CommonState.r.nextInt(delay), ActiveThreadMessage.getInstance(), node, pid[index]);
       }
     }
     return false;
