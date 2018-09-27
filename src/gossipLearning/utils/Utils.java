@@ -2,6 +2,7 @@ package gossipLearning.utils;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Stack;
 import java.util.Vector;
@@ -761,6 +762,51 @@ public class Utils {
     System.out.println("]");
     
     System.out.println(Arrays.toString(KSTest(a, b)));
+    
+    double[] arr = new double[]{1,3,5,5,3,2,1,4,4,-1};
+    r = new Random(Utils.getSeed());
+    size = 10;
+    arr = new double[size];
+    for (int i = 0; i < size; i++) {
+      arr[i] = r.nextDouble();
+    }
+    
+    System.out.println(Arrays.toString(arr));
+    int[] res = IndexSort.sort(arr);
+    System.out.println("ISort: " + Arrays.toString(res));
+    
+  }
+  
+  /**
+   * 
+   * @param k number of labels
+   * @param n number of nodes
+   * @param c number of different labels per node
+   * @return mapping
+   */
+  public static LinkedList<Integer>[] mapLabesToNodes(int k, int n, int c) {
+    if (k < c) {
+      System.err.println("|--WARNING: can not be set " + c + " different labels from " + k + " different classes for a node. So " + k + " different will be set.");
+      c = k;
+    }
+    if (c * n < k) {
+      System.err.print("|--WARNING: can not be set " + c + " different labels from " + k + " different classes for a node of " + n + " nodes. ");
+      c = (int)Math.ceil(k / (double)n);
+      System.err.println("So " + c + " different will be set.");
+    }
+    @SuppressWarnings("unchecked")
+    LinkedList<Integer>[] map = new LinkedList[k];
+    for (int i = 0; i < k; i++) {
+      map[i] = new LinkedList<Integer>();
+    }
+    int ki = 0;
+    for (int ni = 0; ni < n; ni++) {
+      for (int ci = 0; ci < c; ci++) {
+        map[ki].add(ni % n);
+        ki = (ki + 1) % k;
+      }
+    }
+    return map;
   }
 
 }
