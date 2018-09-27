@@ -6,10 +6,13 @@ import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 
 import java.io.File;
+import java.util.LinkedList;
 
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Control;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -92,21 +95,45 @@ public class InstanceLoader implements Control {
       // read instances
       reader = DataBaseReader.createDataBaseReader(readerClassName, tFile, eFile);
       if (normalization == 1) {
-        System.err.println("WARNING: feature values will be normalized into the [0-1] interval");
+        System.err.println("|--WARNING: feature values will be normalized into the [0-1] interval");
         reader.normalize();
       } else if (normalization == 2) {
-        System.err.println("WARNING: feature values will be standardized (have 0 mean and 1 standard deviation)");
+        System.err.println("|--WARNING: feature values will be standardized (have 0 mean and 1 standard deviation)");
         reader.standardize();
       }
       
       if (reader.getTrainingSet().size() < Network.size()) {
-        System.err.println("WARNING: training set size (" + reader.getTrainingSet().size() + ") is less then the network size (" + Network.size() + ")");
+        System.err.println("|--WARNING: training set size (" + reader.getTrainingSet().size() + ") is less then the network size (" + Network.size() + ")");
       }
+      
+      // shuffle training set
+      int[] indices = new int[reader.getTrainingSet().size()];
+      for (int i = 0; i < indices.length; i++) {
+        indices[i] = i;
+      }
+      Utils.arrayShuffle(CommonState.r, indices);
+      
+      // bias instance distribution
+      boolean biased = true;
+      int k = reader.getTrainingSet().getNumberOfClasses();
+      // TODO: read from config file
+      int c = 2; // labels per peer
+      int n = Network.size();
+      LinkedList<Integer>[] map = Utils.mapLabesToNodes(k, n, c);
+      /*for (int i = 0; i < k; i++) {
+        System.out.println(i + "\t" + map[i]);
+      }
+      System.exit(0);*/
+      
       // init the nodes by adding the instances read before
       for (int i = 0; i < reader.getTrainingSet().size(); i++) {
-        SparseVector instance = reader.getTrainingSet().getInstance(i);
-        double label = reader.getTrainingSet().getLabel(i);
+        SparseVector instance = reader.getTrainingSet().getInstance(indices[i]);
+        double label = reader.getTrainingSet().getLabel(indices[i]);
         int nodeIdx = i % Network.size();
+        if (biased) {
+          nodeIdx = map[(int)label].poll();
+          map[(int)label].add(nodeIdx);
+        }
         Node node = Network.get(nodeIdx);
         Protocol protocol = node.getProtocol(pidE);
         if (protocol instanceof ExtractionProtocol) {

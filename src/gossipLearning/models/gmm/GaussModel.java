@@ -54,7 +54,7 @@ public class GaussModel implements Model, Mergeable {
     return this;
   }
   
-  @Override
+  /*@Override
   public Model add(Model model) {
     return add(model, 1.0);
   }
@@ -66,7 +66,7 @@ public class GaussModel implements Model, Mergeable {
     mean += m.mean * times;
     mean2 += m.mean2 * times;
     return this;
-  }
+  }*/
 
   @Override
   public double getAge() {

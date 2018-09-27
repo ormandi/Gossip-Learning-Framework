@@ -1,11 +1,12 @@
 package gossipLearning.models.learning.mergeable;
 
+import gossipLearning.interfaces.models.Federated;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.ANN;
 
-public class MergeableANN extends ANN implements Mergeable, Partializable {
+public class MergeableANN extends ANN implements Mergeable, Partializable, Federated {
   private static final long serialVersionUID = 2342217682704545173L;
   public MergeableANN(String prefix) {
     super(prefix);

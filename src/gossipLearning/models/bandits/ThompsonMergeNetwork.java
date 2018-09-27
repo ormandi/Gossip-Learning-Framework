@@ -60,7 +60,7 @@ public class ThompsonMergeNetwork extends Thompson implements Mergeable {
     return this;
   }
   
-  @Override
+  /*@Override
   public Model add(Model model) {
     return add(model, 1.0);
   }
@@ -73,6 +73,6 @@ public class ThompsonMergeNetwork extends Thompson implements Mergeable {
       rewards[i] += m.rewards[i] * times;
     }
     return this;
-  }
+  }*/
   
 }

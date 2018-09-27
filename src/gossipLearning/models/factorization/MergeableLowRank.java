@@ -47,7 +47,7 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable 
     return this;
   }
   
-  @Override
+  /*@Override
   public Model add(Model model) {
     return add(model, 1.0);
   }
@@ -69,7 +69,7 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable 
       }
     }
     return this;
-  }
+  }*/
   
   @Override
   public MergeableLowRank getModelPart() {

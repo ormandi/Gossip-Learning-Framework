@@ -80,7 +80,7 @@ public class GMM implements Model, Mergeable {
     return this;
   }
   
-  @Override
+  /*@Override
   public Model add(Model model) {
     return add(model, 1.0);
   }
@@ -97,7 +97,7 @@ public class GMM implements Model, Mergeable {
       coefs[i] = age == 0.0 ? 1.0 / k: coefs[i] / age;
     }
     return null;
-  }
+  }*/
   
   @Override
   public double getAge() {

@@ -66,7 +66,7 @@ public class HungarianMatchingKMeans extends KMeans implements Mergeable {
     }
   }
   
-  @Override
+  /*@Override
   public Model add(Model model) {
     return add(model, 1.0);
   }
@@ -75,7 +75,7 @@ public class HungarianMatchingKMeans extends KMeans implements Mergeable {
   public Model add(Model model, double times) {
     // TODO Auto-generated method stub
     return null;
-  }
+  }*/
   
   protected HungarianMatchingKMeans crossover(HungarianMatchingKMeans model, HungarianMatchingKMeans mkm) {
     HungarianMethod hum = new HungarianMethod(mkm.centroids, model.centroids);

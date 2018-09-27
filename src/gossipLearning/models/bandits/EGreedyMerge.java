@@ -170,16 +170,5 @@ public class EGreedyMerge extends BanditModel implements Mergeable {
     }
     return this;
   }
-  
-  @Override
-  public Model add(Model model) {
-    return add(model, 1.0);
-  }
-  
-  @Override
-  public Model add(Model model, double times) {
-    // TODO Auto-generated method stub
-    return null;
-  }
 
 }

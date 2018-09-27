@@ -1,12 +1,13 @@
 package gossipLearning.models.learning.mergeable;
 
+import gossipLearning.interfaces.models.Federated;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.SimpleNaiveBayes;
 import gossipLearning.utils.SparseVector;
 
-public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable, Partializable {
+public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable, Partializable, Federated {
   private static final long serialVersionUID = 2340506780082847579L;
   
   public MergeableNaiveBayes(String prefix) {
@@ -50,7 +51,7 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable,
   }
 
   @Override
-  public MergeableNaiveBayes getModelPart() {
+  public Model getModelPart() {
     return new MergeableNaiveBayes(this);
   }
 

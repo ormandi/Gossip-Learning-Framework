@@ -3,6 +3,7 @@ package gossipLearning.models.learning.mergeable.slim;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeablePegasos;
+import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -51,7 +52,7 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel {
   }
   
   @Override
-  public SlimPegasos getModelPart() {
+  public Model getModelPart() {
     SlimPegasos result = new SlimPegasos(this);
     result.w.clear();
     if (gradient.size() == 0) {
@@ -70,6 +71,35 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel {
       result.w.add(idx, w.get(idx));
     }
     return result;
+  }
+  
+  private double biasWeight = 0.0;
+  private SparseVector weight;
+  @Override
+  public Model add(Model model, double times) {
+    if (weight == null) {
+      weight = new SparseVector();
+    }
+    w.pointMul(weight);
+    weight.mul(biasWeight);
+    super.add(model, times);
+    SlimPegasos m = (SlimPegasos)model;
+    biasWeight += times;
+    for (VectorEntry entry : m.w) {
+      weight.add(entry.index, times);
+    }
+    weight.mul(1.0 / biasWeight);
+    w.div(weight);
+    return this;
+  }
+  
+  @Override
+  public void clear() {
+    super.clear();
+    if (weight != null) {
+      weight.clear();
+    }
+    biasWeight = 0.0;
   }
 
 }

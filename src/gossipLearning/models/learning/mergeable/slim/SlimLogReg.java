@@ -3,6 +3,7 @@ package gossipLearning.models.learning.mergeable.slim;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeableLogReg;
+import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -66,6 +67,35 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
       result.w.add(idx, w.get(idx));
     }
     return result;
+  }
+  
+  private double biasWeight = 0.0;
+  private SparseVector weight;
+  @Override
+  public Model add(Model model, double times) {
+    if (weight == null) {
+      weight = new SparseVector();
+    }
+    w.pointMul(weight);
+    weight.mul(biasWeight);
+    super.add(model, times);
+    SlimLogReg m = (SlimLogReg)model;
+    biasWeight += 1.0;
+    for (VectorEntry entry : m.w) {
+      weight.add(entry.index, 1.0);
+    }
+    weight.mul(1.0 / biasWeight);
+    w.div(weight);
+    return this;
+  }
+  
+  @Override
+  public void clear() {
+    super.clear();
+    if (weight != null) {
+      weight.clear();
+    }
+    biasWeight = 0.0;
   }
 
 }

@@ -1,5 +1,6 @@
 package gossipLearning.models.learning.mergeable;
 
+import gossipLearning.interfaces.models.Federated;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
@@ -15,7 +16,7 @@ import gossipLearning.models.learning.multiclass.MultiLogReg;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Partializable {
+public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Partializable, Federated {
   private static final long serialVersionUID = -7800995106591726828L;
 
   /**
@@ -70,7 +71,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Part
   }
 
   @Override
-  public MergeableMultiLogReg getModelPart() {
+  public Model getModelPart() {
     return new MergeableMultiLogReg(this);
   }
 

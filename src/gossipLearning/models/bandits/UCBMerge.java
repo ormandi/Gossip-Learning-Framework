@@ -55,7 +55,7 @@ public class UCBMerge extends UCB implements Mergeable {
     return model;
   }
   
-  @Override
+  /*@Override
   public Model add(Model model) {
     return add(model, 1.0);
   }
@@ -64,6 +64,6 @@ public class UCBMerge extends UCB implements Mergeable {
   public Model add(Model model, double times) {
     // TODO Auto-generated method stub
     return null;
-  }
+  }*/
 
 }

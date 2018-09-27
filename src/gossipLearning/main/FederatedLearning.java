@@ -2,10 +2,10 @@ package gossipLearning.main;
 
 import gossipLearning.evaluators.ResultAggregator;
 import gossipLearning.interfaces.models.FeatureExtractor;
+import gossipLearning.interfaces.models.Federated;
 import gossipLearning.interfaces.models.LearningModel;
-import gossipLearning.interfaces.models.Mergeable;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
-import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.main.fedAVG.ModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.models.extraction.DummyExtractor;
@@ -16,6 +16,7 @@ import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Utils;
 
 import java.io.File;
+import java.util.LinkedList;
 
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
@@ -49,7 +50,7 @@ public class FederatedLearning {
     int K = Configuration.getInt("CLIENTS");
     System.err.println("\tNumber of clients: " + K);
     // proportion of clients
-    double C = Configuration.getDouble("C");
+    double C = Configuration.getDouble("FRACTION");
     System.err.println("\tFraction of clients: " + C);
     // number of local training passes
     int E = Configuration.getInt("EPOCHS");
@@ -57,6 +58,9 @@ public class FederatedLearning {
     // local minibatch size
     int B = Configuration.getInt("BATCH");
     System.err.println("\tLocal batch size: " + B);
+    // number of classes per clients
+    int c = Configuration.getInt("C");
+    System.err.println("\tNumber of classes per clients: " + c);
     // number of clients used in update
     int numUsedClients = Math.max(1, (int)Math.round(C*K));
     
@@ -116,8 +120,21 @@ public class FederatedLearning {
     for (int i = 0; i < K; i++) {
       localInstances[i] = new InstanceHolder(instances.getNumberOfClasses(), instances.getNumberOfFeatures());
     }
-    for (int i = 0; i < instances.size(); i++) {
-      localInstances[i % K].add(instances.getInstance(i), instances.getLabel(i));
+    if (0 < c) {
+      LinkedList<Integer>[] map = Utils.mapLabesToNodes(instances.getNumberOfClasses(), K, c);
+      for (int i = 0; i < instances.size(); i++) {
+        int clientIdx = i % K;
+        clientIdx = map[(int)instances.getLabel(i)].poll();
+        map[(int)instances.getLabel(i)].add(clientIdx);
+        localInstances[clientIdx].add(instances.getInstance(i), instances.getLabel(i));
+      }
+      /*for (int i = 0; i < map.length; i++) {
+        System.out.println("Label " + i + " for nodes " + map[i]);
+      }
+      for (int i = 0; i < K; i++) {
+        System.out.println(i + "\t" + localInstances[i].size());
+      }
+      System.exit(0);*/
     }
     
     TaskRunner taskRunner = new TaskRunner(numThreads);
@@ -169,18 +186,14 @@ public class FederatedLearning {
         for (int i = 0; i < numUsedClients; i++) {
           int idx = clientIndices[i];
           double coef = localInstances[idx].size() / usedSamples;
+          coef = (globalModels[m].getAge() + localInstances[idx].size()) / (globalModels[m].getAge() + usedSamples);
+          // keep gradients only
+          Model model = ((Partializable)((Federated)localModels[idx]).add(globalModels[m], -1)).getModelPart();
           // averaging updated models
-          // TODO: check slim merge sparsity!!!
-          ((Mergeable)avgModels[m]).add(((Partializable)localModels[idx]).getModelPart(), coef);
+          ((Federated)avgModels[m]).add(model, coef);
         }
-        if (globalModels[m] instanceof SlimModel) {
-          ((SlimModel)globalModels[m]).merge(avgModels[m]);
-        } else {
-          // reset and set global model
-          globalModels[m].clear();
-          ((Mergeable)globalModels[m]).add(avgModels[m]);
-        }
-        //System.out.println(globalModels[m].getAge() + "\t" + globalModels[m]);
+        // update global model
+        ((Federated)globalModels[m]).add(avgModels[m]);
       }
     }
     System.err.println("Final result:");
