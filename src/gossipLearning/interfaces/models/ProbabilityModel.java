@@ -126,7 +126,7 @@ public abstract class ProbabilityModel implements LearningModel {
   }
   
   @Override
-  public final void setAge(double age) {
+  public void setAge(double age) {
     this.age = age;
   }
   

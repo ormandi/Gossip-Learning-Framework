@@ -79,9 +79,11 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel {
   public Model add(Model model, double times) {
     if (weight == null) {
       weight = new SparseVector();
+    } else {
+      // if the w initialization is not 0 do not clean
+      w.pointMul(weight);
+      weight.mul(biasWeight);
     }
-    w.pointMul(weight);
-    weight.mul(biasWeight);
     super.add(model, times);
     SlimPegasos m = (SlimPegasos)model;
     biasWeight += times;
@@ -96,9 +98,7 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel {
   @Override
   public void clear() {
     super.clear();
-    if (weight != null) {
-      weight.clear();
-    }
+    weight = null;
     biasWeight = 0.0;
   }
 

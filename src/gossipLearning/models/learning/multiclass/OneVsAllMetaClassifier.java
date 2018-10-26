@@ -126,5 +126,14 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
       model.clear();
     }
   }
+  
+  @Override
+  public void setAge(double age) {
+    super.setAge(age);
+    for (int i = 0; i < numberOfClasses; i++) {
+      ProbabilityModel model = (ProbabilityModel)classifiers.getModel(i);
+      model.setAge(age);
+    }
+  }
 
 }

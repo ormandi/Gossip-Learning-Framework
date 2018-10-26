@@ -75,14 +75,16 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
   public Model add(Model model, double times) {
     if (weight == null) {
       weight = new SparseVector();
+    } else {
+      // if the w initialization is not 0 do not clean
+      w.pointMul(weight);
+      weight.mul(biasWeight);
     }
-    w.pointMul(weight);
-    weight.mul(biasWeight);
     super.add(model, times);
     SlimLogReg m = (SlimLogReg)model;
-    biasWeight += 1.0;
+    biasWeight += times;
     for (VectorEntry entry : m.w) {
-      weight.add(entry.index, 1.0);
+      weight.add(entry.index, times);
     }
     weight.mul(1.0 / biasWeight);
     w.div(weight);
@@ -92,9 +94,7 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
   @Override
   public void clear() {
     super.clear();
-    if (weight != null) {
-      weight.clear();
-    }
+    weight = null;
     biasWeight = 0.0;
   }
 

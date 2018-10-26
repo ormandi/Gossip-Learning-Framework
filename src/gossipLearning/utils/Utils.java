@@ -784,8 +784,8 @@ public class Utils {
    * @param c number of different labels per node
    * @return mapping
    */
-  public static LinkedList<Integer>[] mapLabesToNodes(int k, int n, int c) {
-    if (k < c) {
+  public static LinkedList<Integer>[] mapLabelsToNodes(int k, int n, int c) {
+    if (k < c || c == 0) {
       System.err.println("|--WARNING: can not be set " + c + " different labels from " + k + " different classes for a node. So " + k + " different will be set.");
       c = k;
     }
@@ -802,7 +802,7 @@ public class Utils {
     int ki = 0;
     for (int ni = 0; ni < n; ni++) {
       for (int ci = 0; ci < c; ci++) {
-        map[ki].add(ni % n);
+        map[ki].add(ni);
         ki = (ki + 1) % k;
       }
     }

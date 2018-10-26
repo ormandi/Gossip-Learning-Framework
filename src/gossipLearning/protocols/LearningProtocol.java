@@ -25,6 +25,7 @@ public class LearningProtocol extends AbstractProtocol {
   private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
   private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_LEARNER = "learner";
+  private static final String PAR_INCLUDE = "include.model";
   private static final String PAR_EVALNAMES = "evalNames";
   private static final String PAR_EVALPROB = "evalProbability";
   protected static final String PAR_MODELPROB = "initModelProbability";
@@ -79,7 +80,18 @@ public class LearningProtocol extends AbstractProtocol {
     extractorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
     this.capacity = capacity;
     modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
-    modelNames = Configuration.getNames(prefix + "." + PAR_LEARNER);
+    
+    String include = Configuration.getString(PAR_INCLUDE, null);
+    String[] includes = include == null ? null : include.split("\\s");
+    if (includes != null) {
+      modelNames = new String[includes.length];
+      for (int i = 0; i < includes.length; i++) {
+        modelNames[i] = prefix + "." + PAR_LEARNER + "." + includes[i];
+      }
+    } else {
+      modelNames = Configuration.getNames(prefix + "." + PAR_LEARNER);
+    }
+    
     evalNames = Configuration.getString(prefix + "." + PAR_EVALNAMES).split(",");
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
     numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);

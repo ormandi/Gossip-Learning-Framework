@@ -169,7 +169,11 @@ public class ANN extends ProbabilityModel {
 
     // input layer
     //gradient = new Matrix(instance, delta.getRow(0), layersSizes[0]);
+    // for bias
+    instance.add(layersSizes[0] - 1, 1.0);
     gradients[0].setMatrix(new Matrix(instance, delta.getRow(0), layersSizes[0]));
+    instance.add(layersSizes[0] - 1, -1.0);
+    
     // avoiding bias regularization
     thetas[0].mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, 1.0 - nu * lambda);
     // scaling with learning rate
@@ -271,6 +275,15 @@ public class ANN extends ProbabilityModel {
 
     // return cost
     return cost;
+  }
+  
+  @Override
+  public String toString() {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < thetas.length; i++) {
+      sb.append(thetas[i] + "\n");
+    }
+    return super.toString() + "\n" + sb.toString();
   }
 
 }

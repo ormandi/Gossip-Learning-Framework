@@ -412,6 +412,25 @@ public class Matrix implements Serializable {
   }
   
   /**
+   * Returns the reference of the matrix that was inverted elementwise. <br/>
+   * A = 1.0 ./ A
+   * @return reference of the inversed matrix (A)
+   * @note in place operation!
+   */
+  public Matrix invEquals() {
+    for (int i = 0; i < numberOfRows; i++) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        if (isTransposed) {
+          matrix[j][i] = 1.0 / matrix[j][i];
+        } else {
+          matrix[i][j] = 1.0 / matrix[i][j];
+        }
+      }
+    }
+    return this;
+  }
+  
+  /**
    * Returns a new matrix (C) that is the current matrix (A) multiplied by the
    * specified constant (s) in the specified range. <br/>
    * @param rowFrom initial row index
@@ -713,6 +732,40 @@ public class Matrix implements Serializable {
           this.matrix[i][j] *= matrix.matrix[j][i];
         } else {
           this.matrix[i][j] *= matrix.matrix[i][j];
+        }
+      }
+    }
+    return this;
+  }
+  
+  /**
+   * Returns the matrix (A) object that is the current matrix (A) divided
+   * pointwise by the specified matrix (B). <br/>
+   * A = A /. B
+   * @param matrix matrix to divide (B)
+   * @return result of the pointwise division as a new matrix object (A)
+   * @throws IllegalArgumentException if the matrices cannot be divided pointwise
+   * @note in place operation!
+   * @note Division by 0 will be result 0!
+   */
+  public Matrix pointDivEquals(Matrix matrix) {
+    if (numberOfRows != matrix.numberOfRows
+        || numberOfColumns != matrix.numberOfColumns) {
+      throw new IllegalArgumentException("Matrix with dimensions "
+          + numberOfRows + "x" + numberOfColumns
+          + " cannot be divided pointwise by a matrix with dimensions "
+          + matrix.numberOfRows + "x" + matrix.numberOfColumns);
+    }
+    for (int i = 0; i < numberOfRows; i++) {
+      for (int j = 0; j < numberOfColumns; j++) {
+        if (isTransposed && matrix.isTransposed) {
+          this.matrix[j][i] = matrix.matrix[j][i] == 0.0 ? 0.0 : this.matrix[j][i] / matrix.matrix[j][i];
+        } else if (isTransposed && !matrix.isTransposed) {
+          this.matrix[j][i] = matrix.matrix[i][j] == 0.0 ? 0.0 : this.matrix[j][i] / matrix.matrix[i][j];
+        } else if (!isTransposed && matrix.isTransposed) {
+          this.matrix[i][j] = matrix.matrix[j][i] == 0.0 ? 0.0 : this.matrix[i][j] / matrix.matrix[j][i];
+        } else {
+          this.matrix[i][j] = matrix.matrix[i][j] == 0.0 ? 0.0 : this.matrix[i][j] / matrix.matrix[i][j];
         }
       }
     }

@@ -1,4 +1,4 @@
-package gossipLearning.models.learning.mergeable.slim;
+package gossipLearning.temp;
 
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SlimModel;

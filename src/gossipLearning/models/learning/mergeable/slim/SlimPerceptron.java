@@ -75,9 +75,11 @@ public class SlimPerceptron extends MergeablePerceptron implements SlimModel {
   public Model add(Model model, double times) {
     if (weight == null) {
       weight = new SparseVector();
+    } else {
+      // if the w initialization is not 0 do not clean
+      w.pointMul(weight);
+      weight.mul(biasWeight);
     }
-    w.pointMul(weight);
-    weight.mul(biasWeight);
     super.add(model, times);
     SlimPerceptron m = (SlimPerceptron)model;
     biasWeight += times;
@@ -92,9 +94,7 @@ public class SlimPerceptron extends MergeablePerceptron implements SlimModel {
   @Override
   public void clear() {
     super.clear();
-    if (weight != null) {
-      weight.clear();
-    }
+    weight = null;
     biasWeight = 0.0;
   }
 

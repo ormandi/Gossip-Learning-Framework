@@ -3,6 +3,7 @@ package gossipLearning.models.learning.mergeable.slim;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeableANN;
+import gossipLearning.utils.Matrix;
 import gossipLearning.utils.Utils;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
@@ -92,6 +93,46 @@ public class SlimANN extends MergeableANN implements SlimModel {
       result.thetas[i].set(j, k, thetas[i].get(j, k));
     }
     return result;
+  }
+  
+  private double biasWeight = 0.0;
+  private Matrix[] weight;
+  @Override
+  public Model add(Model model, double times) {
+    if (weight == null) {
+      weight = new Matrix[thetas.length];
+      for (int i = 0; i < thetas.length; i++) {
+        weight[i] = new Matrix(thetas[i].getNumberOfRows(), thetas[i].getNumberOfColumns());
+      }
+    } else {
+      // if the w initialization is not 0 do not clean
+      for (int i = 0; i < thetas.length; i++) {
+        thetas[i].pointMulEquals(weight[i]);
+        weight[i].mulEquals(biasWeight);
+      }
+    }
+    super.add(model, times);
+    SlimANN m = (SlimANN)model;
+    biasWeight += times;
+    for (int i = 0; i < thetas.length; i++) {
+      for (int j = 0; j < thetas[i].getNumberOfRows(); j++) {
+        for (int k = 0; k < thetas[i].getNumberOfColumns(); k++) {
+          if (m.thetas[i].get(j, k) != 0.0) {
+            weight[i].set(j, k, weight[i].get(j, k) + times);
+          }
+        }
+      }
+      weight[i].mulEquals(1.0 / biasWeight);
+      thetas[i].pointDivEquals(weight[i]);
+    }
+    return this;
+  }
+  
+  @Override
+  public void clear() {
+    super.clear();
+    weight = null;
+    biasWeight = 0.0;
   }
 
 }

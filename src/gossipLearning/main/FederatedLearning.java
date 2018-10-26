@@ -13,6 +13,7 @@ import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
+import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
 import java.io.File;
@@ -106,6 +107,11 @@ public class FederatedLearning {
     
     
     InstanceHolder instances = reader.getTrainingSet();
+    int[] instanceIndices = new int[instances.size()];
+    for (int i = 0; i < instances.size(); i++) {
+      instanceIndices[i] = i;
+    }
+    Utils.arrayShuffle(CommonState.r, instanceIndices);
     
     BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor extractor = new DummyExtractor("");
@@ -120,22 +126,22 @@ public class FederatedLearning {
     for (int i = 0; i < K; i++) {
       localInstances[i] = new InstanceHolder(instances.getNumberOfClasses(), instances.getNumberOfFeatures());
     }
-    if (0 < c) {
-      LinkedList<Integer>[] map = Utils.mapLabesToNodes(instances.getNumberOfClasses(), K, c);
-      for (int i = 0; i < instances.size(); i++) {
-        int clientIdx = i % K;
-        clientIdx = map[(int)instances.getLabel(i)].poll();
-        map[(int)instances.getLabel(i)].add(clientIdx);
-        localInstances[clientIdx].add(instances.getInstance(i), instances.getLabel(i));
-      }
-      /*for (int i = 0; i < map.length; i++) {
-        System.out.println("Label " + i + " for nodes " + map[i]);
-      }
-      for (int i = 0; i < K; i++) {
-        System.out.println(i + "\t" + localInstances[i].size());
-      }
-      System.exit(0);*/
+    LinkedList<Integer>[] map = Utils.mapLabelsToNodes(instances.getNumberOfClasses(), K, c);
+    for (int i = 0; i < instances.size(); i++) {
+      double label = instances.getLabel(instanceIndices[i]);
+      SparseVector instance = instances.getInstance(instanceIndices[i]);
+      int clientIdx = i % K;
+      clientIdx = map[(int)label].poll();
+      map[(int)label].add(clientIdx);
+      localInstances[clientIdx].add(instance, label);
     }
+    /*for (int i = 0; i < map.length; i++) {
+      System.out.println("Label " + i + " for nodes " + map[i]);
+    }
+    for (int i = 0; i < K; i++) {
+      System.out.println(i + "\t" + localInstances[i].size());
+    }
+    System.exit(0);*/
     
     TaskRunner taskRunner = new TaskRunner(numThreads);
     for (int t = 0; t <= numIters; t++) {
@@ -161,16 +167,14 @@ public class FederatedLearning {
         }
         
         double usedSamples = 0.0;
+        double maxLocalSamples = 0.0;
         for (int i = 0; i < numUsedClients; i++) {
           int idx = clientIndices[i];
           usedSamples += localInstances[idx].size();
+          if (maxLocalSamples < localInstances[idx].size()) {
+            maxLocalSamples = localInstances[idx].size();
+          }
         }
-        
-        /*// update local models (single thread)
-        for (int i = 0; i < numUsedClients; i++) {
-          int idx = clientIndices[i];
-          localModels[idx].update(localInstances[idx], E, B);
-        }*/
         
         // reset model collector
         avgModels[m].clear();
@@ -186,14 +190,17 @@ public class FederatedLearning {
         for (int i = 0; i < numUsedClients; i++) {
           int idx = clientIndices[i];
           double coef = localInstances[idx].size() / usedSamples;
-          coef = (globalModels[m].getAge() + localInstances[idx].size()) / (globalModels[m].getAge() + usedSamples);
+          //coef = (globalModels[m].getAge() + localInstances[idx].size()) / (globalModels[m].getAge() + usedSamples);
           // keep gradients only
           Model model = ((Partializable)((Federated)localModels[idx]).add(globalModels[m], -1)).getModelPart();
           // averaging updated models
           ((Federated)avgModels[m]).add(model, coef);
         }
+        
         // update global model
+        double age = globalModels[m].getAge();
         ((Federated)globalModels[m]).add(avgModels[m]);
+        globalModels[m].setAge(age + maxLocalSamples);
       }
     }
     System.err.println("Final result:");

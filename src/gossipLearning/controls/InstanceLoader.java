@@ -51,6 +51,7 @@ public class InstanceLoader implements Control {
   private static final String PAR_NORMALIZATION = "normalization";
   private static final String PAR_PRINTPRECISION = "printPrecision";
   private static final String PAR_ISPRINTAGES = "isPrintAges";
+  private static final String PAR_CLABELS = "cLabels";
   
   /** The protocol ID of the extraction protocol.*/
   protected final int pidE;
@@ -70,6 +71,8 @@ public class InstanceLoader implements Control {
    * </ul>
    * */
   protected final int normalization;
+  /** Number of different labels per node.*/
+  protected final int cLabels;
     
   /**
    * Reads the parameters from the configuration file based on the specified prefix.
@@ -88,6 +91,7 @@ public class InstanceLoader implements Control {
     AggregationResult.printPrecision = Configuration.getInt(prefix + "." + PAR_PRINTPRECISION);
     AggregationResult.isPrintAges = Configuration.getBoolean(prefix + "." + PAR_ISPRINTAGES, false);
     normalization = Configuration.getInt(prefix + "." + PAR_NORMALIZATION, 0);
+    cLabels = Configuration.getInt(prefix + "." + PAR_CLABELS, 0);
   }
   
   public boolean execute(){
@@ -114,12 +118,9 @@ public class InstanceLoader implements Control {
       Utils.arrayShuffle(CommonState.r, indices);
       
       // bias instance distribution
-      boolean biased = true;
       int k = reader.getTrainingSet().getNumberOfClasses();
-      // TODO: read from config file
-      int c = 2; // labels per peer
       int n = Network.size();
-      LinkedList<Integer>[] map = Utils.mapLabesToNodes(k, n, c);
+      LinkedList<Integer>[] map = Utils.mapLabelsToNodes(k, n, cLabels);
       /*for (int i = 0; i < k; i++) {
         System.out.println(i + "\t" + map[i]);
       }
@@ -130,10 +131,8 @@ public class InstanceLoader implements Control {
         SparseVector instance = reader.getTrainingSet().getInstance(indices[i]);
         double label = reader.getTrainingSet().getLabel(indices[i]);
         int nodeIdx = i % Network.size();
-        if (biased) {
-          nodeIdx = map[(int)label].poll();
-          map[(int)label].add(nodeIdx);
-        }
+        nodeIdx = map[(int)label].poll();
+        map[(int)label].add(nodeIdx);
         Node node = Network.get(nodeIdx);
         Protocol protocol = node.getProtocol(pidE);
         if (protocol instanceof ExtractionProtocol) {
