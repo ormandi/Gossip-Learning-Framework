@@ -45,7 +45,7 @@ public class Perceptron extends LinearModel {
     double product = w.mul(instance) + bias;
     double grad = (fAct.execute(product) - label) * fGrad.execute(product);
     gradient.set(w).mul(lambda).add(instance, grad);
-    biasGradient = lambda * grad;
+    biasGradient = grad;
   }
   
   @Override
@@ -59,7 +59,7 @@ public class Perceptron extends LinearModel {
       double product = w.mul(instance) + bias;
       double grad = (fAct.execute(product) - label) * fGrad.execute(product);
       gradient.add(instance, grad);
-      biasGradient += lambda * grad;
+      biasGradient += grad;
     }
   }
 

@@ -125,6 +125,7 @@ public class LocalRun {
         Utils.arrayShuffle(r, sampleIndices);
       }
       if (iter % evalTime == 0) {
+        //System.out.println(models[0]);
         // evaluate
         for (int i = 0; i < models.length; i++) {
           modelHolder.add(models[i]);

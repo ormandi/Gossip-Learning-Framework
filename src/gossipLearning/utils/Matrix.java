@@ -65,21 +65,33 @@ public class Matrix implements Serializable {
   
   /**
    * Constructs a matrix with the specified number of rows and columns and fills
-   * it based on the specified random number generator's nextDouble() function.
+   * it based on the specified random number generator's nextDouble() or 
+   * nextGaussiona() function, depends on the specified parameter.
    * @param numOfRows number of rows
    * @param numOfColumns number of columns
    * @param r random number generator
+   * @param gaussian is gaussian initialization (or uniform)
    */
-  public Matrix(int numOfRows, int numOfColumns, Random r) {
+  public Matrix(int numOfRows, int numOfColumns, Random r, boolean gaussian) {
     this.numberOfRows = numOfRows;
     this.numberOfColumns = numOfColumns;
     isTransposed = false;
     matrix = new double[numberOfRows][numberOfColumns];
     for (int i = 0; i < numberOfRows; i++) {
       for (int j = 0; j < numberOfColumns; j++) {
-        matrix[i][j] = r.nextDouble();
+        matrix[i][j] = gaussian ? r.nextGaussian() : r.nextDouble();
       }
     }
+  }
+  
+  /**
+   * Calls {@link Matrix#Matrix(numOfRows, numOfColumns, r, boolean)} with false.
+   * @param numOfRows number of rows
+   * @param numOfColumns number of columns
+   * @param r for random initialization (uniform)
+   */
+  public Matrix(int numOfRows, int numOfColumns, Random r) {
+    this(numOfRows, numOfColumns, r, false);
   }
 
   /**

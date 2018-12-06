@@ -136,7 +136,7 @@ public class FederatedLearning {
       localInstances[clientIdx].add(instance, label);
     }
     /*for (int i = 0; i < map.length; i++) {
-      System.out.println("Label " + i + " for nodes " + map[i]);
+      System.out.println("Label " + i + " for nodes " + map[i].size() + " " + map[i]);
     }
     for (int i = 0; i < K; i++) {
       System.out.println(i + "\t" + localInstances[i].size());
@@ -160,6 +160,7 @@ public class FederatedLearning {
       }
       
       for (int m = 0; m < globalModels.length; m++) {
+        //System.out.println(globalModels[m]);
         // send global model to clients
         for (int i = 0; i < numUsedClients; i++) {
           int idx = clientIndices[i];

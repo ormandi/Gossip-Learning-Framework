@@ -18,8 +18,12 @@ import peersim.config.Configuration;
 public abstract class ProbabilityModel implements LearningModel {
   private static final long serialVersionUID = -7154362879969974691L;
   private static final String PAR_LAMBDA = "lambda";
+  private static final String PAR_ETA = "eta";
+  private static final String PAR_ISTIME = "is_time";
   
   protected final double lambda;
+  protected final double eta;
+  protected final double isTime;
   protected double age;
   protected int numberOfClasses;
   protected int numberOfFeatures;
@@ -31,10 +35,17 @@ public abstract class ProbabilityModel implements LearningModel {
     numberOfFeatures = 0;
     distribution = null;
     this.lambda = lambda;
+    eta = 1.0 / lambda;
+    isTime = 1.0;
   }
   
   public ProbabilityModel(String prefix) {
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    eta = Configuration.getDouble(prefix + "." + PAR_ETA);
+    isTime = Configuration.getDouble(prefix + "." + PAR_ISTIME);
+    if (isTime != 0.0 && isTime != 1.0) {
+      throw new RuntimeException("Parameter " + PAR_ISTIME + " has to be 0 or 1!");
+    }
     age = 0.0;
     numberOfClasses = 0;
     numberOfFeatures = 0;
@@ -43,6 +54,8 @@ public abstract class ProbabilityModel implements LearningModel {
   
   public ProbabilityModel(ProbabilityModel a) {
     lambda = a.lambda;
+    eta = a.eta;
+    isTime = a.isTime;
     age = a.age;
     numberOfClasses = a.numberOfClasses;
     numberOfFeatures = a.numberOfFeatures;

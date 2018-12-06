@@ -35,7 +35,7 @@ public class CompressedLogReg extends LogisticRegression {
     //biasGradient = lambda * err;
     gradient.set(instance).mul(err).scaleValueRange(nbits, CommonState.r);
     gradient.add(w, lambda);
-    biasGradient = Utils.scaleValueRange(err, nbits, CommonState.r) * lambda;
+    biasGradient = Utils.scaleValueRange(err, nbits, CommonState.r);
   }
   
   protected SparseVector inst_tmp = new SparseVector();
@@ -54,7 +54,6 @@ public class CompressedLogReg extends LogisticRegression {
       biasGradient += Utils.scaleValueRange(err, nbits, CommonState.r);
     }
     gradient.add(w, lambda * instances.size());
-    biasGradient *= lambda;
   }
   
 

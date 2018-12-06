@@ -33,7 +33,7 @@ public class CompressedPerceptron extends Perceptron {
     double grad = (fAct.execute(product) - label) * fGrad.execute(product);
     gradient.set(instance).mul(grad).scaleValueRange(nbits, CommonState.r);
     gradient.add(w, lambda);
-    biasGradient = Utils.scaleValueRange(grad, nbits, CommonState.r) * lambda;
+    biasGradient = Utils.scaleValueRange(grad, nbits, CommonState.r);
   }
   
   protected SparseVector inst_tmp = new SparseVector();
@@ -52,7 +52,6 @@ public class CompressedPerceptron extends Perceptron {
       biasGradient += Utils.scaleValueRange(grad, nbits, CommonState.r);
     }
     gradient.add(w, lambda * instances.size());
-    biasGradient *= lambda;
   }
 
 }

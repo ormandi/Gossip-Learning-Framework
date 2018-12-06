@@ -1,6 +1,8 @@
 package gossipLearning.models.learning.multiclass;
 
 import gossipLearning.interfaces.Function;
+import gossipLearning.interfaces.functions.Sigmoid;
+import gossipLearning.interfaces.functions.SigmoidGradient;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
@@ -41,6 +43,8 @@ public class ANN extends ProbabilityModel {
   
   protected final Function fAct;
   protected final Function fGrad;
+  protected final Function sigmoid;
+  protected final Function sigmoidGrad;
 
   /** parameter matrices of the layers */
   protected Matrix[] thetas;
@@ -68,6 +72,8 @@ public class ANN extends ProbabilityModel {
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
     }
+    sigmoid = new Sigmoid();
+    sigmoidGrad = new SigmoidGradient();
     seed = Configuration.getLong(prefix + "." + PAR_SEED, 1234567890);
     String[] layersSizes = null;
     int numLayers = layers == null ? 0 : (layersSizes = layers.split(",")).length;
@@ -87,6 +93,8 @@ public class ANN extends ProbabilityModel {
     super(a);
     fAct = a.fAct;
     fGrad = a.fGrad;
+    sigmoid = a.sigmoid;
+    sigmoidGrad = a.sigmoidGrad;
     seed = a.seed;
     if (a.thetas != null) {
       thetas = new Matrix[a.thetas.length];
@@ -137,7 +145,7 @@ public class ANN extends ProbabilityModel {
 
   private void update(SparseVector instance, Matrix expected) {
     age ++;
-    double nu = 1.0 / (lambda * age);
+    double lr = eta / age;
     //Matrix gradient;
 
     // evaluate instance
@@ -146,72 +154,88 @@ public class ANN extends ProbabilityModel {
       return;
     }
     // delta for computing gradient
-    //Matrix delta = predicted.subtract(expected);
-    Matrix delta = predicted.subtract(expected).pointMulEquals(products[thetas.length - 1].applyEquals(fGrad));
-
+    Matrix deriv = products[thetas.length - 1].apply(sigmoidGrad);
+    Matrix act = products[thetas.length - 1].apply(sigmoid);
+    Matrix delta = new Matrix(predicted).mulEquals(0.0);
+    for (int i = 0; i < delta.getNumberOfColumns(); i++) {
+      double a = Math.max(Math.min(act.get(0, i), 1.0 - 1E-7), 1E-7);
+      double d = deriv.get(0, i);
+      delta.set(0, i, expected.get(0, i) == 0.0 ? d / (1.0 - a) : d/ -a);
+    }
+    
     // hidden layers
     for (int i = thetas.length - 1; i > 0; i--) {
-      gradients[i].mulSet(products[i - 1].apply(fAct).transpose(), delta);
-      //gradient = products[i - 1].apply(fAct).transpose().mul(delta);
-      // next delta
-      delta = thetas[i].mul(delta.transpose()).transpose().pointMulEquals(products[i - 1].applyEquals(fGrad));
+      Function fg = fGrad;
+      if (i == thetas.length - 1) {
+        fg = sigmoidGrad;
+      }
       // avoiding bias regularization
-      thetas[i].mulEquals(0, layersSizes[i] - 2, 0, layersSizes[i + 1] - 1, 1.0 - nu * lambda);
-      // scaling with learning rate
-      //gradient.mulEquals(0, layersSizes[i] - 2, 0, layersSizes[i + 1] - 1, nu);
-      //gradient.mulEquals(layersSizes[i] - 1, layersSizes[i] - 1, 0, layersSizes[i + 1] - 1, nu * lambda);
-      gradients[i].mulEquals(0, layersSizes[i] - 2, 0, layersSizes[i + 1] - 1, nu);
-      gradients[i].mulEquals(layersSizes[i] - 1, layersSizes[i] - 1, 0, layersSizes[i + 1] - 1, nu * lambda);
+      gradients[i].setMatrix(thetas[i]).mulEquals(0, layersSizes[i] - 2, 0, layersSizes[i + 1] - 1, lambda);
+      
+      //gradients[i].mulAdd(products[i - 1].apply(fa).transpose(), delta);
+      gradients[i].mulAdd(activations[i - 1].transpose(), delta);
+      activations[i - 1].transpose();
+      // next delta
+      delta = thetas[i].mul(delta.transpose()).transpose().pointMulEquals(products[i - 1].applyEquals(fg));
+      // bias scaling (not necessary)
+      gradients[i].mulEquals(layersSizes[i] - 1, layersSizes[i] - 1, 0, layersSizes[i + 1] - 1, lambda);
       // update
-      //thetas[i].addEquals(gradient], -1.0);
-      thetas[i].addEquals(gradients[i], -1.0);
+      thetas[i].addEquals(gradients[i], -lr);
     }
 
     // input layer
-    //gradient = new Matrix(instance, delta.getRow(0), layersSizes[0]);
+    // avoiding bias regularization
+    gradients[0].setMatrix(thetas[0]).mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, lambda);
     // for bias
     instance.add(layersSizes[0] - 1, 1.0);
-    gradients[0].setMatrix(new Matrix(instance, delta.getRow(0), layersSizes[0]));
+    gradients[0].addEquals(new Matrix(instance, delta.getRow(0), layersSizes[0]));
     instance.add(layersSizes[0] - 1, -1.0);
-    
-    // avoiding bias regularization
-    thetas[0].mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, 1.0 - nu * lambda);
-    // scaling with learning rate
-    //gradient.mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, nu);
-    //gradient.mulEquals(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[0 + 1] - 1, nu * lambda);
-    gradients[0].mulEquals(0, layersSizes[0] - 2, 0, layersSizes[0 + 1] - 1, nu);
-    gradients[0].mulEquals(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[0 + 1] - 1, nu * lambda);
+    // bias scaling (not necessary)
+    gradients[0].mulEquals(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[0 + 1] - 1, lambda);
     // update
-    //thetas[0].addEquals(gradient, -1.0);
-    thetas[0].addEquals(gradients[0], -1.0);
+    thetas[0].addEquals(gradients[0], -lr);
+    
+    age *= isTime;
   }
   
   private Matrix evaluate(SparseVector instance) {
     if (thetas[0] == null || layersSizes[0] == 0) {
       return null;
     }
-    //Matrix activations;
-
+    
     // input layer
-    //products[0] = thetas[0].mulLeft(instance);
+    // for bias
+    instance.add(layersSizes[0] - 1, 1.0);
     products[0].setMatrix(thetas[0].mulLeft(instance));
-    // add bias (last row of thata_0)
-    products[0].addEquals(thetas[0].getMatrix(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[1] - 1));
+    instance.add(layersSizes[0] - 1, -1.0);
     // apply activation function
-    //activations = products[0].apply(fAct);
     activations[0].setMatrix(products[0]).applyEquals(fAct);
-
+    
     // hidden layers
     for (int i = 1; i < thetas.length; i++) {
       // last value is for adding bias
-      //activations.set(0, layersSizes[i] - 1, 1.0);
       activations[i - 1].set(0, layersSizes[i] - 1, 1.0);
-      //products[i] = activations.mul(thetas[i]);
+      
       products[i].mulSet(activations[i - 1], thetas[i]);
-      //activations = products[i].apply(fAct);
-      activations[i].setMatrix(products[i]).applyEquals(fAct);
+      if (i == thetas.length - 1) {
+        activations[i].setMatrix(products[i]).applyEquals(sigmoid);
+      } else {
+        activations[i].setMatrix(products[i]).applyEquals(fAct);
+      }
     }
-    return activations[activations.length - 1];
+    return softMax(activations[activations.length - 1]);
+  }
+  
+  private Matrix softMax(Matrix m) {
+    // since we use sigmoid at the end
+    Matrix result = new Matrix(m);
+    double sum = 0.0;
+    for (int i = 0; i < m.getNumberOfRows(); i++) {
+      for (int j = 0; j < m.getNumberOfColumns(); j++) {
+        sum += Math.abs(m.get(i, j));
+      }
+    }
+    return result.mulEquals(1.0 / (sum == 0.0 ? 1.0 : sum));
   }
   
   @Override
@@ -226,7 +250,7 @@ public class ANN extends ProbabilityModel {
     for (int i = 0; i < thetas.length; i++) {
       //Random r = new Random(seed);
       double scale = Math.sqrt(6)/Math.sqrt(layersSizes[i] + layersSizes[i+1]);
-      thetas[i] = new Matrix(layersSizes[i], layersSizes[i + 1], r).mulEquals(2.0 * scale).addEquals(-scale);
+      thetas[i] = new Matrix(layersSizes[i], layersSizes[i + 1], r, false).mulEquals(2.0 * scale).addEquals(-scale);
       gradients[i] = new Matrix(layersSizes[i], layersSizes[i + 1]);
       products[i] = new Matrix(1, thetas[i].getColumnDimension());
       activations[i] = new Matrix(1, thetas[i].getColumnDimension());

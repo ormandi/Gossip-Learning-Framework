@@ -2,14 +2,11 @@ package gossipLearning.interfaces.functions;
 
 import gossipLearning.interfaces.Function;
 
-public class ConstantGradient implements Function {
-  
-  /**
-   * @return 1
-   */
+public class ReLUGradient implements Function {
+
   @Override
   public double execute(double x) {
-    return 1.0;
+    return 0.0 < x ? 1.0 : 0.0;
   }
-  
+
 }
