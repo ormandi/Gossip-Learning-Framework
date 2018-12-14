@@ -136,18 +136,9 @@ public class ANN extends ProbabilityModel {
 
   @Override
   public void update(SparseVector instance, double label) {
-    // expected vector
-    Matrix expected = new Matrix(1, numberOfClasses).set(0, (int)label, 1.0);
-
-    // update layers
-    update(instance, expected);
-  }
-
-  private void update(SparseVector instance, Matrix expected) {
     age ++;
-    double lr = eta / age;
-    //Matrix gradient;
-
+    double lr = eta / (isTime == 1 ? age : 1.0);
+    
     // evaluate instance
     Matrix predicted = evaluate(instance);
     if (predicted == null) {
@@ -155,12 +146,12 @@ public class ANN extends ProbabilityModel {
     }
     // delta for computing gradient
     Matrix deriv = products[thetas.length - 1].apply(sigmoidGrad);
-    Matrix act = products[thetas.length - 1].apply(sigmoid);
+    Matrix act = activations[thetas.length - 1];
     Matrix delta = new Matrix(predicted).mulEquals(0.0);
     for (int i = 0; i < delta.getNumberOfColumns(); i++) {
       double a = Math.max(Math.min(act.get(0, i), 1.0 - 1E-7), 1E-7);
       double d = deriv.get(0, i);
-      delta.set(0, i, expected.get(0, i) == 0.0 ? d / (1.0 - a) : d/ -a);
+      delta.set(0, i, i != label ? d / (1.0 - a) : d/ -a);
     }
     
     // hidden layers
@@ -194,8 +185,6 @@ public class ANN extends ProbabilityModel {
     gradients[0].mulEquals(layersSizes[0] - 1, layersSizes[0] - 1, 0, layersSizes[0 + 1] - 1, lambda);
     // update
     thetas[0].addEquals(gradients[0], -lr);
-    
-    age *= isTime;
   }
   
   private Matrix evaluate(SparseVector instance) {
@@ -223,19 +212,7 @@ public class ANN extends ProbabilityModel {
         activations[i].setMatrix(products[i]).applyEquals(fAct);
       }
     }
-    return softMax(activations[activations.length - 1]);
-  }
-  
-  private Matrix softMax(Matrix m) {
-    // since we use sigmoid at the end
-    Matrix result = new Matrix(m);
-    double sum = 0.0;
-    for (int i = 0; i < m.getNumberOfRows(); i++) {
-      for (int j = 0; j < m.getNumberOfColumns(); j++) {
-        sum += Math.abs(m.get(i, j));
-      }
-    }
-    return result.mulEquals(1.0 / (sum == 0.0 ? 1.0 : sum));
+    return activations[activations.length - 1];
   }
   
   @Override

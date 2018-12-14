@@ -35,22 +35,25 @@ public class P2Pegasos extends LinearModel {
   protected void gradient(SparseVector instance, double label) {
     gradient.set(w).mul(lambda);
     label = (label == 0.0) ? -1.0 : label;
-    boolean isSV = label * w.mul(instance) < 1.0;
+    boolean isSV = label * (w.mul(instance) + bias) < 1.0;
     if (isSV) {
       gradient.add(instance, -label);
+      biasGradient = -label * lambda;
     }
   }
   
   protected void gradient(InstanceHolder instances) {
     gradient.set(w).mul(lambda * instances.size());
+    biasGradient = 0.0;
     for (int i = 0; i < instances.size(); i++) {
       SparseVector instance = instances.getInstance(i);
       double label = instances.getLabel(i);
       
       label = (label == 0.0) ? -1.0 : label;
-      boolean isSV = label * w.mul(instance) < 1.0;
+      boolean isSV = label * (w.mul(instance) + bias) < 1.0;
       if (isSV) {
         gradient.add(instance, -label);
+        biasGradient -= label * lambda;
       }
     }
   }
@@ -64,7 +67,7 @@ public class P2Pegasos extends LinearModel {
    */
   @Override
   public double[] distributionForInstance(SparseVector instance) {
-    double innerProd = w.mul(instance);
+    double innerProd = w.mul(instance) + bias;
     distribution[0] = 0.0;
     distribution[1] = innerProd;
     return distribution;

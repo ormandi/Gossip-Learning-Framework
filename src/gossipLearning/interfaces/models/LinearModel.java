@@ -38,32 +38,28 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
   protected abstract void gradient(SparseVector instance, double label);
 
   @Override
-  public final void update(SparseVector instance, double label) {
+  public void update(SparseVector instance, double label) {
     age ++;
-    double lr = eta / age;
+    double lr = eta / (isTime == 1 ? age : 1.0);
     
     gradient(instance, label);
     w.add(gradient, - lr);
-    bias -= lr * lambda * biasGradient;
-    
-    age *= isTime;
+    bias -= lr * biasGradient;
   }
   
   protected abstract void gradient(InstanceHolder instances);
 
   @Override
-  public final void update(InstanceHolder instances) {
+  public void update(InstanceHolder instances) {
     if (instances == null || instances.size() == 0) {
       return;
     }
     age += instances.size();
-    double lr = eta / age;
+    double lr = eta / (isTime == 1 ? age : 1.0);
     
     gradient(instances);
     w.add(gradient, - lr);
-    bias -= lr * lambda * biasGradient;
-    
-    age *= isTime;
+    bias -= lr * biasGradient;
   }
   
   @Override

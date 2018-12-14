@@ -36,7 +36,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
    * @param prefix The ID of the parameters contained in the Peersim configuration file.
    */
   public OneVsAllMetaClassifier(String prefix) {
-    super(0.0);
+    super(prefix);
     this.prefix = prefix;
     baseLearnerName = Configuration.getString(prefix + ".model");
   }
@@ -67,6 +67,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < numberOfClasses; i++) {
       ((LearningModel)classifiers.getModel(i)).update(instance, (label == i) ? 1.0 : 0.0);
     }
+    age *= isTime;
   }
   
   public final void update(InstanceHolder instances) {
@@ -87,6 +88,7 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < instances.size(); i++) {
       instances.setLabel(i, labels[i]);
     }
+    age *= isTime;
   }
 
   @Override

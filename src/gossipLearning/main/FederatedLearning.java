@@ -127,6 +127,10 @@ public class FederatedLearning {
       localInstances[i] = new InstanceHolder(instances.getNumberOfClasses(), instances.getNumberOfFeatures());
     }
     LinkedList<Integer>[] map = Utils.mapLabelsToNodes(instances.getNumberOfClasses(), K, c);
+    /*for (int i = 0; i < map.length; i++) {
+      System.out.println("Label " + i + " for nodes " + map[i].size() + " " + map[i]);
+    }
+    System.exit(0);*/
     for (int i = 0; i < instances.size(); i++) {
       double label = instances.getLabel(instanceIndices[i]);
       SparseVector instance = instances.getInstance(instanceIndices[i]);
@@ -135,11 +139,8 @@ public class FederatedLearning {
       map[(int)label].add(clientIdx);
       localInstances[clientIdx].add(instance, label);
     }
-    /*for (int i = 0; i < map.length; i++) {
-      System.out.println("Label " + i + " for nodes " + map[i].size() + " " + map[i]);
-    }
-    for (int i = 0; i < K; i++) {
-      System.out.println(i + "\t" + localInstances[i].size());
+    /*for (int i = 0; i < K; i++) {
+      System.out.println(i + "\t" + localInstances[i]);
     }
     System.exit(0);*/
     
@@ -202,6 +203,7 @@ public class FederatedLearning {
         double age = globalModels[m].getAge();
         ((Federated)globalModels[m]).add(avgModels[m]);
         globalModels[m].setAge(age + maxLocalSamples);
+        //System.out.println(globalModels[m]);
       }
     }
     System.err.println("Final result:");

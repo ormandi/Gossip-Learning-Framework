@@ -92,15 +92,13 @@ public class MultiLogReg extends ProbabilityModel {
   @Override
   public void update(SparseVector instance, double label) {
     age ++;
-    double lr = eta / age;
+    double lr = eta / (isTime == 1 ? age : 1.0);
     
     gradient(instance, label);
     for (int i = 0; i < w.length; i++) {
       w[i].add(gradients[i], - lr);
-      bias[i] -= lr * lambda * biasGradients[i];
+      bias[i] -= lr * biasGradients[i];
     }
-    
-    age *= isTime;
   }
   
   protected void gradient(SparseVector instance, double label) {
@@ -111,7 +109,7 @@ public class MultiLogReg extends ProbabilityModel {
       double err = cDelta - distribution[i];
       
       gradients[i].set(w[i]).mul(lambda).add(instance, -err);
-      biasGradients[i] = -err;
+      biasGradients[i] = -err * lambda;
     }
   }
   
@@ -120,15 +118,13 @@ public class MultiLogReg extends ProbabilityModel {
       return;
     }
     age += instances.size();
-    double lr = eta / age;
+    double lr = eta / (isTime == 1 ? age : 1.0);
     
     gradient(instances);
     for (int i = 0; i < numberOfClasses-1; i++) {
       w[i].add(gradients[i], - lr);
-      bias[i] -= lr * lambda * biasGradients[i];
+      bias[i] -= lr * biasGradients[i];
     }
-    
-    age *= isTime;
   }
   
   protected void gradient(InstanceHolder instances) {
@@ -145,7 +141,7 @@ public class MultiLogReg extends ProbabilityModel {
         double cDelta = (label == j) ? 1.0 : 0.0;
         double err = cDelta - distribution[j];
         gradients[j].add(instance, -err);
-        biasGradients[j] += -err;
+        biasGradients[j] += -err * lambda;
       }
     }
   }

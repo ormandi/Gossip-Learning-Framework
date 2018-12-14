@@ -51,7 +51,7 @@ public class LogisticRegression extends LinearModel {
     double prob = getPositiveProbability(instance);
     double err = label - prob;
     gradient.set(w).mul(lambda).add(instance, err);
-    biasGradient = err;
+    biasGradient = lambda * err;
   }
   
   protected void gradient(InstanceHolder instances) {
@@ -64,7 +64,7 @@ public class LogisticRegression extends LinearModel {
       double prob = getPositiveProbability(instance);
       double err = label - prob;
       gradient.add(instance, err);
-      biasGradient += err;
+      biasGradient += lambda * err;
     }
   }
   

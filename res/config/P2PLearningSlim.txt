@@ -1,13 +1,17 @@
-C 100 #number of cycles
-NETWORKSIZE 90 #number of nodes
+C 1000 #number of cycles
+NETWORKSIZE 100 #number of nodes
 SEED 1234567890 #random seed
 CORES 1 #number of cores for running
 
 NORMALIZATION 1 #0: none, 1: normalize, 2: standardize
-LAMBDA 1E-4 #learning rate
-SIZE 4 #number of features
+LAMBDA 1E-4 #regularization
+ETA 1/LAMBDA #learning rate
+ISTIME 1 #dynamic learning rate
+SIZE 57 #number of features
 EPOCH 1 #number of local epochs
 BATCH 10 #local min-batch size
+
+CLABELS 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
 
 CYCLE (C+1)*NETWORKSIZE
 LOGTIME NETWORKSIZE
@@ -72,11 +76,18 @@ protocol.learningProtocol.numOfWaitingPeriods 10
 protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 1
 protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
-protocol.learningProtocol.learner.MergePegasos gossipLearning.models.learning.mergeable.MergeablePegasos
-protocol.learningProtocol.learner.SlimPegasos05 gossipLearning.models.learning.mergeable.slim.SlimPegasos
-protocol.learningProtocol.learner.MergePegasos.lambda LAMBDA
-protocol.learningProtocol.learner.SlimPegasos05.lambda LAMBDA
-protocol.learningProtocol.learner.SlimPegasos05.size SIZE/2
+protocol.learningProtocol.learner.OVSAMergeLogReg gossipLearning.models.learning.mergeable.MergeableOvsA
+protocol.learningProtocol.learner.OVSASlimLogReg01 gossipLearning.models.learning.mergeable.slim.SlimOvsA
+
+protocol.learningProtocol.learner.OVSAMergeLogReg.model gossipLearning.models.learning.mergeable.MergeableLogReg
+protocol.learningProtocol.learner.OVSAMergeLogReg.lambda LAMBDA
+protocol.learningProtocol.learner.OVSAMergeLogReg.eta ETA
+protocol.learningProtocol.learner.OVSAMergeLogReg.is_time ISTIME
+protocol.learningProtocol.learner.OVSASlimLogReg01.model gossipLearning.models.learning.mergeable.slim.SlimLogReg
+protocol.learningProtocol.learner.OVSASlimLogReg01.lambda LAMBDA
+protocol.learningProtocol.learner.OVSASlimLogReg01.eta ETA
+protocol.learningProtocol.learner.OVSASlimLogReg01.is_time ISTIME
+protocol.learningProtocol.learner.OVSASlimLogReg01.size -SIZE/10
 
 protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
 protocol.learningProtocol.evalProbability 1.0
@@ -96,16 +107,27 @@ init.instanceLoader gossipLearning.controls.InstanceLoader
 init.instanceLoader.readerClass gossipLearning.utils.DataBaseReader
 init.instanceLoader.extractionProtocol extractionProtocol
 init.instanceLoader.learningProtocols learningProtocol
-init.instanceLoader.trainingFile res/db/iris_setosa_versicolor_train.dat
-init.instanceLoader.evaluationFile res/db/iris_setosa_versicolor_eval.dat
+#init.instanceLoader.trainingFile res/db/iris_setosa_versicolor_train.dat
+#init.instanceLoader.evaluationFile res/db/iris_setosa_versicolor_eval.dat
+init.instanceLoader.trainingFile res/db/local/spambase_train.dat
+init.instanceLoader.evaluationFile res/db/local/spambase_test.dat
+#init.instanceLoader.trainingFile res/db/local/reuters_train.dat
+#init.instanceLoader.evaluationFile res/db/local/reuters_test.dat
+#init.instanceLoader.trainingFile res/db/local/mnist_train.dat
+#init.instanceLoader.evaluationFile res/db/local/mnist_test.dat
+#init.instanceLoader.trainingFile res/db/local/pendigits_train.dat
+#init.instanceLoader.evaluationFile res/db/local/pendigits_eval.dat
+#init.instanceLoader.trainingFile res/db/local/har_train.dat
+#init.instanceLoader.evaluationFile res/db/local/har_test.dat
 
 init.instanceLoader.printPrecision 4
 init.instanceLoader.isPrintAges false
 init.instanceLoader.normalization NORMALIZATION
+init.instanceLoader.cLabels CLABELS
 
 init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
 init.learningProtocolStart.protocols learningProtocol
-init.learningProtocolStart.delay 0
+init.learningProtocolStart.delay NETWORKSIZE/2
 
 
 #-------------------- Define Init Sequence --------------------

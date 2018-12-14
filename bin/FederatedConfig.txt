@@ -1,0 +1,123 @@
+ITER 1000
+SEED 1234567890
+THREADS 4
+
+CLIENTS 100
+EPOCHS 1
+BATCH 10
+FRACTION 1
+C 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
+
+SLIMSIZE 10
+
+NORMALIZATION 1 #0: none 1: normalize 2: standardize
+LAMBDA 1E-4
+ETA 1/LAMBDA
+ISTIME 1
+
+#include LogReg Pegasos Perceptron MultiLogReg ANN OVSALogReg OVSAPegasos OVSAPerceptron
+#include ANN OVSALogReg OVSAPegasos
+#include ANN ANNSlim ANNSlimU
+#include ANN
+#include OVSALogReg OVSALogRegSlim OVSAPegasos OVSAPegasosSlim
+#include OVSALogReg OVSAPegasos
+include OVSALogReg
+
+dbReader gossipLearning.utils.DataBaseReader
+#trainingFile ../res/db/iris_train.dat
+#evaluationFile ../res/db/iris_eval.dat
+trainingFile ../res/db/local/spambase_train.dat
+evaluationFile ../res/db/local/spambase_test.dat
+#trainingFile ../res/db/local/reuters_train.dat
+#evaluationFile ../res/db/local/reuters_test.dat
+#trainingFile ../res/db/local/pendigits_train.dat
+#evaluationFile ../res/db/local/pendigits_eval.dat
+#trainingFile ../res/db/local/har_train.dat
+#evaluationFile ../res/db/local/har_test.dat
+#trainingFile ../res/db/local/mnist_train.dat
+#evaluationFile ../res/db/local/mnist_test.dat
+#trainingFile ../res/db/local/fashion_mnist_train.dat
+#evaluationFile ../res/db/local/fashion_mnist_test.dat
+#trainingFile ../res/db/local/segmentation_train.dat
+#evaluationFile ../res/db/local/segmentation_eval.dat
+
+
+SIZE 57
+learner.LogReg gossipLearning.models.learning.mergeable.MergeableLogReg
+learner.LogReg.lambda LAMBDA
+learner.LogReg.eta ETA
+learner.LogReg.is_time ISTIME
+learner.Pegasos gossipLearning.models.learning.mergeable.MergeablePegasos
+learner.Pegasos.lambda LAMBDA
+learner.Pegasos.eta ETA
+learner.Pegasos.is_time ISTIME
+learner.Perceptron gossipLearning.models.learning.mergeable.MergeablePerceptron
+learner.Perceptron.lambda LAMBDA
+learner.Perceptron.eta ETA
+learner.Perceptron.is_time ISTIME
+learner.Perceptron.activation gossipLearning.interfaces.functions.Sigmoid
+learner.Perceptron.gradient gossipLearning.interfaces.functions.SigmoidGradient
+learner.MultiLogReg gossipLearning.models.learning.mergeable.MergeableMultiLogReg
+learner.MultiLogReg.lambda LAMBDA
+learner.MultiLogReg.eta ETA
+learner.MultiLogReg.is_time ISTIME
+learner.ANN gossipLearning.models.learning.mergeable.MergeableANN
+learner.ANN.lambda LAMBDA
+learner.ANN.eta ETA
+learner.ANN.is_time ISTIME
+learner.ANN.hiddenLayers 100,100
+learner.ANN.seed SEED
+learner.ANN.activationFunction gossipLearning.interfaces.functions.Sigmoid
+learner.ANN.gradientFunction gossipLearning.interfaces.functions.SigmoidGradient
+#learner.ANN.activationFunction gossipLearning.interfaces.functions.ReLU
+#learner.ANN.gradientFunction gossipLearning.interfaces.functions.ReLUGradient
+learner.ANNSlim gossipLearning.models.learning.mergeable.slim.SlimANN
+learner.ANNSlim.lambda LAMBDA
+learner.ANNSlim.eta ETA
+learner.ANNSlim.is_time ISTIME
+learner.ANNSlim.hiddenLayers 10
+learner.ANNSlim.seed SEED
+learner.ANNSlim.size SIZE/SLIMSIZE
+learner.ANNSlim.activationFunction gossipLearning.interfaces.functions.Sigmoid
+learner.ANNSlim.gradientFunction gossipLearning.interfaces.functions.SigmoidGradient
+learner.ANNSlimU gossipLearning.models.learning.mergeable.slim.SlimANN
+learner.ANNSlimU.lambda LAMBDA
+learner.ANNSlimU.eta ETA
+learner.ANNSlimU.is_time ISTIME
+learner.ANNSlimU.hiddenLayers 10
+learner.ANNSlimU.seed SEED
+learner.ANNSlimU.size -SIZE/SLIMSIZE
+learner.ANNSlimU.activationFunction gossipLearning.interfaces.functions.Sigmoid
+learner.ANNSlimU.gradientFunction gossipLearning.interfaces.functions.SigmoidGradient
+learner.OVSALogReg gossipLearning.models.learning.mergeable.MergeableOvsA
+learner.OVSALogReg.model gossipLearning.models.learning.mergeable.MergeableLogReg
+learner.OVSALogReg.lambda LAMBDA
+learner.OVSALogReg.eta ETA
+learner.OVSALogReg.is_time ISTIME
+learner.OVSALogRegSlim gossipLearning.models.learning.mergeable.slim.SlimOvsA
+learner.OVSALogRegSlim.model gossipLearning.models.learning.mergeable.slim.SlimLogReg
+learner.OVSALogRegSlim.lambda LAMBDA
+learner.OVSALogRegSlim.eta ETA
+learner.OVSALogRegSlim.is_time ISTIME
+learner.OVSALogRegSlim.size -SIZE/SLIMSIZE
+learner.OVSAPegasos gossipLearning.models.learning.mergeable.MergeableOvsA
+learner.OVSAPegasos.model gossipLearning.models.learning.mergeable.MergeablePegasos
+learner.OVSAPegasos.lambda LAMBDA
+learner.OVSAPegasos.eta ETA
+learner.OVSAPegasos.is_time ISTIME
+learner.OVSAPegasosSlim gossipLearning.models.learning.mergeable.slim.SlimOvsA
+learner.OVSAPegasosSlim.model gossipLearning.models.learning.mergeable.slim.SlimPegasos
+learner.OVSAPegasosSlim.lambda LAMBDA
+learner.OVSAPegasosSlim.eta ETA
+learner.OVSAPegasosSlim.is_time ISTIME
+learner.OVSAPegasosSlim.size -SIZE/SLIMSIZE
+learner.OVSAPerceptron gossipLearning.models.learning.mergeable.MergeableOvsA
+learner.OVSAPerceptron.model gossipLearning.models.learning.mergeable.MergeablePerceptron
+learner.OVSAPerceptron.lambda LAMBDA
+learner.OVSAPerceptron.eta ETA
+learner.OVSAPerceptron.is_time ISTIME
+learner.OVSAPerceptron.activation gossipLearning.interfaces.functions.Sigmoid
+learner.OVSAPerceptron.gradient gossipLearning.interfaces.functions.SigmoidGradient
+
+evaluators gossipLearning.evaluators.ZeroOneError#,gossipLearning.evaluators.MatrixBasedEvaluator,gossipLearning.evaluators.MAError,gossipLearning.evaluators.RMSError
+printPrecision 4
