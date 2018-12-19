@@ -1,15 +1,21 @@
 package gossipLearning.interfaces.models;
 
+import gossipLearning.interfaces.optimizers.GD;
+import gossipLearning.interfaces.optimizers.Optimizer;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+import peersim.config.Configuration;
 
 public abstract class LinearModel extends ProbabilityModel implements SimilarityComputable<LinearModel> {
   private static final long serialVersionUID = -5680177111664068910L;
+  private static final String PAR_OPIMIZER = "optimizer";
   
   protected SparseVector w;
   protected double bias;
   protected SparseVector gradient;
   protected double biasGradient;
+  
+  protected final Optimizer optimizer;
   
   public LinearModel(double lambda) {
     super(lambda);
@@ -17,6 +23,7 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     bias = 0.0;
     gradient = new SparseVector();
     biasGradient = 0.0;
+    optimizer = new GD();
   }
   
   public LinearModel(String prefix) {
@@ -25,6 +32,12 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     bias = 0.0;
     gradient = new SparseVector();
     biasGradient = 0.0;
+    String optimizerClass = Configuration.getString(prefix + "." + PAR_OPIMIZER);
+    try {
+      optimizer = (Optimizer)Class.forName(optimizerClass).getConstructor(String.class).newInstance(prefix + "." + PAR_OPIMIZER);
+    } catch (Exception e) {
+      throw new RuntimeException("Exception while creating optimizer: ", e);
+    }
   }
   
   public LinearModel(LinearModel a) {
@@ -33,22 +46,25 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     bias = a.bias;
     gradient = (SparseVector)a.gradient.clone();
     biasGradient = a.biasGradient;
+    optimizer = (Optimizer)a.optimizer.clone();
   }
   
   protected abstract void gradient(SparseVector instance, double label);
-
+  
   @Override
   public void update(SparseVector instance, double label) {
     age ++;
     double lr = eta / (isTime == 1 ? age : 1.0);
     
     gradient(instance, label);
-    w.add(gradient, - lr);
-    bias -= lr * biasGradient;
+    optimizer.delta(lr, gradient, biasGradient);
+    
+    w.add(optimizer.delta, -1.0);
+    bias -= optimizer.biasDelta;
   }
   
   protected abstract void gradient(InstanceHolder instances);
-
+  
   @Override
   public void update(InstanceHolder instances) {
     if (instances == null || instances.size() == 0) {
@@ -58,8 +74,10 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     double lr = eta / (isTime == 1 ? age : 1.0);
     
     gradient(instances);
-    w.add(gradient, - lr);
-    bias -= lr * biasGradient;
+    optimizer.delta(lr, gradient, biasGradient);
+    
+    w.add(optimizer.delta, -1.0);
+    bias -= optimizer.biasDelta;
   }
   
   @Override
@@ -68,6 +86,7 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     w.clear();
     bias = 0.0;
     gradient.clear();
+    biasGradient = 0.0;
     biasGradient = 0.0;
   }
   
