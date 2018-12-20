@@ -43,5 +43,21 @@ public class Momentum extends Optimizer {
     delta.set(momentum);
     biasDelta = biasMomentum;
   }
+  
+  @Override
+  public Optimizer merge(Optimizer o, double weight) {
+    Momentum m = (Momentum)o;
+    momentum.mul(1.0 - weight).add(m.momentum, weight);
+    biasMomentum += (m.biasMomentum - biasMomentum) * weight;
+    return this;
+  }
+  
+  @Override
+  public Optimizer add(Optimizer o, double times) {
+    Momentum m = (Momentum)o;
+    momentum.add(m.momentum, times);
+    biasMomentum += m.biasMomentum * times;
+    return this;
+  }
 
 }

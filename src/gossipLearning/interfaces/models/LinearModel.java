@@ -87,7 +87,6 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     bias = 0.0;
     gradient.clear();
     biasGradient = 0.0;
-    biasGradient = 0.0;
   }
   
   @Override
@@ -110,6 +109,7 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     age = Math.max(age, m.age);
     w.mul(1.0 - modelWeight).add(m.w, modelWeight);
     bias += (m.bias - bias) * modelWeight;
+    optimizer.merge(m.optimizer, modelWeight);
     return this;
   }
   
@@ -122,6 +122,7 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     age += m.age * times;
     w.add(m.w, times);
     bias += m.bias * times;
+    optimizer.add(m.optimizer, times);
     return this;
   }
 

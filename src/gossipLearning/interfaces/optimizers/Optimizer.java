@@ -25,11 +25,7 @@ public abstract class Optimizer implements Cloneable, Serializable {
   }
   
   public abstract Object clone();
-  
   public abstract void delta(double lr, SparseVector gradient, double biasGradient);
-  
-  // TODO:
-  //public abstract Optimizer merge(Optimizer o);
-  //public abstract Optimizer add(Optimizer o);
-  //public abstract Optimizer add(Optimizer o, double times);
+  public abstract Optimizer merge(Optimizer o, double weight);
+  public abstract Optimizer add(Optimizer o, double times);
 }

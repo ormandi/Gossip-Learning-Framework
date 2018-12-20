@@ -27,5 +27,15 @@ public class GD extends Optimizer {
     delta.set(gradient).mul(lr);
     biasDelta = lr * biasGradient;
   }
+  
+  @Override
+  public Optimizer merge(Optimizer o, double weight) {
+    return this;
+  }
+  
+  @Override
+  public Optimizer add(Optimizer o, double times) {
+    return this;
+  }
 
 }

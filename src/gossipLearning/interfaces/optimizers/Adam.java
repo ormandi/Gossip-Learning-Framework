@@ -51,4 +51,22 @@ public class Adam extends Momentum {
     momentum2.powerTo(2.0);
     biasDelta = biasMomentum2 == 0.0 ? 0.0 : lr * biasMomentum / Math.sqrt(biasMomentum2);
   }
+  
+  @Override
+  public Optimizer merge(Optimizer o, double weight) {
+    super.merge(o, weight);
+    Adam m = (Adam)o;
+    momentum2.mul(1.0 - weight).add(m.momentum2, weight);
+    biasMomentum2 += (m.biasMomentum2 - biasMomentum2) * weight;
+    return this;
+  }
+  
+  @Override
+  public Optimizer add(Optimizer o, double times) {
+    super.add(o, times);
+    Adam m = (Adam)o;
+    momentum2.add(m.momentum2, times);
+    biasMomentum2 += m.biasMomentum2 * times;
+    return this;
+  }
 }
