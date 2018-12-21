@@ -5,8 +5,8 @@ CORES 1 #number of cores for running
 
 NORMALIZATION 1 #0: none, 1: normalize, 2: standardize
 LAMBDA 1E-4 #regularization
-ETA 1/LAMBDA #learning rate
-ISTIME 1 #dynamic learning rate
+ETA 0.1 #learning rate
+ISTIME 0 #dynamic learning rate
 SIZE 57 #number of features
 EPOCH 1 #number of local epochs
 BATCH 10 #local min-batch size
@@ -77,12 +77,15 @@ protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
 protocol.learningProtocol.modelHolderCapacity 1
 protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
 protocol.learningProtocol.learner.OVSAMergeLogReg gossipLearning.models.learning.mergeable.MergeableOvsA
-protocol.learningProtocol.learner.OVSASlimLogReg01 gossipLearning.models.learning.mergeable.slim.SlimOvsA
+#protocol.learningProtocol.learner.OVSASlimLogReg01 gossipLearning.models.learning.mergeable.slim.SlimOvsA
 
 protocol.learningProtocol.learner.OVSAMergeLogReg.model gossipLearning.models.learning.mergeable.MergeableLogReg
 protocol.learningProtocol.learner.OVSAMergeLogReg.lambda LAMBDA
 protocol.learningProtocol.learner.OVSAMergeLogReg.eta ETA
 protocol.learningProtocol.learner.OVSAMergeLogReg.is_time ISTIME
+protocol.learningProtocol.learner.OVSAMergeLogReg.optimizer gossipLearning.interfaces.optimizers.Adam
+protocol.learningProtocol.learner.OVSAMergeLogReg.optimizer.alpha 0.9
+protocol.learningProtocol.learner.OVSAMergeLogReg.optimizer.beta 0.999
 protocol.learningProtocol.learner.OVSASlimLogReg01.model gossipLearning.models.learning.mergeable.slim.SlimLogReg
 protocol.learningProtocol.learner.OVSASlimLogReg01.lambda LAMBDA
 protocol.learningProtocol.learner.OVSASlimLogReg01.eta ETA

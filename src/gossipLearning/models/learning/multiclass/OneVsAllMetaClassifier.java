@@ -67,7 +67,6 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < numberOfClasses; i++) {
       ((LearningModel)classifiers.getModel(i)).update(instance, (label == i) ? 1.0 : 0.0);
     }
-    age *= isTime;
   }
   
   public final void update(InstanceHolder instances) {
@@ -88,7 +87,6 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     for (int i = 0; i < instances.size(); i++) {
       instances.setLabel(i, labels[i]);
     }
-    age *= isTime;
   }
 
   @Override

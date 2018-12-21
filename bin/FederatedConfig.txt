@@ -2,7 +2,7 @@ ITER 1000
 SEED 1234567890
 THREADS 4
 
-CLIENTS 100
+CLIENTS 10
 EPOCHS 1
 BATCH 10
 FRACTION 1
@@ -12,8 +12,8 @@ SLIMSIZE 10
 
 NORMALIZATION 1 #0: none 1: normalize 2: standardize
 LAMBDA 1E-4
-ETA 1/LAMBDA
-ISTIME 1
+ETA 0.1
+ISTIME 0
 
 #include LogReg Pegasos Perceptron MultiLogReg ANN OVSALogReg OVSAPegasos OVSAPerceptron
 #include ANN OVSALogReg OVSAPegasos
@@ -94,6 +94,10 @@ learner.OVSALogReg.model gossipLearning.models.learning.mergeable.MergeableLogRe
 learner.OVSALogReg.lambda LAMBDA
 learner.OVSALogReg.eta ETA
 learner.OVSALogReg.is_time ISTIME
+learner.OVSALogReg.optimizer gossipLearning.interfaces.optimizers.Adam
+learner.OVSALogReg.optimizer.alpha 0.9
+learner.OVSALogReg.optimizer.beta 0.999
+
 learner.OVSALogRegSlim gossipLearning.models.learning.mergeable.slim.SlimOvsA
 learner.OVSALogRegSlim.model gossipLearning.models.learning.mergeable.slim.SlimLogReg
 learner.OVSALogRegSlim.lambda LAMBDA

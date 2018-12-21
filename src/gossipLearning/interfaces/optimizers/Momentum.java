@@ -38,8 +38,8 @@ public class Momentum extends Optimizer {
 
   @Override
   public void delta(double lr, SparseVector gradient, double biasGradient) {
-    momentum.mul(alpha).add(gradient, lr);
-    biasMomentum = (biasMomentum * alpha) + (lr * biasGradient);
+    momentum.mul(alpha).add(gradient, lr * (1.0 - alpha));
+    biasMomentum = (biasMomentum * alpha) + (lr * biasGradient * (1.0 - alpha));
     delta.set(momentum);
     biasDelta = biasMomentum;
   }
