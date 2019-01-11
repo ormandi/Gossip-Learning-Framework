@@ -22,6 +22,7 @@ import java.util.LinkedList;
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
 import peersim.core.CommonState;
+import peersim.transport.ChurnProvider;
 
 public class FederatedLearning {
   public static void main(String args[]) throws Exception {
@@ -62,9 +63,21 @@ public class FederatedLearning {
     // number of classes per clients
     int c = Configuration.getInt("C");
     System.err.println("\tNumber of classes per clients: " + c);
-    // number of clients used in update
-    int numUsedClients = Math.max(1, (int)Math.round(C*K));
     
+    // init churn
+    String churnClass = Configuration.getString("churn", null);
+    System.err.println("\tChurn provider class: " + churnClass);
+    long delay = 1;
+    ChurnProvider[] churnProvider = new ChurnProvider[K];
+    long[] sessionEnd = new long[K];
+    boolean[] isOnline = new boolean[K];
+    for (int i = 0; i < K; i++) {
+      sessionEnd[i] = 0;
+      isOnline[i] = true;
+      churnProvider[i] = churnClass == null ? null : (ChurnProvider)Class.forName(churnClass).getConstructor(String.class).newInstance("churn");
+    }
+    
+    // init models
     String include = Configuration.getString("include", null);
     String[] includes = include == null ? null : include.split("\\s");
     String[] modelNames = Configuration.getNames("learner");
@@ -116,11 +129,6 @@ public class FederatedLearning {
     BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor extractor = new DummyExtractor("");
     
-    int[] clientIndices = new int[K];
-    for (int i = 0; i < K; i++) {
-      clientIndices[i] = i;
-    }
-    
     LearningModel[] localModels = new LearningModel[K];
     InstanceHolder[] localInstances = new InstanceHolder[K];
     for (int i = 0; i < K; i++) {
@@ -146,7 +154,7 @@ public class FederatedLearning {
     
     TaskRunner taskRunner = new TaskRunner(numThreads);
     for (int t = 0; t <= numIters; t++) {
-      Utils.arrayShuffle(CommonState.r, clientIndices);
+      updateState(t * delay, sessionEnd, isOnline, churnProvider, C);
       
       // evaluate global model
       for (int m = 0; m < globalModels.length; m++) {
@@ -163,18 +171,22 @@ public class FederatedLearning {
       for (int m = 0; m < globalModels.length; m++) {
         //System.out.println(globalModels[m]);
         // send global model to clients
-        for (int i = 0; i < numUsedClients; i++) {
-          int idx = clientIndices[i];
-          localModels[idx] = (LearningModel)globalModels[m].clone();
+        for (int i = 0; i < K; i++) {
+          if (!isOnline[i] || sessionEnd[i] < t + delay) {
+            continue;
+          }
+          localModels[i] = (LearningModel)globalModels[m].clone();
         }
         
         double usedSamples = 0.0;
         double maxLocalSamples = 0.0;
-        for (int i = 0; i < numUsedClients; i++) {
-          int idx = clientIndices[i];
-          usedSamples += localInstances[idx].size();
-          if (maxLocalSamples < localInstances[idx].size()) {
-            maxLocalSamples = localInstances[idx].size();
+        for (int i = 0; i < K; i++) {
+          if (!isOnline[i] || sessionEnd[i] < t + delay) {
+            continue;
+          }
+          usedSamples += localInstances[i].size();
+          if (maxLocalSamples < localInstances[i].size()) {
+            maxLocalSamples = localInstances[i].size();
           }
         }
         
@@ -182,19 +194,23 @@ public class FederatedLearning {
         avgModels[m].clear();
         
         // update local models (multi thread)
-        for (int i = 0; i < numUsedClients; i++) {
-          int idx = clientIndices[i];
-          taskRunner.add(new ModelUpdateTask(localModels[idx], localInstances[idx], E, B));
+        for (int i = 0; i < K; i++) {
+          if (!isOnline[i] || sessionEnd[i] < t + delay) {
+            continue;
+          }
+          taskRunner.add(new ModelUpdateTask(localModels[i], localInstances[i], E, B));
         }
         taskRunner.run();
         
         // push updated model
-        for (int i = 0; i < numUsedClients; i++) {
-          int idx = clientIndices[i];
-          double coef = localInstances[idx].size() / usedSamples;
+        for (int i = 0; i < K; i++) {
+          if (!isOnline[i] || sessionEnd[i] < t + delay) {
+            continue;
+          }
+          double coef = localInstances[i].size() / usedSamples;
           //coef = (globalModels[m].getAge() + localInstances[idx].size()) / (globalModels[m].getAge() + usedSamples);
           // keep gradients only
-          Model model = ((Partializable)((Federated)localModels[idx]).add(globalModels[m], -1)).getModelPart();
+          Model model = ((Partializable)((Federated)localModels[i]).add(globalModels[m], -1)).getModelPart();
           // averaging updated models
           ((Federated)avgModels[m]).add(model, coef);
         }
@@ -213,5 +229,20 @@ public class FederatedLearning {
     }
     System.err.println(resultAggregator);
     System.err.println("ELAPSED TIME: " + (System.currentTimeMillis() - time));
+  }
+  
+  public static void updateState(long t, long[] sessionEnd, boolean[] isOnline, ChurnProvider[] provider, double fraction) {
+    for (int i = 0; i < sessionEnd.length; i++) {
+      if (provider[i] == null) {
+        // uniform selection
+        sessionEnd[i] = t + 1;
+        isOnline[i] = CommonState.r.nextDouble() < fraction;
+      } else {
+        while(sessionEnd[i] <= t) {
+          sessionEnd[i] += provider[i].nextSession();
+          isOnline[i] = !isOnline[i];
+        }
+      }
+    }
   }
 }

@@ -2,18 +2,26 @@ ITER 1000
 SEED 1234567890
 THREADS 4
 
-CLIENTS 10
+CLIENTS 100
 EPOCHS 1
 BATCH 10
-FRACTION 1
-C 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
+FRACTION 0.1
+C 1 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
 
 SLIMSIZE 10
 
 NORMALIZATION 1 #0: none 1: normalize 2: standardize
 LAMBDA 1E-4
-ETA 0.1
-ISTIME 0
+ETA 1/LAMBDA
+ISTIME 1
+
+E 2.718281828459045
+X 1 # the delay that should produce 10% success rate in federated learning (the federated round-trip time)
+BETAON 10 # average length of online sessions
+BETAOFF BETAON*(10*E^(-X/BETAON)-1)
+churn peersim.transport.ExponentialChurn
+churn.online BETAON
+churn.offline BETAOFF
 
 #include LogReg Pegasos Perceptron MultiLogReg ANN OVSALogReg OVSAPegasos OVSAPerceptron
 #include ANN OVSALogReg OVSAPegasos
@@ -94,7 +102,7 @@ learner.OVSALogReg.model gossipLearning.models.learning.mergeable.MergeableLogRe
 learner.OVSALogReg.lambda LAMBDA
 learner.OVSALogReg.eta ETA
 learner.OVSALogReg.is_time ISTIME
-learner.OVSALogReg.optimizer gossipLearning.interfaces.optimizers.Adam
+learner.OVSALogReg.optimizer gossipLearning.interfaces.optimizers.GD
 learner.OVSALogReg.optimizer.alpha 0.9
 learner.OVSALogReg.optimizer.beta 0.999
 
