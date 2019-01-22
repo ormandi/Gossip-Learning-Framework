@@ -48,6 +48,7 @@ public class LearningProtocolSlim extends LearningProtocol {
   }
   
   protected void updateModels(ModelHolder modelHolder){
+    System.out.println("RECV");
     // get instances from the extraction protocol
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     for (int i = 0; i < modelHolder.size(); i++){

@@ -1,4 +1,4 @@
-ITER 1000
+ITER 100
 SEED 1234567890
 THREADS 4
 
@@ -9,10 +9,10 @@ FRACTION 0.1
 C 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
 
 SIZE 57
-SLIMSIZE 10
+SLIMSIZE 1
 DATASIZE (SIZE/SLIMSIZE)/(1.0*SIZE)
 
-DELAY 1000.0*(1.0+DATASIZE) #millices for trace
+DELAY 1000000.0*(1.0+DATASIZE) #millices for trace
 
 NORMALIZATION 1 #0: none 1: normalize 2: standardize
 LAMBDA 1E-4
@@ -21,11 +21,11 @@ ISTIME 1
 
 E 2.718281828459045
 P FRACTION # probability of successful federated cycle
-X DELAY # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
+X 1000000.0 # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
 BETAON 100*60*1000 # average length of online sessions millisec
 BETAOFF BETAON*(E^(-X/BETAON)/P-1)
-churn peersim.transport.ExponentialChurn #peersim.transport.TraceChurn peersim.transport.NoChurn
-#peersim.transport.TraceChurn
+#churn peersim.transport.ExponentialChurn #peersim.transport.TraceChurn peersim.transport.NoChurn
+churn peersim.transport.TraceChurn
 #churn peersim.transport.NoChurn
 churn.online BETAON
 churn.offline BETAOFF

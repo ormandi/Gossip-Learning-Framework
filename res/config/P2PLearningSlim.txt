@@ -1,4 +1,4 @@
-C 1000 #number of cycles
+C 100 #number of cycles
 NETWORKSIZE 100 #number of nodes
 SEED 1234567890 #random seed
 CORES 1 #number of cores for running
@@ -11,9 +11,9 @@ SIZE 57 #number of features
 EPOCH 1 #number of local epochs
 BATCH 10 #local min-batch size
 
-SLIMSIZE 10
+SLIMSIZE 1
 DATASIZE (SIZE/SLIMSIZE)/(1.0*SIZE)
-D 60*1000.0*DATASIZE #cycle length millisec
+D 1000000.0*DATASIZE #cycle length millisec
 CYCLE D
 
 CLABELS 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
@@ -29,7 +29,7 @@ MAXDELAY DELAY*CYCLE*1.0
 
 # Overlay parameters
 NEWSCAST_CACHESIZE 10
-NEWSCAST_FREQ CYCLE/10.0
+NEWSCAST_FREQ 10
 
 
 #-------------------- General Simulation Properties --------------------
@@ -52,14 +52,16 @@ random.seed SEED
 #protocol.transport.drop DROP
 
 E 2.718281828459045
-P 0.95 # probability of successful federated cycle
-X MAXDELAY*(1.0+DATASIZE)/DATASIZE # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
+P 0.1 # probability of successful federated cycle
+X 1000000.0 # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
 BETAON 100*60*1000 # average length of online sessions
 BETAOFF BETAON*(E^(-X/BETAON)/P-1)
-protocol.ct ChurnTransportM # ChurnTransport is more efficient, but not compatible with multipeersim
+protocol.ct peersim.transport.ChurnTransportM # ChurnTransport is more efficient, but not compatible with multipeersim
 protocol.ct.delay MAXDELAY # the actual one-way delay (in the p2p variant)
-protocol.ct.churnProvider peersim.transport.ExponentialChurn # or alternatively, ExponentialChurn
-protocol.ct.churnProvider.traceFile insert/trace/file.here # (for TraceChurn only)
+#protocol.ct.churnProvider peersim.transport.ExponentialChurn # or alternatively, ExponentialChurn
+protocol.ct.churnProvider peersim.transport.TraceChurn # or alternatively, ExponentialChurn
+#protocol.ct.churnProvider peersim.transport.NoChurn # or alternatively, ExponentialChurn
+protocol.ct.churnProvider.traceFile res/trace/peersim_session_twoday_100_-1min.txt # (for TraceChurn only)
 protocol.ct.churnProvider.online BETAON # 1/lambda_on (for ExponentialChurn only)
 protocol.ct.churnProvider.offline BETAOFF # 1/lambda_off (for ExponentialChurn only)
 
@@ -101,16 +103,13 @@ protocol.learningProtocol.learner.OVSAMergeLogReg.model gossipLearning.models.le
 protocol.learningProtocol.learner.OVSAMergeLogReg.lambda LAMBDA
 protocol.learningProtocol.learner.OVSAMergeLogReg.eta ETA
 protocol.learningProtocol.learner.OVSAMergeLogReg.is_time ISTIME
-protocol.learningProtocol.learner.OVSAMergeLogReg.optimizer gossipLearning.interfaces.optimizers.Momentum
-protocol.learningProtocol.learner.OVSAMergeLogReg.optimizer.alpha 0.9
-protocol.learningProtocol.learner.OVSAMergeLogReg.optimizer.beta 0.999
+protocol.learningProtocol.learner.OVSAMergeLogReg.optimizer gossipLearning.interfaces.optimizers.GD
 protocol.learningProtocol.learner.OVSASlimLogReg01.model gossipLearning.models.learning.mergeable.slim.SlimLogReg
 protocol.learningProtocol.learner.OVSASlimLogReg01.lambda LAMBDA
 protocol.learningProtocol.learner.OVSASlimLogReg01.eta ETA
 protocol.learningProtocol.learner.OVSASlimLogReg01.is_time ISTIME
 protocol.learningProtocol.learner.OVSASlimLogReg01.size -SIZE/SLIMSIZE
-protocol.learningProtocol.learner.OVSASlimLogReg01.optimizer gossipLearning.interfaces.optimizers.Momentum
-protocol.learningProtocol.learner.OVSASlimLogReg01.optimizer.alpha 0.9
+protocol.learningProtocol.learner.OVSASlimLogReg01.optimizer gossipLearning.interfaces.optimizers.GD
 
 protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
 protocol.learningProtocol.evalProbability 1.0

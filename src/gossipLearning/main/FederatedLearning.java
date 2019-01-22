@@ -207,10 +207,12 @@ public class FederatedLearning {
         taskRunner.run();
         
         // push updated model
+        double sum = 0.0;
         for (int i = 0; i < K; i++) {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
+          sum ++;
           double coef = localInstances[i].size() / usedSamples;
           //coef = (globalModels[m].getAge() + localInstances[idx].size()) / (globalModels[m].getAge() + usedSamples);
           // keep gradients only
@@ -218,7 +220,7 @@ public class FederatedLearning {
           // averaging updated models
           ((Federated)avgModels[m]).add(model, coef);
         }
-        
+        System.out.println("ACTIVE: " + (sum/K));
         // update global model
         double age = globalModels[m].getAge();
         ((Federated)globalModels[m]).add(avgModels[m]);
@@ -236,7 +238,6 @@ public class FederatedLearning {
   }
   
   public static void updateState(long t, long[] sessionEnd, boolean[] isOnline, ChurnProvider[] provider, double fraction) {
-    //double sum = 0.0;
     for (int i = 0; i < sessionEnd.length; i++) {
       if (provider[i] == null) {
         // uniform selection
@@ -248,8 +249,6 @@ public class FederatedLearning {
           isOnline[i] = !isOnline[i];
         }
       }
-      //sum += isOnline[i] ? 1.0 : 0.0;
     }
-    //System.out.println("ONLINE: " + (sum/isOnline.length));
   }
 }
