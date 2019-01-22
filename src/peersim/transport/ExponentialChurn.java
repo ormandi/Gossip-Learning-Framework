@@ -32,13 +32,16 @@ private static final String PAR_OFFLINE = "offline";
 //---------------------------------------------------------------------
 
 /** Beta of the online session distribution. */
-private final long beta_on;
+private final double beta_on;
 
 /** Beta of the offline session distribution. */
-private final long beta_off;
+private final double beta_off;
 
 /** 1, if the last returned session was online, -1, if offline, and 0, if no session was returned yet. */
 private int online;
+
+/** Stores fractional session length. */
+private double leftover;
 
 //---------------------------------------------------------------------
 //Initialization
@@ -49,10 +52,10 @@ private int online;
  */
 public ExponentialChurn(String prefix)
 {
-	beta_on = Configuration.getLong(prefix+"."+PAR_ONLINE);
+	beta_on = Configuration.getDouble(prefix+"."+PAR_ONLINE);
 	if (beta_on<=0) 
 	   throw new IllegalParameterException(prefix+"."+PAR_ONLINE,"Average online session length must be positive.");
-	beta_off = Configuration.getLong(prefix+"."+PAR_OFFLINE);
+	beta_off = Configuration.getDouble(prefix+"."+PAR_OFFLINE);
 	if (beta_off<0) 
 	   throw new IllegalParameterException(prefix+"."+PAR_OFFLINE,"Average offline session length must be non-negative.");
 }
@@ -81,7 +84,10 @@ public long nextSession()
 	} else {
 		online *= -1;
 	}
-	return (long)(-Math.log(CommonState.r.nextDouble())*(online>0?beta_on:beta_off));
+	leftover -= Math.log(CommonState.r.nextDouble())*(online>0?beta_on:beta_off);
+	long session = (long)leftover;
+	leftover -= session;
+	return session;
 }
 
 }

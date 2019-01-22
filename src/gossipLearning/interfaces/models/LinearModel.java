@@ -32,7 +32,7 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     bias = 0.0;
     gradient = new SparseVector();
     biasGradient = 0.0;
-    String optimizerClass = Configuration.getString(prefix + "." + PAR_OPIMIZER);
+    String optimizerClass = Configuration.getString(prefix + "." + PAR_OPIMIZER, GD.class.getName());
     try {
       optimizer = (Optimizer)Class.forName(optimizerClass).getConstructor(String.class).newInstance(prefix + "." + PAR_OPIMIZER);
     } catch (Exception e) {

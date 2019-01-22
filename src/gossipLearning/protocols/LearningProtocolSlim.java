@@ -41,7 +41,8 @@ public class LearningProtocolSlim extends LearningProtocol {
       latestModelHolder.add(latestModel);
     }
     // send the latest models to a random neighbor
-    sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
+    //sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
+    sendToOnlineNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
     latestModelHolder.clear();
     numberOfIncomingModels = 0;
   }

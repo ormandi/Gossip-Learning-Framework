@@ -1,5 +1,7 @@
 package gossipLearning.interfaces.protocols;
 
+import java.util.LinkedList;
+
 import gossipLearning.controls.ChurnControl;
 import gossipLearning.messages.ActiveThreadMessage;
 import gossipLearning.messages.ModelMessage;
@@ -10,6 +12,7 @@ import peersim.core.CommonState;
 import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.edsim.EDSimulator;
+import peersim.transport.ChurnTransportM;
 import peersim.transport.Transport;
 
 /**
@@ -74,6 +77,24 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
     Linkable overlay = getOverlay();
     Node randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
     getTransport().send(currentNode, randomNode, message, currentProtocolID);
+  }
+  
+  private LinkedList<Integer> onlines = new LinkedList<Integer>();
+  protected void sendToOnlineNeighbor(ModelMessage message) {
+    onlines.clear();
+    Linkable overlay = getOverlay();
+    for (int i = 0; i < overlay.degree(); i++) {
+      Node randomNode = overlay.getNeighbor(i);
+      ChurnTransportM transport = (ChurnTransportM) randomNode.getProtocol(FastConfig.getTransport(currentProtocolID));
+      if (transport.isOnline()) {
+        onlines.add(i);
+      }
+    }
+    
+    if (onlines.size() != 0) {
+      Node randomNode = overlay.getNeighbor(onlines.get(CommonState.r.nextInt(onlines.size())));
+      getTransport().send(currentNode, randomNode, message, currentProtocolID);
+    }
   }
   
   /**

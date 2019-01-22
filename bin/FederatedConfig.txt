@@ -6,9 +6,13 @@ CLIENTS 100
 EPOCHS 1
 BATCH 10
 FRACTION 0.1
-C 1 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
+C 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
 
+SIZE 57
 SLIMSIZE 10
+DATASIZE (SIZE/SLIMSIZE)/(1.0*SIZE)
+
+DELAY 1000.0*(1.0+DATASIZE) #millices for trace
 
 NORMALIZATION 1 #0: none 1: normalize 2: standardize
 LAMBDA 1E-4
@@ -16,12 +20,17 @@ ETA 1/LAMBDA
 ISTIME 1
 
 E 2.718281828459045
-X 1 # the delay that should produce 10% success rate in federated learning (the federated round-trip time)
-BETAON 10 # average length of online sessions
-BETAOFF BETAON*(10*E^(-X/BETAON)-1)
-churn peersim.transport.ExponentialChurn
+P FRACTION # probability of successful federated cycle
+X DELAY # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
+BETAON 100*60*1000 # average length of online sessions millisec
+BETAOFF BETAON*(E^(-X/BETAON)/P-1)
+churn peersim.transport.ExponentialChurn #peersim.transport.TraceChurn peersim.transport.NoChurn
+#peersim.transport.TraceChurn
+#churn peersim.transport.NoChurn
 churn.online BETAON
 churn.offline BETAOFF
+churn.traceFile ../res/trace/peersim_session_twoday_100_-1min.txt # (for TraceChurn only)
+
 
 #include LogReg Pegasos Perceptron MultiLogReg ANN OVSALogReg OVSAPegasos OVSAPerceptron
 #include ANN OVSALogReg OVSAPegasos
@@ -29,7 +38,7 @@ churn.offline BETAOFF
 #include ANN
 #include OVSALogReg OVSALogRegSlim OVSAPegasos OVSAPegasosSlim
 #include OVSALogReg OVSAPegasos
-include OVSALogReg
+include OVSALogRegSlim
 
 dbReader gossipLearning.utils.DataBaseReader
 #trainingFile ../res/db/iris_train.dat
@@ -50,7 +59,6 @@ evaluationFile ../res/db/local/spambase_test.dat
 #evaluationFile ../res/db/local/segmentation_eval.dat
 
 
-SIZE 57
 learner.LogReg gossipLearning.models.learning.mergeable.MergeableLogReg
 learner.LogReg.lambda LAMBDA
 learner.LogReg.eta ETA
