@@ -9,6 +9,7 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.InstanceHolder;
 import peersim.core.CommonState;
+import peersim.transport.ChurnTransportM;
 
 public class LearningProtocolSlim extends LearningProtocol {
   
@@ -28,8 +29,10 @@ public class LearningProtocolSlim extends LearningProtocol {
   @Override
   public void activeThread() {
     // evaluate
+    ChurnTransportM transport = (ChurnTransportM)getTransport();
+    boolean isOnline = transport.isOnline();
     for (int i = 0; i < modelHolders.length; i++) {
-      if (CommonState.r.nextDouble() < evaluationProbability) {
+      if (isOnline && CommonState.r.nextDouble() < evaluationProbability) {
         ((ResultAggregator)resultAggregator).push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
       }
     }
@@ -40,6 +43,7 @@ public class LearningProtocolSlim extends LearningProtocol {
       Model latestModel = ((Partializable)modelHolders[i].getModel(0)).getModelPart();
       latestModelHolder.add(latestModel);
     }
+    // TODO: send if has been recv
     // send the latest models to a random neighbor
     //sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
     sendToOnlineNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, false));
@@ -48,7 +52,7 @@ public class LearningProtocolSlim extends LearningProtocol {
   }
   
   protected void updateModels(ModelHolder modelHolder){
-    System.out.println("RECV");
+    //System.out.println("RECV");
     // get instances from the extraction protocol
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     for (int i = 0; i < modelHolder.size(); i++){

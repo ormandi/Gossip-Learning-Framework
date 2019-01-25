@@ -1,7 +1,7 @@
-C 100 #number of cycles
+#C 10000 #number of cycles
 NETWORKSIZE 100 #number of nodes
 SEED 1234567890 #random seed
-CORES 1 #number of cores for running
+CORES 4 #number of cores for running
 
 NORMALIZATION 1 #0: none, 1: normalize, 2: standardize
 LAMBDA 1E-4 #regularization
@@ -13,12 +13,13 @@ BATCH 10 #local min-batch size
 
 SLIMSIZE 1
 DATASIZE (SIZE/SLIMSIZE)/(1.0*SIZE)
-D 1000000.0*DATASIZE #cycle length millisec
+D 172000.0*DATASIZE #cycle length millisec (172800 max for 1000 cycles)
 CYCLE D
 
 CLABELS 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
 
-ENDTIME (C+1)*CYCLE
+#ENDTIME (C+1)*CYCLE
+ENDTIME 48*60*60*1000
 LOGTIME CYCLE
 
 # Transport parameters
@@ -28,7 +29,7 @@ MINDELAY DELAY*CYCLE*1.0
 MAXDELAY DELAY*CYCLE*1.0
 
 # Overlay parameters
-NEWSCAST_CACHESIZE 10
+NEWSCAST_CACHESIZE 20
 NEWSCAST_FREQ 10
 
 
@@ -53,7 +54,7 @@ random.seed SEED
 
 E 2.718281828459045
 P 0.1 # probability of successful federated cycle
-X 1000000.0 # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
+X 2.0*172000.0 # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
 BETAON 100*60*1000 # average length of online sessions
 BETAOFF BETAON*(E^(-X/BETAON)/P-1)
 protocol.ct peersim.transport.ChurnTransportM # ChurnTransport is more efficient, but not compatible with multipeersim

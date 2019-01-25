@@ -1,4 +1,3 @@
-ITER 100
 SEED 1234567890
 THREADS 4
 
@@ -12,7 +11,9 @@ SIZE 57
 SLIMSIZE 1
 DATASIZE (SIZE/SLIMSIZE)/(1.0*SIZE)
 
-DELAY 1000000.0*(1.0+DATASIZE) #millices for trace
+DELAY 172000.0*(1.0+DATASIZE) #millices for trace
+ITER 48*60*60*1000/DELAY
+
 
 NORMALIZATION 1 #0: none 1: normalize 2: standardize
 LAMBDA 1E-4
@@ -20,8 +21,8 @@ ETA 1/LAMBDA
 ISTIME 1
 
 E 2.718281828459045
-P FRACTION # probability of successful federated cycle
-X 1000000.0 # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
+P 0.1 # probability of successful federated cycle
+X 2.0*172000.0 # the delay that should produce a success rate of P in federated learning (the federated round-trip time)
 BETAON 100*60*1000 # average length of online sessions millisec
 BETAOFF BETAON*(E^(-X/BETAON)/P-1)
 #churn peersim.transport.ExponentialChurn #peersim.transport.TraceChurn peersim.transport.NoChurn

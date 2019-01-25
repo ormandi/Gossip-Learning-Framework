@@ -19,8 +19,6 @@ import gossipLearning.utils.Utils;
 import java.io.File;
 import java.util.LinkedList;
 
-import cern.colt.Arrays;
-
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
 import peersim.core.CommonState;
@@ -207,12 +205,12 @@ public class FederatedLearning {
         taskRunner.run();
         
         // push updated model
-        double sum = 0.0;
+        //double sum = 0.0;
         for (int i = 0; i < K; i++) {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          sum ++;
+          //sum ++;
           double coef = localInstances[i].size() / usedSamples;
           //coef = (globalModels[m].getAge() + localInstances[idx].size()) / (globalModels[m].getAge() + usedSamples);
           // keep gradients only
@@ -220,7 +218,7 @@ public class FederatedLearning {
           // averaging updated models
           ((Federated)avgModels[m]).add(model, coef);
         }
-        System.out.println("ACTIVE: " + (sum/K));
+        //System.out.println("ACTIVE: " + (sum/K));
         // update global model
         double age = globalModels[m].getAge();
         ((Federated)globalModels[m]).add(avgModels[m]);
