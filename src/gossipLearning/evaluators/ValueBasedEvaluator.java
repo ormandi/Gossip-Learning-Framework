@@ -83,9 +83,10 @@ public abstract class ValueBasedEvaluator implements Evaluator {
       counter += e.counter;
       values[0] += e.values[0];
       values[1] += e.values[1];
-      values[2] = Math.min(values[2], e.values[2]);
-      values[3] = Math.max(values[3], e.values[3]);
-      ((ValueBasedEvaluator) evaluator).clear();
+      // min-max of mean values
+      values[2] = Math.min(values[2], e.values[0]/e.counter);
+      values[3] = Math.max(values[3], e.values[0]/e.counter);
+      e.clear();
     }
   }
 
@@ -93,7 +94,7 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   public double[] getResults() {
     values[0] /= counter;
     values[1] /= counter;
-    values[1] = Math.sqrt(Math.abs(values[1] - values[0] * values[0]));
+    values[1] = Math.sqrt(Math.abs(values[1] - (values[0] * values[0])));
     values[0] = postProcess(values[0]);
     double[] res = Arrays.copyOf(values, values.length);
     clear();
@@ -116,7 +117,7 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   
   @Override
   public String toString() {
-    return (counter == 0.0 ? values[0] : postProcess(values[0]/counter)) + "\t" + Math.sqrt(Math.abs((values[1]/counter) - (values[0]/counter * values[0]/counter))) + "\t" + values[2] + "\t" + values[3];
+    return (counter == 0.0 ? values[0] + "\t" + values[1] : postProcess(values[0]/counter) + "\t" + Math.sqrt(Math.abs((values[1]/counter) - (values[0]/counter * values[0]/counter)))) + "\t" + values[2] + "\t" + values[3];
   }
 
 }
