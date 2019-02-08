@@ -71,12 +71,13 @@ public class FederatedLearning {
     System.err.println("\tround-trip time: " + delay);
     
     ChurnProvider[] churnProvider = new ChurnProvider[K];
+    ChurnProvider cp = churnClass == null ? null : (ChurnProvider)Class.forName(churnClass).getConstructor(String.class).newInstance("churn");
     long[] sessionEnd = new long[K];
     boolean[] isOnline = new boolean[K];
     for (int i = 0; i < K; i++) {
       sessionEnd[i] = 0;
       isOnline[i] = true;
-      churnProvider[i] = churnClass == null ? null : (ChurnProvider)Class.forName(churnClass).getConstructor(String.class).newInstance("churn");
+      churnProvider[i] = cp == null ? null : cp.clone();
     }
     
     // init models

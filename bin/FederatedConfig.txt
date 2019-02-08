@@ -4,7 +4,7 @@ THREADS 4
 CLIENTS 100
 EPOCHS 1
 BATCH 10
-FRACTION 0.1
+FRACTION 1.0
 C 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
 
 SIZE 57
@@ -26,8 +26,8 @@ X 2.0*172000.0 # the delay that should produce a success rate of P in federated 
 BETAON 100*60*1000 # average length of online sessions millisec
 BETAOFF BETAON*(E^(-X/BETAON)/P-1)
 #churn peersim.transport.ExponentialChurn #peersim.transport.TraceChurn peersim.transport.NoChurn
-churn peersim.transport.TraceChurn
-#churn peersim.transport.NoChurn
+#churn peersim.transport.TraceChurn
+churn peersim.transport.NoChurn
 churn.online BETAON
 churn.offline BETAOFF
 churn.traceFile ../res/trace/peersim_session_twoday_100_-1min.txt # (for TraceChurn only)

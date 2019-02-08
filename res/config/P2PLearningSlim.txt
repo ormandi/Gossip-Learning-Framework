@@ -11,7 +11,7 @@ SIZE 57 #number of features
 EPOCH 1 #number of local epochs
 BATCH 10 #local min-batch size
 
-SLIMSIZE 1
+SLIMSIZE 10
 DATASIZE (SIZE/SLIMSIZE)/(1.0*SIZE)
 D 172000.0*DATASIZE #cycle length millisec (172800 max for 1000 cycles)
 CYCLE D
@@ -60,8 +60,8 @@ BETAOFF BETAON*(E^(-X/BETAON)/P-1)
 protocol.ct peersim.transport.ChurnTransportM # ChurnTransport is more efficient, but not compatible with multipeersim
 protocol.ct.delay MAXDELAY # the actual one-way delay (in the p2p variant)
 #protocol.ct.churnProvider peersim.transport.ExponentialChurn # or alternatively, ExponentialChurn
-protocol.ct.churnProvider peersim.transport.TraceChurn # or alternatively, ExponentialChurn
-#protocol.ct.churnProvider peersim.transport.NoChurn # or alternatively, ExponentialChurn
+#protocol.ct.churnProvider peersim.transport.TraceChurn # or alternatively, ExponentialChurn
+protocol.ct.churnProvider peersim.transport.NoChurn # or alternatively, ExponentialChurn
 protocol.ct.churnProvider.traceFile res/trace/peersim_session_twoday_100_-1min.txt # (for TraceChurn only)
 protocol.ct.churnProvider.online BETAON # 1/lambda_on (for ExponentialChurn only)
 protocol.ct.churnProvider.offline BETAOFF # 1/lambda_off (for ExponentialChurn only)
@@ -150,7 +150,7 @@ init.instanceLoader.cLabels CLABELS
 
 init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
 init.learningProtocolStart.protocols learningProtocol
-init.learningProtocolStart.delay CYCLE
+init.learningProtocolStart.delay 10
 
 
 #-------------------- Define Init Sequence --------------------
