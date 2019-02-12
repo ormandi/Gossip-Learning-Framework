@@ -1,5 +1,6 @@
 SEED 1234567890
 THREADS 4
+WEIGHTED 0
 
 CLIENTS 100
 EPOCHS 1
@@ -7,15 +8,15 @@ BATCH 10
 FRACTION 1.0
 C 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
 
-SIZE 57
-SLIMSIZE 1
+SIZE 16
+SLIMSIZE 4
 DATASIZE (SIZE/SLIMSIZE)/(1.0*SIZE)
 
 DELAY 172000.0*(1.0+DATASIZE) #millices for trace
 ITER 48*60*60*1000/DELAY
 
 
-NORMALIZATION 1 #0: none 1: normalize 2: standardize
+NORMALIZATION 2 #0: none 1: normalize 2: standardize
 LAMBDA 1E-4
 ETA 1/LAMBDA
 ISTIME 1
@@ -27,7 +28,7 @@ BETAON 100*60*1000 # average length of online sessions millisec
 BETAOFF BETAON*(E^(-X/BETAON)/P-1)
 #churn peersim.transport.ExponentialChurn #peersim.transport.TraceChurn peersim.transport.NoChurn
 #churn peersim.transport.TraceChurn
-churn peersim.transport.NoChurn
+#churn peersim.transport.NoChurn
 churn.online BETAON
 churn.offline BETAOFF
 churn.traceFile ../res/trace/peersim_session_twoday_100_-1min.txt # (for TraceChurn only)
@@ -44,12 +45,12 @@ include OVSALogRegSlim
 dbReader gossipLearning.utils.DataBaseReader
 #trainingFile ../res/db/iris_train.dat
 #evaluationFile ../res/db/iris_eval.dat
-trainingFile ../res/db/local/spambase_train.dat
-evaluationFile ../res/db/local/spambase_test.dat
+#trainingFile ../res/db/local/spambase_train.dat
+#evaluationFile ../res/db/local/spambase_test.dat
 #trainingFile ../res/db/local/reuters_train.dat
 #evaluationFile ../res/db/local/reuters_test.dat
-#trainingFile ../res/db/local/pendigits_train.dat
-#evaluationFile ../res/db/local/pendigits_eval.dat
+trainingFile ../res/db/local/pendigits_train.dat
+evaluationFile ../res/db/local/pendigits_eval.dat
 #trainingFile ../res/db/local/har_train.dat
 #evaluationFile ../res/db/local/har_test.dat
 #trainingFile ../res/db/local/mnist_train.dat
@@ -121,6 +122,7 @@ learner.OVSALogRegSlim.lambda LAMBDA
 learner.OVSALogRegSlim.eta ETA
 learner.OVSALogRegSlim.is_time ISTIME
 learner.OVSALogRegSlim.size -SIZE/SLIMSIZE
+learner.OVSALogRegSlim.weighted WEIGHTED
 learner.OVSAPegasos gossipLearning.models.learning.mergeable.MergeableOvsA
 learner.OVSAPegasos.model gossipLearning.models.learning.mergeable.MergeablePegasos
 learner.OVSAPegasos.lambda LAMBDA

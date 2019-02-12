@@ -13,17 +13,21 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
   private static final long serialVersionUID = 6140967577949903596L;
   
   private static final String PAR_SIZE = "size";
+  private static final String PAR_WEIGHTED = "weighted";
   
   protected final int modelSize;
+  protected final boolean weighted;
   
   public SlimLogReg(String prefix){
     super(prefix);
     modelSize = Configuration.getInt(prefix + "." + PAR_SIZE);
+    weighted = 1 == Configuration.getInt(prefix + "." + PAR_WEIGHTED);
   }
   
   protected SlimLogReg(SlimLogReg a){
     super(a);
     modelSize = a.modelSize;
+    weighted = a.weighted;
   }
   
   public Object clone(){
@@ -66,6 +70,9 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
       int idx = gradient.indexAt(rp.next());
       result.w.add(idx, w.get(idx));
     }
+    if (!weighted) {
+      result.w.mul(numberOfFeatures / Math.abs(modelSize));
+    }
     return result;
   }
   
@@ -73,6 +80,10 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
   private SparseVector weight;
   @Override
   public Model add(Model model, double times) {
+    if (!weighted) {
+      super.add(model, times);
+      return this;
+    }
     if (weight == null) {
       weight = new SparseVector();
     } else {

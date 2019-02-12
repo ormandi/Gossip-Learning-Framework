@@ -9,6 +9,8 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.main.fedAVG.ModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.models.extraction.DummyExtractor;
+import gossipLearning.models.learning.mergeable.slim.SlimLogReg;
+import gossipLearning.models.learning.mergeable.slim.SlimOvsA;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
@@ -61,8 +63,8 @@ public class FederatedLearning {
     int B = Configuration.getInt("BATCH");
     System.err.println("\tLocal batch size: " + B);
     // number of classes per clients
-    int c = Configuration.getInt("C");
-    System.err.println("\tNumber of classes per clients: " + c);
+    int cLabels = Configuration.getInt("C");
+    System.err.println("\tNumber of classes per clients: " + cLabels);
     
     // init churn
     String churnClass = Configuration.getString("churn", null);
@@ -137,7 +139,7 @@ public class FederatedLearning {
     for (int i = 0; i < K; i++) {
       localInstances[i] = new InstanceHolder(instances.getNumberOfClasses(), instances.getNumberOfFeatures());
     }
-    LinkedList<Integer>[] map = Utils.mapLabelsToNodes(instances.getNumberOfClasses(), K, c);
+    LinkedList<Integer>[] map = Utils.mapLabelsToNodes(instances.getNumberOfClasses(), K, cLabels);
     /*for (int i = 0; i < map.length; i++) {
       System.out.println("Label " + i + " for nodes " + map[i].size() + " " + map[i]);
     }
@@ -181,16 +183,12 @@ public class FederatedLearning {
           localModels[i] = (LearningModel)globalModels[m].clone();
         }
         
-        double usedSamples = 0.0;
-        double maxLocalSamples = 0.0;
+        double recvModels = 0.0;
         for (int i = 0; i < K; i++) {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          usedSamples += localInstances[i].size();
-          if (maxLocalSamples < localInstances[i].size()) {
-            maxLocalSamples = localInstances[i].size();
-          }
+          recvModels ++;
         }
         
         // reset model collector
@@ -206,25 +204,19 @@ public class FederatedLearning {
         taskRunner.run();
         
         // push updated model
-        //double sum = 0.0;
         for (int i = 0; i < K; i++) {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          //sum ++;
-          double coef = localInstances[i].size() / usedSamples;
-          //coef = (globalModels[m].getAge() + localInstances[idx].size()) / (globalModels[m].getAge() + usedSamples);
+          double coef = 1.0 / recvModels;
           // keep gradients only
           Model model = ((Partializable)((Federated)localModels[i]).add(globalModels[m], -1)).getModelPart();
           // averaging updated models
           ((Federated)avgModels[m]).add(model, coef);
         }
-        //System.out.println("ACTIVE: " + (sum/K));
         // update global model
-        double age = globalModels[m].getAge();
+        //((Federated)globalModels[m]).add(((SlimOvsA)avgModels[m]).mul(4.0));
         ((Federated)globalModels[m]).add(avgModels[m]);
-        globalModels[m].setAge(age + maxLocalSamples);
-        //System.out.println(globalModels[m]);
       }
     }
     System.err.println("Final result:");
