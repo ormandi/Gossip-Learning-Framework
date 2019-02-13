@@ -6,11 +6,10 @@ import gossipLearning.interfaces.models.Federated;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
+import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.main.fedAVG.ModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.models.extraction.DummyExtractor;
-import gossipLearning.models.learning.mergeable.slim.SlimLogReg;
-import gossipLearning.models.learning.mergeable.slim.SlimOvsA;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
@@ -40,7 +39,6 @@ public class FederatedLearning {
     long seed = Configuration.getLong("SEED", Utils.getSeed());
     System.err.println("\tRandom seed: " + seed);
     CommonState.r.setSeed(seed);
-    
     
     String dbReaderName = Configuration.getString("dbReader");
     File tFile = new File(Configuration.getString("trainingFile"));
@@ -123,7 +121,7 @@ public class FederatedLearning {
     resultAggregator.setEvalSet(reader.getEvalSet());
     AggregationResult.printPrecision = printPrecision;
     
-    
+    // shuffle instances
     InstanceHolder instances = reader.getTrainingSet();
     int[] instanceIndices = new int[instances.size()];
     for (int i = 0; i < instances.size(); i++) {
@@ -131,19 +129,13 @@ public class FederatedLearning {
     }
     Utils.arrayShuffle(CommonState.r, instanceIndices);
     
-    BQModelHolder modelHolder = new BQModelHolder(1);
-    FeatureExtractor extractor = new DummyExtractor("");
-    
+    // set local instances for clients
     LearningModel[] localModels = new LearningModel[K];
     InstanceHolder[] localInstances = new InstanceHolder[K];
     for (int i = 0; i < K; i++) {
       localInstances[i] = new InstanceHolder(instances.getNumberOfClasses(), instances.getNumberOfFeatures());
     }
     LinkedList<Integer>[] map = Utils.mapLabelsToNodes(instances.getNumberOfClasses(), K, cLabels);
-    /*for (int i = 0; i < map.length; i++) {
-      System.out.println("Label " + i + " for nodes " + map[i].size() + " " + map[i]);
-    }
-    System.exit(0);*/
     for (int i = 0; i < instances.size(); i++) {
       double label = instances.getLabel(instanceIndices[i]);
       SparseVector instance = instances.getInstance(instanceIndices[i]);
@@ -152,11 +144,9 @@ public class FederatedLearning {
       map[(int)label].add(clientIdx);
       localInstances[clientIdx].add(instance, label);
     }
-    /*for (int i = 0; i < K; i++) {
-      System.out.println(i + "\t" + localInstances[i]);
-    }
-    System.exit(0);*/
     
+    BQModelHolder modelHolder = new BQModelHolder(1);
+    FeatureExtractor extractor = new DummyExtractor("");
     TaskRunner taskRunner = new TaskRunner(numThreads);
     for (int t = 0; t <= numIters; t++) {
       updateState(t * delay, sessionEnd, isOnline, churnProvider, C);
@@ -174,7 +164,6 @@ public class FederatedLearning {
       }
       
       for (int m = 0; m < globalModels.length; m++) {
-        //System.out.println(globalModels[m]);
         // send global model to clients
         for (int i = 0; i < K; i++) {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
@@ -183,12 +172,17 @@ public class FederatedLearning {
           localModels[i] = (LearningModel)globalModels[m].clone();
         }
         
+        // check online sessions
         double recvModels = 0.0;
         for (int i = 0; i < K; i++) {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
           recvModels ++;
+        }
+        // continue if no online client
+        if (recvModels == 0.0) {
+          continue;
         }
         
         // reset model collector
@@ -212,10 +206,14 @@ public class FederatedLearning {
           // keep gradients only
           Model model = ((Partializable)((Federated)localModels[i]).add(globalModels[m], -1)).getModelPart();
           // averaging updated models
-          ((Federated)avgModels[m]).add(model, coef);
+          if (avgModels[m] instanceof SlimModel) {
+            ((SlimModel)avgModels[m]).weightedAdd(model, coef);
+          } else {
+            ((Federated)avgModels[m]).add(model, coef);
+          }
         }
+        
         // update global model
-        //((Federated)globalModels[m]).add(((SlimOvsA)avgModels[m]).mul(4.0));
         ((Federated)globalModels[m]).add(avgModels[m]);
       }
     }

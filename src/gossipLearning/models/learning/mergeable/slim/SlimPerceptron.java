@@ -72,7 +72,7 @@ public class SlimPerceptron extends MergeablePerceptron implements SlimModel {
   private double biasWeight = 0.0;
   private SparseVector weight;
   @Override
-  public Model add(Model model, double times) {
+  public Model weightedAdd(Model model, double times) {
     if (weight == null) {
       weight = new SparseVector();
     } else {

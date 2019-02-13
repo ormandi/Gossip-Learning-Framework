@@ -166,14 +166,14 @@ public class SparseVectorTest extends TestCase implements Serializable {
   }
   
   public void testPointMul() {
-    SparseVector v1 = new SparseVector(new double[]{1,0,2,2});
+    SparseVector v1 = new SparseVector(new double[]{1,0,2,2,0,2});
     SparseVector v2 = new SparseVector(new double[]{2,0,0,5,4});
     SparseVector v3 = new SparseVector(new double[]{2,0,0,10,0});
     assertEquals(v1.pointMul(v2), v3);
   }
   
   public void testDiv() {
-    SparseVector v1 = new SparseVector(new double[]{1,0,2,2});
+    SparseVector v1 = new SparseVector(new double[]{1,0,2,2,0,2});
     SparseVector v2 = new SparseVector(new double[]{2,0,0,5,4});
     SparseVector v3 = new SparseVector(new double[]{0.5,0,0,0.4,0});
     assertEquals(v1.div(v2), v3);

@@ -71,7 +71,7 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
       result.w.add(idx, w.get(idx));
     }
     if (!weighted) {
-      result.w.mul(numberOfFeatures / Math.abs(modelSize));
+      result.w.mul(numberOfFeatures / (double)Math.abs(modelSize));
     }
     return result;
   }
@@ -79,7 +79,7 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
   private double biasWeight = 0.0;
   private SparseVector weight;
   @Override
-  public Model add(Model model, double times) {
+  public Model weightedAdd(Model model, double times) {
     if (!weighted) {
       super.add(model, times);
       return this;

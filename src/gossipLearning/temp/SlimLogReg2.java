@@ -1,43 +1,39 @@
-package gossipLearning.models.learning.mergeable.slim;
+package gossipLearning.temp;
 
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SlimModel;
-import gossipLearning.models.learning.mergeable.MergeablePegasos;
+import gossipLearning.models.learning.mergeable.MergeableLogReg;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
-import peersim.util.WeightedRandPerm;
 
-public class SlimPegasos extends MergeablePegasos implements SlimModel {
-  private static final long serialVersionUID = 6849809999453437967L;
+public class SlimLogReg2 extends MergeableLogReg implements SlimModel {
+  private static final long serialVersionUID = 6140967577949903596L;
   
-  protected static final String PAR_SIZE = "size";
+  private static final String PAR_PERCENT = "percent";
   
-  protected final int modelSize;
+  protected final double percent;
+  protected int[] indices;
   
-  public SlimPegasos(String prefix){
+  public SlimLogReg2(String prefix){
     super(prefix);
-    modelSize = Configuration.getInt(prefix + "." + PAR_SIZE);
+    percent = Configuration.getDouble(prefix + "." + PAR_PERCENT);
   }
   
-  /**
-   * Returns a new mergeable P2Pegasos object that initializes its variable with 
-   * the deep copy of the specified parameter using the super constructor.
-   * @param a model to be cloned
-   */
-  protected SlimPegasos(SlimPegasos a){
+  protected SlimLogReg2(SlimLogReg2 a){
     super(a);
-    modelSize = a.modelSize;
+    percent = a.percent;
   }
   
   public Object clone(){
-    return new SlimPegasos(this);
+    return new SlimLogReg2(this);
   }
   
   @Override
   public Model merge(Model model) {
-    SlimPegasos m = (SlimPegasos)model;
+    SlimLogReg2 m = (SlimLogReg2)model;
     double sum = age + m.age;
     if (sum == 0) {
       return this;
@@ -48,26 +44,25 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel {
       double value = w.get(e.index);
       w.add(e.index, (e.value - value) * modelWeight);
     }
+    bias += (m.bias - bias) * modelWeight;
     return this;
   }
   
   @Override
   public Model getModelPart() {
-    SlimPegasos result = new SlimPegasos(this);
+    SlimLogReg2 result = new SlimLogReg2(this);
+    if (indices == null) {
+      indices = new int[numberOfFeatures];
+      for (int i = 0; i < numberOfFeatures; i++) {
+        indices[i] = i;
+      }
+    }
     result.w.clear();
-    if (gradient.size() == 0) {
-      return result;
-    }
-    double[] weights = new double[gradient.size()];
-    for (int i = 0; i < gradient.size(); i++) {
-      weights[i] = modelSize < 0 ? 1.0 : Math.abs(gradient.valueAt(i));
-    }
-    WeightedRandPerm rp = new WeightedRandPerm(CommonState.r, weights);
-    rp.reset(gradient.size());
-    int iter = Math.abs(modelSize);
-    while (0 < iter && rp.hasNext()) {
-      iter --;
-      int idx = gradient.indexAt(rp.next());
+    Utils.arrayShuffle(CommonState.r, indices);
+    int size = (int)Math.floor(percent * numberOfFeatures);
+    size += CommonState.r.nextDouble() < (percent * numberOfFeatures) - size ? 1 : 0;
+    for (int i = 0; i < size; i++) {
+      int idx = indices[i];
       result.w.add(idx, w.get(idx));
     }
     return result;
@@ -85,7 +80,7 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel {
       weight.mul(biasWeight);
     }
     super.add(model, times);
-    SlimPegasos m = (SlimPegasos)model;
+    SlimLogReg2 m = (SlimLogReg2)model;
     biasWeight += times;
     for (VectorEntry entry : m.w) {
       weight.add(entry.index, times);

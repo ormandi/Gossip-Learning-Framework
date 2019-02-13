@@ -474,6 +474,9 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
           idx2 ++;
         }
       }
+      while(idx < size) {
+        remove(indices[idx]);
+      }
       return this;
     }
   
@@ -496,6 +499,9 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
       } else {
         idx2 ++;
       }
+    }
+    while(idx < size) {
+      remove(indices[idx]);
     }
     return this;
   }

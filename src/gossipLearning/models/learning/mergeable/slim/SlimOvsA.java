@@ -40,5 +40,15 @@ public class SlimOvsA extends MergeableOvsA implements SlimModel {
       }
     }
   }
+
+  @Override
+  public Model weightedAdd(Model model, double times) {
+    SlimOvsA m = (SlimOvsA)model;
+    age += m.age * times;
+    for (int i = 0; i < classifiers.size(); i++) {
+      ((SlimModel)classifiers.getModel(i)).weightedAdd(m.classifiers.getModel(i), times);
+    }
+    return null;
+  }
   
 }

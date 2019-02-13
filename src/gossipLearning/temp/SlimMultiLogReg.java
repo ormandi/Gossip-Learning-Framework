@@ -79,4 +79,10 @@ public class SlimMultiLogReg extends MergeableMultiLogReg implements SlimModel {
     return result;
   }
 
+  @Override
+  public Model weightedAdd(Model model, double times) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
 }

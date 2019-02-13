@@ -98,7 +98,7 @@ public class SlimANN extends MergeableANN implements SlimModel {
   private double biasWeight = 0.0;
   private Matrix[] weight;
   @Override
-  public Model add(Model model, double times) {
+  public Model weightedAdd(Model model, double times) {
     if (weight == null) {
       weight = new Matrix[thetas.length];
       for (int i = 0; i < thetas.length; i++) {
