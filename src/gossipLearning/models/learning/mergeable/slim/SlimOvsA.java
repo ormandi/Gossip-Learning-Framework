@@ -48,7 +48,7 @@ public class SlimOvsA extends MergeableOvsA implements SlimModel {
     for (int i = 0; i < classifiers.size(); i++) {
       ((SlimModel)classifiers.getModel(i)).weightedAdd(m.classifiers.getModel(i), times);
     }
-    return null;
+    return this;
   }
   
 }
