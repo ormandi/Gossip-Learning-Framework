@@ -1,6 +1,6 @@
 package gossipLearning.interfaces.models;
 
-public interface Federated {
+public interface Addable {
   /**
    * Adds the specified model to the current model.
    * @param model to be added
