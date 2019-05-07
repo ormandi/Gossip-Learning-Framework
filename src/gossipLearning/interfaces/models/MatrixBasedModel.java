@@ -14,22 +14,20 @@ public interface MatrixBasedModel extends Model {
   /**
    * Updates the current model based on the specified arguments (for optimizing 
    * M=U*V).
-   * @param rowIndex the index (i) of the row from matrix M
    * @param rowModel the (ith) row of the matrix U
    * @param instance the (ith) row of the matrix M
    * @return the updated rowModel (the ith row of the U)
    */
-  public SparseVector update(int rowIndex, SparseVector rowModel, SparseVector instance);
+  public double[] update(double[] rowModel, SparseVector instance);
   /**
    * Predicts the m_ij element of the M matrix (the optimization problem is: 
    * M=U*V).
-   * @param rowIndex the index (i) of the row of m_ij
    * @param rowModel the (ith) row of U
    * @param columnIndex the index (j) of the column of m_ij
    * @return the predicted value of m_ij
    */
-  public double predict(int rowIndex, SparseVector rowModel, int columnIndex);
+  public double predict(double[] rowModel, int columnIndex);
   
   public Matrix getV();
-  public Matrix getUSi(SparseVector ui);
+  public Matrix getUSi(double[] ui);
 }
