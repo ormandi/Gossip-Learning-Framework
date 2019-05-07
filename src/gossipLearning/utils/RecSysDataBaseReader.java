@@ -75,7 +75,7 @@ public class RecSysDataBaseReader extends DataBaseReader {
       
       instance = instances.get(userId);
       instance.put(itemId, rate);
-      labels.set(userId, (double)userId);
+      //labels.set(userId, (double)userId);
     }
     br.close();
     return new InstanceHolder(instances, labels, (numberOfClasses == 1) ? 0 : numberOfClasses, numberOfFeatures);

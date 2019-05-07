@@ -5,7 +5,6 @@ import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
@@ -108,7 +107,6 @@ public class LocalRun {
     System.err.println("Start learning.");
     SparseVector instance;
     double label;
-    BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor extractor = new DummyExtractor("");
     
     int[] sampleIndices = null;
@@ -128,8 +126,7 @@ public class LocalRun {
         //System.out.println(models[0]);
         // evaluate
         for (int i = 0; i < models.length; i++) {
-          modelHolder.add(models[i]);
-          resultAggregator.push(-1, i, modelHolder, extractor);
+          resultAggregator.push(-1, i, models[i], extractor);
         }
         
         // print results
@@ -166,8 +163,7 @@ public class LocalRun {
     // evaluate on the end of the learning again
     System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
-      modelHolder.add(models[i]);
-      resultAggregator.push(-1, i, modelHolder, extractor);
+      resultAggregator.push(-1, i, models[i], extractor);
     }
     System.err.println(resultAggregator);
     System.err.println("ELAPSED TIME: " + (System.currentTimeMillis() - time) + "ms");

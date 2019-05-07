@@ -1,8 +1,8 @@
 package gossipLearning.temp.main;
 
 import gossipLearning.evaluators.MatrixBasedClusterEvaluator;
-import gossipLearning.models.PowerMethod;
 import gossipLearning.models.clustering.KMeans;
+import gossipLearning.temp.PowerMethod;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;

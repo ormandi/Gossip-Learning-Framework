@@ -1,12 +1,12 @@
 package gossipLearning.models.learning.mergeable;
 
-import gossipLearning.interfaces.models.Federated;
+import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.OneVsAllMetaClassifier;
 
-public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, Partializable, Federated {
+public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, Partializable, Addable {
   private static final long serialVersionUID = -2294873002764150476L;
   
   public MergeableOvsA(String prefix) {
@@ -47,7 +47,7 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, 
     MergeableOvsA m = (MergeableOvsA)model;
     age += m.age * times;
     for (int i = 0; i < numberOfClasses; i++) {
-      ((Federated)classifiers.getModel(i)).add(m.classifiers.getModel(i), times);
+      ((Addable)classifiers.getModel(i)).add(m.classifiers.getModel(i), times);
     }
     return this;
   }

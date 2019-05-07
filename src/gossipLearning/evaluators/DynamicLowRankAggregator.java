@@ -1,12 +1,10 @@
 package gossipLearning.evaluators;
 
-import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Lanczos;
 import gossipLearning.utils.Matrix;
-import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
 
@@ -49,7 +47,7 @@ public class DynamicLowRankAggregator extends FactorizationResultAggregator {
   }
 
   @Override
-  public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {
+  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor) {
     lock.lock();
     // check state changes of nodes (churn)
     if (failState == null) {
@@ -87,10 +85,6 @@ public class DynamicLowRankAggregator extends FactorizationResultAggregator {
     }
     lock.unlock();
     
-    if (modelHolder.size() == 0) {
-      return;
-    }
-    MatrixBasedModel model = (MatrixBasedModel)modelHolder.getModel(modelHolder.size() - 1);
     modelAges[index] = model.getAge();
     Matrix v = model.getV();
     // the cosine similarity of the eigenvalues should be 1

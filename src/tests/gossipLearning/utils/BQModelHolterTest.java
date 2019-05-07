@@ -157,4 +157,12 @@ class DummyModel implements Model {
     return 0.0;
   }
   
+  @Override
+  public void setAge(double age) {
+  }
+  
+  @Override
+  public void clear() {
+  }
+  
 }

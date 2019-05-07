@@ -6,7 +6,6 @@ import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.PrivateModel;
 import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
@@ -226,7 +225,6 @@ public class DiffPriv {
     System.err.println("Start learning.");
     SparseVector instance;
     double label;
-    BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor extractor = new DummyExtractor("");
     
     int[] sampleIndices = null;
@@ -245,8 +243,7 @@ public class DiffPriv {
       if (iter % evalTime == 0) {
         // evaluate
         for (int i = 0; i < models.length; i++) {
-          modelHolder.add(models[i]);
-          resultAggregator.push(-1, i, modelHolder, extractor);
+          resultAggregator.push(-1, i, models[i], extractor);
         }
         
         // print results
@@ -307,8 +304,7 @@ public class DiffPriv {
     // evaluate on the end of the learning again
     System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
-      modelHolder.add(models[i]);
-      resultAggregator.push(-1, i, modelHolder, extractor);
+      resultAggregator.push(-1, i, models[i], extractor);
     }
     System.err.println(resultAggregator);
   }

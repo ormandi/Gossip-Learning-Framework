@@ -738,6 +738,14 @@ public class Utils {
     return System.nanoTime() % (long)1E9;
   }
   
+  public static double mul(double[] a, double[] b) {
+    double result = 0.0;
+    for (int i = 0; i < Math.min(a.length, b.length); i++) {
+      result += a[i] * b[i];
+    }
+    return result;
+  }
+  
   public static void main(String[] args) {
     Random r = new Random(System.currentTimeMillis());
     int size = 100;

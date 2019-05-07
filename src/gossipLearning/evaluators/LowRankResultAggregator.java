@@ -1,11 +1,9 @@
 package gossipLearning.evaluators;
 
-import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Matrix;
-import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 import gossipLearning.utils.jama.SingularValueDecomposition;
 
@@ -37,11 +35,7 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
   }
   
   @Override
-  public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {
-    if (modelHolder.size() == 0) {
-      return;
-    }
-    MatrixBasedModel model = (MatrixBasedModel)modelHolder.getModel(modelHolder.size() - 1);
+  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor) {
     modelAges[index] = model.getAge();
     Matrix v = model.getV();
     // the cosine similarity of the eigenvalues should be 1

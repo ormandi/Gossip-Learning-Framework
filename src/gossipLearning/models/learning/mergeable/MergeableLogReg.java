@@ -1,6 +1,6 @@
 package gossipLearning.models.learning.mergeable;
 
-import gossipLearning.interfaces.models.Federated;
+import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
@@ -16,7 +16,7 @@ import gossipLearning.models.learning.LogisticRegression;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableLogReg extends LogisticRegression implements Mergeable, Partializable, Federated {
+public class MergeableLogReg extends LogisticRegression implements Mergeable, Partializable, Addable {
   private static final long serialVersionUID = -4465428750554412761L;
   
   public MergeableLogReg(double lambda) {

@@ -71,6 +71,7 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
       result.w.add(idx, w.get(idx));
     }
     if (!weighted) {
+      // TODO: remove this by scaling times of weighted
       result.w.mul(numberOfFeatures / (double)Math.abs(modelSize));
     }
     return result;

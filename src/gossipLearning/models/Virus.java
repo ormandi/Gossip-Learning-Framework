@@ -31,6 +31,18 @@ public class Virus implements Model {
   public double getAge() {
     return age;
   }
+  
+  @Override
+  public void setAge(double age) {
+    this.age = age;
+  }
+  
+  @Override
+  public void clear() {
+    age = 0.0;
+    seenPeers.clear();
+    isInfected = false;
+  }
 
   public boolean isInfecter() {
     return isInfected;

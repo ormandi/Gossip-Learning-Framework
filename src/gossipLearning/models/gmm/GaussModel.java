@@ -73,6 +73,18 @@ public class GaussModel implements Model, Mergeable {
     return age;
   }
   
+  @Override
+  public void setAge(double age) {
+    this.age = age;
+  }
+  
+  @Override
+  public void clear() {
+    age = 0.0;
+    mean = 0.0;
+    mean2 = 0.0;
+  }
+  
   public double getMu() {
     return mean;
   }

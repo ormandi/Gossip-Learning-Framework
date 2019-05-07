@@ -1,10 +1,8 @@
 package gossipLearning.evaluators;
 
-import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.utils.InstanceHolder;
-import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
 
 public class RecSysResultAggregator extends FactorizationResultAggregator {
@@ -24,16 +22,12 @@ public class RecSysResultAggregator extends FactorizationResultAggregator {
   }
   
   @Override
-  public void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor) {
-    if (modelHolder.size() == 0) {
-      return;
-    }
+  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor) {
     InstanceHolder eval = extractor.extract(evalSet);
-    MatrixBasedModel model = (MatrixBasedModel)modelHolder.getModel(modelHolder.size() - 1);
     modelAges[index] = model.getAge();
     for (VectorEntry entry : eval.getInstance(userIdx)) {
       double expected = entry.value;
-      double predicted = model.predict(userIdx, userModel, entry.index);
+      double predicted = model.predict(userModel, entry.index);
       for (int j = 0; j < evaluators[index].length; j++) {
         if (evaluators[index][j] instanceof MatrixBasedEvaluator) {
           evaluators[index][j].evaluate(expected, Math.round(predicted));

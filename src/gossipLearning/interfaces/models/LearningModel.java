@@ -47,14 +47,4 @@ public interface LearningModel extends Model {
    */
   public void setParameters(int numberOfClasses, int numberOfFeatures);
   
-  /**
-   * Clears/resets the model.
-   */
-  public void clear();
-  
-  /**
-   * Sets the specified age to the model.
-   * @param age to be set.
-   */
-  public void setAge(double age);
 }

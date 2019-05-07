@@ -1,8 +1,7 @@
 package gossipLearning.evaluators;
 
-import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.FeatureExtractor;
-import gossipLearning.utils.SparseVector;
+import gossipLearning.interfaces.models.MatrixBasedModel;
 
 public abstract class FactorizationResultAggregator extends ResultAggregator {
   private static final long serialVersionUID = -3510139767870197602L;
@@ -15,6 +14,6 @@ public abstract class FactorizationResultAggregator extends ResultAggregator {
     super(a);
   }
   
-  public abstract void push(int pid, int index, int userIdx, SparseVector userModel, ModelHolder modelHolder, FeatureExtractor extractor);
+  public abstract void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor);
 
 }

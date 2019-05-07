@@ -5,6 +5,7 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.protocols.AbstractProtocol;
 import gossipLearning.messages.ModelMessage;
 import gossipLearning.utils.BQModelHolder;
@@ -22,13 +23,10 @@ import peersim.core.CommonState;
 public class LearningProtocol extends AbstractProtocol {
   private static final String PAR_EXTRACTORPID = "extractorProtocol";
   protected static final String PAR_ARRGNAME = "aggrName";
-  private static final String PAR_MODELHOLDERCAPACITY = "modelHolderCapacity";
-  private static final String PAR_MODELHOLDERNAME = "modelHolderName";
   private static final String PAR_LEARNER = "learner";
   private static final String PAR_INCLUDE = "include.model";
   private static final String PAR_EVALNAMES = "evalNames";
   private static final String PAR_EVALPROB = "evalProbability";
-  protected static final String PAR_MODELPROB = "initModelProbability";
   
   private static final String PAR_EPOCH = "epoch";
   private static final String PAR_BATCH = "batch";
@@ -38,30 +36,19 @@ public class LearningProtocol extends AbstractProtocol {
    * @hidden
    */
   public static final String PAR_WAIT = "numOfWaitingPeriods";
-  /**
-   * The number of periods without received model before send the current model.
-   */
-  protected final long numOfWaitingPeriods;
-  protected long numberOfWaits;
-  protected int numberOfIncomingModels;
-  
   protected final int extractorProtocolID;
   
   protected ResultAggregator resultAggregator;
   protected final double evaluationProbability;
-  protected final double initModelProbability;
   protected final int epoch;
   protected final int batch;
   
-  protected final int capacity;
-  /** @hidden */
-  protected final String modelHolderName;
   /** @hidden */
   protected final String[] modelNames;
   /** @hidden */
-  protected ModelHolder[] modelHolders;
+  protected Model[] models;
   /** @hidden */
-  protected ModelHolder lastSeenMergeableModels;
+  protected BQModelHolder modelHolder;
   /** @hidden */
   protected final String[] evalNames;
   
@@ -71,15 +58,9 @@ public class LearningProtocol extends AbstractProtocol {
    * @param prefix
    */
   public LearningProtocol(String prefix) {
-    this(prefix, Configuration.getInt(prefix + "." + PAR_MODELHOLDERCAPACITY));
-  }
-  
-  protected LearningProtocol(String prefix, int capacity) {
     super(prefix);
     // loading configuration parameters
     extractorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
-    this.capacity = capacity;
-    modelHolderName = Configuration.getString(prefix + "." + PAR_MODELHOLDERNAME);
     
     String include = Configuration.getString(PAR_INCLUDE, null);
     String[] includes = include == null ? null : include.split("\\s");
@@ -94,8 +75,6 @@ public class LearningProtocol extends AbstractProtocol {
     
     evalNames = Configuration.getString(prefix + "." + PAR_EVALNAMES).split(",");
     evaluationProbability = Configuration.getDouble(prefix + "." + PAR_EVALPROB, 1.0);
-    numOfWaitingPeriods = Configuration.getInt(prefix + "." + PAR_WAIT);
-    initModelProbability = Configuration.getDouble(prefix + "." + PAR_MODELPROB, 1.0);
     epoch = Configuration.getInt(prefix + "." + PAR_EPOCH, 1);
     batch = Configuration.getInt(prefix + "." + PAR_BATCH, 1);
     
@@ -107,27 +86,13 @@ public class LearningProtocol extends AbstractProtocol {
     }
     
     // setting up learning related variables
-    numberOfWaits = 0;
-    numberOfIncomingModels = 1;
-    if (CommonState.r.nextDouble() > initModelProbability) {
-      numberOfIncomingModels = 0;
-    }
     try {
       String aggrClassName = Configuration.getString(prefix + "." + PAR_ARRGNAME);
       resultAggregator = (ResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(modelNames, evalNames);
-      // holder for storing the last seen mergeable models for correct merge
-      lastSeenMergeableModels = new BQModelHolder(modelNames.length);
-      latestModelHolder = new BQModelHolder(modelNames.length);
-      modelHolders = new ModelHolder[modelNames.length];
+      modelHolder = new BQModelHolder(modelNames.length);
+      models = new Model[modelNames.length];
       for (int i = 0; i < modelNames.length; i++){
-        try {
-          modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).getConstructor(int.class).newInstance(capacity);
-        } catch (NoSuchMethodException e) {
-          modelHolders[i] = (ModelHolder)Class.forName(modelHolderName).newInstance();
-        }
-        Model model = (Model)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
-        lastSeenMergeableModels.add(model);
-        modelHolders[i].add(model);
+        models[i] = (Model)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
       }
     } catch (Exception e) {
       throw new RuntimeException("Exception occured in initialization of " + getClass().getCanonicalName() + ": ", e);
@@ -140,29 +105,18 @@ public class LearningProtocol extends AbstractProtocol {
   protected LearningProtocol(LearningProtocol a) {
     super(a);
     extractorProtocolID = a.extractorProtocolID;
-    capacity = a.capacity;
-    modelHolderName = a.modelHolderName;
     modelNames = a.modelNames;
     evalNames = a.evalNames;
     evaluationProbability = a.evaluationProbability;
-    numOfWaitingPeriods = a.numOfWaitingPeriods;
-    initModelProbability = a.initModelProbability;
     epoch = a.epoch;
     batch = a.batch;
     
     // setting up learning related variables
-    numberOfWaits = 0;
-    numberOfIncomingModels = 1;
-    if (CommonState.r.nextDouble() > initModelProbability) {
-      numberOfIncomingModels = 0;
-    }
-    
     resultAggregator = (ResultAggregator)a.resultAggregator.clone();
-    lastSeenMergeableModels = (BQModelHolder)a.lastSeenMergeableModels.clone();
-    latestModelHolder = (BQModelHolder)a.latestModelHolder.clone();
-    modelHolders = new BQModelHolder[a.modelHolders.length];
-    for (int i = 0; i < modelHolders.length; i++) {
-      modelHolders[i] = (BQModelHolder)a.modelHolders[i].clone();
+    modelHolder = (BQModelHolder)a.modelHolder.clone();
+    models = new Model[a.models.length];
+    for (int i = 0; i < models.length; i++) {
+      models[i] = (Model)a.models[i].clone();
     }
   }
   
@@ -176,39 +130,37 @@ public class LearningProtocol extends AbstractProtocol {
     return new LearningProtocol(this);
   }
   
-  protected BQModelHolder latestModelHolder;
+  protected void evaluate() {
+    if (CommonState.r.nextDouble() < evaluationProbability) {
+      for (int i = 0; i < models.length; i++) {
+        resultAggregator.push(currentProtocolID, i, (LearningModel)models[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
+      }
+    }
+  }
+  
   /**
    * It sends the latest models to a uniformly selected random neighbor.
    */
   @Override
   public void activeThread() {
     // evaluate
-    for (int i = 0; i < modelHolders.length; i++) {
-      if (CommonState.r.nextDouble() < evaluationProbability) {
-        resultAggregator.push(currentProtocolID, i, modelHolders[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
-      }
-    }
+    evaluate();
+    
     // send
-    if (numberOfIncomingModels == 0) {
-      numberOfWaits ++;
-    } else {
-      numberOfWaits = 0;
-    }
-    if (numberOfWaits == numOfWaitingPeriods) {
-      numberOfIncomingModels = 1;
-      numberOfWaits = 0;
-    }
-    for (int id = Math.min(numberOfIncomingModels, capacity); id > 0; id --) {
-      for (int i = 0; i < modelHolders.length; i++) {  
-        // store the latest models in a new modelHolder
-        Model latestModel = modelHolders[i].getModel(modelHolders[i].size() - id);
-        latestModelHolder.add(latestModel);
+    for (int i = 0; i < models.length; i++) {
+      Model model = models[i];
+      if (model instanceof Partializable) {
+        model = ((Partializable)models[i]).getModelPart();
       }
-      // send the latest models to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true));
-      latestModelHolder.clear();
+      // store the latest models in a modelHolder
+      modelHolder.add(model);
     }
-    numberOfIncomingModels = 0;
+    // send the latest models to a random neighbor
+    sendToRandomNeighbor(new ModelMessage(currentNode, modelHolder, currentProtocolID, true));
+    // send the latest models to a random online neighbor
+    //sendToOnlineNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true)); 
+    
+    modelHolder.clear();
   }
 
   /**
@@ -217,7 +169,6 @@ public class LearningProtocol extends AbstractProtocol {
    */
   @Override
   public void passiveThread(ModelMessage message) {
-    numberOfIncomingModels ++;
     if (message.getTargetPid() == currentProtocolID) {
       updateModels(message);
     }
@@ -232,24 +183,15 @@ public class LearningProtocol extends AbstractProtocol {
     InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
-      LearningModel model = (LearningModel)modelHolder.getModel(i);
+      LearningModel recvModel = (LearningModel)modelHolder.getModel(i);
       // if it is a mergeable model, then merge them
-      if (model instanceof Mergeable){
-        LearningModel lastSeen = (LearningModel)lastSeenMergeableModels.getModel(i);
-        lastSeenMergeableModels.setModel(i, (LearningModel) model.clone());
-        model = (LearningModel)((Mergeable) model).merge(lastSeen);
+      if (recvModel instanceof Mergeable){
+        models[i] = (LearningModel)((Mergeable) models[i]).merge(recvModel);
+      } else {
+        models[i] = recvModel;
       }
       // updating the model with the local training samples
-      model.update(instances, epoch, batch);
-      /*
-      for (int sampleID = 0; instances != null && sampleID < instances.size(); sampleID ++) {
-        // we use each samples for updating the currently processed model
-        SparseVector x = instances.getInstance(sampleID);
-        double y = instances.getLabel(sampleID);
-        model.update(x, y);
-      }*/
-      // stores the updated model
-      modelHolders[i].add(model);
+      ((LearningModel)models[i]).update(instances, epoch, batch);
     }
   }
   
@@ -267,13 +209,8 @@ public class LearningProtocol extends AbstractProtocol {
    * @param numberOfFeatures the number of features to be set
    */
   public void setParameters(int numberOfClasses, int numberOfFeatures) {
-    for (int i = 0; i < modelHolders.length; i++) {
-      for (int j = 0; j < modelHolders[i].size(); j++) {
-        ((LearningModel)modelHolders[i].getModel(j)).setParameters(numberOfClasses, numberOfFeatures);
-      }
-    }
-    for (int i = 0; i < lastSeenMergeableModels.size(); i++) {
-      ((LearningModel)lastSeenMergeableModels.getModel(i)).setParameters(numberOfClasses, numberOfFeatures);
+    for (int i = 0; i < models.length; i++) {
+      ((LearningModel)models[i]).setParameters(numberOfClasses, numberOfFeatures);
     }
   }
   

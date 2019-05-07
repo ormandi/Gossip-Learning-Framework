@@ -5,7 +5,6 @@ import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.models.factorization.LowRankDecomposition;
 import gossipLearning.utils.AggregationResult;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
@@ -64,7 +63,7 @@ public class RecSysRun {
     
     // create models
     LowRankDecomposition[] models = new LowRankDecomposition[modelNames.length];
-    SparseVector userModels[][] = new SparseVector[modelNames.length][reader.getTrainingSet().size()];
+    double[][][] userModels = new double[modelNames.length][reader.getTrainingSet().size()][];
     for (int i = 0; i < modelNames.length; i++) {
       models[i] = (LowRankDecomposition)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
     }
@@ -77,16 +76,14 @@ public class RecSysRun {
     // learning
     System.err.println("Start learning.");
     SparseVector instance;
-    BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor extractor = new DummyExtractor("");
     
     for (int iter = 0; iter <= numIters; iter++) {
       if (iter % evalTime == 0) {
         // evaluate
         for (int i = 0; i < models.length; i++) {
-          modelHolder.add(models[i]);
           for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-            resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
+            resultAggregator.push(-1, i, j, userModels[i][j], models[i], extractor);
           }
         }
         
@@ -108,8 +105,7 @@ public class RecSysRun {
         int instanceIndex = sampleIndices[i];
         instance = reader.getTrainingSet().getInstance(instanceIndex);
         for (int j = 0; j < models.length; j++) {
-          userModels[j][instanceIndex] = models[j].update(instanceIndex, userModels[j][instanceIndex], instance);
-          modelHolder.add(models[j]);
+          userModels[j][instanceIndex] = models[j].update(userModels[j][instanceIndex], instance);
         }
       }
     }
@@ -117,9 +113,8 @@ public class RecSysRun {
     // evaluate on the end of the learning again
     System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
-      modelHolder.add(models[i]);
       for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-        resultAggregator.push(-1, i, j, userModels[i][j], modelHolder, extractor);
+        resultAggregator.push(-1, i, j, userModels[i][j], models[i], extractor);
       }
     }
     System.err.println(resultAggregator);

@@ -55,17 +55,31 @@ public class Normalizer implements FeatureExtractorModel {
   public double getAge() {
     return age;
   }
+  
+  @Override
+  public void setAge(double age) {
+    this.age = age;
+  }
 
   @Override
   public void update(SparseVector instance) {
     for (VectorEntry e : instance) {
-      if (e.value < mins.get(e.index)) {
+      double value = mins.get(e.index);
+      if (value == 0.0 || e.value < value) {
         mins.put(e.index, e.value);
       }
-      if (maxs.get(e.index) < e.value) {
+      value = maxs.get(e.index);
+      if (value == 0.0 || value < e.value) {
         maxs.put(e.index, e.value);
       }
     }
+  }
+  
+  @Override
+  public void clear() {
+    age = 0.0;
+    mins.clear();
+    maxs.clear();
   }
 
 }

@@ -1,31 +1,28 @@
 package gossipLearning.main;
 
-import gossipLearning.evaluators.ResultAggregator;
+import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.FeatureExtractor;
-import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
-import gossipLearning.interfaces.models.SlimModel;
-import gossipLearning.main.fedAVG.ModelUpdateTask;
+import gossipLearning.main.fedAVG.RecSysModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
-import gossipLearning.utils.InstanceHolder;
-import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
 import java.io.File;
-import java.util.LinkedList;
 
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
 import peersim.core.CommonState;
 import peersim.transport.ChurnProvider;
 
-public class FederatedLearning {
-  public static void main(String args[]) throws Exception {
+public class FederatedRecSys {
+
+  public static void main(String[] args) throws Exception {
     long time = System.currentTimeMillis();
     String configName = args[0];
     Configuration.setConfig(new ParsedProperties(configName));
@@ -44,8 +41,6 @@ public class FederatedLearning {
     System.err.println("\ttraining file: " + tFile);
     File eFile = new File(Configuration.getString("evaluationFile"));
     System.err.println("\tevaluation file: " + eFile);
-    int normalization = Configuration.getInt("NORMALIZATION", 0);
-    System.err.println("\tNormalization method: " + LocalRun.NORMALIZATION.values()[normalization]);
     
     // number of clients
     int K = Configuration.getInt("CLIENTS");
@@ -53,15 +48,6 @@ public class FederatedLearning {
     // proportion of clients
     double C = Configuration.getDouble("FRACTION");
     System.err.println("\tFraction of clients: " + C);
-    // number of local training passes
-    int E = Configuration.getInt("EPOCHS");
-    System.err.println("\tNumber of epoch: " + E);
-    // local minibatch size
-    int B = Configuration.getInt("BATCH");
-    System.err.println("\tLocal batch size: " + B);
-    // number of classes per clients
-    int cLabels = Configuration.getInt("C");
-    System.err.println("\tNumber of classes per clients: " + cLabels);
     
     // init churn
     String churnClass = Configuration.getString("churn", null);
@@ -96,68 +82,58 @@ public class FederatedLearning {
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
     
-    // normalize database
-    if (normalization == 2) {
-      System.err.println("Standardizing data set.");
-      reader.standardize();
-    } else if (normalization == 1) {
-      System.err.println("Normalizing data set.");
-      reader.normalize();
+    // create models
+    MatrixBasedModel[] globalModels = new MatrixBasedModel[modelNames.length];
+    MatrixBasedModel[] avgModels = new MatrixBasedModel[modelNames.length];
+    double[][][] userModels = new double[modelNames.length][reader.getTrainingSet().size()][];
+    for (int i = 0; i < modelNames.length; i++) {
+      globalModels[i] = (MatrixBasedModel)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
+      avgModels[i] = (MatrixBasedModel)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
     }
     
-    // create models
-    LearningModel[] globalModels = new LearningModel[modelNames.length];
-    LearningModel[] avgModels = new LearningModel[modelNames.length];
-    for (int i = 0; i < modelNames.length; i++) {
-      globalModels[i] = (LearningModel)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
-      globalModels[i].setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
-      avgModels[i] = (LearningModel)Class.forName(Configuration.getString(modelNames[i])).getConstructor(String.class).newInstance(modelNames[i]);
-      avgModels[i].setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
+    if (K != reader.getTrainingSet().size()) {
+      throw new NumberFormatException("Client size has to be equal to data size: " + K + " != " + reader.getTrainingSet().size());
     }
     
     // initialize evaluator
-    ResultAggregator resultAggregator = new ResultAggregator(modelNames, evalNames);
+    RecSysResultAggregator resultAggregator = new RecSysResultAggregator(modelNames, evalNames);
     resultAggregator.setEvalSet(reader.getEvalSet());
     AggregationResult.printPrecision = printPrecision;
     
-    // shuffle instances
-    InstanceHolder instances = reader.getTrainingSet();
-    int[] instanceIndices = new int[instances.size()];
-    for (int i = 0; i < instances.size(); i++) {
-      instanceIndices[i] = i;
-    }
-    Utils.arrayShuffle(CommonState.r, instanceIndices);
-    
     // set local instances for clients
-    LearningModel[] localModels = new LearningModel[K];
-    InstanceHolder[] localInstances = new InstanceHolder[K];
-    for (int i = 0; i < K; i++) {
-      localInstances[i] = new InstanceHolder(instances.getNumberOfClasses(), instances.getNumberOfFeatures());
-    }
-    LinkedList<Integer>[] map = Utils.mapLabelsToNodes(instances.getNumberOfClasses(), K, cLabels);
-    for (int i = 0; i < instances.size(); i++) {
-      double label = instances.getLabel(instanceIndices[i]);
-      SparseVector instance = instances.getInstance(instanceIndices[i]);
-      int clientIdx = i % K;
-      clientIdx = map[(int)label].poll();
-      map[(int)label].add(clientIdx);
-      localInstances[clientIdx].add(instance, label);
-    }
+    MatrixBasedModel[] localModels = new MatrixBasedModel[K];
     
+    
+    // learning
+    System.err.println("Start learning.");
     FeatureExtractor extractor = new DummyExtractor("");
     TaskRunner taskRunner = new TaskRunner(numThreads);
+    RecSysModelUpdateTask[] updateTasks = new RecSysModelUpdateTask[K];
+    //ModelSumTask[] modelSumTask = new ModelSumTask[numThreads];
+    //MatrixBasedModel[] tmpAvgModels = new MatrixBasedModel[numThreads];
+    int evalTime = 1;
+    
     for (int t = 0; t <= numIters; t++) {
-      updateState(t * delay, sessionEnd, isOnline, churnProvider, C);
+      FederatedLearning.updateState(t * delay, sessionEnd, isOnline, churnProvider, C);
       
-      // evaluate global model
-      for (int m = 0; m < globalModels.length; m++) {
-        resultAggregator.push(-1, m, globalModels[m], extractor);
-      }
-      for (AggregationResult result : resultAggregator) {
-        if (t == 0) {
-          System.out.println("#iter\t" + result.getNames());
+      if (t % evalTime == 0) {
+        // evaluate
+        for (int i = 0; i < globalModels.length; i++) {
+          for (int j = 0; j < K; j++) {
+            resultAggregator.push(-1, i, j, userModels[i][j], globalModels[i], extractor);
+          }
         }
-        System.out.println(t + "\t" + result);
+        
+        // print results
+        for (AggregationResult result : resultAggregator) {
+          if (t == 0) {
+            System.out.println("#iter\t" + result.getNames());
+          }
+          System.out.println(t + "\t" + result);
+        }
+      }
+      if (t == evalTime * 10) {
+        evalTime *= 10;
       }
       
       for (int m = 0; m < globalModels.length; m++) {
@@ -166,7 +142,13 @@ public class FederatedLearning {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          localModels[i] = (LearningModel)globalModels[m].clone();
+          if (localModels[i] == null) {
+            localModels[i] = (MatrixBasedModel)globalModels[m].clone();
+          } else {
+            localModels[i].clear();
+            ((Addable)localModels[i]).add(globalModels[m]);
+          }
+          //localModels[i] = (MatrixBasedModel)globalModels[m].clone();
         }
         
         // check online sessions
@@ -190,11 +172,31 @@ public class FederatedLearning {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          taskRunner.add(new ModelUpdateTask(localModels[i], localInstances[i], E, B));
+          updateTasks[i] = new RecSysModelUpdateTask(localModels[i], userModels[m][i], reader.getTrainingSet().getInstance(i));
+          taskRunner.add(updateTasks[i]);
         }
         taskRunner.run();
+        for (int i = 0; i < K; i++) {
+          userModels[m][i] = updateTasks[i].rowModel;
+        }
         
+        // sum up models in parallel
         // push updated model
+        /*double part = K / (double)numThreads;
+        for (int core = 0; core < numThreads; core++) {
+          int from = (int)Math.round(core * part);
+          int to = (int)Math.round((core + 1) * part);
+          double coef = 1.0 / recvModels;
+          //System.out.println(core + "\t" + from + "\t" + to);
+          tmpAvgModels[core] = (MatrixBasedModel)avgModels[m].clone();
+          modelSumTask[core] = new ModelSumTask(tmpAvgModels[core], globalModels[m], localModels, from, to, coef);
+          taskRunner.add(modelSumTask[core]);
+        }
+        taskRunner.run();
+        for (int core = 0; core < numThreads; core++) {
+          ((Addable)avgModels[m]).add(tmpAvgModels[core]);
+        }*/
+        //System.exit(0);
         for (int i = 0; i < K; i++) {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
@@ -203,37 +205,22 @@ public class FederatedLearning {
           // keep gradients only
           Model model = ((Partializable)((Addable)localModels[i]).add(globalModels[m], -1)).getModelPart();
           // averaging updated models
-          if (avgModels[m] instanceof SlimModel) {
-            ((SlimModel)avgModels[m]).weightedAdd(model, coef);
-          } else {
-            ((Addable)avgModels[m]).add(model, coef);
-          }
+          ((Addable)avgModels[m]).add(model, coef);
         }
-        
         // update global model
         ((Addable)globalModels[m]).add(avgModels[m]);
       }
     }
+    
+    // evaluate on the end of the learning again
     System.err.println("Final result:");
     for (int i = 0; i < globalModels.length; i++) {
-      resultAggregator.push(-1, i, globalModels[i], extractor);
+      for (int j = 0; j < reader.getTrainingSet().size(); j++) {
+        resultAggregator.push(-1, i, j, userModels[i][j], globalModels[i], extractor);
+      }
     }
     System.err.println(resultAggregator);
     System.err.println("ELAPSED TIME: " + (System.currentTimeMillis() - time));
   }
-  
-  public static void updateState(long t, long[] sessionEnd, boolean[] isOnline, ChurnProvider[] provider, double fraction) {
-    for (int i = 0; i < sessionEnd.length; i++) {
-      if (provider[i] == null) {
-        // uniform selection
-        sessionEnd[i] = Long.MAX_VALUE;
-        isOnline[i] = CommonState.r.nextDouble() < fraction;
-      } else {
-        while(sessionEnd[i] <= t) {
-          sessionEnd[i] += provider[i].nextSession();
-          isOnline[i] = !isOnline[i];
-        }
-      }
-    }
-  }
+
 }

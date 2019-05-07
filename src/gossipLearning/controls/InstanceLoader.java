@@ -105,7 +105,6 @@ public class InstanceLoader implements Control {
         System.err.println("|--WARNING: feature values will be standardized (have 0 mean and 1 standard deviation)");
         reader.standardize();
       }
-      
       if (reader.getTrainingSet().size() < Network.size()) {
         System.err.println("|--WARNING: training set size (" + reader.getTrainingSet().size() + ") is less then the network size (" + Network.size() + ")");
       }
@@ -115,12 +114,15 @@ public class InstanceLoader implements Control {
       for (int i = 0; i < indices.length; i++) {
         indices[i] = i;
       }
-      Utils.arrayShuffle(CommonState.r, indices);
       
       // bias instance distribution
       int k = reader.getTrainingSet().getNumberOfClasses();
       int n = Network.size();
-      LinkedList<Integer>[] map = Utils.mapLabelsToNodes(k, n, cLabels);
+      LinkedList<Integer>[] map = null;
+      if (cLabels != -1) {
+         map = Utils.mapLabelsToNodes(k, n, cLabels);
+         Utils.arrayShuffle(CommonState.r, indices);
+      }
       /*for (int i = 0; i < k; i++) {
         System.out.println(i + "\t" + map[i]);
       }
@@ -131,8 +133,10 @@ public class InstanceLoader implements Control {
         SparseVector instance = reader.getTrainingSet().getInstance(indices[i]);
         double label = reader.getTrainingSet().getLabel(indices[i]);
         int nodeIdx = i % Network.size();
-        nodeIdx = map[(int)label].poll();
-        map[(int)label].add(nodeIdx);
+        if (map != null) {
+          nodeIdx = map[(int)label].poll();
+          map[(int)label].add(nodeIdx);
+        }
         Node node = Network.get(nodeIdx);
         Protocol protocol = node.getProtocol(pidE);
         if (protocol instanceof ExtractionProtocol) {

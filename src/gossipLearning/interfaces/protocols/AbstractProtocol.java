@@ -77,6 +77,7 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
     Linkable overlay = getOverlay();
     Node randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
     getTransport().send(currentNode, randomNode, message, currentProtocolID);
+    //System.out.println("SEND RND " + currentNode.getID() + " " + randomNode.getID() + " " + message.getID());
   }
   
   private LinkedList<Integer> onlines = new LinkedList<Integer>();
@@ -94,6 +95,7 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
     if (onlines.size() != 0) {
       Node randomNode = overlay.getNeighbor(onlines.get(CommonState.r.nextInt(onlines.size())));
       getTransport().send(currentNode, randomNode, message, currentProtocolID);
+      //System.out.println("SEND " + currentNode.getID() + " " + randomNode.getID() + " " + message.getID());
     }
   }
   
@@ -167,8 +169,10 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
         EDSimulator.add(delay, new OnlineSessionFollowerActiveThreadMessage(sessionID), currentNode, currentProtocolID);
       }
     } else if (messageObj instanceof ModelMessage) {
+      ModelMessage msg = (ModelMessage)messageObj;
+      //System.out.println("RECV " + currentNode.getID() + " " + msg.getSource().getID() + " " + msg.getID());
       // The received message is a model message => calling the passive thread handler
-      passiveThread((ModelMessage)messageObj);
+      passiveThread(msg);
     }
   }
   

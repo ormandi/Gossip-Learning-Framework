@@ -2,9 +2,9 @@ package gossipLearning.models.factorization;
 
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
-import gossipLearning.utils.SparseVector;
+import gossipLearning.interfaces.models.Partializable;
 
-public class MergeableLowRank extends LowRankDecomposition implements Mergeable {
+public class MergeableLowRank extends LowRankDecomposition implements Mergeable, Partializable {
   private static final long serialVersionUID = -8892302266739538821L;
   public MergeableLowRank(String prefix) {
     super(prefix);
@@ -12,10 +12,6 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable 
   
   public MergeableLowRank(MergeableLowRank a) {
     super(a);
-  }
-  
-  public MergeableLowRank(double age, SparseVector[] columnModels, int dimension, double lambda, double alpha, int maxIndex) {
-    super(age, columnModels, dimension, lambda, alpha, maxIndex);
   }
   
   @Override
@@ -30,18 +26,19 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable 
     if (sum == 0) {
       return this;
     }
-    double weight = age / sum;
     double modelWeight = m.age / sum;
     age = Math.max(age, m.age);
-    for (int i = 0; i < origDimension; i++) {
+    for (int i = 0; i < dimension; i++) {
       if (m.columnModels[i] == null) {
         continue;
       }
-      SparseVector v = columnModels[i];
-      if (v == null) {
-        columnModels[i] = (SparseVector)m.columnModels[i].clone();
+      if (columnModels[i] == null) {
+        columnModels[i] = m.columnModels[i].clone();
       } else {
-        v.mul(weight).add(m.columnModels[i], modelWeight);
+        for (int j = 0; j < columnModels[i].length; j++) {
+          columnModels[i][j] *= 1.0 - modelWeight;
+          columnModels[i][j] += modelWeight * m.columnModels[i][j];
+        }
       }
     }
     return this;

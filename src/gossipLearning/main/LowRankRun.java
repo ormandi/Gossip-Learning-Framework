@@ -5,7 +5,6 @@ import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.models.factorization.LowRankDecomposition;
 import gossipLearning.utils.AggregationResult;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Matrix;
@@ -59,7 +58,7 @@ public class LowRankRun {
     
     // create models
     LowRankDecomposition extractor = (LowRankDecomposition)Class.forName(Configuration.getString(modelName)).getConstructor(String.class).newInstance(modelName);
-    SparseVector userModels[] = new SparseVector[reader.getTrainingSet().size()];
+    double[][] userModels = new double[reader.getTrainingSet().size()][];
     
     // initialize evaluator
     FactorizationResultAggregator lrResultAggregator = (FactorizationResultAggregator)Class.forName(aggrClassName).getConstructor(String[].class, String[].class).newInstance(new String[]{modelName}, evalNames);
@@ -69,14 +68,12 @@ public class LowRankRun {
     // learning
     System.err.println("Start learing.");
     SparseVector instance;
-    BQModelHolder modelHolder = new BQModelHolder(1);
     FeatureExtractor dummyExtractor = new DummyExtractor("");
     for (int iter = 0; iter <= numIters; iter++) {
       if (iter % evalTime == 0) {
         // evaluate
-        modelHolder.add(extractor);
         for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-          lrResultAggregator.push(-1, 0, j, userModels[j], modelHolder, dummyExtractor);
+          lrResultAggregator.push(-1, 0, j, userModels[j], extractor, dummyExtractor);
         }
         
         // print results
@@ -94,15 +91,14 @@ public class LowRankRun {
       // training
       int instanceIndex = r.nextInt(reader.getTrainingSet().size());
       instance = reader.getTrainingSet().getInstance(instanceIndex);
-      userModels[instanceIndex] = extractor.update(instanceIndex, userModels[instanceIndex], instance);
+      userModels[instanceIndex] = extractor.update(userModels[instanceIndex], instance);
       //modelHolder.add(extractor);
     }
     
     // evaluate on the end of the learning again
     System.err.println("Final extraction result:");
-    modelHolder.add(extractor);
     for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-      lrResultAggregator.push(-1, 0, j, userModels[j], modelHolder, dummyExtractor);
+      lrResultAggregator.push(-1, 0, j, userModels[j], extractor, dummyExtractor);
     }
     System.err.println(lrResultAggregator);
     

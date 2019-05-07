@@ -4,7 +4,6 @@ import gossipLearning.evaluators.ResultAggregator;
 import gossipLearning.models.clustering.KMeans;
 import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
-import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.SparseVector;
 
@@ -52,7 +51,6 @@ public class KMeansBase {
     // initialize evaluator
     ResultAggregator aggregator = new ResultAggregator(new String[]{"KMeans"}, evalNames);
     aggregator.setEvalSet(reader.getEvalSet());
-    BQModelHolder modelHolder = new BQModelHolder(1);
     AggregationResult.printPrecision = printPrecision;
     
     SparseVector[] centroids = new SparseVector[K];
@@ -74,8 +72,7 @@ public class KMeansBase {
       model.setCentroids(centroids);
       
       // evaluate model
-      modelHolder.add(model);
-      aggregator.push(-1, 0, modelHolder, extractor);
+      aggregator.push(-1, 0, model, extractor);
       // print results
       for (AggregationResult result : aggregator) {
         if (i == 0) {
@@ -104,8 +101,7 @@ public class KMeansBase {
       }
     }
     System.err.println("Final result:");
-    modelHolder.add(model);
-    aggregator.push(-1, 0, modelHolder, extractor);
+    aggregator.push(-1, 0, model, extractor);
     System.err.println(aggregator);
   }
 }
