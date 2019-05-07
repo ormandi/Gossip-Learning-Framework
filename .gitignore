@@ -2,6 +2,7 @@ bin/
 build/
 doc/
 res/script/results
+src/gossipLearning/temp
 .classpath
 .project
 *.class
