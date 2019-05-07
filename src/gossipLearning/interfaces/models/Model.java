@@ -20,4 +20,15 @@ public interface Model extends Serializable, Cloneable {
    */
   public double getAge();
   
+  /**
+   * Sets the specified age to the model.
+   * @param age to be set.
+   */
+  public void setAge(double age);
+  
+  /**
+   * Clears/resets the model.
+   */
+  public void clear();
+  
 }
