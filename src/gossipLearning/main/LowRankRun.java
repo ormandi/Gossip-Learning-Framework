@@ -105,7 +105,7 @@ public class LowRankRun {
     // print results
     if (isPrintResults) {
       // print right eigenVectors
-      double[] eigenvalues = new double[extractor.getDimension()];
+      double[] eigenvalues = new double[extractor.getK()];
       System.err.println("V-vectors: ");
       Matrix V = extractor.getV();
       System.err.println(V);
@@ -116,7 +116,7 @@ public class LowRankRun {
         Matrix ui = extractor.getUSi(userModels[i]);
         System.err.println(ui);
         //System.err.println((i+1) + "\t" + ui);
-        for (int j = 0; j < extractor.getDimension(); j++) {
+        for (int j = 0; j < extractor.getK(); j++) {
           eigenvalues[j] = Utils.hypot(eigenvalues[j], ui.get(0, j));
         }
       }

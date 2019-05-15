@@ -71,7 +71,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     // TODO: copy values only
     if (rowModel == null) {
       rowModel = new double[k];
-      Arrays.fill(rowModel, 1.0 / dimension);
+      Arrays.fill(rowModel, 1.0 / k);
     }
     double[] result = Arrays.copyOf(rowModel, rowModel.length);
     
@@ -130,8 +130,8 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     return result;
   }
   
-  public int getDimension() {
-    return dimension;
+  public int getK() {
+    return k;
   }
   
   @Override

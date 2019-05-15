@@ -55,12 +55,14 @@ public class RecSysModel extends LowRankDecomposition {
       double error = e.value - prediction;
       
       // update models
+      double temp;
       for (int i = 0; i < k; i++) {
-        rowModel[i] = (1.0 - lambda) * rowModel[i] + (eta * itemModel[i] * error);
-        itemModel[i] = (1.0 - lambda) * itemModel[i] + (eta * rowModel[i] * error) ;
+        temp = eta * (error * itemModel[i] - lambda * rowModel[i]);
+        itemModel[i] += eta * (error * rowModel[i] - lambda * itemModel[i]);
+        rowModel[i] += temp;
       }
-      rowModel[k] = (1.0 - lambda) * rowModel[k] + (eta * error);
-      itemModel[k + 1] = (1.0 - lambda) * itemModel[k + 1] + (eta * error);
+      rowModel[k] = eta * (error - lambda * rowModel[k]);
+      itemModel[k + 1] = eta * (error - lambda * itemModel[k + 1]);
     }
     // return new user-model
     return rowModel;
@@ -71,28 +73,34 @@ public class RecSysModel extends LowRankDecomposition {
     // rowIndex - userID
     // rowModel - userModel
     // columnIndex - itemID
-    if (rowModel == null || columnModels[columnIndex] == null) {
-      return 0;
+    if (rowModel == null && columnModels[columnIndex] == null) {
+      return (maxRating - minRating) / 2.0;
     } else if (columnModels[columnIndex] == null) {
       return rowModel[k];
+    } else if (rowModel == null) {
+      return columnModels[columnIndex][k + 1];
     }
-    return Utils.mul(rowModel, columnModels[columnIndex]);
+    return Math.min(Math.max(Utils.mul(rowModel, columnModels[columnIndex]), minRating), maxRating);
   }
   
   @Override
   protected double[] initVector(boolean isRow) {
-    double initVal = Math.sqrt(maxRating / (k + 2));
+    //double initVal = Math.sqrt(2.0 * (maxRating - minRating) / k);
+    double initVal = Math.sqrt((maxRating - minRating) / k);
     double[] newVector = new double[k + 2];
     for (int d = 0; d < k; d++) {
-      newVector[d] = 0.5 + CommonState.r.nextDouble() * initVal;
+      //newVector[d] = (CommonState.r.nextDouble() - 0.5) * initVal;
+      newVector[d] = CommonState.r.nextDouble() * initVal;
     }
     // for bias term
     if (isRow) {
-      newVector[k] = 0.5 + CommonState.r.nextDouble() * initVal;
+      //newVector[k] = (minRating + maxRating) / 4.0;
+      newVector[k] = minRating / 2.0;
       newVector[k + 1] = 1.0;
     } else {
       newVector[k] = 1.0;
-      newVector[k + 1] = 0.5 + CommonState.r.nextDouble() * initVal;
+      //newVector[k + 1] = (minRating + maxRating) / 4.0;
+      newVector[k + 1] = minRating / 2.0;
     }
     return newVector;
   }

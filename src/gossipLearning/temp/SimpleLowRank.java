@@ -81,7 +81,7 @@ public class SimpleLowRank extends LowRankDecomposition {
     return age;
   }
   
-  public int getDimension() {
+  public int getK() {
     return dimension;
   }
   

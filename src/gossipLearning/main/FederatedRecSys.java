@@ -4,8 +4,7 @@ import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
-import gossipLearning.interfaces.models.Model;
-import gossipLearning.interfaces.models.Partializable;
+import gossipLearning.main.fedAVG.ModelSumTask;
 import gossipLearning.main.fedAVG.RecSysModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.models.extraction.DummyExtractor;
@@ -109,8 +108,8 @@ public class FederatedRecSys {
     FeatureExtractor extractor = new DummyExtractor("");
     TaskRunner taskRunner = new TaskRunner(numThreads);
     RecSysModelUpdateTask[] updateTasks = new RecSysModelUpdateTask[K];
-    //ModelSumTask[] modelSumTask = new ModelSumTask[numThreads];
-    //MatrixBasedModel[] tmpAvgModels = new MatrixBasedModel[numThreads];
+    ModelSumTask[] modelSumTask = new ModelSumTask[numThreads];
+    MatrixBasedModel[] tmpAvgModels = new MatrixBasedModel[numThreads];
     int evalTime = 1;
     
     for (int t = 0; t <= numIters; t++) {
@@ -182,22 +181,23 @@ public class FederatedRecSys {
         
         // sum up models in parallel
         // push updated model
-        /*double part = K / (double)numThreads;
+        double part = K / (double)numThreads;
         for (int core = 0; core < numThreads; core++) {
           int from = (int)Math.round(core * part);
           int to = (int)Math.round((core + 1) * part);
           double coef = 1.0 / recvModels;
           //System.out.println(core + "\t" + from + "\t" + to);
           tmpAvgModels[core] = (MatrixBasedModel)avgModels[m].clone();
-          modelSumTask[core] = new ModelSumTask(tmpAvgModels[core], globalModels[m], localModels, from, to, coef);
+          modelSumTask[core] = new ModelSumTask(tmpAvgModels[core], globalModels[m], localModels, from, to, coef, isOnline, sessionEnd, t, delay);
           taskRunner.add(modelSumTask[core]);
         }
         taskRunner.run();
         for (int core = 0; core < numThreads; core++) {
           ((Addable)avgModels[m]).add(tmpAvgModels[core]);
-        }*/
+        }
+        
         //System.exit(0);
-        for (int i = 0; i < K; i++) {
+        /*for (int i = 0; i < K; i++) {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
@@ -206,7 +206,7 @@ public class FederatedRecSys {
           Model model = ((Partializable)((Addable)localModels[i]).add(globalModels[m], -1)).getModelPart();
           // averaging updated models
           ((Addable)avgModels[m]).add(model, coef);
-        }
+        }*/
         // update global model
         ((Addable)globalModels[m]).add(avgModels[m]);
       }
