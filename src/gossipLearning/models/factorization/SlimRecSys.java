@@ -2,6 +2,7 @@ package gossipLearning.models.factorization;
 
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SlimModel;
+import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
@@ -22,12 +23,16 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
     super(prefix);
     modelSize = Configuration.getDouble(prefix + "." + PAR_SIZE);
     indices = new int[dimension];
+    for (int i = 0; i < dimension; i++) {
+      indices[i] = i;
+    }
   }
   
   public SlimRecSys(SlimRecSys a) {
     super(a);
-    this.modelSize = a.modelSize;
+    modelSize = a.modelSize;
     indices = a.indices.clone();
+    indSize = a.indSize;
   }
   
   public Object clone() {
@@ -75,6 +80,11 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
   public Model weightedAdd(Model model, double times) {
     // TODO Auto-generated method stub
     return null;
+  }
+  
+  @Override
+  public Matrix getV() {
+    throw new RuntimeException("Function getV should not be called!");
   }
 
 }
