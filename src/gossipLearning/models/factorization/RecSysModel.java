@@ -55,14 +55,17 @@ public class RecSysModel extends LowRankDecomposition {
       double error = e.value - prediction;
       
       // update models
-      double temp;
+      double delta;
       for (int i = 0; i < k; i++) {
-        temp = eta * (error * itemModel[i] - lambda * rowModel[i]);
-        itemModel[i] += eta * (error * rowModel[i] - lambda * itemModel[i]);
-        rowModel[i] += temp;
+        delta = eta * (lambda * rowModel[i] - error * itemModel[i]);
+        itemModel[i] -= eta * (lambda * itemModel[i] - error * rowModel[i]);
+        rowModel[i] -= delta;
       }
-      rowModel[k] = eta * (error - lambda * rowModel[k]);
-      itemModel[k + 1] = eta * (error - lambda * itemModel[k + 1]);
+      //rowModel[k] += eta * error;
+      //itemModel[k + 1] += eta * error;
+      // TODO: should not be used for federated
+      rowModel[k] -= eta * (lambda * rowModel[k] - error);
+      itemModel[k + 1] -= eta * (lambda * itemModel[k + 1] - error);
     }
     // return new user-model
     return rowModel;
@@ -74,7 +77,7 @@ public class RecSysModel extends LowRankDecomposition {
     // rowModel - userModel
     // columnIndex - itemID
     if (rowModel == null && columnModels[columnIndex] == null) {
-      return (maxRating - minRating) / 2.0;
+      return (maxRating + minRating) / 2.0;
     } else if (columnModels[columnIndex] == null) {
       return rowModel[k];
     } else if (rowModel == null) {

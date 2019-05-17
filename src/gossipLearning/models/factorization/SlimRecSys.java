@@ -3,11 +3,8 @@ package gossipLearning.models.factorization;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
-
-import java.util.Set;
-import java.util.TreeSet;
-
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
@@ -18,20 +15,19 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
   private static final String PAR_SIZE = "size";
   
   protected final double modelSize;
-  protected final Set<Integer> indices;
-  //protected final int[] ind;
-  //protected int indSize;
+  protected final int[] indices;
+  protected int indSize;
   
   public SlimRecSys(String prefix) {
     super(prefix);
     modelSize = Configuration.getDouble(prefix + "." + PAR_SIZE);
-    indices = new TreeSet<Integer>();
+    indices = new int[dimension];
   }
   
   public SlimRecSys(SlimRecSys a) {
     super(a);
     this.modelSize = a.modelSize;
-    indices = new TreeSet<Integer>(a.indices);
+    indices = a.indices.clone();
   }
   
   public Object clone() {
@@ -40,21 +36,37 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
   
   @Override
   public double[] update(double[] rowModel, SparseVector instance) {
-    indices.clear();
+    // Mark's permutation class can be used
+    indSize = instance.size();
+    int prev = 0;
+    int preIdx = 0;
+    int postIdx = indSize;
     for (VectorEntry entry : instance) {
-      indices.add(entry.index);
+      for (int i = prev; i < entry.index; i++) {
+        indices[postIdx] = i;
+        postIdx ++;
+      }
+      indices[preIdx] = entry.index;
+      preIdx ++;
+      prev = entry.index + 1;
+    }
+    for (int i = prev; i < dimension; i++) {
+      indices[postIdx] = i;
+      postIdx ++;
     }
     return super.update(rowModel, instance);
   }
   
   @Override
   public SlimRecSys getModelPart() {
-    // TODO: exactly 10% send!!!
     SlimRecSys result = new SlimRecSys(this);
-    for (int i = 0; i < dimension; i++) {
-      if (!indices.contains(i) && modelSize < CommonState.r.nextDouble()) {
-        result.columnModels[i] = null;
-      }
+    Utils.arrayShuffle(CommonState.r, indices, 0, indSize);
+    Utils.arrayShuffle(CommonState.r, indices, indSize, indices.length);
+    double tempSize = dimension * modelSize;
+    int floorSize = (int)Math.floor(tempSize);
+    int partSize = floorSize + (CommonState.r.nextDouble() < tempSize - floorSize ? 1 : 0);
+    for (int i = partSize; i < indices.length; i++) {
+      result.columnModels[indices[i]] = null;
     }
     return result;
   }

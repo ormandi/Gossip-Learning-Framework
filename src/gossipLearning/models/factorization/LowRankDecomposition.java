@@ -68,10 +68,9 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     age ++;
     double value = 0.0;
     
-    // TODO: copy values only
+    // copy values only
     if (rowModel == null) {
-      rowModel = new double[k];
-      Arrays.fill(rowModel, 1.0 / k);
+      rowModel = initVector(true);
     }
     double[] result = Arrays.copyOf(rowModel, rowModel.length);
     
