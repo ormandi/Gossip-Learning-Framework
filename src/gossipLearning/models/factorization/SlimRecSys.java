@@ -18,13 +18,16 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
   protected final double modelSize;
   protected final int[] indices;
   protected int indSize;
+  protected final double[] weights;
   
   public SlimRecSys(String prefix) {
     super(prefix);
     modelSize = Configuration.getDouble(prefix + "." + PAR_SIZE);
     indices = new int[dimension];
+    weights = new double[dimension];
     for (int i = 0; i < dimension; i++) {
       indices[i] = i;
+      weights[i] = 0.0;
     }
   }
   
@@ -33,6 +36,7 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
     modelSize = a.modelSize;
     indices = a.indices.clone();
     indSize = a.indSize;
+    weights = a.weights.clone();
   }
   
   public Object clone() {
@@ -47,6 +51,7 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
     int preIdx = 0;
     int postIdx = indSize;
     for (VectorEntry entry : instance) {
+      weights[entry.index] ++;
       for (int i = prev; i < entry.index; i++) {
         indices[postIdx] = i;
         postIdx ++;
@@ -74,6 +79,28 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
       result.columnModels[indices[i]] = null;
     }
     return result;
+  }
+  
+  @Override
+  public Model merge(Model model) {
+    SlimRecSys m = (SlimRecSys)model;
+    age = Math.max(age, m.age);
+    for (int i = 0; i < dimension; i++) {
+      double modelWeight = m.weights[i] / (weights[i] + m.weights[i]);
+      if (m.columnModels[i] == null) {
+        continue;
+      } else if (columnModels[i] == null) {
+        columnModels[i] = m.columnModels[i].clone();
+      } else {
+        for (int j = 0; j < columnModels[i].length; j++) {
+          //columnModels[i][j] = (weights[i] * columnModels[i][j]) + (m.weights[i] * m.columnModels[i][j]);
+          //columnModels[i][j] /= (weights[i] + m.weights[i]);
+          columnModels[i][j] += (m.columnModels[i][j] - columnModels[i][j]) * modelWeight;
+        }
+      }
+      weights[i] = Math.max(weights[i], m.weights[i]);
+    }
+    return this;
   }
 
   @Override
