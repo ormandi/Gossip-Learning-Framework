@@ -141,13 +141,7 @@ public class FederatedRecSys {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          if (localModels[i] == null) {
-            localModels[i] = (MatrixBasedModel)globalModels[m].clone();
-          } else {
-            localModels[i].clear();
-            ((Addable)localModels[i]).add(globalModels[m]);
-          }
-          //localModels[i] = (MatrixBasedModel)globalModels[m].clone();
+          localModels[i] = (MatrixBasedModel)globalModels[m].clone();
         }
         
         // check online sessions
@@ -202,10 +196,8 @@ public class FederatedRecSys {
             continue;
           }
           double coef = 1.0 / recvModels;
-          // keep gradients only
-          Model model = ((Partializable)((Addable)localModels[i]).add(globalModels[m], -1)).getModelPart();
           // averaging updated models
-          ((Addable)avgModels[m]).add(model, coef);
+          ((Addable)avgModels[m]).add(((Partializable)localModels[i]).getModelPart(), coef);
         }*/
         // update global model
         ((Addable)globalModels[m]).add(avgModels[m]);

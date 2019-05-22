@@ -61,11 +61,11 @@ public class RecSysModel extends LowRankDecomposition {
         itemModel[i] -= eta * (lambda * itemModel[i] - error * rowModel[i]);
         rowModel[i] -= delta;
       }
-      //rowModel[k] += eta * error;
-      //itemModel[k + 1] += eta * error;
       // TODO: should not be used for federated
-      rowModel[k] -= eta * (lambda * rowModel[k] - error);
-      itemModel[k + 1] -= eta * (lambda * itemModel[k + 1] - error);
+      rowModel[k] += eta * error;
+      itemModel[k + 1] += eta * error;
+      //rowModel[k] -= eta * (lambda * rowModel[k] - error);
+      //itemModel[k + 1] -= eta * (lambda * itemModel[k + 1] - error);
     }
     // return new user-model
     return rowModel;
