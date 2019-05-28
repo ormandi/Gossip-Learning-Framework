@@ -8,6 +8,7 @@ import gossipLearning.main.fedAVG.ModelSumTask;
 import gossipLearning.main.fedAVG.RecSysModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.models.extraction.DummyExtractor;
+import gossipLearning.models.factorization.MergeableRecSys;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.Utils;
@@ -179,10 +180,9 @@ public class FederatedRecSys {
         for (int core = 0; core < numThreads; core++) {
           int from = (int)Math.round(core * part);
           int to = (int)Math.round((core + 1) * part);
-          double coef = 1.0 / recvModels;
           //System.out.println(core + "\t" + from + "\t" + to);
           tmpAvgModels[core] = (MatrixBasedModel)avgModels[m].clone();
-          modelSumTask[core] = new ModelSumTask(tmpAvgModels[core], globalModels[m], localModels, from, to, coef, isOnline, sessionEnd, t, delay);
+          modelSumTask[core] = new ModelSumTask(tmpAvgModels[core], globalModels[m], localModels, from, to, 1.0, isOnline, sessionEnd, t, delay);
           taskRunner.add(modelSumTask[core]);
         }
         taskRunner.run();
@@ -195,10 +195,12 @@ public class FederatedRecSys {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          double coef = 1.0 / recvModels;
           // averaging updated models
-          ((Addable)avgModels[m]).add(((Partializable)localModels[i]).getModelPart(), coef);
+          ((Addable)avgModels[m]).add(((Partializable)((Addable)localModels[i]).add(globalModels[m], -1.0)).getModelPart(), 1.0);
         }*/
+        
+        // normalize by weights
+        ((MergeableRecSys)avgModels[m]).normalize();
         // update global model
         ((Addable)globalModels[m]).add(avgModels[m]);
       }

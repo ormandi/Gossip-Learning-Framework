@@ -16,9 +16,6 @@ public class MergeableRecSys extends RecSysModel implements Mergeable, Addable, 
   public MergeableRecSys(String prefix) {
     super(prefix);
     weights = new double[dimension];
-    for (int i = 0; i < dimension; i++) {
-      weights[i] = 0.0;
-    }
   }
   
   public MergeableRecSys(MergeableRecSys a) {
@@ -118,17 +115,31 @@ public class MergeableRecSys extends RecSysModel implements Mergeable, Addable, 
     MergeableRecSys m = (MergeableRecSys)model;
     age += times * m.age;
     for (int i = 0; i < dimension; i++) {
-      double modelWeight = times * m.weights[i] / (weights[i] + times * m.weights[i]);
       if (m.columnModels[i] == null) {
         continue;
       } else if (columnModels[i] == null) {
-        columnModels[i] = m.columnModels[i].clone();
-      } else {
-        for (int j = 0; j < columnModels[i].length; j++) {
-          columnModels[i][j] += (m.columnModels[i][j] - columnModels[i][j]) * modelWeight;
-        }
+        columnModels[i] = new double[m.columnModels[i].length];
+      }
+      for (int j = 0; j < columnModels[i].length; j++) {
+        columnModels[i][j] += times * m.columnModels[i][j];
       }
       weights[i] += times * m.weights[i];
+    }
+    return this;
+  }
+  
+  public Model normalize() {
+    for (int i = 0; i < dimension; i++) {
+      if (columnModels[i] == null) {
+        continue;
+      }
+      if (weights[i] == 0.0) {
+        columnModels[i] = null;
+        continue;
+      }
+      for (int j = 0; j < columnModels[i].length; j++) {
+        columnModels[i][j] /= weights[i];
+      }
     }
     return this;
   }

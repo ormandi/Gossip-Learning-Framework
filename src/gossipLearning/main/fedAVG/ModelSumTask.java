@@ -35,8 +35,8 @@ public class ModelSumTask implements Runnable {
       if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
         continue;
       }
-      //((Addable)sum).add(((Partializable)((Addable)list[i]).add(globalModel, -1)).getModelPart(), scale);
-      ((Addable)sum).add(((Partializable)list[i]).getModelPart(), scale);
+      ((Addable)sum).add(((Partializable)((Addable)list[i]).add(globalModel, -1.0)).getModelPart(), scale);
+      //((Addable)sum).add(((Partializable)list[i]).getModelPart(), scale);
     }
   }
 }

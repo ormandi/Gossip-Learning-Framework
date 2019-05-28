@@ -43,16 +43,14 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     k = a.k;
     eta = a.eta;
     dimension = a.dimension;
-    columnModels = new double[dimension][];
-    for (int i = 0; i < dimension; i++) {
+    columnModels = new double[a.columnModels.length][];
+    for (int i = 0; i < columnModels.length; i++) {
       if (a.columnModels[i] == null) {
         continue;
       }
-      columnModels[i] = new double[a.columnModels[i].length];
-      for (int j = 0; j < a.columnModels[i].length; j++) {
-        columnModels[i][j] = a.columnModels[i][j];
-      }
+      columnModels[i] = a.columnModels[i].clone();
     }
+    isUpdated = true;
   }
   
   @Override
@@ -193,10 +191,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
   @Override
   public void clear() {
     for (int i = 0; i < columnModels.length; i++) {
-      if (columnModels[i] == null) {
-        continue;
-      }
-      Arrays.fill(columnModels[i], 0.0);
+      columnModels[i] = null;
     }
   }
   
