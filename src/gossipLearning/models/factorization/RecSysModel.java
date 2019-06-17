@@ -11,16 +11,19 @@ public class RecSysModel extends LowRankDecomposition {
   private static final String PAR_MIN = "min";
   private static final String PAR_MAX = "max";
   private static final String PAR_LAMBDA = "lambda";
+  private static final String PAR_EPOCH = "epoch";
   
   protected final double minRating;
   protected final double maxRating;
   protected final double lambda;
+  protected final int epoch;
   
   public RecSysModel(String prefix) {
     super(prefix);
     minRating = Configuration.getDouble(prefix + "." + PAR_MIN);
     maxRating = Configuration.getDouble(prefix + "." + PAR_MAX);
     lambda = Configuration.getDouble(prefix + "." + PAR_LAMBDA);
+    epoch = Configuration.getInt(prefix + "." + PAR_EPOCH, 1);
   }
   
   public RecSysModel(RecSysModel a) {
@@ -28,6 +31,7 @@ public class RecSysModel extends LowRankDecomposition {
     minRating = a.minRating;
     maxRating = a.maxRating;
     lambda = a.lambda;
+    epoch = a.epoch;
   }
   
   @Override
@@ -37,35 +41,37 @@ public class RecSysModel extends LowRankDecomposition {
   
   @Override
   public double[] update(double[] rowModel, SparseVector instance) {
-    if (rowModel == null) {
-      // initialize user-model if its null by uniform random numbers  on [0,1]
-      rowModel = initVector(true);
-    }
-    age ++;
-    
-    for (VectorEntry e : instance) {
-      double[] itemModel = columnModels[e.index];
-      if (itemModel == null) {
-        itemModel = initVector(false);
-        columnModels[e.index] = itemModel;
+    for (int epoch = 0; epoch < this.epoch; epoch++) {
+      if (rowModel == null) {
+        // initialize user-model
+        rowModel = initVector(true);
       }
+      age ++;
       
-      // get the prediction and the error
-      double prediction = Utils.mul(rowModel, itemModel);
-      double error = e.value - prediction;
-      
-      // update models
-      double delta;
-      for (int i = 0; i < k; i++) {
-        delta = eta * (lambda * rowModel[i] - error * itemModel[i]);
-        itemModel[i] -= eta * (lambda * itemModel[i] - error * rowModel[i]);
-        rowModel[i] -= delta;
+      for (VectorEntry e : instance) {
+        double[] itemModel = columnModels[e.index];
+        if (itemModel == null) {
+          itemModel = initVector(false);
+          columnModels[e.index] = itemModel;
+        }
+        
+        // get the prediction and the error
+        double prediction = Utils.mul(rowModel, itemModel);
+        double error = e.value - prediction;
+        
+        // update models
+        double delta;
+        for (int i = 0; i < k; i++) {
+          delta = eta * (lambda * rowModel[i] - error * itemModel[i]);
+          itemModel[i] -= eta * (lambda * itemModel[i] - error * rowModel[i]);
+          rowModel[i] -= delta;
+        }
+        // bias update
+        rowModel[k] += eta * error;
+        itemModel[k + 1] += eta * error;
+        //rowModel[k] -= eta * (lambda * rowModel[k] - error);
+        //itemModel[k + 1] -= eta * (lambda * itemModel[k + 1] - error);
       }
-      // TODO: should not be used for federated
-      rowModel[k] += eta * error;
-      itemModel[k + 1] += eta * error;
-      //rowModel[k] -= eta * (lambda * rowModel[k] - error);
-      //itemModel[k + 1] -= eta * (lambda * itemModel[k + 1] - error);
     }
     // return new user-model
     return rowModel;
