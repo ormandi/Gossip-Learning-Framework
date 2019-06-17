@@ -12,6 +12,7 @@ import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
+import peersim.transport.ChurnTransportM;
 
 /**
  * This protocol uses multiple model holders, the number of model holder will be 
@@ -143,7 +144,11 @@ public class LearningProtocol extends AbstractProtocol {
    */
   @Override
   public void activeThread() {
+    boolean isChurnTransport = getTransport() instanceof ChurnTransportM;
     // evaluate
+    if (isChurnTransport && !((ChurnTransportM)getTransport()).isOnline()) {
+      return;
+    }
     evaluate();
     
     // send
@@ -155,10 +160,13 @@ public class LearningProtocol extends AbstractProtocol {
       // store the latest models in a modelHolder
       modelHolder.add(model);
     }
-    // send the latest models to a random neighbor
-    sendToRandomNeighbor(new ModelMessage(currentNode, modelHolder, currentProtocolID, true));
-    // send the latest models to a random online neighbor
-    //sendToOnlineNeighbor(new ModelMessage(currentNode, latestModelHolder, currentProtocolID, true)); 
+    if (!isChurnTransport) {
+      // send the latest models to a random neighbor
+      sendToRandomNeighbor(new ModelMessage(currentNode, modelHolder, currentProtocolID, true));
+    } else {
+      // send the latest models to a random online neighbor
+      sendToOnlineNeighbor(new ModelMessage(currentNode, modelHolder, currentProtocolID, true));
+    }
     
     modelHolder.clear();
   }

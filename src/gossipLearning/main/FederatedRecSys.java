@@ -120,6 +120,10 @@ public class FederatedRecSys {
         // evaluate
         for (int i = 0; i < globalModels.length; i++) {
           for (int j = 0; j < K; j++) {
+            // evaluate online users only
+            if (!isOnline[j] || sessionEnd[j] <= (t + 1) * delay) {
+              continue;
+            }
             resultAggregator.push(-1, i, j, userModels[i][j], globalModels[i], extractor);
           }
         }
@@ -171,6 +175,9 @@ public class FederatedRecSys {
         }
         taskRunner.run();
         for (int i = 0; i < K; i++) {
+          if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
+            continue;
+          }
           userModels[m][i] = updateTasks[i].rowModel;
         }
         
