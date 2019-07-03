@@ -17,7 +17,7 @@ public class MSError extends ValueBasedEvaluator {
   }
 
   @Override
-  public Object clone() {
+  public MSError clone() {
     return new MSError(this);
   }
 

@@ -35,7 +35,7 @@ public class RecSysModel extends LowRankDecomposition {
   }
   
   @Override
-  public Object clone() {
+  public RecSysModel clone() {
     return new RecSysModel(this);
   }
   

@@ -15,7 +15,7 @@ public class DummyExtractor implements FeatureExtractor {
   public DummyExtractor(String prefix) {
   }
   
-  public Object clone() {
+  public DummyExtractor clone() {
     return new DummyExtractor("");
   }
   

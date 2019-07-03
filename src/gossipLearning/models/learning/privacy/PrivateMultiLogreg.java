@@ -22,7 +22,7 @@ public class PrivateMultiLogreg extends MultiLogReg implements PrivateModel {
   }
   
   @Override
-  public Object clone() {
+  public PrivateMultiLogreg clone() {
     return new PrivateMultiLogreg(this);
   }
   

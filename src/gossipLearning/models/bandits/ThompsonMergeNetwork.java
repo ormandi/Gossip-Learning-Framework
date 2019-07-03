@@ -24,7 +24,7 @@ public class ThompsonMergeNetwork extends Thompson implements Mergeable {
   }
   
   @Override
-  public Object clone() {
+  public ThompsonMergeNetwork clone() {
     return new ThompsonMergeNetwork(this);
   }
   

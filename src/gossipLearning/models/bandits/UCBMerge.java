@@ -16,7 +16,7 @@ public class UCBMerge extends UCB implements Mergeable {
     super(a);
   }
   
-  public Object clone() {
+  public UCBMerge clone() {
     return new UCBMerge(this);
   }
   

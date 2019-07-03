@@ -146,7 +146,7 @@ public class FederatedRecSys {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          localModels[i] = (MatrixBasedModel)globalModels[m].clone();
+          localModels[i] = globalModels[m].clone();
         }
         
         // check online sessions
@@ -188,7 +188,7 @@ public class FederatedRecSys {
           int from = (int)Math.round(core * part);
           int to = (int)Math.round((core + 1) * part);
           //System.out.println(core + "\t" + from + "\t" + to);
-          tmpAvgModels[core] = (MatrixBasedModel)avgModels[m].clone();
+          tmpAvgModels[core] = avgModels[m].clone();
           modelSumTask[core] = new ModelSumTask(tmpAvgModels[core], globalModels[m], localModels, from, to, 1.0, isOnline, sessionEnd, t, delay);
           taskRunner.add(modelSumTask[core]);
         }

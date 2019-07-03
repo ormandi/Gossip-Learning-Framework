@@ -18,7 +18,7 @@ public class ThompsonMerge extends Thompson implements Mergeable {
   }
 
   @Override
-  public Object clone() {
+  public ThompsonMerge clone() {
     return new ThompsonMerge(this);
   }
   

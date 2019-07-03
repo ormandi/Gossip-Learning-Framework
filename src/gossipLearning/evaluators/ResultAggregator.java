@@ -62,13 +62,13 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     for (int i = 0; i < evaluators.length; i++) {
       evaluators[i] = new Evaluator[a.evaluators[i].length];
       for (int j = 0; j < evaluators[i].length; j++) {
-        evaluators[i][j] = (Evaluator)a.evaluators[i][j].clone();
+        evaluators[i][j] = a.evaluators[i][j].clone();
       }
     }
   }
   
   @Override
-  public Object clone() {
+  public ResultAggregator clone() {
     return new ResultAggregator(this);
   }
   
@@ -103,7 +103,7 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
           buffs[model_i] = new StringBuffer();
         }
         for (int eval_j = 0; eval_j < evalNames.length; eval_j++) {
-          evaluator[model_i][eval_j] = (Evaluator)evaluators[model_i][eval_j].clone();
+          evaluator[model_i][eval_j] = evaluators[model_i][eval_j].clone();
           evaluators[model_i][eval_j].clear();
         }
       }

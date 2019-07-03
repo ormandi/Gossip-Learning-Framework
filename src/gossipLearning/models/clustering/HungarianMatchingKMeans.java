@@ -45,7 +45,7 @@ public class HungarianMatchingKMeans extends KMeans implements Mergeable {
   /**
    * Deep copy of this object.
    */
-  public Object clone(){
+  public HungarianMatchingKMeans clone(){
     return new HungarianMatchingKMeans(this);
   }
 

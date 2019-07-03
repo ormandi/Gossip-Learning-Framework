@@ -28,7 +28,7 @@ public class FactorizationProtocol extends LearningProtocol {
   
   protected FactorizationProtocol(FactorizationProtocol a) {
     super(a);
-    resultAggregator = (FactorizationResultAggregator)a.resultAggregator.clone();
+    resultAggregator = a.resultAggregator.clone();
     userModels = new double[a.userModels.length][];
     for (int i = 0; i < userModels.length; i++) {
       if (a.userModels[i] != null) {
@@ -38,7 +38,7 @@ public class FactorizationProtocol extends LearningProtocol {
   }
   
   @Override
-  public Object clone() {
+  public FactorizationProtocol clone() {
     return new FactorizationProtocol(this);
   }
   

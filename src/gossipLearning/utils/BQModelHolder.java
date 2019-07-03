@@ -55,14 +55,14 @@ public class BQModelHolder implements ModelHolder {
     this.bound = mh.bound;
     models = new Model[bound];
     for (int i = 0; i < mh.size(); i ++) {
-      models[i] = deep ? (Model)mh.getModel(i).clone() : mh.getModel(i);
+      models[i] = deep ? mh.getModel(i).clone() : mh.getModel(i);
     }
     start = 0;
     size = mh.size;
   }
   
   @Override
-  public Object clone(){
+  public BQModelHolder clone(){
     return new BQModelHolder(this, true);
   }
   

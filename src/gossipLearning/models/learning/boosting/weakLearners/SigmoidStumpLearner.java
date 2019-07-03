@@ -87,7 +87,7 @@ public class SigmoidStumpLearner extends WeakLearner {
   /**
    * Deep copy.
    */
-  public Object clone(){
+  public SigmoidStumpLearner clone(){
     return new SigmoidStumpLearner(this);
   }
   

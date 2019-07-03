@@ -138,7 +138,7 @@ public class SparseVector implements Serializable, Iterable<VectorEntry>, Compar
   /**
    * Makes a deep copy of the current vector.
    */
-  public Object clone() {
+  public SparseVector clone() {
     return new SparseVector(this);
   }
   

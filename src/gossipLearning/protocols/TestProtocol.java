@@ -40,7 +40,7 @@ public class TestProtocol extends AbstractProtocol {
   
   protected TestProtocol(TestProtocol a) {
     super(a);
-    models = (ModelHolder)a.models.clone();
+    models = a.models.clone();
     maxBudget = a.maxBudget;
     //budget = CommonState.r.nextDouble() * (maxBudget / 2);
     budget = 10;
@@ -49,7 +49,7 @@ public class TestProtocol extends AbstractProtocol {
   }
   
   @Override
-  public Object clone() {
+  public TestProtocol clone() {
     return new TestProtocol(this);
   }
 

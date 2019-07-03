@@ -19,7 +19,7 @@ public class PrivateOvsA extends OneVsAllMetaClassifier implements PrivateModel 
   }
   
   @Override
-  public Object clone() {
+  public PrivateOvsA clone() {
     return new PrivateOvsA(this);
   }
 

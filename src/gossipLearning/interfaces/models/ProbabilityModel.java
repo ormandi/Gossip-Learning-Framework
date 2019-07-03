@@ -2,9 +2,6 @@ package gossipLearning.interfaces.models;
 
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
-
-import java.util.Arrays;
-
 import peersim.config.Configuration;
 
 
@@ -60,12 +57,12 @@ public abstract class ProbabilityModel implements LearningModel {
     numberOfClasses = a.numberOfClasses;
     numberOfFeatures = a.numberOfFeatures;
     if (a.distribution != null) {
-      distribution = Arrays.copyOf(a.distribution, a.numberOfClasses);
+      distribution = a.distribution.clone();
     }
   }
   
   @Override
-  public abstract Object clone();
+  public abstract ProbabilityModel clone();
   
   /**
    * Returns the distribution of the class labels for the specified instance.<br/><br/>

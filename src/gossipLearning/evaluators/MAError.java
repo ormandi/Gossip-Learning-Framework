@@ -17,7 +17,7 @@ public class MAError extends ValueBasedEvaluator {
   }
   
   @Override
-  public Object clone() {
+  public MAError clone() {
     return new MAError(this);
   }
 

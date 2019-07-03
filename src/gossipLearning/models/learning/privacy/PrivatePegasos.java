@@ -22,7 +22,7 @@ public class PrivatePegasos extends P2Pegasos implements PrivateModel {
   }
   
   @Override
-  public Object clone() {
+  public PrivatePegasos clone() {
     return new PrivatePegasos(this);
   }
 

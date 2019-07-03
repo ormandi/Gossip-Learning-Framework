@@ -42,7 +42,7 @@ public class DynamicLowRankAggregator extends FactorizationResultAggregator {
   }
   
   @Override
-  public Object clone() {
+  public DynamicLowRankAggregator clone() {
     return new DynamicLowRankAggregator(this);
   }
 

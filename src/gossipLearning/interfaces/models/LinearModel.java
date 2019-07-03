@@ -42,12 +42,14 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
   
   public LinearModel(LinearModel a) {
     super(a);
-    w = (SparseVector)a.w.clone();
+    w = a.w.clone();
     bias = a.bias;
-    gradient = (SparseVector)a.gradient.clone();
+    gradient = a.gradient.clone();
     biasGradient = a.biasGradient;
-    optimizer = (Optimizer)a.optimizer.clone();
+    optimizer = a.optimizer.clone();
   }
+  
+  public abstract LinearModel clone();
   
   protected abstract void gradient(SparseVector instance, double label);
   

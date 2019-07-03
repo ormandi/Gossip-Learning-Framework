@@ -31,7 +31,7 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel {
     modelSize = a.modelSize;
   }
   
-  public Object clone(){
+  public SlimPegasos clone(){
     return new SlimPegasos(this);
   }
   

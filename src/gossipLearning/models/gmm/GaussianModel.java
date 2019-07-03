@@ -19,7 +19,7 @@ public class GaussianModel extends ProbabilityModel {
   }
   
   @Override
-  public Object clone() {
+  public GaussianModel clone() {
     return null;
   }
   

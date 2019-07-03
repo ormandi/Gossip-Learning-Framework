@@ -166,7 +166,7 @@ public class FederatedLearning {
           if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
             continue;
           }
-          localModels[i] = (LearningModel)globalModels[m].clone();
+          localModels[i] = globalModels[m].clone();
         }
         
         // check online sessions

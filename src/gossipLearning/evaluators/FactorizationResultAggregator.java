@@ -14,6 +14,9 @@ public abstract class FactorizationResultAggregator extends ResultAggregator {
     super(a);
   }
   
+  @Override
+  public abstract FactorizationResultAggregator clone();
+  
   public abstract void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor);
 
 }

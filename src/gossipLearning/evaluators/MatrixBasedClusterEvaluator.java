@@ -42,7 +42,7 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
     counter = a.counter;
   }
   
-  public Object clone() {
+  public MatrixBasedClusterEvaluator clone() {
     return new MatrixBasedClusterEvaluator(this);
   }
   
@@ -64,7 +64,7 @@ public class MatrixBasedClusterEvaluator extends MatrixBasedEvaluator {
     //mtx.clear();
     for (int i = 0; i < e.mtx.size(); i++) {
       if (mtx.size() == i) {
-        mtx.add((SparseVector)e.mtx.get(i).clone());
+        mtx.add(e.mtx.get(i).clone());
       } else {
         mtx.get(i).add(e.mtx.get(i));
       }

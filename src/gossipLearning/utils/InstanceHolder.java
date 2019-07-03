@@ -67,14 +67,14 @@ public class InstanceHolder implements Serializable{
     this.instances = new Vector<SparseVector>();
     this.labels = new Vector<Double>();
     for (int i = 0; i < a.instances.size(); i++){
-      this.instances.add((SparseVector)a.instances.get(i).clone());
+      this.instances.add(a.instances.get(i).clone());
     }
     for (int i = 0; i < a.labels.size(); i++){
       this.labels.add(a.labels.get(i).doubleValue());
     }
   }
   
-  public Object clone(){
+  public InstanceHolder clone(){
     return new InstanceHolder(this);
   }
   

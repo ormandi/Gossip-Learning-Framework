@@ -16,7 +16,7 @@ public class LRResultAggregator extends FactorizationResultAggregator {
   }
   
   @Override
-  public Object clone() {
+  public LRResultAggregator clone() {
     return new LRResultAggregator(this);
   }
   

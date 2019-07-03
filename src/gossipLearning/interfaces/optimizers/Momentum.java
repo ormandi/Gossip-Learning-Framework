@@ -27,12 +27,12 @@ public class Momentum extends Optimizer {
   public Momentum(Momentum a) {
     super(a);
     alpha = a.alpha;
-    momentum = (SparseVector)a.momentum.clone();
+    momentum = a.momentum.clone();
     biasMomentum = a.biasMomentum;
   }
   
   @Override
-  public Object clone() {
+  public Momentum clone() {
     return new Momentum(this);
   }
 

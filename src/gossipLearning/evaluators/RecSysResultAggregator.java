@@ -17,7 +17,7 @@ public class RecSysResultAggregator extends FactorizationResultAggregator {
   }
   
   @Override
-  public Object clone() {
+  public RecSysResultAggregator clone() {
     return new RecSysResultAggregator(this);
   }
   

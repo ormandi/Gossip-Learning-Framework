@@ -28,6 +28,8 @@ public interface MatrixBasedModel extends Model {
    */
   public double predict(double[] rowModel, int columnIndex);
   
+  public MatrixBasedModel clone();
+  
   public Matrix getV();
   public Matrix getUSi(double[] ui);
 }

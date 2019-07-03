@@ -77,7 +77,7 @@ public class EGreedyMerge extends BanditModel implements Mergeable {
   }
 
   @Override
-  public Object clone() {
+  public EGreedyMerge clone() {
     return new EGreedyMerge(this);
   }
   

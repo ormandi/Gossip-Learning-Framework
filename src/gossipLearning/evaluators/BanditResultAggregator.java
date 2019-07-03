@@ -19,7 +19,7 @@ public class BanditResultAggregator extends ResultAggregator {
   protected BanditResultAggregator(BanditResultAggregator a) {
     super(a);
   }
-  public Object clone() {
+  public BanditResultAggregator clone() {
     return new BanditResultAggregator(this);
   }
   public void setEvalSet(InstanceHolder evalSet) {

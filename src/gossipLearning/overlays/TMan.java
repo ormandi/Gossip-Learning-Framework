@@ -59,19 +59,19 @@ public class TMan implements EDProtocol, Linkable, Serializable, Churnable {
     if (a.me == null) {
       me = a.me;
     } else {
-      me = (NodeDescriptor)a.me.clone();
+      me = a.me.clone();
     }
     baseFreq = a.baseFreq;
     cache = new NodeDescriptor[a.cache.length];
     for (int i = 0; i < a.degree(); i++) {
-      cache[i] = (NodeDescriptor)a.cache[i].clone();
+      cache[i] = a.cache[i].clone();
     }
     size = a.size;
     isSim = a.isSim;
   }
   
   @Override
-  public Object clone() {
+  public TMan clone() {
     return new TMan(this);
   }
 

@@ -45,7 +45,7 @@ public class ModelMessage implements ModelHolder, Message {
    * @return A copy of the original message containing replicated models.
    */
   @Override
-  public Object clone() {
+  public ModelMessage clone() {
     return new ModelMessage(src, models, pid, true);
   }
 

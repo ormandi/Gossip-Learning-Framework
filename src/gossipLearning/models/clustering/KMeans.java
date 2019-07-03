@@ -70,7 +70,7 @@ public class KMeans implements LearningModel {
     if (a.centroids != null) {
       for (int i = 0; i < K; i++) {
         if (!(a.centroids[i] == null)) {
-          centroids[i] = (SparseVector)a.centroids[i].clone();
+          centroids[i] = a.centroids[i].clone();
         }
       }
     }
@@ -85,7 +85,7 @@ public class KMeans implements LearningModel {
   /**
    * Deep copy of this object.
    */
-  public Object clone() {
+  public KMeans clone() {
     return new KMeans(this);
   }
 

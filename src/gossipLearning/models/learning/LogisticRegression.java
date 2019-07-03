@@ -43,7 +43,7 @@ public class LogisticRegression extends LinearModel {
   /**
    * Clones the object.
    */
-  public Object clone(){
+  public LogisticRegression clone(){
     return new LogisticRegression(this);
   }
 

@@ -15,7 +15,7 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable,
   }
   
   @Override
-  public Object clone() {
+  public MergeableLowRank clone() {
     return new MergeableLowRank(this);
   }
   
@@ -60,7 +60,7 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable,
       }
       SparseVector v = columnModels[i];
       if (v == null) {
-        columnModels[i] = (SparseVector)m.columnModels[i].clone();
+        columnModels[i] = m.columnModels[i].clone();
       } else {
         v.add(m.columnModels[i], times);
       }

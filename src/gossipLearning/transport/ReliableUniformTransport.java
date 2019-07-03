@@ -66,7 +66,7 @@ public ReliableUniformTransport(String prefix)
 * that is linked from all the nodes. This is because this protocol has no
 * node specific state.
 */
-public Object clone()
+public ReliableUniformTransport clone()
 {
   return this;
 }

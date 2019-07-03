@@ -34,7 +34,7 @@ public class ConstantLearner extends WeakLearner {
   }
 
   @Override
-  public Object clone() {
+  public ConstantLearner clone() {
     return new ConstantLearner(this);
   }
 

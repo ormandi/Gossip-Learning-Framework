@@ -23,7 +23,7 @@ public class Virus implements Model {
   }
   
   @Override
-  public Object clone() {
+  public Virus clone() {
     return new Virus(this);
   }
 

@@ -42,7 +42,7 @@ public class FNorm implements Evaluator {
   }
   
   @Override
-  public Object clone() {
+  public FNorm clone() {
     return new FNorm(this);
   }
   

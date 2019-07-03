@@ -18,7 +18,7 @@ public class GD extends Optimizer {
   }
   
   @Override
-  public Object clone() {
+  public GD clone() {
     return new GD(this);
   }
   

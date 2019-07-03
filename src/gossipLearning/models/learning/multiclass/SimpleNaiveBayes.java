@@ -34,14 +34,14 @@ public class SimpleNaiveBayes extends ProbabilityModel {
     sigmas = new SparseVector[a.numberOfClasses];
     counts = new double[a.numberOfClasses];
     for (int i = 0; i < a.numberOfClasses; i++) {
-      mus[i] = (SparseVector)a.mus[i].clone();
-      sigmas[i] = (SparseVector)a.sigmas[i].clone();
+      mus[i] = a.mus[i].clone();
+      sigmas[i] = a.sigmas[i].clone();
       counts[i] = a.counts[i];
     }
   }
   
   @Override
-  public Object clone() {
+  public SimpleNaiveBayes clone() {
     return new SimpleNaiveBayes(this);
   }
   

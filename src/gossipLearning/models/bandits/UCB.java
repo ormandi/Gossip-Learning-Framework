@@ -22,7 +22,7 @@ public class UCB extends BanditModel {
   }
   
   @Override
-  public Object clone() {
+  public UCB clone() {
     return new UCB(this);
   }
 

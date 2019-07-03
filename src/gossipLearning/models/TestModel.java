@@ -23,12 +23,12 @@ public class TestModel implements Model {
   
   public TestModel(TestModel a) {
     age = a.age;
-    seenPeers = (SparseVector)a.seenPeers.clone();
+    seenPeers = a.seenPeers.clone();
     id = a.id;
     time = a.time;
   }
   
-  public Object clone() {
+  public TestModel clone() {
     return new TestModel(this);
   }
 

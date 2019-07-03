@@ -22,7 +22,7 @@ public class CompressedPegasos extends P2Pegasos {
   }
   
   @Override
-  public Object clone() {
+  public CompressedPegasos clone() {
     return new CompressedPegasos(this);
   }
   

@@ -55,8 +55,8 @@ public class MultiLogReg extends ProbabilityModel {
       w = new SparseVector[numberOfClasses -1];
       gradients = new SparseVector[numberOfClasses -1];
       for (int i = 0; i < numberOfClasses -1; i++) {
-        w[i] = (SparseVector)a.w[i].clone();
-        gradients[i] = (SparseVector)a.gradients[i].clone();
+        w[i] = a.w[i].clone();
+        gradients[i] = a.gradients[i].clone();
       }
       v = Arrays.copyOf(a.v, a.numberOfClasses);
       bias = Arrays.copyOf(a.bias, a.bias.length);
@@ -67,7 +67,7 @@ public class MultiLogReg extends ProbabilityModel {
   /**
    * Deep copy.
    */
-  public Object clone() {
+  public MultiLogReg clone() {
     return new MultiLogReg(this);
   }
 

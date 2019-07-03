@@ -134,7 +134,7 @@ class DummyModel implements Model {
     data = a.data;
   }
   
-  public Object clone() {
+  public DummyModel clone() {
     return new DummyModel(this);
   }
   

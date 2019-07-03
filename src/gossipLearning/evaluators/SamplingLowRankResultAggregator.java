@@ -16,7 +16,7 @@ public class SamplingLowRankResultAggregator extends LowRankResultAggregator {
   }
   
   @Override
-  public Object clone() {
+  public SamplingLowRankResultAggregator clone() {
     return new SamplingLowRankResultAggregator(this);
   }
   

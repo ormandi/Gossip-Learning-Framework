@@ -26,7 +26,7 @@ public class GaussModel implements Model, Mergeable {
   }
   
   @Override
-  public Object clone() {
+  public GaussModel clone() {
     return new GaussModel(this);
   }
   

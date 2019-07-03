@@ -17,7 +17,7 @@ public class ZeroOneError extends ValueBasedEvaluator {
   }
   
   @Override
-  public Object clone() {
+  public ZeroOneError clone() {
     return new ZeroOneError(this);
   }
 

@@ -12,7 +12,7 @@ public interface Evaluator extends Serializable, Cloneable {
    * Makes a deep copy of the current object.
    * @return the deep copy
    */
-  public Object clone();
+  public Evaluator clone();
   /**
    * Computes the evaluation based on the specified expected and predicted values
    * @param expected the expected value

@@ -12,7 +12,7 @@ public interface Model extends Serializable, Cloneable {
    * Returns a clone of this object.
    * @return the clone of this object
    */
-  public Object clone();
+  public Model clone();
   
   /**
    * Returns the age (the number of updates) of the model.

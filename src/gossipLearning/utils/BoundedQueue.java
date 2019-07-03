@@ -41,7 +41,7 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
    */
   @SuppressWarnings("unchecked")
   @Override
-  public Object clone() {
+  public BoundedQueue<T> clone() {
     BoundedQueue<T> ret = new BoundedQueue<T>(bound);
     ret.size = size;
     ret.startPosition = startPosition;
@@ -197,7 +197,6 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
    * Just for testing.
    * @param args command line arguments.
    */
-  @SuppressWarnings("unchecked")
   public static void main(String[] args) {
     BoundedQueue<Integer> bq = new BoundedQueue<Integer>(5);
     for (int i = 0; i < 10; i++) {
@@ -205,7 +204,7 @@ public class BoundedQueue<T extends Serializable > implements Serializable {
       System.out.println("ADD(" + i + "):" + ret + "\t" + bq + "\t" + bq.size());
     }
     int size = bq.size();
-    BoundedQueue<Integer> bqClone = (BoundedQueue<Integer>)bq.clone();
+    BoundedQueue<Integer> bqClone = bq.clone();
     System.out.println(bqClone);
     for (int i = 0; i < size; i++) {
       System.out.println("REMOVE:" + bq.remove() + "\t" + bq + "\t" + bq.size());

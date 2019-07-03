@@ -54,7 +54,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
   }
   
   @Override
-  public Object clone() {
+  public LowRankDecomposition clone() {
     return new LowRankDecomposition(this);
   }
   

@@ -31,7 +31,7 @@ public class EGreedy extends BanditModel {
   }
   
   @Override
-  public Object clone() {
+  public EGreedy clone() {
     return new EGreedy(this);
   }
 

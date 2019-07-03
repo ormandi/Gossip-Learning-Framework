@@ -33,7 +33,7 @@ public class MatrixBasedEvaluator implements Evaluator {
     names = Arrays.copyOf(a.names, a.names.length);
     mtx = new Vector<SparseVector>();
     for (int i = 0; i < a.mtx.size(); i++) {
-      mtx.add((SparseVector)a.mtx.get(i).clone());
+      mtx.add(a.mtx.get(i).clone());
     }
   }
   
@@ -59,7 +59,7 @@ public class MatrixBasedEvaluator implements Evaluator {
     return true;
   }
   
-  public Object clone() {
+  public MatrixBasedEvaluator clone() {
     return new MatrixBasedEvaluator(this);
   }
 
@@ -83,7 +83,7 @@ public class MatrixBasedEvaluator implements Evaluator {
       MatrixBasedEvaluator e = (MatrixBasedEvaluator)evaluator;
       for (int i = 0; i < e.mtx.size(); i++) {
         if (mtx.size() == i) {
-          mtx.add((SparseVector)e.mtx.get(i).clone());
+          mtx.add(e.mtx.get(i).clone());
         } else {
           mtx.get(i).add(e.mtx.get(i));
         }

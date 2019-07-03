@@ -16,7 +16,7 @@ public class SlimOvsA extends MergeableOvsA implements SlimModel {
   }
 
   @Override
-  public Object clone() {
+  public SlimOvsA clone() {
     return new SlimOvsA(this);
   }
   

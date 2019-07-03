@@ -41,13 +41,13 @@ public class GMM implements Model, Mergeable {
     age = a.age;
     r = a.r;
     for (int i = 0; i < k; i++) {
-      models[i] = (GaussModel)a.models[i].clone();
+      models[i] = a.models[i].clone();
       coefs[i] = a.coefs[i];
     }
   }
   
   @Override
-  public Object clone() {
+  public GMM clone() {
     return new GMM(this);
   }
   

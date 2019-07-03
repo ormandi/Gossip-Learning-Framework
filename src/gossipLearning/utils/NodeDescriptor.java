@@ -38,7 +38,7 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   public NodeDescriptor(NodeDescriptor a) {
     node = a.node;
     if (a.descriptor != null) {
-      descriptor = (SparseVector)a.descriptor.clone();
+      descriptor = a.descriptor.clone();
     } else {
       descriptor = null;
     }
@@ -47,7 +47,7 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
   }
   
   @Override
-  public Object clone() {
+  public NodeDescriptor clone() {
     return new NodeDescriptor(this);
   }
   

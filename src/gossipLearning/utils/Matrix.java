@@ -351,7 +351,7 @@ public class Matrix implements Serializable {
   /**
    * Makes a deep copy of the matrix.
    */
-  public Object clone() {
+  public Matrix clone() {
     return new Matrix(this);
   }
 

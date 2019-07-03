@@ -20,11 +20,11 @@ public class Normalizer implements FeatureExtractorModel {
   
   public Normalizer(Normalizer a) {
     age = a.age;
-    mins = (SparseVector)a.mins.clone();
-    maxs = (SparseVector)a.maxs.clone();
+    mins = a.mins.clone();
+    maxs = a.maxs.clone();
   }
   
-  public Object clone() {
+  public Normalizer clone() {
     return new Normalizer(this);
   }
 
@@ -33,7 +33,7 @@ public class Normalizer implements FeatureExtractorModel {
     maxs.add(mins, -1.0);
     InstanceHolder holder = new InstanceHolder(instances.getNumberOfClasses(), instances.getNumberOfFeatures());
     for (int i = 0; i < instances.size(); i++) {
-      SparseVector v = (SparseVector)instances.getInstance(i).clone();
+      SparseVector v = instances.getInstance(i).clone();
       v.add(mins, -1.0);
       v.div(maxs);
       holder.add(v, instances.getLabel(i));
@@ -44,7 +44,7 @@ public class Normalizer implements FeatureExtractorModel {
   
   public SparseVector extract(SparseVector instance) {
     maxs.add(mins, -1.0);
-    SparseVector v = (SparseVector)instance.clone();
+    SparseVector v = instance.clone();
     v.add(mins, -1.0);
     v.div(maxs);
     maxs.add(mins);

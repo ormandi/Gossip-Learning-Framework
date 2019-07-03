@@ -26,7 +26,7 @@ public class SlimPerceptron extends MergeablePerceptron implements SlimModel {
   }
   
   @Override
-  public Object clone() {
+  public SlimPerceptron clone() {
     return new SlimPerceptron(this);
   }
   

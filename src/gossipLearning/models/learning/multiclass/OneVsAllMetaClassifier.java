@@ -50,14 +50,14 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
     this.baseLearnerName = a.baseLearnerName;
     this.prefix = a.prefix;
     if (a.classifiers != null) {
-      this.classifiers = (ModelHolder)a.classifiers.clone();
+      this.classifiers = a.classifiers.clone();
     } else {
       classifiers = null;
     }
   }
   
   @Override
-  public Object clone() {
+  public OneVsAllMetaClassifier clone() {
     return new OneVsAllMetaClassifier(this);
   }
 

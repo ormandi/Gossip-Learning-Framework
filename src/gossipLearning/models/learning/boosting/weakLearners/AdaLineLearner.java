@@ -23,7 +23,7 @@ public class AdaLineLearner extends WeakLearner {
   public AdaLineLearner(AdaLineLearner a) {
     super(a);
     r = new Random(seed | c++);
-    w = (SparseVector)a.w.clone();
+    w = a.w.clone();
     v = new double[numberOfClasses];
     if (a.v != null) {
       for (int i = 0; i < numberOfClasses; i++) {
@@ -42,7 +42,7 @@ public class AdaLineLearner extends WeakLearner {
   }
   
   @Override
-  public Object clone() {
+  public AdaLineLearner clone() {
     return new AdaLineLearner(this);
   }
 

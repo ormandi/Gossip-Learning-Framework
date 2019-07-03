@@ -4,7 +4,6 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.SimpleNaiveBayes;
-import gossipLearning.utils.SparseVector;
 
 public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable, Partializable {
   private static final long serialVersionUID = 2340506780082847579L;
@@ -17,7 +16,7 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable,
     super(a);
   }
   
-  public Object clone() {
+  public MergeableNaiveBayes clone() {
     return new MergeableNaiveBayes(this);
   }
 
@@ -31,8 +30,8 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable,
         sigmas[i].mul(0.5).add(m.sigmas[i], 0.5);
       } else {
         counts[i] = m.counts[i];
-        mus[i] = (SparseVector)m.mus[i].clone();
-        sigmas[i] = (SparseVector)m.sigmas[i].clone();
+        mus[i] = m.mus[i].clone();
+        sigmas[i] = m.sigmas[i].clone();
       }
     }
     return this;

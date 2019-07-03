@@ -48,7 +48,7 @@ public abstract class ValueBasedEvaluator implements Evaluator {
   }
 
   @Override
-  public abstract Object clone();
+  public abstract ValueBasedEvaluator clone();
   
   /**
    * Returns the evaluation result based on the specified parameters.

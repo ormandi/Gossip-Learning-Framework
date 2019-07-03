@@ -40,7 +40,7 @@ public class ProductLearner extends WeakLearner {
     if (a.baseLearners != null) {
       baseLearners = new WeakLearner[numberOfLearners];
       for (int i = 0; i < numberOfLearners; i++) {
-        baseLearners[i] = (WeakLearner)a.baseLearners[i].clone();
+        baseLearners[i] = a.baseLearners[i].clone();
       }
     }
   }
@@ -54,7 +54,7 @@ public class ProductLearner extends WeakLearner {
   }
   
   @Override
-  public Object clone() {
+  public ProductLearner clone() {
     return new ProductLearner(this);
   }
 

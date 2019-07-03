@@ -25,7 +25,7 @@ public class SlimANN extends MergeableANN implements SlimModel {
     modelSize = a.modelSize;
   }
   
-  public Object clone() {
+  public SlimANN clone() {
     return new SlimANN(this);
   }
   

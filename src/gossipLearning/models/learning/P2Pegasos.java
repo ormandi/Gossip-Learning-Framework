@@ -25,7 +25,7 @@ public class P2Pegasos extends LinearModel {
     super(a);
   }
   
-  public Object clone(){
+  public P2Pegasos clone(){
     return new P2Pegasos(this);
   }
 

@@ -16,7 +16,7 @@ public interface ModelHolder extends Serializable, Cloneable {
    * Returns a clone of this object.
    * @return the clone of this object
    */
-  public Object clone();
+  public ModelHolder clone();
   
   /**
    * Returns the number of stored models.

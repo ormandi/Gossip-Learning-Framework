@@ -17,7 +17,7 @@ public class RMSError extends ValueBasedEvaluator {
   }
 
   @Override
-  public Object clone() {
+  public RMSError clone() {
     return new RMSError(this);
   }
 

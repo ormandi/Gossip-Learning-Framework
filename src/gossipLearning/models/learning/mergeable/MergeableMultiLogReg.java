@@ -34,7 +34,7 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Part
     super(a);
   }
   
-  public Object clone() {
+  public MergeableMultiLogReg clone() {
     return new MergeableMultiLogReg(this);
   }
   

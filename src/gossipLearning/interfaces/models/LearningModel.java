@@ -10,6 +10,7 @@ import gossipLearning.utils.SparseVector;
  * @author István Hegedűs
  */
 public interface LearningModel extends Model {
+  public LearningModel clone();
   /**
    * Updates the actual model with a training instance.
    * @param instance the features that represent the instance

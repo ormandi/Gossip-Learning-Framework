@@ -36,7 +36,7 @@ public class Perceptron extends LinearModel {
   }
   
   @Override
-  public Object clone() {
+  public Perceptron clone() {
     return new Perceptron(this);
   }
 

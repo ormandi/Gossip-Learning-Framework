@@ -93,11 +93,11 @@ public class ExtractionProtocol extends AbstractProtocol {
     isUseTMan = a.isUseTMan;
     isSim = a.isSim;
     if (a.descriptor != null) {
-      descriptor = (NodeDescriptor)a.descriptor.clone();
+      descriptor = a.descriptor.clone();
     }
     
-    lastSeenMergeableModels = (ModelHolder)a.lastSeenMergeableModels.clone();
-    modelHolder = (ModelHolder)a.modelHolder.clone();
+    lastSeenMergeableModels = a.lastSeenMergeableModels.clone();
+    modelHolder = a.modelHolder.clone();
   }
   
   /**
@@ -106,7 +106,7 @@ public class ExtractionProtocol extends AbstractProtocol {
    * @return Clone of the protocol instance.
    */
   @Override
-  public Object clone() {
+  public ExtractionProtocol clone() {
     return new ExtractionProtocol(this);
   }
   

@@ -14,7 +14,7 @@ public class MergeableANN extends ANN implements Mergeable, Partializable, Addab
   public MergeableANN(MergeableANN a) {
     super(a);
   }
-  public Object clone() {
+  public MergeableANN clone() {
     return new MergeableANN(this);
   }
   @Override

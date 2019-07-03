@@ -20,11 +20,11 @@ public abstract class Optimizer implements Cloneable, Serializable {
   }
   
   public Optimizer(Optimizer a) {
-    delta = (SparseVector)a.delta.clone();
+    delta = a.delta.clone();
     biasDelta = a.biasDelta;
   }
   
-  public abstract Object clone();
+  public abstract Optimizer clone();
   public abstract void delta(double lr, SparseVector gradient, double biasGradient);
   public abstract Optimizer merge(Optimizer o, double weight);
   public abstract Optimizer add(Optimizer o, double times);

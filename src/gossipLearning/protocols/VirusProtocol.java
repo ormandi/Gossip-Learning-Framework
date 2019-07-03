@@ -23,10 +23,10 @@ public class VirusProtocol extends AbstractProtocol {
   
   public VirusProtocol(VirusProtocol a) {
     super(a);
-    holder = (BQModelHolder)a.holder.clone();
+    holder = a.holder.clone();
   }
   
-  public Object clone() {
+  public VirusProtocol clone() {
     return new VirusProtocol(this);
   }
 

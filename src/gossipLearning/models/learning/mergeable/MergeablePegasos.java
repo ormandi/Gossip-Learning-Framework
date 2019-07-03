@@ -31,7 +31,7 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable, Partializa
     super(a);
   }
   
-  public Object clone(){
+  public MergeablePegasos clone(){
     return new MergeablePegasos(this);
   }
   

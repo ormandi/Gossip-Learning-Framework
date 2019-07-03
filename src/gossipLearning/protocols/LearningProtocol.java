@@ -113,11 +113,11 @@ public class LearningProtocol extends AbstractProtocol {
     batch = a.batch;
     
     // setting up learning related variables
-    resultAggregator = (ResultAggregator)a.resultAggregator.clone();
-    modelHolder = (BQModelHolder)a.modelHolder.clone();
+    resultAggregator = a.resultAggregator.clone();
+    modelHolder = a.modelHolder.clone();
     models = new Model[a.models.length];
     for (int i = 0; i < models.length; i++) {
-      models[i] = (Model)a.models[i].clone();
+      models[i] = a.models[i].clone();
     }
   }
   
@@ -127,7 +127,7 @@ public class LearningProtocol extends AbstractProtocol {
    * @return Clone of the protocol instance.
    */
   @Override
-  public Object clone() {
+  public LearningProtocol clone() {
     return new LearningProtocol(this);
   }
   

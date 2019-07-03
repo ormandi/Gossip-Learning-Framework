@@ -102,14 +102,14 @@ public class ANN extends ProbabilityModel {
       products = new Matrix[a.products.length];
       activations = new Matrix[a.activations.length];
       for (int i = 0; i < a.thetas.length && a.thetas[i] != null; i++) {
-        thetas[i] = (Matrix)a.thetas[i].clone();
-        gradients[i] = (Matrix)a.gradients[i].clone();
+        thetas[i] = a.thetas[i].clone();
+        gradients[i] = a.gradients[i].clone();
       }
       for (int i = 0; i < a.products.length && a.products[i] != null; i++) {
-        products[i] = (Matrix)a.products[i].clone();
+        products[i] = a.products[i].clone();
       }
       for (int i = 0; i < a.activations.length && a.activations[i] != null; i++) {
-        activations[i] = (Matrix)a.activations[i].clone();
+        activations[i] = a.activations[i].clone();
       }
     }
     if (a.layersSizes != null) {
@@ -119,7 +119,7 @@ public class ANN extends ProbabilityModel {
   }
 
   @Override
-  public Object clone() {
+  public ANN clone() {
     return new ANN(this);
   }
 

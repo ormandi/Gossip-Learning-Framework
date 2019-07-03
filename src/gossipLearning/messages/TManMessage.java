@@ -44,9 +44,9 @@ public class TManMessage implements Message {
     this.isAnswer = isAnswer;
     this.cache = new NodeDescriptor[cache.length];
     for (int i = 0; i < cache.length -1 && cache[i] != null; i++) {
-      this.cache[i + 1] = (NodeDescriptor)cache[i].clone();
+      this.cache[i + 1] = cache[i].clone();
     }
-    this.cache[0] = (NodeDescriptor)srcDesc.clone();
+    this.cache[0] = srcDesc.clone();
     this.pid = pid;
   }
 

@@ -64,7 +64,7 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
    * This method performers the deep copying of the protocol.
    */
   @Override
-  public abstract Object clone();
+  public abstract AbstractProtocol clone();
   
   /**
    * It is a helper method as well which supports sending message

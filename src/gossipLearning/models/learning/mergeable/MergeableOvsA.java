@@ -22,7 +22,7 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, 
   }
   
   @Override
-  public Object clone() {
+  public MergeableOvsA clone() {
     return new MergeableOvsA(this);
   }
 

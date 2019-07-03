@@ -97,16 +97,16 @@ public class FilterBoost extends ProbabilityModel {
     //this.numberOfFeatures = a.numberOfFeatures;
     this.weakLearnerClassName = a.weakLearnerClassName;
     if (a.actualWeakLearner != null) {
-      this.actualWeakLearner = (WeakLearner)a.actualWeakLearner.clone();
+      this.actualWeakLearner = a.actualWeakLearner.clone();
     }
     if (a.constantWeakLearner != null) {
-      this.constantWeakLearner = (WeakLearner)a.constantWeakLearner.clone();
+      this.constantWeakLearner = a.constantWeakLearner.clone();
     }
     this.weakEdge = a.weakEdge;
     this.weakWeights = a.weakWeights;
     this.constantEdge = a.constantEdge;
     this.constantWeights = a.constantWeights;
-    this.strongLearner = (ModelHolder)a.strongLearner.clone();
+    this.strongLearner = a.strongLearner.clone();
     if (a.losses != null) {
       this.losses = a.losses.clone();
     }
@@ -120,7 +120,7 @@ public class FilterBoost extends ProbabilityModel {
   /**
    * Deep copy.
    */
-  public Object clone() {
+  public FilterBoost clone() {
     return new FilterBoost(this);
   }
 

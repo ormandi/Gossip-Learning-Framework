@@ -31,7 +31,7 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable, Pa
     super(a);
   }
   
-  public Object clone(){
+  public MergeableLogReg clone(){
     return new MergeableLogReg(this);
   }
 

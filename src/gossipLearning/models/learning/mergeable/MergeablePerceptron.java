@@ -18,7 +18,7 @@ public class MergeablePerceptron extends Perceptron implements Mergeable, Partia
   }
   
   @Override
-  public Object clone() {
+  public MergeablePerceptron clone() {
     return new MergeablePerceptron(this);
   }
   

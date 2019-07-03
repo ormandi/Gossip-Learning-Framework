@@ -36,14 +36,14 @@ public class Adam extends Momentum {
   public Adam(Adam a) {
     super(a);
     beta = a.beta;
-    momentum2 = (SparseVector)a.momentum2.clone();
+    momentum2 = a.momentum2.clone();
     biasMomentum2 = a.biasMomentum2;
     alphat = a.alphat;
     betat = a.betat;
   }
   
   @Override
-  public Object clone() {
+  public Adam clone() {
     return new Adam(this);
   }
   

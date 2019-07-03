@@ -50,7 +50,7 @@ public abstract class WeakLearner extends ProbabilityModel{
     this.alpha = alpha;
   }
   
-  public abstract Object clone();
+  public abstract WeakLearner clone();
   
   /**
    * Calls the weighted version of update function with initial and uniform weights.

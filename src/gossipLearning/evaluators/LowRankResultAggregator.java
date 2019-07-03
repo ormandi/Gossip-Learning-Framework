@@ -30,7 +30,7 @@ public class LowRankResultAggregator extends FactorizationResultAggregator {
   }
   
   @Override
-  public Object clone() {
+  public LowRankResultAggregator clone() {
     return new LowRankResultAggregator(this);
   }
   

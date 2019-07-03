@@ -23,7 +23,7 @@ public class CompressedLogReg extends LogisticRegression {
   }
   
   @Override
-  public Object clone() {
+  public CompressedLogReg clone() {
     return new CompressedLogReg(this);
   }
   

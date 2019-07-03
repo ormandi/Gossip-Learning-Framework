@@ -10,7 +10,6 @@ public class BoundedQueueTest extends TestCase implements Serializable {
   private static final long serialVersionUID = -5320129841584587519L;
   
   private static final int bound = 5;
-  @SuppressWarnings("unchecked")
   public void testClone() {
     BoundedQueue<Integer> bq = new BoundedQueue<Integer>(bound);
     BoundedQueue<Integer> bqc;

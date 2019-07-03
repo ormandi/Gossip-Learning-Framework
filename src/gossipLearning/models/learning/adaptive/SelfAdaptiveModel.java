@@ -94,7 +94,7 @@ public class SelfAdaptiveModel  implements ErrorEstimatorModel {
    */
   public SelfAdaptiveModel(SelfAdaptiveModel a) {
     if (a.model != null) {
-      model = (LearningModel)a.model.clone();
+      model = a.model.clone();
     }
     if (a.modelName != null) {
       modelName = new String(a.modelName);
@@ -109,7 +109,7 @@ public class SelfAdaptiveModel  implements ErrorEstimatorModel {
     confidence = a.confidence;
   }
   
-  public Object clone() {
+  public SelfAdaptiveModel clone() {
     return new SelfAdaptiveModel(this);
   }
   

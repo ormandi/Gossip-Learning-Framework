@@ -9,8 +9,6 @@ import gossipLearning.utils.VectorEntry;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
-
-
 public class SlimRecSys extends MergeableRecSys implements SlimModel {
   private static final long serialVersionUID = -2675295901691742814L;
   private static final String PAR_SIZE = "size";
@@ -35,7 +33,7 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
     indSize = a.indSize;
   }
   
-  public Object clone() {
+  public SlimRecSys clone() {
     return new SlimRecSys(this);
   }
   

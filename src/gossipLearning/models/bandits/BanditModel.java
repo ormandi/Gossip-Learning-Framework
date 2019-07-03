@@ -58,7 +58,7 @@ public abstract class BanditModel implements LearningModel {
   /**
    * Deep copy clone.
    */
-  public abstract Object clone();
+  public abstract BanditModel clone();
   
   /**
    * The descendant classes implements here the logic (which arm should be played).

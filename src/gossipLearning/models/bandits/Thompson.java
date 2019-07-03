@@ -16,7 +16,7 @@ public class Thompson extends BanditModel {
   }
   
   @Override
-  public Object clone() {
+  public Thompson clone() {
     return new Thompson(this);
   }
   

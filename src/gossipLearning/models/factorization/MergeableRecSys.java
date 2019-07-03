@@ -23,7 +23,7 @@ public class MergeableRecSys extends RecSysModel implements Mergeable, Addable, 
     weights = a.weights.clone();
   }
   
-  public Object clone() {
+  public MergeableRecSys clone() {
     return new MergeableRecSys(this);
   }
   
@@ -95,7 +95,7 @@ public class MergeableRecSys extends RecSysModel implements Mergeable, Addable, 
       SparseVector v = columnModels[i];
       if (m.columnModels[i] != null) {
         if (v == null) {
-          columnModels[i] = (SparseVector)m.columnModels[i].clone();
+          columnModels[i] = m.columnModels[i].clone();
         } else {
           //v.mul(0.5).add(model.columnModels[i], 0.5);
           v.mul(w).add(m.columnModels[i], mw);

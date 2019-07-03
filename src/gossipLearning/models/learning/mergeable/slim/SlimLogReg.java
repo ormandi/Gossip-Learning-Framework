@@ -30,7 +30,7 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
     weighted = a.weighted;
   }
   
-  public Object clone(){
+  public SlimLogReg clone(){
     return new SlimLogReg(this);
   }
   

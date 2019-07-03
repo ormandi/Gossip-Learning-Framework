@@ -58,7 +58,6 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
    * Constructs an object that is a deep copy of the specified object.
    * @param a to be clone.
    */
-  @SuppressWarnings("unchecked")
   protected SelfAdaptiveModelTH(SelfAdaptiveModelTH a) {
     age = a.age;
     isNewModel = a.isNewModel;
@@ -71,10 +70,10 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
       modelName = new String(a.modelName);
     }
     if (a.model != null) {
-      model = (LearningModel)a.model.clone();
+      model = a.model.clone();
     }
     if (a.history != null) {
-      history = (BoundedQueue<Double>)a.history.clone();
+      history = a.history.clone();
     }
     if (a.errors != null) {
       errors = a.errors.clone();
@@ -86,7 +85,7 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
   }
   
   @Override
-  public Object clone() {
+  public SelfAdaptiveModelTH clone() {
     return new SelfAdaptiveModelTH(this);
   }
   
