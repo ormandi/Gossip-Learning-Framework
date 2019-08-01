@@ -4,7 +4,9 @@ import gossipLearning.interfaces.optimizers.GD;
 import gossipLearning.interfaces.optimizers.Optimizer;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.VectorEntry;
 import peersim.config.Configuration;
+import java.util.Map;
 
 public abstract class LinearModel extends ProbabilityModel implements SimilarityComputable<LinearModel> {
   private static final long serialVersionUID = -5680177111664068910L;
@@ -126,6 +128,20 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     bias += m.bias * times;
     optimizer.add(m.optimizer, times);
     return this;
+  }
+  
+  /** Used by descendant classes implementing CompressibleModel. */
+  public void getData(Map<Integer,Double> map) {
+    for (VectorEntry e : w)
+      map.put(e.index,e.value);
+  }
+  
+  /** Used by descendant classes implementing CompressibleModel. */
+  public void setData(Map<Integer,Double> map) {
+    w.clear();
+    gradient.clear();
+    for (Map.Entry<Integer,Double> e : map.entrySet())
+      w.add(e.getKey(),e.getValue());
   }
 
 }
