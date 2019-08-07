@@ -1,9 +1,7 @@
 package gossipLearning.main;
 
 import gossipLearning.evaluators.ResultAggregator;
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.LearningModel;
-import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
@@ -107,7 +105,6 @@ public class LocalRun {
     System.err.println("Start learning.");
     SparseVector instance;
     double label;
-    FeatureExtractor extractor = new DummyExtractor("");
     
     int[] sampleIndices = null;
     if (samplingMethod.equals("iterative")) {
@@ -126,7 +123,7 @@ public class LocalRun {
         //System.out.println(models[0]);
         // evaluate
         for (int i = 0; i < models.length; i++) {
-          resultAggregator.push(-1, i, models[i], extractor);
+          resultAggregator.push(-1, i, models[i]);
         }
         
         // print results
@@ -153,7 +150,7 @@ public class LocalRun {
       batch.add(instance, label);
       if (batch.size() == batchSize) {
         for (int i = 0; i < models.length; i++) {
-          models[i].update(extractor.extract(batch), 1, 0);
+          models[i].update(batch, 1, 0);
           //models[i].update(extractor.extract(instance), label);
         }
         batch.clear();
@@ -163,7 +160,7 @@ public class LocalRun {
     // evaluate on the end of the learning again
     System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
-      resultAggregator.push(-1, i, models[i], extractor);
+      resultAggregator.push(-1, i, models[i]);
     }
     System.err.println(resultAggregator);
     System.err.println("ELAPSED TIME: " + (System.currentTimeMillis() - time) + "ms");

@@ -5,7 +5,6 @@ import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
-import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
@@ -45,13 +44,12 @@ public class FactorizationProtocol extends LearningProtocol {
   @Override
   protected void evaluate() {
     for (int i = 0; i < models.length; i++) {
-      ((FactorizationResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], (MatrixBasedModel)models[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
+      ((FactorizationResultAggregator)resultAggregator).push(currentProtocolID, i, (int)currentNode.getID(), userModels[i], (MatrixBasedModel)models[i]);
     }
   }
   
   protected void updateModels(ModelHolder modelHolder) {
     // get instances from the extraction protocol
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     if (instances.size() > 1) {
       throw new RuntimeException("The number of instances should be one at avery node instead of " + instances.size());
     }

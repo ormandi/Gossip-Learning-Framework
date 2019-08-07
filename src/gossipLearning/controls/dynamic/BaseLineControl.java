@@ -1,6 +1,5 @@
 package gossipLearning.controls.dynamic;
 
-import gossipLearning.protocols.ExtractionProtocol;
 import gossipLearning.protocols.LearningProtocol;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.InstanceHolder;
@@ -38,8 +37,6 @@ import peersim.core.Network;
  */
 public class BaseLineControl implements Control {
   
-  private static final String PAR_PIDE = "extractionProtocol";
-  protected final int pidE;
   private static final String PAR_PIDLS = "learningProtocols";
   protected final int[] pidLS;
   
@@ -83,7 +80,6 @@ public class BaseLineControl implements Control {
    * @param prefix
    */
   public BaseLineControl(String prefix){
-    pidE = Configuration.getPid(prefix + "." + PAR_PIDE);
     String[] pidLSS = Configuration.getString(prefix + "." + PAR_PIDLS).split(",");
     pidLS = new int[pidLSS.length];
     for (int i = 0; i < pidLSS.length; i++) {
@@ -211,15 +207,15 @@ public class BaseLineControl implements Control {
    * @param n number of samples to be added
    */
   protected void changeInstances(double n){
-    InstanceHolder instanceHolder;
     int sampleIndex;
     int numSamples = (int)Math.floor(n);
     int inc = 0;
+    InstanceHolder instances[] = new InstanceHolder[Network.size()];
     for (int nId = 0; nId < Network.size(); nId++){
-      instanceHolder = ((ExtractionProtocol)(Network.get(nId)).getProtocol(pidE)).getInstanceHolder();
-      if (instanceHolder == null) {
-        instanceHolder = new InstanceHolder(2, dimension);
-        ((ExtractionProtocol)(Network.get(nId)).getProtocol(pidE)).setInstanceHolder(instanceHolder);
+      if (instances[nId] == null) {
+        instances[nId] = new InstanceHolder(2, dimension);
+        for (int j = 0; j < pidLS.length; j++)
+        ((LearningProtocol)(Network.get(nId)).getProtocol(pidLS[j])).setInstanceHolder(instances[nId]);
       }
       if (CommonState.r.nextDouble() < n - numSamples) {
         inc = 1;
@@ -227,10 +223,10 @@ public class BaseLineControl implements Control {
         inc = 0;
       }
       if (numSamples + inc > 0) {
-        instanceHolder.clear();
+        instances[nId].clear();
         for (int i = 0; i < numSamples + inc; i++) {
           sampleIndex = CommonState.r.nextInt(training.size());
-          instanceHolder.add(training.getInstance(sampleIndex), training.getLabel(sampleIndex));
+          instances[nId].add(training.getInstance(sampleIndex), training.getLabel(sampleIndex));
         }
       }
     }

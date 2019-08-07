@@ -1,8 +1,6 @@
 package gossipLearning.evaluators;
 
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
-import gossipLearning.utils.InstanceHolder;
 
 public class LRResultAggregator extends FactorizationResultAggregator {
   private static final long serialVersionUID = 7010094375422981942L;
@@ -21,12 +19,11 @@ public class LRResultAggregator extends FactorizationResultAggregator {
   }
   
   @Override
-  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor) {
-    InstanceHolder eval = extractor.extract(evalSet);
+  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model) {
     modelAges[index] = model.getAge();
-    for (int i = 0; i < eval.getNumberOfFeatures(); i++) {
+    for (int i = 0; i < evalSet.getNumberOfFeatures(); i++) {
     //for (VectorEntry entry : eval.getInstance(userIdx)) {
-      double expected = eval.getInstance(userIdx).get(i);
+      double expected = evalSet.getInstance(userIdx).get(i);
       double predicted = model.predict(userModel, i);
       for (int j = 0; j < evaluators[index].length; j++) {
         if (evaluators[index][j] instanceof MatrixBasedEvaluator) {

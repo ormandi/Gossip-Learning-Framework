@@ -1,8 +1,6 @@
 package gossipLearning.main;
 
 import gossipLearning.evaluators.RecSysResultAggregator;
-import gossipLearning.interfaces.models.FeatureExtractor;
-import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.models.factorization.LowRankDecomposition;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
@@ -76,14 +74,13 @@ public class RecSysRun {
     // learning
     System.err.println("Start learning.");
     SparseVector instance;
-    FeatureExtractor extractor = new DummyExtractor("");
     
     for (int iter = 0; iter <= numIters; iter++) {
       if (iter % evalTime == 0) {
         // evaluate
         for (int i = 0; i < models.length; i++) {
           for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-            resultAggregator.push(-1, i, j, userModels[i][j], models[i], extractor);
+            resultAggregator.push(-1, i, j, userModels[i][j], models[i]);
           }
         }
         
@@ -114,7 +111,7 @@ public class RecSysRun {
     System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
       for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-        resultAggregator.push(-1, i, j, userModels[i][j], models[i], extractor);
+        resultAggregator.push(-1, i, j, userModels[i][j], models[i]);
       }
     }
     System.err.println(resultAggregator);

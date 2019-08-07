@@ -2,7 +2,6 @@ package gossipLearning.main;
 
 import gossipLearning.evaluators.ResultAggregator;
 import gossipLearning.models.clustering.KMeans;
-import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.SparseVector;
@@ -45,9 +44,6 @@ public class KMeansBase {
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
     reader.standardize();
     
-    // create models
-    DummyExtractor extractor = new DummyExtractor("");
-    
     // initialize evaluator
     ResultAggregator aggregator = new ResultAggregator(new String[]{"KMeans"}, evalNames);
     aggregator.setEvalSet(reader.getEvalSet());
@@ -72,7 +68,7 @@ public class KMeansBase {
       model.setCentroids(centroids);
       
       // evaluate model
-      aggregator.push(-1, 0, model, extractor);
+      aggregator.push(-1, 0, model);
       // print results
       for (AggregationResult result : aggregator) {
         if (i == 0) {
@@ -101,7 +97,7 @@ public class KMeansBase {
       }
     }
     System.err.println("Final result:");
-    aggregator.push(-1, 0, model, extractor);
+    aggregator.push(-1, 0, model);
     System.err.println(aggregator);
   }
 }

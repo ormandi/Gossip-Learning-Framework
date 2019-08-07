@@ -1,6 +1,5 @@
 package gossipLearning.controls;
 
-import gossipLearning.protocols.ExtractionProtocol;
 import gossipLearning.protocols.LearningProtocol;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
@@ -43,7 +42,6 @@ import peersim.core.Protocol;
  * @navassoc - - - LearningProtocol
  */
 public class InstanceLoader implements Control {
-  private static final String PAR_PROTE = "extractionProtocol";
   private static final String PAR_PROTLS = "learningProtocols";
   private static final String PAR_READERCLASS = "readerClass";
   private static final String PAR_TFILE = "trainingFile";
@@ -53,8 +51,6 @@ public class InstanceLoader implements Control {
   private static final String PAR_ISPRINTAGES = "isPrintAges";
   private static final String PAR_CLABELS = "cLabels";
   
-  /** The protocol ID of the extraction protocol.*/
-  protected final int pidE;
   /** The array of protocol ID(s) of the learning protocol(s).*/
   protected final int[] pidLS;
   /** @hidden */
@@ -73,13 +69,13 @@ public class InstanceLoader implements Control {
   protected final int normalization;
   /** Number of different labels per node.*/
   protected final int cLabels;
+  protected InstanceHolder[] instances;
     
   /**
    * Reads the parameters from the configuration file based on the specified prefix.
    * @param prefix prefix of parameters of this class
    */
   public InstanceLoader(String prefix) {
-    pidE = Configuration.getPid(prefix + "." + PAR_PROTE);
     String[] pidLSS = Configuration.getString(prefix + "." + PAR_PROTLS).split(",");
     pidLS = new int[pidLSS.length];
     for (int i = 0; i < pidLSS.length; i++) {
@@ -118,10 +114,9 @@ public class InstanceLoader implements Control {
       // bias instance distribution
       int k = reader.getTrainingSet().getNumberOfClasses();
       int n = Network.size();
-      LinkedList<Integer>[] map = null;
-      if (cLabels != -1) {
-         map = Utils.mapLabelsToNodes(k, n, cLabels);
-         Utils.arrayShuffle(CommonState.r, indices);
+      LinkedList<Integer>[] map = Utils.mapLabelsToNodes(k, n, cLabels);
+      if (map != null) {
+        Utils.arrayShuffle(CommonState.r, indices);
       }
       /*for (int i = 0; i < k; i++) {
         System.out.println(i + "\t" + map[i]);
@@ -129,6 +124,7 @@ public class InstanceLoader implements Control {
       System.exit(0);*/
       
       // init the nodes by adding the instances read before
+      instances = new InstanceHolder[Network.size()];
       for (int i = 0; i < reader.getTrainingSet().size(); i++) {
         SparseVector instance = reader.getTrainingSet().getInstance(indices[i]);
         double label = reader.getTrainingSet().getLabel(indices[i]);
@@ -137,19 +133,10 @@ public class InstanceLoader implements Control {
           nodeIdx = map[(int)label].poll();
           map[(int)label].add(nodeIdx);
         }
-        Node node = Network.get(nodeIdx);
-        Protocol protocol = node.getProtocol(pidE);
-        if (protocol instanceof ExtractionProtocol) {
-          ExtractionProtocol extractionProtocol = (ExtractionProtocol) protocol;
-          InstanceHolder instances = extractionProtocol.getInstanceHolder();
-          if (instances == null) {
-             instances = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
-             extractionProtocol.setInstanceHolder(instances);
-          }
-          instances.add(instance, label);
-        } else {
-          throw new RuntimeException("The protocol " + pidE + " has to implement the ExtractionProtocol interface!");
+        if (instances[nodeIdx] == null) {
+          instances[nodeIdx] = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
         }
+        instances[nodeIdx].add(instance, label);
       }
       // sets the number of classes for the learning protocols and the evaluation set for the evaluator.
       for (int i = 0; i < Network.size(); i++) {
@@ -159,6 +146,7 @@ public class InstanceLoader implements Control {
           Protocol protocol = node.getProtocol(pidLS[j]);
           if (protocol instanceof LearningProtocol) {
             LearningProtocol learningProtocol = (LearningProtocol) protocol;
+            learningProtocol.setInstanceHolder(instances[i]);
             learningProtocol.getResults().setEvalSet(reader.getEvalSet());
             learningProtocol.setParameters(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
           } else {

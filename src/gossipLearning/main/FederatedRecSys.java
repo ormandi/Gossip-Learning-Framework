@@ -2,12 +2,10 @@ package gossipLearning.main;
 
 import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.interfaces.models.Addable;
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.main.fedAVG.ModelSumTask;
 import gossipLearning.main.fedAVG.RecSysModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
-import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.models.factorization.MergeableRecSys;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
@@ -106,7 +104,6 @@ public class FederatedRecSys {
     
     // learning
     System.err.println("Start learning.");
-    FeatureExtractor extractor = new DummyExtractor("");
     TaskRunner taskRunner = new TaskRunner(numThreads);
     RecSysModelUpdateTask[] updateTasks = new RecSysModelUpdateTask[K];
     ModelSumTask[] modelSumTask = new ModelSumTask[numThreads];
@@ -124,7 +121,7 @@ public class FederatedRecSys {
             if (!isOnline[j] || sessionEnd[j] <= (t + 1) * delay) {
               continue;
             }
-            resultAggregator.push(-1, i, j, userModels[i][j], globalModels[i], extractor);
+            resultAggregator.push(-1, i, j, userModels[i][j], globalModels[i]);
           }
         }
         
@@ -217,7 +214,7 @@ public class FederatedRecSys {
     System.err.println("Final result:");
     for (int i = 0; i < globalModels.length; i++) {
       for (int j = 0; j < reader.getTrainingSet().size(); j++) {
-        resultAggregator.push(-1, i, j, userModels[i][j], globalModels[i], extractor);
+        resultAggregator.push(-1, i, j, userModels[i][j], globalModels[i]);
       }
     }
     System.err.println(resultAggregator);

@@ -22,7 +22,6 @@ import peersim.transport.ChurnTransportM;
  * @author István Hegedűs
  */
 public class LearningProtocol extends AbstractProtocol {
-  private static final String PAR_EXTRACTORPID = "extractorProtocol";
   protected static final String PAR_ARRGNAME = "aggrName";
   private static final String PAR_LEARNER = "learner";
   private static final String PAR_INCLUDE = "include.model";
@@ -37,12 +36,13 @@ public class LearningProtocol extends AbstractProtocol {
    * @hidden
    */
   public static final String PAR_WAIT = "numOfWaitingPeriods";
-  protected final int extractorProtocolID;
   
   protected ResultAggregator resultAggregator;
   protected final double evaluationProbability;
   protected final int epoch;
   protected final int batch;
+  
+  protected InstanceHolder instances;
   
   /** @hidden */
   protected final String[] modelNames;
@@ -61,8 +61,6 @@ public class LearningProtocol extends AbstractProtocol {
   public LearningProtocol(String prefix) {
     super(prefix);
     // loading configuration parameters
-    extractorProtocolID = Configuration.getPid(prefix + "." + PAR_EXTRACTORPID);
-    
     String include = Configuration.getString(PAR_INCLUDE, null);
     String[] includes = include == null ? null : include.split("\\s");
     if (includes != null) {
@@ -105,7 +103,6 @@ public class LearningProtocol extends AbstractProtocol {
    */
   protected LearningProtocol(LearningProtocol a) {
     super(a);
-    extractorProtocolID = a.extractorProtocolID;
     modelNames = a.modelNames;
     evalNames = a.evalNames;
     evaluationProbability = a.evaluationProbability;
@@ -134,7 +131,7 @@ public class LearningProtocol extends AbstractProtocol {
   protected void evaluate() {
     if (CommonState.r.nextDouble() < evaluationProbability) {
       for (int i = 0; i < models.length; i++) {
-        resultAggregator.push(currentProtocolID, i, (LearningModel)models[i], ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getModel());
+        resultAggregator.push(currentProtocolID, i, (LearningModel)models[i]);
       }
     }
   }
@@ -187,8 +184,6 @@ public class LearningProtocol extends AbstractProtocol {
    * @param modelHolder container of models to update
    */
   protected void updateModels(ModelHolder modelHolder){
-    // get instances from the extraction protocol
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     for (int i = 0; i < modelHolder.size(); i++){
       // get the ith model from the modelHolder
       LearningModel recvModel = (LearningModel)modelHolder.getModel(i);
@@ -220,6 +215,22 @@ public class LearningProtocol extends AbstractProtocol {
     for (int i = 0; i < models.length; i++) {
       ((LearningModel)models[i]).setParameters(numberOfClasses, numberOfFeatures);
     }
+  }
+  
+  /**
+   * Returns the reference for the raw instances of the protocol.
+   * @return instances
+   */
+  public InstanceHolder getInstanceHolder() {
+    return instances;
+  }
+  
+  /**
+   * Sets the reference of raw instances for the protocol.
+   * @param instances to be set
+   */
+  public void setInstanceHolder(InstanceHolder instances) {
+    this.instances = instances;
   }
   
 }

@@ -1,6 +1,5 @@
 package gossipLearning.evaluators;
 
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.utils.Matrix;
 
@@ -21,7 +20,7 @@ public class SamplingLowRankResultAggregator extends LowRankResultAggregator {
   }
   
   @Override
-  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor) {
+  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model) {
     modelAges[index] = model.getAge();
     Matrix v = model.getV();
     // the cosine similarity of the eigenvalues should be 1

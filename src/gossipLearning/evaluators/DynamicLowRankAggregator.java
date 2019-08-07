@@ -1,6 +1,5 @@
 package gossipLearning.evaluators;
 
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Lanczos;
@@ -47,7 +46,7 @@ public class DynamicLowRankAggregator extends FactorizationResultAggregator {
   }
 
   @Override
-  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor) {
+  public void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model) {
     lock.lock();
     // check state changes of nodes (churn)
     if (failState == null) {

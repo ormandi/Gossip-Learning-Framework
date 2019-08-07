@@ -1,7 +1,6 @@
 package gossipLearning.evaluators;
 
 import gossipLearning.interfaces.ModelHolder;
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.InstanceHolder;
 
@@ -24,7 +23,7 @@ public class BanditResultAggregator extends ResultAggregator {
   }
   public void setEvalSet(InstanceHolder evalSet) {
   }
-  public void push(int pid, int index, ModelHolder modelHolder, FeatureExtractor extractor) {
+  public void push(int pid, int index, ModelHolder modelHolder) {
   }
   public Iterator<AggregationResult> iterator() {
     return null;

@@ -1,10 +1,8 @@
 package gossipLearning.main;
 
 import gossipLearning.evaluators.ResultAggregator;
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.PrivateModel;
-import gossipLearning.models.extraction.DummyExtractor;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
@@ -225,7 +223,6 @@ public class DiffPriv {
     System.err.println("Start learning.");
     SparseVector instance;
     double label;
-    FeatureExtractor extractor = new DummyExtractor("");
     
     int[] sampleIndices = null;
     if (samplingMethod.equals("iterative")) {
@@ -243,7 +240,7 @@ public class DiffPriv {
       if (iter % evalTime == 0) {
         // evaluate
         for (int i = 0; i < models.length; i++) {
-          resultAggregator.push(-1, i, models[i], extractor);
+          resultAggregator.push(-1, i, models[i]);
         }
         
         // print results
@@ -289,12 +286,12 @@ public class DiffPriv {
               continue;
             }
             if (eps == 0) {
-              models[i].update(extractor.extract(instances));
+              models[i].update(instances);
             } else {
-              ((PrivateModel)models[i]).update(extractor.extract(instances), budgetProp, eps, CommonState.r);
+              ((PrivateModel)models[i]).update(instances, budgetProp, eps, CommonState.r);
             }
           } else {
-            models[i].update(extractor.extract(instances));
+            models[i].update(instances);
           }
         }
         instances.clear();
@@ -304,7 +301,7 @@ public class DiffPriv {
     // evaluate on the end of the learning again
     System.err.println("Final result:");
     for (int i = 0; i < models.length; i++) {
-      resultAggregator.push(-1, i, models[i], extractor);
+      resultAggregator.push(-1, i, models[i]);
     }
     System.err.println(resultAggregator);
   }

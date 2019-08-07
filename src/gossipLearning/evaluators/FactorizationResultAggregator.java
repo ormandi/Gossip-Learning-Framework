@@ -1,6 +1,5 @@
 package gossipLearning.evaluators;
 
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
 
 public abstract class FactorizationResultAggregator extends ResultAggregator {
@@ -17,6 +16,6 @@ public abstract class FactorizationResultAggregator extends ResultAggregator {
   @Override
   public abstract FactorizationResultAggregator clone();
   
-  public abstract void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model, FeatureExtractor extractor);
+  public abstract void push(int pid, int index, int userIdx, double[] userModel, MatrixBasedModel model);
 
 }

@@ -1,7 +1,6 @@
 package gossipLearning.evaluators;
 
 import gossipLearning.interfaces.Evaluator;
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.InstanceHolder;
@@ -72,14 +71,13 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
     return new ResultAggregator(this);
   }
   
-  public void push(int pid, int index, LearningModel model, FeatureExtractor extractor) {
-    InstanceHolder eval = extractor.extract(evalSet);
+  public void push(int pid, int index, LearningModel model) {
     // TODO: voting is not implemented yet
     //LearningModel model = (LearningModel)modelHolder.getModel(modelHolder.size() - 1);
     modelAges[index] = model.getAge();
-    for (int i = 0; i < eval.size(); i++) {
-      double expected = eval.getLabel(i);
-      double predicted = model.predict(eval.getInstance(i));
+    for (int i = 0; i < evalSet.size(); i++) {
+      double expected = evalSet.getLabel(i);
+      double predicted = model.predict(evalSet.getInstance(i));
       for (int j = 0; j < evaluators[index].length; j++) {
         evaluators[index][j].evaluate(expected, predicted);
       }

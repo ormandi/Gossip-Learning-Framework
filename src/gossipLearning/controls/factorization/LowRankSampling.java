@@ -1,6 +1,6 @@
 package gossipLearning.controls.factorization;
 
-import gossipLearning.protocols.ExtractionProtocol;
+import gossipLearning.protocols.FactorizationProtocol;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Utils;
 
@@ -38,9 +38,8 @@ public class LowRankSampling implements Control {
     for (int i = 0; i < Network.size(); i++) {
       Node node = Network.get(i);
       Protocol protocol = node.getProtocol(pidE);
-      if (protocol instanceof ExtractionProtocol) {
-        ExtractionProtocol extractionProtocol = (ExtractionProtocol) protocol;
-        InstanceHolder instances = extractionProtocol.getInstanceHolder();
+      if (protocol instanceof FactorizationProtocol) {
+        InstanceHolder instances = ((FactorizationProtocol) protocol).getInstanceHolder();
         double norm = 0.0;
         for (int index = 0; index < instances.size(); index++) {
           norm = Utils.hypot(norm, instances.getInstance(index).norm());
@@ -91,9 +90,8 @@ public class LowRankSampling implements Control {
       if (!indices.contains(i)) {
         Node node = Network.get(i);
         Protocol protocol = node.getProtocol(pidE);
-        if (protocol instanceof ExtractionProtocol) {
-          ExtractionProtocol extractionProtocol = (ExtractionProtocol) protocol;
-          extractionProtocol.getInstanceHolder().clear();
+        if (protocol instanceof FactorizationProtocol) {
+          ((FactorizationProtocol) protocol).getInstanceHolder().clear();
         }
         node.setFailState(Fallible.DOWN);
       }

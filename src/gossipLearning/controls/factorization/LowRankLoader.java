@@ -1,7 +1,6 @@
 package gossipLearning.controls.factorization;
 
 import gossipLearning.evaluators.LowRankResultAggregator;
-import gossipLearning.protocols.ExtractionProtocol;
 import gossipLearning.protocols.LearningProtocol;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.InstanceHolder;
@@ -29,8 +28,6 @@ import peersim.core.Network;
  */
 public class LowRankLoader implements Control {
   
-  private static final String PAR_PIDE = "extractionProtocol";
-  protected final int pidE;
   private static final String PAR_PIDLS = "learningProtocols";
   protected final int[] pidLS;
   private final String PAR_RANK = "rank";
@@ -47,7 +44,6 @@ public class LowRankLoader implements Control {
   protected final Matrix M;
   
   public LowRankLoader(String prefix) {
-    pidE = Configuration.getPid(prefix + "." + PAR_PIDE);
     String[] pidLSS = Configuration.getString(prefix + "." + PAR_PIDLS).split(",");
     pidLS = new int[pidLSS.length];
     for (int i = 0; i < pidLSS.length; i++) {
@@ -83,23 +79,22 @@ public class LowRankLoader implements Control {
   @Override
   public boolean execute() {
     // load rows of the matrix to the nodes
-    InstanceHolder instanceHolder;
     SparseVector instance;
     double label = 0.0;
+    InstanceHolder instances[] = new InstanceHolder[Network.size()];
     for (int nId = 0; nId < Network.size(); nId++){
-      instanceHolder = ((ExtractionProtocol)(Network.get(nId)).getProtocol(pidE)).getInstanceHolder();
-      if (instanceHolder == null) {
-        instanceHolder = new InstanceHolder(0, Network.size());
-        ((ExtractionProtocol)(Network.get(nId)).getProtocol(pidE)).setInstanceHolder(instanceHolder);
+      if (instances[nId] == null) {
+        instances[nId] = new InstanceHolder(0, Network.size());
       }
-      instanceHolder.clear();
+      instances[nId].clear();
       instance = new SparseVector(M.getRow(nId));
-      instanceHolder.add(instance, label);
+      instances[nId].add(instance, label);
     }
     // load decomposed matrices as the evalset
     for (int i = 0; i < Network.size(); i++) {
       for (int j = 0; j < pidLS.length; j++) {
         LearningProtocol protocol = (LearningProtocol)Network.get(i).getProtocol(pidLS[j]);
+        protocol.setInstanceHolder(instances[i]);
         ((LowRankResultAggregator)protocol.getResults()).setEvalSet(U, V, S);
       }
     }

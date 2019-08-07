@@ -1,11 +1,9 @@
 package gossipLearning.controls.dynamic;
 
 import gossipLearning.controls.InstanceLoader;
-import gossipLearning.protocols.ExtractionProtocol;
 import gossipLearning.protocols.LearningProtocol;
 import gossipLearning.utils.AggregationResult;
 import gossipLearning.utils.DataBaseReader;
-import gossipLearning.utils.InstanceHolder;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 import peersim.core.Network;
@@ -86,26 +84,20 @@ public class DynamicInstanceLoader extends InstanceLoader {
    * @param n amount of samples
    */
   private void changeInstances(double n){
-    InstanceHolder instanceHolder;
     int sampleIndex;
     int numSamples = (int)Math.floor(n);
     int inc = 0;
     for (int nId = 0; nId < Network.size(); nId++){
-      instanceHolder = ((ExtractionProtocol)(Network.get(nId)).getProtocol(pidE)).getInstanceHolder();
-      if (instanceHolder == null) {
-        instanceHolder = new InstanceHolder(2, reader.getTrainingSet().getNumberOfFeatures());
-        ((ExtractionProtocol)(Network.get(nId)).getProtocol(pidE)).setInstanceHolder(instanceHolder);
-      }
       if (CommonState.r.nextDouble() < n - numSamples) {
         inc = 1;
       } else {
         inc = 0;
       }
       if (numSamples + inc > 0) {
-        instanceHolder.clear();
+        instances[nId].clear();
         for (int i = 0; i < numSamples + inc; i++) {
           sampleIndex = CommonState.r.nextInt(reader.getTrainingSet().size());
-          instanceHolder.add(reader.getTrainingSet().getInstance(sampleIndex), reader.getTrainingSet().getLabel(sampleIndex));
+          instances[nId].add(reader.getTrainingSet().getInstance(sampleIndex), reader.getTrainingSet().getLabel(sampleIndex));
         }
       }
     }
