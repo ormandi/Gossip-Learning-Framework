@@ -4,9 +4,12 @@ import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeableLogReg;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
+
+import java.util.Random;
+
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 import peersim.util.WeightedRandPerm;
 
 public class SlimLogReg extends MergeableLogReg implements SlimModel {
@@ -28,6 +31,10 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
     super(a);
     modelSize = a.modelSize;
     weighted = a.weighted;
+    if (a.weight != null) {
+      weight = a.weight.clone();
+    }
+    biasWeight = a.biasWeight;
   }
   
   public SlimLogReg clone(){
@@ -52,22 +59,19 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
   }
   
   @Override
-  public Model getModelPart() {
+  public Model getModelPart(Random r) {
     SlimLogReg result = new SlimLogReg(this);
     result.w.clear();
-    if (gradient.size() == 0) {
-      return result;
+    double[] weights = new double[numberOfFeatures];
+    for (int i = 0; i < weights.length; i++) {
+      weights[i] = modelSize < 0 ? 1.0 : Math.abs(gradient.get(i)) + Utils.EPS;
     }
-    double[] weights = new double[gradient.size()];
-    for (int i = 0; i < gradient.size(); i++) {
-      weights[i] = modelSize < 0 ? 1.0 : Math.abs(gradient.valueAt(i));
-    }
-    WeightedRandPerm rp = new WeightedRandPerm(CommonState.r, weights);
-    rp.reset(gradient.size());
+    WeightedRandPerm rp = new WeightedRandPerm(r, weights);
+    rp.reset(weights.length);
     int iter = Math.abs(modelSize);
     while (0 < iter && rp.hasNext()) {
       iter --;
-      int idx = gradient.indexAt(rp.next());
+      int idx = rp.next();
       result.w.add(idx, w.get(idx));
     }
     if (!weighted) {
@@ -108,6 +112,27 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
     super.clear();
     weight = null;
     biasWeight = 0.0;
+  }
+  
+  @Override
+  public Model set(Model model) {
+    SparseVector copy = w.clone();
+    super.set(model);
+    // TODO: implement for all slim models!!!
+    SlimLogReg m = (SlimLogReg)model;
+    if (weighted && m.weight != null) {
+      m.w.pointMul(m.weight);
+      m.w.div(weight);
+    }
+    for (VectorEntry e : m.w) {
+      copy.add(e.index, e.value - copy.get(e.index));
+    }
+    w.set(copy);
+    if (weighted && m.weight != null) {
+      m.w.pointMul(weight);
+      m.w.div(m.weight);
+    }
+    return this;
   }
 
 }

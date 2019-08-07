@@ -1,5 +1,6 @@
 package gossipLearning.models.learning.multiclass;
 
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
@@ -158,6 +159,33 @@ public class MultiLogReg extends ProbabilityModel {
       w[i] = new SparseVector();
       gradients[i] = new SparseVector();
     }
+  }
+  
+  @Override
+  public void clear() {
+    super.clear();
+    Arrays.fill(v, 0.0);
+    Arrays.fill(bias, 0.0);
+    Arrays.fill(biasGradients, 0.0);
+    for (int i = 0; i < numberOfClasses - 1; i++) {
+      gradients[i].clear();
+      w[i].clear();
+    }
+  }
+  
+  @Override
+  public Model set(Model model) {
+    super.set(model);
+    MultiLogReg m = (MultiLogReg)model;
+    for (int i = 0; i < numberOfClasses - 1; i++) {
+      v[i] = m.v[i];
+      w[i].set(m.w[i]);
+      gradients[i].set(m.gradients[i]);
+      bias[i] = m.bias[i];
+      biasGradients[i] = m.biasGradients[i];
+    }
+    v[numberOfClasses - 1] = m.v[numberOfClasses - 1];
+    return this;
   }
 
 }

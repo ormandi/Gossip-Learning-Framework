@@ -2,6 +2,7 @@ package gossipLearning.models.learning.multiclass;
 
 import gossipLearning.interfaces.ModelHolder;
 import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
@@ -134,6 +135,15 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
       ProbabilityModel model = (ProbabilityModel)classifiers.getModel(i);
       model.setAge(age);
     }
+  }
+  
+  @Override
+  public Model set(Model model) {
+    OneVsAllMetaClassifier m = (OneVsAllMetaClassifier)model;
+    for (int i = 0; i < numberOfClasses; i++) {
+      classifiers.getModel(i).set(m.classifiers.getModel(i));
+    }
+    return this;
   }
 
 }

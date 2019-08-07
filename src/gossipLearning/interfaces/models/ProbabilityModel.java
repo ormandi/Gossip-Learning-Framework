@@ -159,4 +159,13 @@ public abstract class ProbabilityModel implements LearningModel {
   public String toString() {
     return "age: " + age;
   }
+  
+  @Override
+  public Model set(Model model) {
+    ProbabilityModel m = (ProbabilityModel)model;
+    age = m.age;
+    distribution = m.distribution.clone();
+    return this;
+  }
+  
 }

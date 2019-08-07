@@ -68,6 +68,14 @@ public abstract class WeakLearner extends ProbabilityModel{
     }
   }
   
+  @Override
+  public Model set(Model model) {
+    super.set(model);
+    WeakLearner m = (WeakLearner)model;
+    alpha = m.alpha;
+    return this;
+  }
+  
   /**
    * Updates the current model respect to the specified parameters.
    * @param instance training instance

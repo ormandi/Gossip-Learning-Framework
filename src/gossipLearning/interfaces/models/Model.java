@@ -31,4 +31,11 @@ public interface Model extends Serializable, Cloneable {
    */
   public void clear();
   
+  /**
+   * Sets the properties of the specified model to the current model.
+   * @param model to be set
+   * @return the current model
+   */
+  public Model set(Model model);
+  
 }

@@ -1,5 +1,6 @@
 package gossipLearning.models.gmm;
 
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
@@ -80,6 +81,19 @@ public class GaussianModel extends ProbabilityModel {
       distribution[i] /= sum;
     }*/
     return distribution;
+  }
+  
+  @Override
+  public Model set(Model model) {
+    super.set(model);
+    GaussianModel m = (GaussianModel)model;
+    for (int i = 0; i < numberOfClasses; i++) {
+      ages[i] = m.ages[i];
+      for (int j = 0; j < numberOfFeatures; j++) {
+        models[i][j].set(m.models[i][j]);
+      }
+    }
+    return this;
   }
 
 }

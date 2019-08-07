@@ -1,6 +1,7 @@
 package gossipLearning.models.bandits;
 
 import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
@@ -109,6 +110,18 @@ public abstract class BanditModel implements LearningModel {
   
   @Override
   public final void setParameters(int numberOfClasses, int numberOfFeatures) {
+  }
+  
+  @Override
+  public Model set(Model model) {
+    BanditModel m = (BanditModel)model;
+    age = m.age;
+    K = m.K;
+    System.arraycopy(m.plays, 0, plays, 0, m.plays.length);
+    System.arraycopy(m.rewards, 0, rewards, 0, m.rewards.length);
+    sumPlays = m.sumPlays;
+    sumRewards = m.sumRewards;
+    return this;
   }
   
 }

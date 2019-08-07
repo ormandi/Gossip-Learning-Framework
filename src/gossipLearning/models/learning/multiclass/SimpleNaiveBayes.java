@@ -1,5 +1,6 @@
 package gossipLearning.models.learning.multiclass;
 
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
@@ -109,6 +110,28 @@ public class SimpleNaiveBayes extends ProbabilityModel {
       sigmas[i] = new SparseVector(numberOfFeatures);
       counts[i] = 0.0;
     }
+  }
+  
+  @Override
+  public void clear() {
+    super.clear();
+    for (int i = 0; i < numberOfClasses; i++) {
+      mus[i].clear();
+      sigmas[i].clear();
+      counts[i] = 0.0;
+    }
+  }
+  
+  @Override
+  public Model set(Model model) {
+    super.set(model);
+    SimpleNaiveBayes m = (SimpleNaiveBayes)model;
+    for (int i = 0; i < numberOfClasses; i++) {
+      mus[i].set(m.mus[i]);
+      sigmas[i].set(m.sigmas[i]);
+      counts[i] = m.counts[i];
+    }
+    return this;
   }
   
   private static double condLogProb(SparseVector instance, SparseVector mu, SparseVector sigma, int maxIndex) {

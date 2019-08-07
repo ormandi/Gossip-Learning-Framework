@@ -1,5 +1,9 @@
 package gossipLearning.models.factorization;
 
+import java.util.Random;
+
+import peersim.core.CommonState;
+
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
@@ -69,7 +73,12 @@ public class MergeableLowRank extends LowRankDecomposition implements Mergeable,
   }*/
   
   @Override
-  public MergeableLowRank getModelPart() {
+  public Model getModelPart() {
+    return getModelPart(CommonState.r);
+  }
+  
+  @Override
+  public Model getModelPart(Random r) {
     return new MergeableLowRank(this);
   }
 

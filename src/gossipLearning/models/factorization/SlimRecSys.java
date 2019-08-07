@@ -86,5 +86,11 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
   public Matrix getV() {
     throw new RuntimeException("Function getV should not be called!");
   }
+  
+  @Override
+  public Model set(Model model) {
+    // TODO Auto-generated method stub
+    return super.set(model);
+  }
 
 }

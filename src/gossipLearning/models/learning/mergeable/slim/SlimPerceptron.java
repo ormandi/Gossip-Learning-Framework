@@ -5,8 +5,10 @@ import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeablePerceptron;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
+
+import java.util.Random;
+
 import peersim.config.Configuration;
-import peersim.core.CommonState;
 import peersim.util.WeightedRandPerm;
 
 public class SlimPerceptron extends MergeablePerceptron implements SlimModel {
@@ -48,7 +50,7 @@ public class SlimPerceptron extends MergeablePerceptron implements SlimModel {
   }
   
   @Override
-  public Model getModelPart() {
+  public Model getModelPart(Random r) {
     SlimPerceptron result = new SlimPerceptron(this);
     result.w.clear();
     if (gradient.size() == 0) {
@@ -58,7 +60,7 @@ public class SlimPerceptron extends MergeablePerceptron implements SlimModel {
     for (int i = 0; i < gradient.size(); i++) {
       weights[i] = modelSize < 0 ? 1.0 : Math.abs(gradient.valueAt(i));
     }
-    WeightedRandPerm rp = new WeightedRandPerm(CommonState.r, weights);
+    WeightedRandPerm rp = new WeightedRandPerm(r, weights);
     rp.reset(gradient.size());
     int iter = Math.abs(modelSize);
     while (0 < iter && rp.hasNext()) {

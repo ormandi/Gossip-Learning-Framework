@@ -1,6 +1,9 @@
 package gossipLearning.models.factorization;
 
 import java.util.Arrays;
+import java.util.Random;
+
+import peersim.core.CommonState;
 
 import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
@@ -145,7 +148,12 @@ public class MergeableRecSys extends RecSysModel implements Mergeable, Addable, 
   }
   
   @Override
-  public MergeableRecSys getModelPart() {
+  public Model getModelPart() {
+    return getModelPart(CommonState.r);
+  }
+  
+  @Override
+  public Model getModelPart(Random r) {
     return new MergeableRecSys(this);
   }
   

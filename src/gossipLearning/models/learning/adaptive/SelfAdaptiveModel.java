@@ -2,6 +2,7 @@ package gossipLearning.models.learning.adaptive;
 
 import gossipLearning.interfaces.models.ErrorEstimatorModel;
 import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
@@ -174,6 +175,18 @@ public class SelfAdaptiveModel  implements ErrorEstimatorModel {
     meanError = 0.5;
     sqMeanError = 0.5;
     confidence = 0.0;
+  }
+  
+  @Override
+  public Model set(Model model) {
+    SelfAdaptiveModel m = (SelfAdaptiveModel)model;
+    age = m.age;
+    this.model.set(m.model);
+    maximalAge = m.maximalAge;
+    confidence = m.confidence;
+    meanError = m.meanError;
+    sqMeanError = m.sqMeanError;
+    return this;
   }
 
   /**

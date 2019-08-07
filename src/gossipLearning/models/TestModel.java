@@ -49,6 +49,16 @@ public class TestModel implements Model {
     seenPeers.clear();
   }
   
+  @Override
+  public Model set(Model model) {
+    TestModel m = (TestModel)model;
+    age = m.age;
+    time = m.time;
+    id = m.id;
+    seenPeers.set(m.seenPeers);
+    return this;
+  }
+  
   public double lastUpdate() {
     return time;
   }

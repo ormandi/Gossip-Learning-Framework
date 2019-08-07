@@ -1,5 +1,9 @@
 package gossipLearning.models.learning.mergeable;
 
+import java.util.Random;
+
+import peersim.core.CommonState;
+
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
@@ -38,6 +42,11 @@ public class MergeableNaiveBayes extends SimpleNaiveBayes  implements Mergeable,
   }
   
   public Model getModelPart() {
+    return getModelPart(CommonState.r);
+  }
+  
+  @Override
+  public Model getModelPart(Random r) {
     return new MergeableNaiveBayes(this);
   }
 

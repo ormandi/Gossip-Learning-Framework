@@ -1,7 +1,7 @@
 package gossipLearning.models.factorization;
 
-import gossipLearning.interfaces.models.FeatureExtractor;
 import gossipLearning.interfaces.models.MatrixBasedModel;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import peersim.config.Configuration;
 
-public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor {
+public class LowRankDecomposition implements MatrixBasedModel {
   private static final long serialVersionUID = -6695974880876825151L;
   private static final String PAR_DIMENSION = "dimension";
   private static final String PAR_K = "k";
@@ -24,7 +24,7 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
   // learning rate
   protected final double eta;
   // size of the original dimension
-  protected int dimension;
+  protected final int dimension;
   protected Matrix R;
   protected Matrix V;
   
@@ -118,7 +118,6 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     this.age = age;
   }
   
-  @Override
   public InstanceHolder extract(InstanceHolder instances) {
     InstanceHolder result = new InstanceHolder(instances.getNumberOfClasses(), dimension);
     for (int i = 0; i < instances.size(); i++) {
@@ -131,7 +130,6 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
     return k;
   }
   
-  @Override
   public SparseVector extract(SparseVector instance) {
     if (isUpdated) {
       getV();
@@ -201,6 +199,20 @@ public class LowRankDecomposition implements MatrixBasedModel, FeatureExtractor 
       result[i] = 1.0 / Math.sqrt(k);
     }
     return result;
+  }
+  
+  @Override
+  public Model set(Model model) {
+    LowRankDecomposition m = (LowRankDecomposition)model;
+    age = m.age;
+    for (int i = 0; i < columnModels.length; i++) {
+      if (m.columnModels[i] == null) {
+        columnModels[i] = null;
+      } else {
+        System.arraycopy(m.columnModels[i], 0, columnModels[i], 0, m.columnModels[i].length);
+      }
+    }
+    return this;
   }
 
 }

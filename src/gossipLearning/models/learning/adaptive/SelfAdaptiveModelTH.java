@@ -2,6 +2,7 @@ package gossipLearning.models.learning.adaptive;
 
 import gossipLearning.interfaces.models.ErrorEstimatorModel;
 import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.BoundedQueue;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
@@ -191,6 +192,11 @@ public class SelfAdaptiveModelTH implements ErrorEstimatorModel {
     errors = null;
     ab = null;
     history.clear();
+  }
+  
+  @Override
+  public Model set(Model model) {
+    throw new RuntimeException("not implemented");
   }
 
   /**

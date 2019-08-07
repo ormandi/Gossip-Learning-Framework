@@ -127,5 +127,15 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     optimizer.add(m.optimizer, times);
     return this;
   }
+  
+  public Model set(Model model) {
+    super.set(model);
+    LinearModel m = (LinearModel)model;
+    bias = m.bias;
+    w.set(m.w);
+    biasGradient = m.biasGradient;
+    gradient.set(m.gradient);
+    return this;
+  }
 
 }

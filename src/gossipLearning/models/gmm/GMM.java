@@ -119,6 +119,18 @@ public class GMM implements Model, Mergeable {
     }
   }
   
+  @Override
+  public Model set(Model model) {
+    GMM m = (GMM)model;
+    age = m.age;
+    for (int i = 0; i < k; i++) {
+      coefs[i] = m.coefs[i];
+      probs[i] = m.probs[i];
+      models[i].set(m.models[i]);
+    }
+    return this;
+  }
+  
   public double generate(Random r) {
     double vals = r.nextDouble();
     int idx = 0;

@@ -165,4 +165,9 @@ class DummyModel implements Model {
   public void clear() {
   }
   
+  @Override
+  public Model set(Model model) {
+    return this;
+  }
+  
 }

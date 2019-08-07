@@ -3,6 +3,7 @@ package gossipLearning.models.learning.multiclass;
 import gossipLearning.interfaces.Function;
 import gossipLearning.interfaces.functions.Sigmoid;
 import gossipLearning.interfaces.functions.SigmoidGradient;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.Matrix;
 import gossipLearning.utils.SparseVector;
@@ -242,6 +243,12 @@ public class ANN extends ProbabilityModel {
     for (int i = 0; i < thetas.length; i++) {
       thetas[i].fill(0.0);
     }
+  }
+  
+  @Override
+  public Model set(Model model) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   public double computeCostFunction(SparseVector x, double label) {

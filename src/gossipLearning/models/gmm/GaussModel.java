@@ -85,6 +85,15 @@ public class GaussModel implements Model, Mergeable {
     mean2 = 0.0;
   }
   
+  @Override
+  public Model set(Model model) {
+    GaussModel m = (GaussModel)model;
+    age = m.age;
+    mean = m.mean;
+    mean2 = m.mean2;
+    return this;
+  }
+  
   public double getMu() {
     return mean;
   }

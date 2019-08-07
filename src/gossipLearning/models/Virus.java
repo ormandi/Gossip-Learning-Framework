@@ -43,6 +43,15 @@ public class Virus implements Model {
     seenPeers.clear();
     isInfected = false;
   }
+  
+  @Override
+  public Model set(Model model) {
+    Virus m = (Virus)model;
+    age = m.age;
+    isInfected = m.isInfected;
+    seenPeers.set(m.seenPeers);
+    return this;
+  }
 
   public boolean isInfecter() {
     return isInfected;

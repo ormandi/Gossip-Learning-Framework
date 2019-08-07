@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
@@ -325,6 +326,19 @@ public class KMeans implements LearningModel {
     for (int i = 0; i < K; i++) {
       this.centroids[i] = new SparseVector(centroids[i]);
     }
+  }
+  
+  @Override
+  public Model set(Model model) {
+    KMeans m = (KMeans)model;
+    age = m.age;
+    K = m.K;
+    wSize = m.wSize;
+    for (int i = 0; i < K; i++) {
+      centroidAge[i] = m.centroidAge[i];
+      centroids[i].set(m.centroids[i]);
+    }
+    return this;
   }
 
 }

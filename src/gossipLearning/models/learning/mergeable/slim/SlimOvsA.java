@@ -5,6 +5,8 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeableOvsA;
 
+import java.util.Random;
+
 public class SlimOvsA extends MergeableOvsA implements SlimModel {
   private static final long serialVersionUID = 4459146413742898799L;
   public SlimOvsA(String prefix) {
@@ -21,11 +23,11 @@ public class SlimOvsA extends MergeableOvsA implements SlimModel {
   }
   
   @Override
-  public Model getModelPart() {
+  public Model getModelPart(Random r) {
     SlimOvsA result = new SlimOvsA(this);
     result.classifiers.clear();
     for (int i = 0; i < numberOfClasses; i++) {
-      Model m = ((Partializable)this.classifiers.getModel(i)).getModelPart();
+      Model m = ((Partializable)this.classifiers.getModel(i)).getModelPart(r);
       result.classifiers.add(m);
     }
     return result;

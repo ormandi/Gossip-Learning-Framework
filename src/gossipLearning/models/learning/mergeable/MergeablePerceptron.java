@@ -1,5 +1,9 @@
 package gossipLearning.models.learning.mergeable;
 
+import java.util.Random;
+
+import peersim.core.CommonState;
+
 import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
@@ -24,6 +28,11 @@ public class MergeablePerceptron extends Perceptron implements Mergeable, Partia
   
   @Override
   public Model getModelPart() {
+    return getModelPart(CommonState.r);
+  }
+  
+  @Override
+  public Model getModelPart(Random r) {
     return new MergeablePerceptron(this);
   }
 
