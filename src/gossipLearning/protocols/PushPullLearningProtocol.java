@@ -1,15 +1,22 @@
 package gossipLearning.protocols;
 
 import gossipLearning.interfaces.ModelHolder;
-import gossipLearning.interfaces.models.*;
+import gossipLearning.interfaces.models.Addable;
+import gossipLearning.interfaces.models.CompressibleModel;
+import gossipLearning.interfaces.models.LearningModel;
+import gossipLearning.interfaces.models.Model;
 import gossipLearning.messages.PushPullMessage;
 import gossipLearning.models.CompressedModel;
 import gossipLearning.utils.BQModelHolder;
-import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.codecs.Codec;
+
+import java.util.Map;
+import java.util.TreeMap;
+
 import peersim.config.Configuration;
-import peersim.core.*;
-import java.util.*;
+import peersim.core.CommonState;
+import peersim.core.Linkable;
+import peersim.core.Node;
 
 /**
  * A gossip learning protocol that performs weighted robust push-pull averaging on Addable LearningModels.
@@ -86,7 +93,7 @@ public class PushPullLearningProtocol extends LearningProtocol {
   }
   
   private void train() {
-    InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
+    //InstanceHolder instances = ((ExtractionProtocol)currentNode.getProtocol(extractorProtocolID)).getInstances();
     for (int i = 0; i < latestModelHolder.size(); i++)
       ((LearningModel)latestModelHolder.getModel(i)).update(instances,epoch,batch);
   }

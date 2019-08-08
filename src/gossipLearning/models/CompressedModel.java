@@ -1,7 +1,10 @@
 package gossipLearning.models;
 
-import gossipLearning.interfaces.models.*;
-import java.util.*;
+import gossipLearning.interfaces.models.CompressibleModel;
+import gossipLearning.interfaces.models.Model;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Contains a CompressibleModel and its data in compressed form.
@@ -38,6 +41,11 @@ public class CompressedModel implements Model {
   
   @Override
   public void clear() {
+    throw new UnsupportedOperationException();
+  }
+  
+  @Override
+  public Model set(Model model) {
     throw new UnsupportedOperationException();
   }
 
