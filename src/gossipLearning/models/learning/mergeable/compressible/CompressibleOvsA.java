@@ -8,7 +8,8 @@ import java.util.*;
  * A one-vs-all meta-classifier that contains CompressibleModels.
  */
 public class CompressibleOvsA extends MergeableOvsA implements CompressibleModel {
-  
+  private static final long serialVersionUID = -2412277639169742075L;
+
   public CompressibleOvsA(String prefix) {
     super(prefix);
   }

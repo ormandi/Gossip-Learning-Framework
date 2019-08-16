@@ -7,7 +7,8 @@ import gossipLearning.models.learning.mergeable.MergeablePegasos;
  * Compressible version of the Pegasos algorithm.
  */
 public class CompressiblePegasos extends MergeablePegasos implements CompressibleModel {
-  
+  private static final long serialVersionUID = 9028426673246084718L;
+
   public CompressiblePegasos(String prefix) {
     super(prefix);
   }

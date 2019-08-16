@@ -10,7 +10,7 @@ import java.util.Map;
  * Contains a CompressibleModel and its data in compressed form.
  */
 public class CompressedModel implements Model {
-
+  private static final long serialVersionUID = 518636033947423087L;
   public final Map<Integer,Object> compressedData;
   public final CompressibleModel model;
   

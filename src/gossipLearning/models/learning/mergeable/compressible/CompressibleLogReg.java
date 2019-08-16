@@ -7,7 +7,8 @@ import gossipLearning.models.learning.mergeable.MergeableLogReg;
  * Compressible version of the logistic regression classifier.
  */
 public class CompressibleLogReg extends MergeableLogReg implements CompressibleModel {
-  
+  private static final long serialVersionUID = -3247772545908804106L;
+
   public CompressibleLogReg(String prefix) {
     super(prefix);
   }

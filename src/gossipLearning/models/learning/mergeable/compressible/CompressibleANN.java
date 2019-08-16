@@ -9,7 +9,8 @@ import java.util.Map;
  * Compressible version of the artificial neural network classifier.
  */
 public class CompressibleANN extends MergeableANN implements CompressibleModel {
-  
+  private static final long serialVersionUID = -7931577698325788700L;
+
   public CompressibleANN(String prefix) {
     super(prefix);
   }

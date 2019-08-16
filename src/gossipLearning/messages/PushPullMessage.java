@@ -7,7 +7,7 @@ import peersim.core.Node;
  * ModelMessage for the PushPullLearningProtocol.
  */
 public class PushPullMessage extends ModelMessage {
-
+  private static final long serialVersionUID = 6358612723896823101L;
   public final int id;
   public final int updates;
   public final boolean reply;
