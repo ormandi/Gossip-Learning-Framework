@@ -120,18 +120,10 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel {
     super.set(model);
     // TODO: implement for all slim models!!!
     SlimLogReg m = (SlimLogReg)model;
-    if (weighted && m.weight != null) {
-      m.w.pointMul(m.weight);
-      m.w.div(weight);
-    }
     for (VectorEntry e : m.w) {
       copy.add(e.index, e.value - copy.get(e.index));
     }
     w.set(copy);
-    if (weighted && m.weight != null) {
-      m.w.pointMul(weight);
-      m.w.div(m.weight);
-    }
     return this;
   }
 

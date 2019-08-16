@@ -164,7 +164,7 @@ public abstract class ProbabilityModel implements LearningModel {
   public Model set(Model model) {
     ProbabilityModel m = (ProbabilityModel)model;
     age = m.age;
-    distribution = m.distribution.clone();
+    //distribution = m.distribution.clone();
     return this;
   }
   

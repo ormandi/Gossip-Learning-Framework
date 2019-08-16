@@ -111,7 +111,7 @@ public class FederatedRecSys {
     int evalTime = 1;
     
     for (int t = 0; t <= numIters; t++) {
-      FederatedLearning.updateState(t * delay, sessionEnd, isOnline, churnProvider, C);
+      FederatedLearning.updateState(t, delay, sessionEnd, isOnline, churnProvider, C);
       
       if (t % evalTime == 0) {
         // evaluate

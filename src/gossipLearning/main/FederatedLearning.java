@@ -6,6 +6,7 @@ import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SlimModel;
+import gossipLearning.main.fedAVG.ModelEvaluatorTask;
 import gossipLearning.main.fedAVG.ModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.utils.AggregationResult;
@@ -61,6 +62,9 @@ public class FederatedLearning {
     // number of classes per clients
     int cLabels = Configuration.getInt("C", 0);
     System.err.println("\tNumber of classes per clients: " + cLabels);
+    // evaluate global model only
+    int globalEval = Configuration.getInt("GLOBAL", 0);
+    System.err.println("\tEvaluate global model only: " + (globalEval == 1));
     
     // init churn
     String churnClass = Configuration.getString("churn", null);
@@ -121,6 +125,10 @@ public class FederatedLearning {
     ResultAggregator resultAggregator = new ResultAggregator(modelNames, evalNames);
     resultAggregator.setEvalSet(reader.getEvalSet());
     AggregationResult.printPrecision = printPrecision;
+    ResultAggregator[] aggrs = new ResultAggregator[K];
+    for (int i = 0; i < K; i++) {
+      aggrs[i] = resultAggregator.clone();
+    }
     
     // shuffle instances
     InstanceHolder instances = reader.getTrainingSet();
@@ -151,10 +159,10 @@ public class FederatedLearning {
     Random r = new Random();
     long[] seeds = new long[K];
     for (int t = 0; t <= numIters; t++) {
-      updateState(t * delay, sessionEnd, isOnline, churnProvider, C);
+      updateState(t, delay, sessionEnd, isOnline, churnProvider, C);
       
       // evaluate global model
-      for (int m = 0; m < globalModels.length; m++) {
+      for (int m = 0; m < globalModels.length && globalEval == 1; m++) {
         resultAggregator.push(-1, m, globalModels[m]);
       }
       for (AggregationResult result : resultAggregator) {
@@ -168,7 +176,7 @@ public class FederatedLearning {
         // send global model to clients
         for (int i = 0; i < K; i++) {
           seeds[i] = CommonState.r.nextLong();
-          if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
+          if (!isOnline(i, t, delay, sessionEnd, isOnline, C, true)) {
             continue;
           }
           //localModels[m][i] = globalModels[m].clone();
@@ -179,13 +187,29 @@ public class FederatedLearning {
           } else {
             localModels[m][i].set(globalModels[m]);
           }
-          //resultAggregator.push(-1, m, localModels[m][i]);
+          // eval local models (multi thread)
+          if (globalEval != 1) {
+            taskRunner.add(new ModelEvaluatorTask(aggrs[i], localModels[m][i], -1, m));
+          }
+          //System.out.println(i);
         }
+        taskRunner.run();
         
-        // check online sessions
+        // update local models (multi thread)
+        for (int i = 0; i < K; i++) {
+          if (!isOnline(i, t, delay, sessionEnd, isOnline, C, true)) {
+            continue;
+          }
+          //localModels[m][i].update(localInstances[i], E, B);
+          //resultAggregator.push(-1, m, localModels[m][i]);
+          taskRunner.add(new ModelUpdateTask(localModels[m][i], localInstances[i], E, B));
+        }
+        taskRunner.run();
+        
+        // count recv models check online sessions
         double recvModels = 0.0;
         for (int i = 0; i < K; i++) {
-          if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
+          if (!isOnline(i, t, delay, sessionEnd, isOnline, C, false)) {
             continue;
           }
           recvModels ++;
@@ -198,29 +222,15 @@ public class FederatedLearning {
         // reset model collector
         avgModels[m].clear();
         
-        // update local models (multi thread)
-        for (int i = 0; i < K; i++) {
-          if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
-            continue;
-          }
-          //localModels[m][i].update(localInstances[i], E, B);
-          //resultAggregator.push(-1, m, localModels[m][i]);
-          taskRunner.add(new ModelUpdateTask(localModels[m][i], localInstances[i], E, B));
-        }
-        taskRunner.run();
-        
         // push updated model
         for (int i = 0; i < K; i++) {
-          //resultAggregator.push(-1, m, localModels[m][i]);
-          if (!isOnline[i] || sessionEnd[i] <= (t + 1) * delay) {
+          if (!isOnline(i, t, delay, sessionEnd, isOnline, C, false)) {
             continue;
           }
           double coef = 1.0 / recvModels;
           // keep gradients only
           r.setSeed(seeds[i]);
-          Model model = ((Partializable)localModels[m][i]).getModelPart(r);
-          r.setSeed(seeds[i]);
-          model = ((Partializable)((Addable)model).add(globalModels[m], -1)).getModelPart(r);
+          Model model = ((Partializable)((Addable)localModels[m][i].clone()).add(globalModels[m], -1)).getModelPart(r);
           // averaging updated models
           if (avgModels[m] instanceof SlimModel) {
             ((SlimModel)avgModels[m]).weightedAdd(model, coef);
@@ -241,22 +251,29 @@ public class FederatedLearning {
     System.err.println("ELAPSED TIME: " + (System.currentTimeMillis() - time));
   }
   
-  public static void updateState(long t, long[] sessionEnd, boolean[] isOnline, ChurnProvider[] provider, double fraction) {
-    for (int i = 0; i < sessionEnd.length; i++) {
+  public static void updateState(long t, long delay, long[] sessionEnd, boolean[] isOnline, ChurnProvider[] provider, double fraction) {
+    for (int i = 0; i < isOnline.length; i++) {
       if (provider[i] == null) {
         // uniform selection
         sessionEnd[i] = Long.MAX_VALUE;
         isOnline[i] = CommonState.r.nextDouble() < fraction;
-        // fraction 0 -> only one online
-        if (fraction == 0.0 && i == (int)(t % sessionEnd.length)) {
+        if (fraction == 0.0 && i == (int)(t % isOnline.length)) {
           isOnline[i] = true;
         }
       } else {
-        while(sessionEnd[i] <= t) {
+        while(sessionEnd[i] <= t * delay) {
           sessionEnd[i] += provider[i].nextSession();
           isOnline[i] = !isOnline[i];
         }
       }
     }
+  }
+  public static boolean isOnline(int idx, long t, long delay, long[] sessionEnd, boolean[] isOnline, double fraction, boolean down) {
+    boolean result = isOnline[idx] && (t + 0.5 + (down ? 0.0 : 0.5)) * delay < sessionEnd[idx];
+    // fraction 0 -> only one online
+    if (fraction == 0.0 && idx != (int)(t % isOnline.length)) {
+      result = false;
+    }
+    return result;
   }
 }
