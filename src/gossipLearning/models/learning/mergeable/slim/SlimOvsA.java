@@ -7,7 +7,7 @@ import gossipLearning.models.learning.mergeable.MergeableOvsA;
 
 import java.util.Random;
 
-public class SlimOvsA extends MergeableOvsA implements SlimModel {
+public class SlimOvsA extends MergeableOvsA implements SlimModel, Partializable {
   private static final long serialVersionUID = 4459146413742898799L;
   public SlimOvsA(String prefix) {
     super(prefix);

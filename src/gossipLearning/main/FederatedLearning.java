@@ -63,8 +63,11 @@ public class FederatedLearning {
     int cLabels = Configuration.getInt("C", 0);
     System.err.println("\tNumber of classes per clients: " + cLabels);
     // evaluate global model only
-    int globalEval = Configuration.getInt("GLOBAL", 0);
-    System.err.println("\tEvaluate global model only: " + (globalEval == 1));
+    boolean globalEval = Configuration.getInt("GLOBALEVAL", 1) != 0;
+    System.err.println("\tEvaluate global model only: " + globalEval);
+    // send slim model for clients
+    boolean downSlim = Configuration.getInt("DOWNSLIM", 1) != 0;
+    System.err.println("\tSend down slim model: " + downSlim);
     
     // init churn
     String churnClass = Configuration.getString("churn", null);
@@ -162,7 +165,7 @@ public class FederatedLearning {
       updateState(t, delay, sessionEnd, isOnline, churnProvider, C);
       
       // evaluate global model
-      for (int m = 0; m < globalModels.length && globalEval == 1; m++) {
+      for (int m = 0; m < globalModels.length && globalEval; m++) {
         resultAggregator.push(-1, m, globalModels[m]);
       }
       for (AggregationResult result : resultAggregator) {
@@ -182,13 +185,13 @@ public class FederatedLearning {
           //localModels[m][i] = globalModels[m].clone();
           //localModels[m][i].set(globalModels[m]);
           r.setSeed(seeds[i]);
-          if (globalModels[m] instanceof Partializable) {
+          if (downSlim && globalModels[m] instanceof Partializable) {
             localModels[m][i].set(((Partializable)globalModels[m]).getModelPart(r));
           } else {
             localModels[m][i].set(globalModels[m]);
           }
-          // eval local models (multi thread)
-          if (globalEval != 1) {
+          // evaluate local models (multi thread)
+          if (!globalEval) {
             taskRunner.add(new ModelEvaluatorTask(aggrs[i], localModels[m][i], -1, m));
           }
           //System.out.println(i);
@@ -201,7 +204,6 @@ public class FederatedLearning {
             continue;
           }
           //localModels[m][i].update(localInstances[i], E, B);
-          //resultAggregator.push(-1, m, localModels[m][i]);
           taskRunner.add(new ModelUpdateTask(localModels[m][i], localInstances[i], E, B));
         }
         taskRunner.run();
@@ -230,7 +232,11 @@ public class FederatedLearning {
           double coef = 1.0 / recvModels;
           // keep gradients only
           r.setSeed(seeds[i]);
-          Model model = ((Partializable)((Addable)localModels[m][i].clone()).add(globalModels[m], -1)).getModelPart(r);
+          //Model model = ((Partializable)((Addable)localModels[m][i].clone()).add(globalModels[m], -1)).getModelPart(r);
+          Model model = ((Addable)localModels[m][i].clone()).add(globalModels[m], -1);
+          if (model instanceof Partializable) {
+            model = ((Partializable)model).getModelPart(r);
+          }
           // averaging updated models
           if (avgModels[m] instanceof SlimModel) {
             ((SlimModel)avgModels[m]).weightedAdd(model, coef);

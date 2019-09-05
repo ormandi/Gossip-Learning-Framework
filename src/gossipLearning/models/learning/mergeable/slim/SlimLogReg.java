@@ -1,6 +1,7 @@
 package gossipLearning.models.learning.mergeable.slim;
 
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeableLogReg;
 import gossipLearning.utils.SparseVector;
@@ -12,7 +13,7 @@ import java.util.Random;
 import peersim.config.Configuration;
 import peersim.util.WeightedRandPerm;
 
-public class SlimLogReg extends MergeableLogReg implements SlimModel {
+public class SlimLogReg extends MergeableLogReg implements SlimModel, Partializable {
   private static final long serialVersionUID = 6140967577949903596L;
   
   private static final String PAR_SIZE = "size";

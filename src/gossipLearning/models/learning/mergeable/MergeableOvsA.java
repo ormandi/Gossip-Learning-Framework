@@ -1,16 +1,11 @@
 package gossipLearning.models.learning.mergeable;
 
-import java.util.Random;
-
-import peersim.core.CommonState;
-
 import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
-import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.OneVsAllMetaClassifier;
 
-public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, Partializable, Addable {
+public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, Addable {
   private static final long serialVersionUID = -2294873002764150476L;
   
   public MergeableOvsA(String prefix) {
@@ -54,16 +49,6 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, 
       ((Addable)classifiers.getModel(i)).add(m.classifiers.getModel(i), times);
     }
     return this;
-  }
-
-  @Override
-  public Model getModelPart() {
-    return getModelPart(CommonState.r);
-  }
-  
-  @Override
-  public Model getModelPart(Random r) {
-    return new MergeableOvsA(this);
   }
   
 }

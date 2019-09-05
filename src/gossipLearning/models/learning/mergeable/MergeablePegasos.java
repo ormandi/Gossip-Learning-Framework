@@ -1,13 +1,6 @@
 package gossipLearning.models.learning.mergeable;
 
-import java.util.Random;
-
-import peersim.core.CommonState;
-
-import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Model;
-import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.P2Pegasos;
 
 /**
@@ -19,7 +12,7 @@ import gossipLearning.models.learning.P2Pegasos;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeablePegasos extends P2Pegasos implements Mergeable, Partializable, Addable {
+public class MergeablePegasos extends P2Pegasos implements Mergeable {
   private static final long serialVersionUID = 5703095161342004957L;
   
   public MergeablePegasos(String prefix){
@@ -36,16 +29,6 @@ public class MergeablePegasos extends P2Pegasos implements Mergeable, Partializa
   }
   
   public MergeablePegasos clone(){
-    return new MergeablePegasos(this);
-  }
-  
-  @Override
-  public Model getModelPart() {
-    return getModelPart(CommonState.r);
-  }
-  
-  @Override
-  public Model getModelPart(Random r) {
     return new MergeablePegasos(this);
   }
 

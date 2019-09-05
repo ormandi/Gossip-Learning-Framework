@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 
 /**
  * <b>Update rule: </b>
@@ -293,5 +294,13 @@ public class ANN extends ProbabilityModel {
     }
     return super.toString() + "\n" + sb.toString();
   }
+  
+  public Model getModelPart() {
+    return getModelPart(CommonState.r);
+  }
+  public Model getModelPart(Random r) {
+    return new ANN(this);
+  }
+  
 
 }

@@ -189,7 +189,7 @@ public class LearningProtocol extends AbstractProtocol {
       LearningModel recvModel = (LearningModel)modelHolder.getModel(i);
       // if it is a mergeable model, then merge them
       if (recvModel instanceof Mergeable){
-        models[i] = (LearningModel)((Mergeable) models[i]).merge(recvModel);
+        models[i] = ((Mergeable) models[i]).merge(recvModel);
       } else {
         models[i] = recvModel;
       }

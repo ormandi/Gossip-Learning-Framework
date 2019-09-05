@@ -1,16 +1,11 @@
 package gossipLearning.models.learning.mergeable;
 
-import java.util.Random;
-
-import peersim.core.CommonState;
-
 import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
-import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.ANN;
 
-public class MergeableANN extends ANN implements Mergeable, Partializable, Addable {
+public class MergeableANN extends ANN implements Mergeable, Addable {
   private static final long serialVersionUID = 2342217682704545173L;
   public MergeableANN(String prefix) {
     super(prefix);
@@ -19,14 +14,6 @@ public class MergeableANN extends ANN implements Mergeable, Partializable, Addab
     super(a);
   }
   public MergeableANN clone() {
-    return new MergeableANN(this);
-  }
-  @Override
-  public Model getModelPart() {
-    return getModelPart(CommonState.r);
-  }
-  @Override
-  public Model getModelPart(Random r) {
     return new MergeableANN(this);
   }
   @Override

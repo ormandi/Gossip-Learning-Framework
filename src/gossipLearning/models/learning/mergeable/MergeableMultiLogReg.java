@@ -1,13 +1,8 @@
 package gossipLearning.models.learning.mergeable;
 
-import java.util.Random;
-
-import peersim.core.CommonState;
-
 import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
-import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.multiclass.MultiLogReg;
 
 /**
@@ -20,7 +15,7 @@ import gossipLearning.models.learning.multiclass.MultiLogReg;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Partializable, Addable {
+public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Addable {
   private static final long serialVersionUID = -7800995106591726828L;
 
   /**
@@ -72,16 +67,6 @@ public class MergeableMultiLogReg extends MultiLogReg implements Mergeable, Part
       bias[i] += m.bias[i] * times;
     }
     return this;
-  }
-
-  @Override
-  public Model getModelPart() {
-    return getModelPart(CommonState.r);
-  }
-  
-  @Override
-  public Model getModelPart(Random r) {
-    return new MergeableMultiLogReg(this);
   }
 
 }

@@ -5,10 +5,14 @@ import gossipLearning.interfaces.optimizers.Optimizer;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.VectorEntry;
-import peersim.config.Configuration;
-import java.util.Map;
 
-public abstract class LinearModel extends ProbabilityModel implements SimilarityComputable<LinearModel> {
+import java.util.Map;
+import java.util.Random;
+
+import peersim.config.Configuration;
+import peersim.core.CommonState;
+
+public abstract class LinearModel extends ProbabilityModel implements Addable, SimilarityComputable<LinearModel> {
   private static final long serialVersionUID = -5680177111664068910L;
   private static final String PAR_OPIMIZER = "optimizer";
   
@@ -115,6 +119,14 @@ public abstract class LinearModel extends ProbabilityModel implements Similarity
     bias += (m.bias - bias) * modelWeight;
     optimizer.merge(m.optimizer, modelWeight);
     return this;
+  }
+  
+  public Model getModelPart() {
+    return getModelPart(CommonState.r);
+  }
+  
+  public Model getModelPart(Random r) {
+    return this.clone();
   }
   
   public Model add(Model model) {

@@ -6,6 +6,9 @@ import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 
 import java.util.Arrays;
+import java.util.Random;
+
+import peersim.core.CommonState;
 
 /**
  * This class represents the multi-class logistic regression classifier. 
@@ -186,6 +189,14 @@ public class MultiLogReg extends ProbabilityModel {
     }
     v[numberOfClasses - 1] = m.v[numberOfClasses - 1];
     return this;
+  }
+  
+  public Model getModelPart() {
+    return getModelPart(CommonState.r);
+  }
+  
+  public Model getModelPart(Random r) {
+    return new MultiLogReg(this);
   }
 
 }

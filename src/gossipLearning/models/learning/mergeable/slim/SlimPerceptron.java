@@ -1,6 +1,7 @@
 package gossipLearning.models.learning.mergeable.slim;
 
 import gossipLearning.interfaces.models.Model;
+import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeablePerceptron;
 import gossipLearning.utils.SparseVector;
@@ -11,7 +12,7 @@ import java.util.Random;
 import peersim.config.Configuration;
 import peersim.util.WeightedRandPerm;
 
-public class SlimPerceptron extends MergeablePerceptron implements SlimModel {
+public class SlimPerceptron extends MergeablePerceptron implements SlimModel, Partializable {
   private static final long serialVersionUID = -7462501717472741554L;
   private static final String PAR_SIZE = "size";
   

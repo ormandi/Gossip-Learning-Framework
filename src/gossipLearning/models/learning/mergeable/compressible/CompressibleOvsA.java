@@ -25,11 +25,6 @@ public class CompressibleOvsA extends MergeableOvsA implements CompressibleModel
   }
 
   @Override
-  public CompressibleOvsA getModelPart() {
-    return new CompressibleOvsA(this);
-  }
-  
-  @Override
   public void getData(Map<Integer,Double> map) {
     for (int i=0; i<numberOfClasses; i++) {
       Map<Integer,Double> m = new TreeMap<Integer,Double>();

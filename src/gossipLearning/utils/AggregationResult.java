@@ -54,7 +54,7 @@ public class AggregationResult implements Comparable<AggregationResult>{
     for(int i = 0; i < names.length; i++) {
       name += names[i] + "\t";
     }
-    return name + "\t-\t" + protocolID + "\t" + modelName + "\t" + evalName;
+    return name + "-\t" + protocolID + "\t" + modelName + "\t" + evalName;
   }
   
   public String toString() {

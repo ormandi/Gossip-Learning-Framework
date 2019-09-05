@@ -7,7 +7,11 @@ import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
+
+import java.util.Random;
+
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 
 /**
  * This class represents a one-vs-all meta-classifier. It trains class size number of 
@@ -144,6 +148,14 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
       classifiers.getModel(i).set(m.classifiers.getModel(i));
     }
     return this;
+  }
+  
+  public Model getModelPart() {
+    return getModelPart(CommonState.r);
+  }
+  
+  public Model getModelPart(Random r) {
+    return new OneVsAllMetaClassifier(this);
   }
 
 }

@@ -1,13 +1,6 @@
 package gossipLearning.models.learning.mergeable;
 
-import java.util.Random;
-
-import peersim.core.CommonState;
-
-import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Mergeable;
-import gossipLearning.interfaces.models.Model;
-import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.models.learning.LogisticRegression;
 
 /**
@@ -20,7 +13,7 @@ import gossipLearning.models.learning.LogisticRegression;
  * </ul>
  * @author István Hegedűs
  */
-public class MergeableLogReg extends LogisticRegression implements Mergeable, Partializable, Addable {
+public class MergeableLogReg extends LogisticRegression implements Mergeable {
   private static final long serialVersionUID = -4465428750554412761L;
   
   public MergeableLogReg(double lambda) {
@@ -39,14 +32,4 @@ public class MergeableLogReg extends LogisticRegression implements Mergeable, Pa
     return new MergeableLogReg(this);
   }
 
-  @Override
-  public Model getModelPart() {
-    return getModelPart(CommonState.r);
-  }
-  
-  @Override
-  public Model getModelPart(Random r) {
-    return new MergeableLogReg(this);
-  }
-  
 }
