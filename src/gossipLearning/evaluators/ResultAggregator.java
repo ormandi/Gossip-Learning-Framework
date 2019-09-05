@@ -102,18 +102,17 @@ public class ResultAggregator implements Serializable, Iterable<AggregationResul
         }
         for (int eval_j = 0; eval_j < evalNames.length; eval_j++) {
           evaluator[model_i][eval_j] = evaluators[model_i][eval_j].clone();
-          evaluators[model_i][eval_j].clear();
+          evaluator[model_i][eval_j].clear();
         }
       }
       aggregations.put(pid, evaluator);
-    } else {
-      if (AggregationResult.isPrintAges) {
-        buffs[modelIndex].append(' ');
-        buffs[modelIndex].append(modelAges[modelIndex]);
-      }
-      for (int i = 0; i < evalNames.length; i++) {
-        evaluator[modelIndex][i].merge(evaluators[modelIndex][i]);
-      }
+    }
+    if (AggregationResult.isPrintAges) {
+      buffs[modelIndex].append(' ');
+      buffs[modelIndex].append(modelAges[modelIndex]);
+    }
+    for (int i = 0; i < evalNames.length; i++) {
+      evaluator[modelIndex][i].merge(evaluators[modelIndex][i]);
     }
     lock.unlock();
   }
