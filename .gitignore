@@ -1,7 +1,9 @@
 /nohup.out
 /output.txt
+/res/db/blank_1.dat
 /res/db/blank_10.dat
 /res/db/blank_10000.dat
+/res/db/blank_100000.dat
 /res/db/blank_1000000.dat
 /res/db/hundred.dat
 /res/db/makeBlankDataSet.sh
@@ -12,12 +14,15 @@
 /res/trace/peersim_session_25.txt
 /res/trace/peersim_session_50.txt
 /res/trace/peersim_session_75.txt
+/res/trace/peersim_session_twoday_0.txt
 bin/
 build/
 doc/
 res/script/results
 .classpath
 .project
+.idea/
+GoLF-realP2Pcontrace-featureexse.iml
 *.class
 
 # vim

@@ -1,0 +1,118 @@
+C ${ITERATIONS} #number of cycles
+NETWORKSIZE ${NETWORK_SIZE} #number of nodes (should be the same as the number of training instances)
+SEED 1234567980 #random seed
+CORES 1 #number of cores for running
+
+CYCLE C*NETWORKSIZE+NUMBER_OF_MODEL_SECURE_SEND*MESSAGE_MAXSIZE*NETWORKSIZE
+LOGTIME NETWORKSIZE
+
+DELAY 0.000001
+BROADCASTLEVEL 20
+TIMEWINDOW BROADCASTLEVEL*NETWORKSIZE
+
+MINLATENCY 1.0
+MESSAGE_MINSIZE 10.0
+MESSAGE_MAXSIZE 10.0
+
+NUMBER_OF_MODEL_SECURE_SEND 110.0
+NUMBER_OF_MODEL_INTO_CONTAINER 10.0
+
+# Transport parameters
+MINLATENCYDELAY MINLATENCY*NETWORKSIZE
+
+MINDELAY DELAY*NETWORKSIZE*0.1
+MAXDELAY DELAY*NETWORKSIZE
+
+# Overlay parameters
+NEIGHBORS 50
+
+# Protocol parameters
+DELAYMEAN LOGTIME
+
+UNITSINSTEP 100
+#UNITSINSTEP 60000
+
+EXPECTEDMODELNUMBER 1.0
+RANDOMWALKTIMELIMIT 101.0*NETWORKSIZE
+MODELSURVIVEPROBABILITY 1.0
+
+#EXPECTEDMODELNUMBER NETWORKSIZE
+
+#-------------------- General Simulation Properties --------------------
+network.size NETWORKSIZE
+simulation.endtime CYCLE
+simulation.logtime LOGTIME
+simulation.messagemindelay MINDELAY
+simulation.threadnum CORES
+random.seed SEED
+
+
+#-------------------- Transport layer --------------------
+protocol.transport UniformRandomTransport
+protocol.transport.mindelay MINDELAY
+protocol.transport.maxdelay MAXDELAY
+
+#-------------------- Connection layer --------------------
+protocol.overlay peersim.core.IdleProtocol
+protocol.overlay.transport transport
+
+
+#-------------------- Extraction layer --------------------
+protocol.extractionProtocol gossipLearning.protocols.DummyDimensionReductionProtocol
+protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.extractionProtocol.modelHolderCapacity 20
+protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
+
+#-------------------- Learning layer(s) --------------------
+protocol.learningProtocol gossipLearning.protocols.MultiWalkerProtocol
+protocol.learningProtocol.linkable overlay
+protocol.learningProtocol.step LOGTIME
+protocol.learningProtocol.transport transport
+protocol.learningProtocol.extractorProtocol extractionProtocol
+protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
+protocol.learningProtocol.numberOfMaxModelInQueue 2
+protocol.learningProtocol.modelName gossipLearning.models.DummyMultiLearningModel
+protocol.learningProtocol.maxsize MESSAGE_MAXSIZE*NETWORKSIZE
+protocol.learningProtocol.minsize MESSAGE_MINSIZE*NETWORKSIZE
+protocol.learningProtocol.offlineDelay OFFLINE_DELAY
+protocol.learningProtocol.modelContainerSizeLimit NUMBER_OF_MODEL_INTO_CONTAINER*MESSAGE_MAXSIZE*NETWORKSIZE
+
+#1E-2
+protocol.learningProtocol.evalName gossipLearning.evaluators.ZeroOneError
+protocol.learningProtocol.evalProbability 0.0
+
+
+#-------------------- Initializers --------------------
+init.overlayInit WireKOut
+init.overlayInit.k NEIGHBORS
+init.overlayInit.protocol overlay
+
+init.instanceLoader gossipLearning.controls.InstanceLoader
+init.instanceLoader.readerClass gossipLearning.utils.DataBaseReader
+init.instanceLoader.extractionProtocol extractionProtocol
+init.instanceLoader.learningProtocols learningProtocol
+init.instanceLoader.trainingFile ${TRAINING_DATABASE}
+init.instanceLoader.evaluationFile ${EVALUATION_DATABASE}
+init.instanceLoader.samplesPerNode 1
+init.instanceLoader.printPrecision 6
+init.instanceLoader.isPrintAges false
+
+#-------------------- Define Init Sequence --------------------
+include.init overlayInit instanceLoader
+
+
+#-------------------- Observers --------------------
+control.prediction gossipLearning.controls.MultiWalkerObsever
+control.prediction.step LOGTIME
+control.prediction.printTime 10
+control.prediction.sampleSize 10
+control.prediction.protocol learningProtocol
+
+control.churn gossipLearning.controls.MobilTraceChurnForMultiWalker
+control.churn.protocol learningProtocol
+control.churn.step LOGTIME
+control.churn.traceFile ../res/trace/peersim_session_twoday_0.txt
+control.churn.unitsInStep UNITSINSTEP
+control.churn.modelTimes 10.0
+control.churn.rateOfAvgOnlineNode 0.544109
+control.churn.delay NUMBER_OF_MODEL_SECURE_SEND*MESSAGE_MAXSIZE*NETWORKSIZE

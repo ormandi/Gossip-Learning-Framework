@@ -1,0 +1,116 @@
+C ${ITERATIONS} #number of cycles
+NETWORKSIZE ${NETWORK_SIZE} #number of nodes (should be the same as the number of training instances)
+SEED 1234567980 #random seed
+CORES 1 #number of cores for running
+
+UNITSINSTEP 360000
+CYCLE C*NETWORKSIZE
+LOGTIME UNITSINSTEP*NETWORKSIZE
+
+DELAY 0.000001
+OFFLINE_DELAY 1000*NETWORKSIZE
+MINLATENCY 100.0
+MINLATENCYDELAY MINLATENCY*NETWORKSIZE
+MESSAGE_MINSIZE 1000.0
+MESSAGE_MAXSIZE 1000.0
+
+MINDELAY DELAY*NETWORKSIZE*0.1
+MAXDELAY DELAY*NETWORKSIZE
+
+# Overlay parameters
+NEIGHBORS 50
+
+#-------------------- General Simulation Properties --------------------
+network.size NETWORKSIZE
+simulation.endtime CYCLE
+simulation.logtime LOGTIME
+simulation.messagemindelay MINDELAY
+simulation.threadnum CORES
+random.seed SEED
+
+
+#-------------------- Transport layer --------------------
+protocol.transport UniformRandomTransport
+protocol.transport.mindelay MINDELAY
+protocol.transport.maxdelay MAXDELAY
+
+#-------------------- Connection layer --------------------
+protocol.overlay peersim.core.IdleProtocol
+protocol.overlay.transport transport
+
+
+#-------------------- Extraction layer --------------------
+protocol.extractionProtocol gossipLearning.protocols.DummyDimensionReductionProtocol
+protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
+protocol.extractionProtocol.modelHolderCapacity 20
+protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
+
+#-------------------- Learning layer(s) --------------------
+protocol.learningProtocol gossipLearning.protocols.TreeBuilderProtocol
+protocol.learningProtocol.linkable overlay
+#protocol.learningProtocol.step LOGTIME
+protocol.learningProtocol.transport transport
+protocol.learningProtocol.extractorProtocol extractionProtocol
+protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
+protocol.learningProtocol.numberOfMaxModelInQueue 2
+protocol.learningProtocol.modelName gossipLearning.models.DummySizedModel
+protocol.learningProtocol.evalName gossipLearning.evaluators.ZeroOneError
+protocol.learningProtocol.evalProbability 0.0
+protocol.learningProtocol.s 3
+protocol.learningProtocol.k 3
+protocol.learningProtocol.maxModelSize MESSAGE_MAXSIZE*NETWORKSIZE
+protocol.learningProtocol.minModelSize MESSAGE_MINSIZE*NETWORKSIZE
+protocol.learningProtocol.maxGradientSize MESSAGE_MAXSIZE*NETWORKSIZE
+protocol.learningProtocol.minGradientSize MESSAGE_MINSIZE*NETWORKSIZE
+protocol.learningProtocol.offlineDelay OFFLINE_DELAY
+protocol.learningProtocol.minLatency MINLATENCYDELAY
+#protocol.learningProtocol.modelContainerSizeLimit NUMBER_OF_MODEL_INTO_CONTAINER*MESSAGE_MAXSIZE*NETWORKSIZE
+#1E-2
+
+#-------------------- Initializers --------------------
+init.overlayInit WireKOut
+init.overlayInit.undirected
+init.overlayInit.k NEIGHBORS
+init.overlayInit.protocol overlay
+
+init.instanceLoader gossipLearning.controls.InstanceLoader
+init.instanceLoader.readerClass gossipLearning.utils.DataBaseReader
+init.instanceLoader.extractionProtocol extractionProtocol
+init.instanceLoader.learningProtocols learningProtocol
+init.instanceLoader.trainingFile ${TRAINING_DATABASE}
+init.instanceLoader.evaluationFile ${EVALUATION_DATABASE}
+init.instanceLoader.samplesPerNode 1
+init.instanceLoader.printPrecision 6
+init.instanceLoader.isPrintAges false
+
+#init.sch CDScheduler
+#init.sch.protocol learningProtocol
+#init.sch.randstart
+#init.sch.nextcycle NextCycleEvent
+#init.sch.nextcycle.persistschedule
+
+#-------------------- Define Init Sequence --------------------
+include.init overlayInit instanceLoader 
+#sch
+
+
+#-------------------- Observers --------------------
+control.prediction gossipLearning.controls.TreeObserver
+control.prediction.step LOGTIME
+control.prediction.printTime 10
+control.prediction.numberOfTreesToStart 500
+control.prediction.protocol learningProtocol
+
+control.churn gossipLearning.controls.TraceChurnForTreeBuilder
+control.churn.protocol learningProtocol
+control.churn.step NETWORKSIZE
+control.churn.traceFile ../res/trace/peersim_session_ced0.txt
+
+#control.churn gossipLearning.controls.MobilTraceChurnForMultiWalker
+#control.churn.protocol learningProtocol
+#control.churn.step NETWORKSIZE
+#control.churn.traceFile ../res/trace/peersim_session_ced0.txt
+#control.churn.unitsInStep UNITSINSTEP
+#control.churn.modelTimes 0.1
+#control.churn.rateOfAvgOnlineNode 0.544109
+#control.churn.delay NUMBER_OF_MODEL_SECURE_SEND*MESSAGE_MAXSIZE*UNITSINSTEP
