@@ -50,6 +50,7 @@ public class InstanceLoader implements Control {
   private static final String PAR_PRINTPRECISION = "printPrecision";
   private static final String PAR_ISPRINTAGES = "isPrintAges";
   private static final String PAR_CLABELS = "cLabels";
+  private static final String PAR_TIMES = "times";
   
   /** The array of protocol ID(s) of the learning protocol(s).*/
   protected final int[] pidLS;
@@ -69,6 +70,7 @@ public class InstanceLoader implements Control {
   protected final int normalization;
   /** Number of different labels per node.*/
   protected final int cLabels;
+  protected final double times;
   protected InstanceHolder[] instances;
     
   /**
@@ -88,6 +90,7 @@ public class InstanceLoader implements Control {
     AggregationResult.isPrintAges = Configuration.getBoolean(prefix + "." + PAR_ISPRINTAGES, false);
     normalization = Configuration.getInt(prefix + "." + PAR_NORMALIZATION, 0);
     cLabels = Configuration.getInt(prefix + "." + PAR_CLABELS, 0);
+    times = Configuration.getDouble(prefix + "." + PAR_TIMES, 1.0);
   }
   
   public boolean execute(){
@@ -125,9 +128,9 @@ public class InstanceLoader implements Control {
       
       // init the nodes by adding the instances read before
       instances = new InstanceHolder[Network.size()];
-      for (int i = 0; i < reader.getTrainingSet().size(); i++) {
-        SparseVector instance = reader.getTrainingSet().getInstance(indices[i]);
-        double label = reader.getTrainingSet().getLabel(indices[i]);
+      for (int i = 0; i < reader.getTrainingSet().size() * times; i++) {
+        SparseVector instance = reader.getTrainingSet().getInstance(indices[i % reader.getTrainingSet().size()]);
+        double label = reader.getTrainingSet().getLabel(indices[i % reader.getTrainingSet().size()]);
         int nodeIdx = i % Network.size();
         if (map != null) {
           nodeIdx = map[(int)label].poll();
@@ -137,6 +140,9 @@ public class InstanceLoader implements Control {
           instances[nodeIdx] = new InstanceHolder(reader.getTrainingSet().getNumberOfClasses(), reader.getTrainingSet().getNumberOfFeatures());
         }
         instances[nodeIdx].add(instance, label);
+        if (i % reader.getTrainingSet().size() == reader.getTrainingSet().size() - 1) {
+          Utils.arrayShuffle(CommonState.r, indices);
+        }
       }
       // sets the number of classes for the learning protocols and the evaluation set for the evaluator.
       for (int i = 0; i < Network.size(); i++) {
