@@ -20,6 +20,10 @@ public class MergeableOvsA extends OneVsAllMetaClassifier implements Mergeable, 
     super(a);
   }
   
+  protected MergeableOvsA(MergeableOvsA a, boolean deep) {
+    super(a, deep);
+  }
+  
   @Override
   public MergeableOvsA clone() {
     return new MergeableOvsA(this);
