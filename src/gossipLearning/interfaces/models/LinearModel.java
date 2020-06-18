@@ -47,7 +47,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
     } catch (Exception e) {
       throw new RuntimeException("Exception while creating optimizer: ", e);
     }
-    ageshift = Configuration.getDouble(prefix + "." + PAR_AGESHIFT);
+    ageshift = Configuration.getDouble(prefix + "." + PAR_AGESHIFT, 0);
   }
   
   public LinearModel(LinearModel a) {
