@@ -33,7 +33,7 @@ public class CompressedLogReg extends LogisticRegression {
     double err = label - prob;
     //gradient.set(w).mul(lambda).add(instance, err);
     //biasGradient = lambda * err;
-    gradient.set(instance).mul(err).scaleValueRange(nbits, CommonState.r);
+    gradient.set(instance).mul(err).scale(nbits, CommonState.r);
     gradient.add(w, lambda);
     biasGradient = bias * lambda + Utils.scaleValueRange(err, nbits, CommonState.r);
   }
@@ -49,7 +49,7 @@ public class CompressedLogReg extends LogisticRegression {
       
       double prob = getPositiveProbability(instance);
       double err = label - prob;
-      inst_tmp.set(instance).mul(err).scaleValueRange(nbits, CommonState.r);
+      inst_tmp.set(instance).mul(err).scale(nbits, CommonState.r);
       gradient.add(inst_tmp);
       biasGradient += bias * lambda + Utils.scaleValueRange(err, nbits, CommonState.r);
     }

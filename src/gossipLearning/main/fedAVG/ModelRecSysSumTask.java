@@ -4,7 +4,7 @@ import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 
-public class ModelSumTask implements Runnable {
+public class ModelRecSysSumTask implements Runnable {
 
   private final Model sum;
   private final Model globalModel;
@@ -17,7 +17,7 @@ public class ModelSumTask implements Runnable {
   private final int t;
   private final long delay;
   
-  public ModelSumTask(Model sum, Model globalModel, Model[] list, int from, int to, double scale, boolean[] isOnline, long[] sessionEnd, int t, long delay) {
+  public ModelRecSysSumTask(Model sum, Model globalModel, Model[] list, int from, int to, double scale, boolean[] isOnline, long[] sessionEnd, int t, long delay) {
     this.sum = sum;
     this.globalModel = globalModel;
     this.list = list;

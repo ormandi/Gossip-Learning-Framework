@@ -137,5 +137,16 @@ public class SlimANN extends MergeableANN implements SlimModel, Partializable {
     weight = null;
     biasWeight = 0.0;
   }
+  
+  @Override
+  public double getSize() {
+    return modelSize;
+  }
+  
+  @Override
+  public Model scale(double value) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

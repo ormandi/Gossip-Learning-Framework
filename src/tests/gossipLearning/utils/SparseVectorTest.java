@@ -213,14 +213,14 @@ public class SparseVectorTest extends TestCase implements Serializable {
     assertEquals(v1, new SparseVector());
   }
   
-  public void testNorm() {
+  public void testNorm2() {
     SparseVector v1 = new SparseVector(new double[]{3,0,0,4});
-    assertEquals(v1.norm(), 5.0);
+    assertEquals(v1.norm2(), 5.0);
   }
   
-  public void testMaxIndex() {
+  public void testLength() {
     SparseVector v1 = new SparseVector(new double[]{3,0,0,4,0});
-    assertEquals(v1.maxIndex(), 3);
+    assertEquals(v1.length(), 4);
   }
   
   public void testSqrt() {
@@ -229,10 +229,10 @@ public class SparseVectorTest extends TestCase implements Serializable {
     assertEquals(v1.sqrt(), vr);
   }
   
-  public void testInv() {
+  public void testInvert() {
     SparseVector v1 = new SparseVector(new double[]{2,0,0,4,0});
     SparseVector vr = new SparseVector(new double[]{0.5,0,0,0.25,0});
-    assertEquals(v1.inv(), vr);
+    assertEquals(v1.invert(), vr);
   }
   
   public void testSum() {
@@ -243,11 +243,11 @@ public class SparseVectorTest extends TestCase implements Serializable {
   public void testCosSim() {
     SparseVector v = new SparseVector(new double[]{1.0,0,0,1.0});
     SparseVector v2 = new SparseVector(new double[]{1.0,0,0,1.0});
-    assertEquals(1.0, v.cosSim(v2), 1E-5);
+    assertEquals(1.0, v.cosineSimilarity(v2), 1E-5);
     v2 = new SparseVector(new double[]{0.0,1.0,1.0,0.0});
-    assertEquals(0.0, v.cosSim(v2), 1E-5);
+    assertEquals(0.0, v.cosineSimilarity(v2), 1E-5);
     v2 = new SparseVector(new double[]{-1.0,0,0,-1.0});
-    assertEquals(-1.0, v.cosSim(v2), 1E-5);
+    assertEquals(-1.0, v.cosineSimilarity(v2), 1E-5);
   }
   
   public void testEuclideanDistance() {

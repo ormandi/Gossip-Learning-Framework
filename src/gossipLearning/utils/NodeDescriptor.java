@@ -124,7 +124,7 @@ public class NodeDescriptor implements Serializable, Comparable<NodeDescriptor>,
       return Double.NEGATIVE_INFINITY;
     }
     if (isSim) {
-      return descriptor.cosSim(a.descriptor);
+      return descriptor.cosineSimilarity(a.descriptor);
     } else {
       return -descriptor.euclideanDistance(a.descriptor);
     }

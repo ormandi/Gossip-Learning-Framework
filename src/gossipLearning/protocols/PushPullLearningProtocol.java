@@ -213,7 +213,7 @@ public class PushPullLearningProtocol extends LearningProtocol {
     private void sendMsg(boolean reply) {
       sent = latestModelHolder.clone();
       local.encode(sent);
-      getTransport().send(currentNode,node,new PushPullMessage(currentNode,sent,currentProtocolID,id,updates,reply),currentProtocolID);
+      getTransport().send(currentNode,node,new PushPullMessage(currentNode,node,sent,currentProtocolID,id,updates,reply),currentProtocolID);
     }
     
     /** Updates codec state and performs a transaction. */

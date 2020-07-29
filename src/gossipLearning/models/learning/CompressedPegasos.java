@@ -32,7 +32,7 @@ public class CompressedPegasos extends P2Pegasos {
     label = (label == 0.0) ? -1.0 : label;
     boolean isSV = label * w.mul(instance) < 1.0;
     if (isSV) {
-      gradient.add(instance, -label).scaleValueRange(nbits, CommonState.r);
+      gradient.add(instance, -label).scale(nbits, CommonState.r);
     }
     gradient.add(w, lambda);
   }
@@ -48,7 +48,7 @@ public class CompressedPegasos extends P2Pegasos {
       label = (label == 0.0) ? -1.0 : label;
       boolean isSV = label * w.mul(instance) < 1.0;
       if (isSV) {
-        inst_tmp.set(instance).mul(-label).scaleValueRange(nbits, CommonState.r);
+        inst_tmp.set(instance).mul(-label).scale(nbits, CommonState.r);
         gradient.add(inst_tmp);
       }
     }

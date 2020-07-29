@@ -92,5 +92,16 @@ public class SlimRecSys extends MergeableRecSys implements SlimModel {
     // TODO Auto-generated method stub
     return super.set(model);
   }
+  
+  @Override
+  public double getSize() {
+    return modelSize;
+  }
+  
+  @Override
+  public Model scale(double value) {
+    // TODO Auto-generated method stub
+    return null;
+  }
 
 }

@@ -42,7 +42,7 @@ public class LowRankSampling implements Control {
         InstanceHolder instances = ((FactorizationProtocol) protocol).getInstanceHolder();
         double norm = 0.0;
         for (int index = 0; index < instances.size(); index++) {
-          norm = Utils.hypot(norm, instances.getInstance(index).norm());
+          norm = Utils.hypot(norm, instances.getInstance(index).norm2());
         }
         fNorms[i] = norm * norm;
         fNorm = Utils.hypot(fNorm, norm);

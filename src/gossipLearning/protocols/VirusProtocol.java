@@ -32,7 +32,10 @@ public class VirusProtocol extends AbstractProtocol {
 
   @Override
   public void activeThread() {
-    sendToRandomNeighbor(new ModelMessage(currentNode, holder, currentProtocolID, true));
+    Node neighbor = getRandomNeighbor();
+    if (neighbor != null) {
+      send(currentNode, neighbor, new ModelMessage(currentNode, neighbor, holder, currentProtocolID, true), currentProtocolID);
+    }
   }
 
   @Override
@@ -46,7 +49,7 @@ public class VirusProtocol extends AbstractProtocol {
   }
   
   @Override
-  protected void sendToRandomNeighbor(ModelMessage message) {
+  protected Node getRandomNeighbor() {
     Linkable overlay = getOverlay();
     Node[] online = new Node[overlay.degree()];
     int counter = 0;
@@ -57,10 +60,10 @@ public class VirusProtocol extends AbstractProtocol {
       }
     }
     if (counter == 0) {
-      return;
+      return null;
     }
     Node randomNode = online[CommonState.r.nextInt(counter)];
-    getTransport().send(currentNode, randomNode, message, currentProtocolID);
+    return randomNode;
   }
   
   public Model getModel() {

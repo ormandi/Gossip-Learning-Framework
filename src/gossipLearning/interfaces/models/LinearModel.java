@@ -1,14 +1,15 @@
 package gossipLearning.interfaces.models;
 
-import gossipLearning.interfaces.optimizers.GD;
-import gossipLearning.interfaces.optimizers.Optimizer;
-import gossipLearning.utils.InstanceHolder;
-import gossipLearning.utils.SparseVector;
-import gossipLearning.utils.VectorEntry;
-
 import java.util.Map;
 import java.util.Random;
 
+import gossipLearning.interfaces.Vector;
+import gossipLearning.interfaces.optimizers.GD;
+import gossipLearning.interfaces.optimizers.Optimizer;
+import gossipLearning.utils.DenseVector;
+import gossipLearning.utils.InstanceHolder;
+import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.VectorEntry;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
@@ -16,27 +17,31 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
   private static final long serialVersionUID = -5680177111664068910L;
   private static final String PAR_OPIMIZER = "optimizer";
   
-  protected SparseVector w;
+  protected Vector w;
   protected double bias;
-  protected SparseVector gradient;
+  protected Vector gradient;
   protected double biasGradient;
   
   protected final Optimizer optimizer;
   
   public LinearModel(double lambda) {
     super(lambda);
-    w = new SparseVector();
+    w = new DenseVector();
+    //w = new SparseVector();
     bias = 0.0;
-    gradient = new SparseVector();
+    gradient = new DenseVector();
+    //gradient = new SparseVector();
     biasGradient = 0.0;
     optimizer = new GD();
   }
   
   public LinearModel(String prefix) {
     super(prefix);
-    w = new SparseVector();
+    w = new DenseVector();
+    //w = new SparseVector();
     bias = 0.0;
-    gradient = new SparseVector();
+    gradient = new DenseVector();
+    //gradient = new SparseVector();
     biasGradient = 0.0;
     String optimizerClass = Configuration.getString(prefix + "." + PAR_OPIMIZER, GD.class.getName());
     try {
@@ -49,10 +54,10 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
   public LinearModel(LinearModel a) {
     super(a);
     w = a.w.clone();
-    bias = a.bias;
     gradient = a.gradient.clone();
-    biasGradient = a.biasGradient;
     optimizer = a.optimizer.clone();
+    bias = a.bias;
+    biasGradient = a.biasGradient;
   }
   
   public abstract LinearModel clone();
@@ -99,7 +104,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
   
   @Override
   public double computeSimilarity(LinearModel model) {
-    return w.cosSim(model.w);
+    return w.cosineSimilarity(model.w);
   }
   
   @Override
@@ -149,6 +154,11 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
     w.set(m.w);
     biasGradient = m.biasGradient;
     gradient.set(m.gradient);
+    return this;
+  }
+  
+  public Model scale(double value) {
+    w.mul(value);
     return this;
   }
 

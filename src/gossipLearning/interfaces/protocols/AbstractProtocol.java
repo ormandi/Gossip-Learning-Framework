@@ -66,22 +66,25 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
   @Override
   public abstract AbstractProtocol clone();
   
+  private LinkedList<Integer> onlines = new LinkedList<Integer>();
   /**
-   * It is a helper method as well which supports sending message
-   * to a uniform random neighbor.
-   * 
-   * @param message The message which will be sent. The source of the
-   * message will be set before sending it.
+   * Returns a node reference from the neighbor node list selected uniform 
+   * randomly.
+   * @return random neighbor node reference
    */
-  protected void sendToRandomNeighbor(ModelMessage message) {
+  protected Node getRandomNeighbor() {
     Linkable overlay = getOverlay();
     Node randomNode = overlay.getNeighbor(CommonState.r.nextInt(overlay.degree()));
-    getTransport().send(currentNode, randomNode, message, currentProtocolID);
-    //System.out.println("SEND RND " + currentNode.getID() + " " + randomNode.getID() + " " + message.getID());
+    return randomNode;
   }
   
-  private LinkedList<Integer> onlines = new LinkedList<Integer>();
-  protected void sendToOnlineNeighbor(ModelMessage message) {
+  /**
+   * Returns a node reference from the neighbor node list that will be possible 
+   * online at the message arrive time, requires {@link ChurnTransportM}. Or 
+   * null if there is no online neighbor.
+   * @return online neighbor node reference or null
+   */
+  protected Node getOnlineNeighbor() {
     onlines.clear();
     Linkable overlay = getOverlay();
     for (int i = 0; i < overlay.degree(); i++) {
@@ -92,11 +95,24 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
       }
     }
     
+    Node randomNode = null;
     if (onlines.size() != 0) {
-      Node randomNode = overlay.getNeighbor(onlines.get(CommonState.r.nextInt(onlines.size())));
-      getTransport().send(currentNode, randomNode, message, currentProtocolID);
-      //System.out.println("SEND " + currentNode.getID() + " " + randomNode.getID() + " " + message.getID());
+      randomNode = overlay.getNeighbor(onlines.get(CommonState.r.nextInt(onlines.size())));
     }
+    return randomNode;
+  }
+  
+  /**
+   * Sends the specified message to the specified destination node for the 
+   * specified protocol from the specified source node.
+   * @param src source node
+   * @param dst destination node
+   * @param msg message to be sent
+   * @param pid target protocol id
+   */
+  protected void send(Node src, Node dst, ModelMessage msg, int pid) {
+    //System.out.println("SEND\t" + src.getID() + "\t" + dst.getID() + "\t" + msg.getModel(0));
+    getTransport().send(src, dst, msg, pid);
   }
   
   /**
@@ -170,7 +186,7 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
       }
     } else if (messageObj instanceof ModelMessage) {
       ModelMessage msg = (ModelMessage)messageObj;
-      //System.out.println("RECV " + currentNode.getID() + " " + msg.getSource().getID() + " " + msg.getID());
+      //System.out.println("RECV\t" + msg.getDestination().getID() + "\t" + msg.getSource().getID() + "\t" + msg.getModel(0));
       // The received message is a model message => calling the passive thread handler
       passiveThread(msg);
     }

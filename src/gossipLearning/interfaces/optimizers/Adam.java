@@ -1,5 +1,6 @@
 package gossipLearning.interfaces.optimizers;
 
+import gossipLearning.interfaces.Vector;
 import gossipLearning.utils.SparseVector;
 import peersim.config.Configuration;
 
@@ -48,7 +49,7 @@ public class Adam extends Momentum {
   }
   
   @Override
-  public void delta(double lr, SparseVector gradient, double biasGradient) {
+  public void delta(double lr, Vector gradient, double biasGradient) {
     alphat *= alpha;
     betat *= beta;
     

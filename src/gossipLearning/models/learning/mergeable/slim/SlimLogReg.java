@@ -1,5 +1,8 @@
 package gossipLearning.models.learning.mergeable.slim;
 
+import java.util.Random;
+
+import gossipLearning.interfaces.Vector;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SlimModel;
@@ -7,9 +10,6 @@ import gossipLearning.models.learning.mergeable.MergeableLogReg;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
-
-import java.util.Random;
-
 import peersim.config.Configuration;
 import peersim.util.WeightedRandPerm;
 
@@ -19,12 +19,12 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel, Partializa
   private static final String PAR_SIZE = "size";
   private static final String PAR_WEIGHTED = "weighted";
   
-  protected final int modelSize;
+  protected final double modelSize;
   protected final boolean weighted;
   
   public SlimLogReg(String prefix){
     super(prefix);
-    modelSize = Configuration.getInt(prefix + "." + PAR_SIZE);
+    modelSize = Configuration.getDouble(prefix + "." + PAR_SIZE);
     weighted = 1 == Configuration.getInt(prefix + "." + PAR_WEIGHTED);
   }
   
@@ -62,14 +62,15 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel, Partializa
   @Override
   public Model getModelPart(Random r) {
     SlimLogReg result = new SlimLogReg(this);
-    result.w.clear();
+    result.w = new SparseVector(1 + (int)Math.ceil(Math.abs(numberOfFeatures * modelSize)));
     double[] weights = new double[numberOfFeatures];
     for (int i = 0; i < weights.length; i++) {
-      weights[i] = modelSize < 0 ? 1.0 : Math.abs(gradient.get(i)) + Utils.EPS;
+      weights[i] = modelSize < 0 ? Math.abs(gradient.get(i)) + Utils.EPS : 1.0;
     }
     WeightedRandPerm rp = new WeightedRandPerm(r, weights);
     rp.reset(weights.length);
-    int iter = Math.abs(modelSize);
+    int iter = (int)Math.floor(Math.abs(numberOfFeatures * modelSize));
+    iter += r.nextDouble() < Math.abs(numberOfFeatures * modelSize) - iter ? 1 : 0;
     while (0 < iter && rp.hasNext()) {
       iter --;
       int idx = rp.next();
@@ -77,7 +78,7 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel, Partializa
     }
     if (!weighted) {
       // TODO: remove this by scaling times of weighted
-      result.w.mul(numberOfFeatures / (double)Math.abs(modelSize));
+      result.w.mul(1.0 / Math.abs(modelSize));
     }
     return result;
   }
@@ -86,6 +87,7 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel, Partializa
   private SparseVector weight;
   @Override
   public Model weightedAdd(Model model, double times) {
+    //times *= 1.0 / (1.0 - Math.pow(1.0 - modelSize, 1.0 / times));
     if (!weighted) {
       super.add(model, times);
       return this;
@@ -117,7 +119,7 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel, Partializa
   
   @Override
   public Model set(Model model) {
-    SparseVector copy = w.clone();
+    Vector copy = w.clone();
     super.set(model);
     // TODO: implement for all slim models!!!
     SlimLogReg m = (SlimLogReg)model;
@@ -126,6 +128,11 @@ public class SlimLogReg extends MergeableLogReg implements SlimModel, Partializa
     }
     w.set(copy);
     return this;
+  }
+  
+  @Override
+  public double getSize() {
+    return modelSize;
   }
 
 }

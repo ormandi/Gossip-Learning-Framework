@@ -1,5 +1,8 @@
 package gossipLearning.main;
 
+import java.io.File;
+import java.util.Random;
+
 import gossipLearning.evaluators.ResultAggregator;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.utils.AggregationResult;
@@ -7,10 +10,6 @@ import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
-
-import java.io.File;
-import java.util.Random;
-
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
 import peersim.core.CommonState;
@@ -36,7 +35,7 @@ public class LocalRun {
     long time = System.currentTimeMillis();
     // set up configuration parser
     String configName = args[0];
-    Configuration.setConfig(new ParsedProperties(configName));
+    Configuration.setConfig(new ParsedProperties(args));
     System.err.println("Loading parameters from " + configName);
     
     // parse general parameters
@@ -55,8 +54,10 @@ public class LocalRun {
     System.err.println("\tSampling method: " + samplingMethod);
     int normalization = Configuration.getInt("NORMALIZATION", 0);
     System.err.println("\tNormalization method: " + NORMALIZATION.values()[normalization]);
-    int batchSize = Configuration.getInt("BATCHSIZE", 1);
-    System.err.println("\tBatch size: " + batchSize);
+    int epochs = Configuration.getInt("EPOCH", 1);
+    System.err.println("\tBatch size: " + epochs);
+    int batchSize = Configuration.getInt("BATCH", 1);
+    System.err.println("\tEpoch size: " + batchSize);
     int evalTime = 1;
     
     // parse learning related parameters
@@ -75,8 +76,7 @@ public class LocalRun {
     // read database
     System.err.println("Reading data set.");
     DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
-    //System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
-    //time = System.currentTimeMillis();
+    System.err.println("\tsize: " + reader.getTrainingSet().size() + ", " + reader.getEvalSet().size() + " x " + reader.getTrainingSet().getNumberOfFeatures());
     
     // normalize database
     if (normalization == 2) {
@@ -86,7 +86,6 @@ public class LocalRun {
       System.err.println("Normalizing data set.");
       reader.normalize();
     }
-    //System.err.println("Elapsed time: " + (System.currentTimeMillis() - time) + "ms");
     time = System.currentTimeMillis();
     
     // create models
@@ -120,7 +119,6 @@ public class LocalRun {
         Utils.arrayShuffle(r, sampleIndices);
       }
       if (iter % evalTime == 0) {
-        //System.out.println(models[0]);
         // evaluate
         for (int i = 0; i < models.length; i++) {
           resultAggregator.push(-1, i, models[i]);
@@ -150,8 +148,7 @@ public class LocalRun {
       batch.add(instance, label);
       if (batch.size() == batchSize) {
         for (int i = 0; i < models.length; i++) {
-          models[i].update(batch, 1, 0);
-          //models[i].update(extractor.extract(instance), label);
+          models[i].update(batch, epochs, 0);
         }
         batch.clear();
       }

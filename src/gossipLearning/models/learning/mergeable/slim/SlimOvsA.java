@@ -53,4 +53,17 @@ public class SlimOvsA extends MergeableOvsA implements SlimModel, Partializable 
     return this;
   }
   
+  @Override
+  public double getSize() {
+    return ((SlimModel)classifiers.getModel(0)).getSize();
+  }
+  
+  @Override
+  public Model scale(double value) {
+    for (int i = 0; i < classifiers.size(); i++) {
+      ((SlimModel)classifiers.getModel(i)).scale(value);
+    }
+    return this;
+  }
+  
 }

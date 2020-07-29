@@ -109,8 +109,10 @@ public class TestProtocol extends AbstractProtocol {
   public void sendModel(Model model) {
     BQModelHolder mh = new BQModelHolder(1);
     mh.add(model);
-    ModelMessage message = new ModelMessage(currentNode, mh, currentProtocolID, true);
-    sendToRandomNeighbor(message);
+    Node neighbor = getRandomNeighbor();
+    ModelMessage message = new ModelMessage(currentNode, neighbor, mh, currentProtocolID, true);
+    send(currentNode, neighbor, message, currentProtocolID);
+    //sendToRandomNeighbor(message);
     //sendToNextNeighbor(message);
   }
   

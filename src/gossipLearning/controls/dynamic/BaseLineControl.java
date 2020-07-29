@@ -148,7 +148,7 @@ public class BaseLineControl implements Control {
       }
       dotProd = w.mul(instance);
       label = dotProd < 0.0 ? 0.0 : 1.0;
-      if (isNoise && Math.abs(dotProd / w.norm())*10.0 < CommonState.r.nextDouble()){
+      if (isNoise && Math.abs(dotProd / w.norm2())*10.0 < CommonState.r.nextDouble()){
         label = 1.0 - label;
       }
       if (CommonState.r.nextDouble() < 0.2) {
@@ -177,7 +177,7 @@ public class BaseLineControl implements Control {
       dotProd = w.mul(training.getInstance(i));
       value = dotProd < 0.0 ? 0.0 : 1.0;
       label = value;
-      if (isNoise && Math.abs(dotProd / w.norm())*10.0 < CommonState.r.nextDouble()){
+      if (isNoise && Math.abs(dotProd / w.norm2())*10.0 < CommonState.r.nextDouble()){
         label = 1.0 - label;
         //System.out.println("#NOISE");
       }
@@ -187,7 +187,7 @@ public class BaseLineControl implements Control {
       dotProd = w.mul(evaluation.getInstance(i));
       value = dotProd < 0.0 ? 0.0 : 1.0;
       label = value;
-      if (isNoise && Math.abs(dotProd / w.norm())*10.0 < CommonState.r.nextDouble()){
+      if (isNoise && Math.abs(dotProd / w.norm2())*10.0 < CommonState.r.nextDouble()){
         label = 1.0 - label;
         //System.out.println("#NOISE");
       }

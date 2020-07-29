@@ -1,6 +1,6 @@
 package gossipLearning.interfaces.optimizers;
 
-import gossipLearning.utils.SparseVector;
+import gossipLearning.interfaces.Vector;
 
 public class GD extends Optimizer {
   private static final long serialVersionUID = 3784331513723993996L;
@@ -23,7 +23,7 @@ public class GD extends Optimizer {
   }
   
   @Override
-  public void delta(double lr, SparseVector gradient, double biasGradient) {
+  public void delta(double lr, Vector gradient, double biasGradient) {
     delta.set(gradient).mul(lr);
     biasDelta = lr * biasGradient;
   }

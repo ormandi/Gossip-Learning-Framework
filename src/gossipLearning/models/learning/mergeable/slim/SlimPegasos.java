@@ -5,6 +5,7 @@ import gossipLearning.interfaces.models.Partializable;
 import gossipLearning.interfaces.models.SlimModel;
 import gossipLearning.models.learning.mergeable.MergeablePegasos;
 import gossipLearning.utils.SparseVector;
+import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
 
 import java.util.Random;
@@ -17,11 +18,11 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel, Partiali
   
   protected static final String PAR_SIZE = "size";
   
-  protected final int modelSize;
+  protected final double modelSize;
   
   public SlimPegasos(String prefix){
     super(prefix);
-    modelSize = Configuration.getInt(prefix + "." + PAR_SIZE);
+    modelSize = Configuration.getDouble(prefix + "." + PAR_SIZE);
   }
   
   /**
@@ -57,20 +58,18 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel, Partiali
   @Override
   public Model getModelPart(Random r) {
     SlimPegasos result = new SlimPegasos(this);
-    result.w.clear();
-    if (gradient.size() == 0) {
-      return result;
-    }
-    double[] weights = new double[gradient.size()];
-    for (int i = 0; i < gradient.size(); i++) {
-      weights[i] = modelSize < 0 ? 1.0 : Math.abs(gradient.valueAt(i));
+    result.w = new SparseVector(1 + (int)Math.ceil(Math.abs(numberOfFeatures * modelSize)));
+    double[] weights = new double[numberOfFeatures];
+    for (int i = 0; i < weights.length; i++) {
+      weights[i] = modelSize < 0 ? Math.abs(gradient.get(i)) + Utils.EPS : 1.0;
     }
     WeightedRandPerm rp = new WeightedRandPerm(r, weights);
-    rp.reset(gradient.size());
-    int iter = Math.abs(modelSize);
+    rp.reset(weights.length);
+    int iter = (int)Math.floor(Math.abs(numberOfFeatures * modelSize));
+    iter += r.nextDouble() < Math.abs(numberOfFeatures * modelSize) - iter ? 1 : 0;
     while (0 < iter && rp.hasNext()) {
       iter --;
-      int idx = gradient.indexAt(rp.next());
+      int idx = rp.next();
       result.w.add(idx, w.get(idx));
     }
     return result;
@@ -103,6 +102,11 @@ public class SlimPegasos extends MergeablePegasos implements SlimModel, Partiali
     super.clear();
     weight = null;
     biasWeight = 0.0;
+  }
+  
+  @Override
+  public double getSize() {
+    return modelSize;
   }
 
 }

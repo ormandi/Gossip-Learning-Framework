@@ -67,7 +67,8 @@ public class DataBaseReader {
     SparseVector m2 = new SparseVector(means);
     m2.powerTo(2.0);
     devs.add(m2, -1.0);
-    devs.sqrt();
+    //devs.sqrt();
+    devs.powerTo(0.5);
     
     // reading evaluation file
     evalSet = parseFile(eFile);

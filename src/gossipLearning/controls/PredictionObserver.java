@@ -42,6 +42,26 @@ public class PredictionObserver extends GraphObserver {
         System.out.println((CommonState.getTime()/logTime) + "\t" + result);
       }
     }
+    /*Protocol p = null;
+    for (int i = 0; i < g.size(); i++) {
+      p = ((Node) g.getNode(i)).getProtocol(pid);
+      if (p instanceof LearningProtocol) {
+        LearningProtocol prot = (LearningProtocol)p;
+        Model[] models = prot.getModels();
+        for (int j = 0; j < models.length; j++) {
+          prot.getResultAggregator().push(pid, j, (LearningModel)models[j]);
+        }
+      }
+    }
+    
+    if (p instanceof LearningProtocol) {
+      for (AggregationResult result : ((LearningProtocol) p).getResults()) {
+        if (isPrintPrefix) {
+          System.out.println("#iter\t" + result.getNames());
+        }
+        System.out.println((CommonState.getTime()/logTime) + "\t" + result);
+      }
+    }*/
     isPrintPrefix = false;
     return false;
   }

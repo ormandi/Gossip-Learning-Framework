@@ -31,7 +31,7 @@ public class CompressedPerceptron extends Perceptron {
   protected void gradient(SparseVector instance, double label) {
     double product = w.mul(instance) + bias;
     double grad = (fAct.execute(product) - label) * fGrad.execute(product);
-    gradient.set(instance).mul(grad).scaleValueRange(nbits, CommonState.r);
+    gradient.set(instance).mul(grad).scale(nbits, CommonState.r);
     gradient.add(w, lambda);
     biasGradient = bias * lambda + Utils.scaleValueRange(grad, nbits, CommonState.r);
   }
@@ -47,7 +47,7 @@ public class CompressedPerceptron extends Perceptron {
       
       double product = w.mul(instance) + bias;
       double grad = (fAct.execute(product) - label) * fGrad.execute(product);
-      inst_tmp.set(instance).mul(grad).scaleValueRange(nbits, CommonState.r);
+      inst_tmp.set(instance).mul(grad).scale(nbits, CommonState.r);
       gradient.add(inst_tmp);
       biasGradient += bias * lambda + Utils.scaleValueRange(grad, nbits, CommonState.r);
     }

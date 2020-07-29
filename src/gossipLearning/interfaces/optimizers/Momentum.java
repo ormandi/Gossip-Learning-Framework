@@ -1,7 +1,8 @@
 package gossipLearning.interfaces.optimizers;
 
-import peersim.config.Configuration;
+import gossipLearning.interfaces.Vector;
 import gossipLearning.utils.SparseVector;
+import peersim.config.Configuration;
 
 public class Momentum extends Optimizer {
   private static final long serialVersionUID = 7141942220197077908L;
@@ -37,7 +38,7 @@ public class Momentum extends Optimizer {
   }
 
   @Override
-  public void delta(double lr, SparseVector gradient, double biasGradient) {
+  public void delta(double lr, Vector gradient, double biasGradient) {
     momentum.mul(alpha).add(gradient, lr * (1.0 - alpha));
     biasMomentum = (biasMomentum * alpha) + (lr * biasGradient * (1.0 - alpha));
     delta.set(momentum);

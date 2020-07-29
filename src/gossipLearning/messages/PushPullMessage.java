@@ -13,8 +13,8 @@ public class PushPullMessage extends ModelMessage {
   public final boolean reply;
   
   /** Constructor which creates a deep copy of the models. */
-  public PushPullMessage(Node src, BQModelHolder models, int pid, int id, int updates, boolean reply) {
-    super(src,models,pid,true);
+  public PushPullMessage(Node src, Node dst, BQModelHolder models, int pid, int id, int updates, boolean reply) {
+    super(src,dst,models,pid,true);
     this.id = id;
     this.updates = updates;
     this.reply = reply;

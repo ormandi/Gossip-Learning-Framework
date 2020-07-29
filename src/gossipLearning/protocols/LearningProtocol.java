@@ -12,6 +12,7 @@ import gossipLearning.utils.BQModelHolder;
 import gossipLearning.utils.InstanceHolder;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
+import peersim.core.Node;
 import peersim.transport.ChurnTransportM;
 
 /**
@@ -136,6 +137,13 @@ public class LearningProtocol extends AbstractProtocol {
     }
   }
   
+  public ResultAggregator getResultAggregator() {
+    return resultAggregator;
+  }
+  public Model[] getModels() {
+    return models;
+  }
+  
   /**
    * It sends the latest models to a uniformly selected random neighbor.
    */
@@ -157,12 +165,14 @@ public class LearningProtocol extends AbstractProtocol {
       // store the latest models in a modelHolder
       modelHolder.add(model);
     }
-    if (!isChurnTransport) {
-      // send the latest models to a random neighbor
-      sendToRandomNeighbor(new ModelMessage(currentNode, modelHolder, currentProtocolID, true));
-    } else {
+    // send the latest models to a random neighbor
+    Node destination = getRandomNeighbor();
+    if (isChurnTransport) {
       // send the latest models to a random online neighbor
-      sendToOnlineNeighbor(new ModelMessage(currentNode, modelHolder, currentProtocolID, true));
+      destination = getOnlineNeighbor();
+    }
+    if (destination != null) {
+      send(currentNode, destination, new ModelMessage(currentNode, destination, modelHolder, currentProtocolID, true), currentProtocolID);
     }
     
     modelHolder.clear();
@@ -189,12 +199,18 @@ public class LearningProtocol extends AbstractProtocol {
       LearningModel recvModel = (LearningModel)modelHolder.getModel(i);
       // if it is a mergeable model, then merge them
       if (recvModel instanceof Mergeable){
+        //String log = "MERGE\t" + currentNode.getID() + "\t" + models[i] + "\t" + recvModel;
         models[i] = ((Mergeable) models[i]).merge(recvModel);
+        //System.out.println(log + "\t" + models[i]);
       } else {
+        //String log = "OVERRIDE\t" + currentNode.getID() + "\t" + models[i] + "\t" + recvModel;
         models[i] = recvModel;
+        //System.out.println(log + "\t" + models[i]);
       }
       // updating the model with the local training samples
+      //String log = "UPDATE\t" + currentNode.getID() + "\t" + models[i];
       ((LearningModel)models[i]).update(instances, epoch, batch);
+      //System.out.println(log + "\t" + models[i]);
     }
   }
   

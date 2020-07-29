@@ -125,9 +125,9 @@ public class DiffPriv {
       if (normType.equals("L1")) {
         norm = reader.getTrainingSet().getInstance(i).norm1();
       } else if (normType.equals("L2")) {
-        norm = reader.getTrainingSet().getInstance(i).norm();
+        norm = reader.getTrainingSet().getInstance(i).norm2();
       } else if (normType.equals("Linf")) {
-        norm = reader.getTrainingSet().getInstance(i).norminf();
+        norm = reader.getTrainingSet().getInstance(i).normInf();
       } else {
         throw new RuntimeException("Not supported norm type: " + normType);
       }
@@ -149,9 +149,9 @@ public class DiffPriv {
       if (normType.equals("L1")) {
         norm = reader.getEvalSet().getInstance(i).norm1();
       } else if (normType.equals("L2")) {
-        norm = reader.getEvalSet().getInstance(i).norm();
+        norm = reader.getEvalSet().getInstance(i).norm2();
       } else if (normType.equals("Linf")) {
-        norm = reader.getEvalSet().getInstance(i).norminf();
+        norm = reader.getEvalSet().getInstance(i).normInf();
       } else {
         throw new RuntimeException("Not supported norm type: " + normType);
       }

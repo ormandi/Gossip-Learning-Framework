@@ -99,8 +99,7 @@ public class GaussModel implements Model, Mergeable {
   }
   
   public double getSigma() {
-    double value = Math.sqrt(Math.abs(mean2 - (mean * mean)));
-    return value <= 0.0 ? Utils.EPS : value;
+    return Math.sqrt(Math.abs(mean2 - (mean * mean)));
   }
   
   public double generate(Random r) {
@@ -108,6 +107,9 @@ public class GaussModel implements Model, Mergeable {
   }
   
   public double cdf(double x) {
+    if (getSigma() == 0.0) {
+      return 0.0;
+    }
     return Utils.cdf(x, getMu(), getSigma());
   }
   

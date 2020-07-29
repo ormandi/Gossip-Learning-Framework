@@ -22,6 +22,8 @@ public class ModelMessage implements ModelHolder, Message {
   /** @hidden */
   private final Node src;
   /** @hidden */
+  private final Node dst;
+  /** @hidden */
   private final BQModelHolder models;
   private final int pid;
 
@@ -33,8 +35,9 @@ public class ModelMessage implements ModelHolder, Message {
    * @param pid The id of the protocol that can handle this message.
    * @param deep Makes deep copy of the specified models if true.
    */
-  public ModelMessage(Node src, BQModelHolder models, int pid, boolean deep) {
+  public ModelMessage(Node src, Node dst, BQModelHolder models, int pid, boolean deep) {
     this.src = src;
+    this.dst = dst;
     this.models = new BQModelHolder(models, deep);
     this.pid = pid;
   }
@@ -46,7 +49,7 @@ public class ModelMessage implements ModelHolder, Message {
    */
   @Override
   public ModelMessage clone() {
-    return new ModelMessage(src, models, pid, true);
+    return new ModelMessage(src, dst, models, pid, true);
   }
 
   /**
@@ -57,6 +60,14 @@ public class ModelMessage implements ModelHolder, Message {
    */
   public Node getSource() {
     return src;
+  }
+  
+  /**
+   * Returns the reference of the destination node.
+   * @return destination of the message
+   */
+  public Node getDestination() {
+    return dst;
   }
   
   @Override
@@ -132,8 +143,9 @@ public class ModelMessage implements ModelHolder, Message {
     models.clear();
   }
   
+  @Override
   public String toString() {
-    return pid + "\t" + src.getID() + "\t" + models; 
+    return src.getID() + "\t" + dst.getID() + "\t" + pid + "\t" + models; 
   }
 
 }

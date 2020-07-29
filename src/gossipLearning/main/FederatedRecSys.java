@@ -3,7 +3,7 @@ package gossipLearning.main;
 import gossipLearning.evaluators.RecSysResultAggregator;
 import gossipLearning.interfaces.models.Addable;
 import gossipLearning.interfaces.models.MatrixBasedModel;
-import gossipLearning.main.fedAVG.ModelSumTask;
+import gossipLearning.main.fedAVG.ModelRecSysSumTask;
 import gossipLearning.main.fedAVG.RecSysModelUpdateTask;
 import gossipLearning.main.fedAVG.TaskRunner;
 import gossipLearning.models.factorization.MergeableRecSys;
@@ -106,12 +106,17 @@ public class FederatedRecSys {
     System.err.println("Start learning.");
     TaskRunner taskRunner = new TaskRunner(numThreads);
     RecSysModelUpdateTask[] updateTasks = new RecSysModelUpdateTask[K];
-    ModelSumTask[] modelSumTask = new ModelSumTask[numThreads];
+    ModelRecSysSumTask[] modelSumTask = new ModelRecSysSumTask[numThreads];
     MatrixBasedModel[] tmpAvgModels = new MatrixBasedModel[numThreads];
     int evalTime = 1;
     
+    // client order
+    int[] perm = new int[K];
+    for (int i = 0; i < K; i++) {
+      perm[i] = i;
+    }
     for (int t = 0; t <= numIters; t++) {
-      FederatedLearning.updateState(t, delay, sessionEnd, isOnline, churnProvider, C);
+      FederatedLearning.updateState(t, delay, sessionEnd, isOnline, churnProvider, C, perm);
       
       if (t % evalTime == 0) {
         // evaluate
@@ -186,7 +191,7 @@ public class FederatedRecSys {
           int to = (int)Math.round((core + 1) * part);
           //System.out.println(core + "\t" + from + "\t" + to);
           tmpAvgModels[core] = avgModels[m].clone();
-          modelSumTask[core] = new ModelSumTask(tmpAvgModels[core], globalModels[m], localModels, from, to, 1.0, isOnline, sessionEnd, t, delay);
+          modelSumTask[core] = new ModelRecSysSumTask(tmpAvgModels[core], globalModels[m], localModels, from, to, 1.0, isOnline, sessionEnd, t, delay);
           taskRunner.add(modelSumTask[core]);
         }
         taskRunner.run();

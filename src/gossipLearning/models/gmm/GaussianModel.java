@@ -3,7 +3,6 @@ package gossipLearning.models.gmm;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.interfaces.models.ProbabilityModel;
 import gossipLearning.utils.SparseVector;
-import gossipLearning.utils.Utils;
 import peersim.config.Configuration;
 import peersim.core.CommonState;
 
@@ -54,32 +53,15 @@ public class GaussianModel extends ProbabilityModel {
   
   @Override
   public double[] distributionForInstance(SparseVector instance) {
-    double pc, p;
-    //double sum = 0.0;
-    //double max = Double.NEGATIVE_INFINITY;
+    double p;
     for (int i = 0; i < numberOfClasses; i++) {
-      pc = Math.log(ages[i] / age);
-      p = 0;
+      p = Math.log(ages[i] / age);
       for (int j = 0; j < numberOfFeatures; j++) {
         double value = models[i][j].prob(instance.get(j));
-        p += Math.log(value <= 0.0 ? Utils.EPS : value);
+        p += value <= 1e-5 ? -10 : Math.log(value);
       }
-      distribution[i] = pc + p;
-      if (distribution[i] > 0.0 || Double.isNaN(distribution[i]) || Double.isInfinite(distribution[i])) {
-        distribution[i] = -1.0/Utils.EPS;
-      }
-      /*if (distribution[i] > max) {
-        max = distribution[i];
-      }*/
+      distribution[i] = p;
     }
-    /*for (int i = 0; i < distribution.length; i++) {
-      distribution[i] -= max;
-      distribution[i] = Math.exp(distribution[i]);
-      sum += Math.abs(distribution[i]);
-    }
-    for (int i = 0; i < distribution.length; i++) {
-      distribution[i] /= sum;
-    }*/
     return distribution;
   }
   
