@@ -51,11 +51,15 @@ public class OneVsAllMetaClassifier extends ProbabilityModel {
    * @param a to copy
    */
   public OneVsAllMetaClassifier(OneVsAllMetaClassifier a) {
+    this(a,true);
+  }
+  
+  protected OneVsAllMetaClassifier(OneVsAllMetaClassifier a, boolean deep) {
     super(a);
     this.baseLearnerName = a.baseLearnerName;
     this.prefix = a.prefix;
     if (a.classifiers != null) {
-      this.classifiers = a.classifiers.clone();
+      this.classifiers = new BQModelHolder((BQModelHolder)a.classifiers, deep);
     } else {
       classifiers = null;
     }

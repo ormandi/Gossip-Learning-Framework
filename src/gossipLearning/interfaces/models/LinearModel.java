@@ -16,6 +16,7 @@ import peersim.core.CommonState;
 public abstract class LinearModel extends ProbabilityModel implements Addable, SimilarityComputable<LinearModel> {
   private static final long serialVersionUID = -5680177111664068910L;
   private static final String PAR_OPIMIZER = "optimizer";
+  private static final String PAR_AGESHIFT = "ageShift";
   
   protected Vector w;
   protected double bias;
@@ -23,6 +24,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
   protected double biasGradient;
   
   protected final Optimizer optimizer;
+  protected final double ageshift;
   
   public LinearModel(double lambda) {
     super(lambda);
@@ -33,6 +35,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
     //gradient = new SparseVector();
     biasGradient = 0.0;
     optimizer = new GD();
+    ageshift = 0;
   }
   
   public LinearModel(String prefix) {
@@ -49,6 +52,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
     } catch (Exception e) {
       throw new RuntimeException("Exception while creating optimizer: ", e);
     }
+    ageshift = Configuration.getDouble(prefix + "." + PAR_AGESHIFT, 0);
   }
   
   public LinearModel(LinearModel a) {
@@ -58,6 +62,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
     optimizer = a.optimizer.clone();
     bias = a.bias;
     biasGradient = a.biasGradient;
+    ageshift = a.ageshift;
   }
   
   public abstract LinearModel clone();
@@ -67,7 +72,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
   @Override
   public void update(SparseVector instance, double label) {
     age ++;
-    double lr = eta / (isTime == 1 ? age : 1.0);
+    double lr = eta / (isTime == 1 ? age + ageshift : 1.0);
     
     gradient(instance, label);
     optimizer.delta(lr, gradient, biasGradient);
@@ -84,7 +89,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
       return;
     }
     age += instances.size();
-    double lr = eta / (isTime == 1 ? age : 1.0);
+    double lr = eta / (isTime == 1 ? age + ageshift : 1.0);
     
     gradient(instances);
     optimizer.delta(lr, gradient, biasGradient);

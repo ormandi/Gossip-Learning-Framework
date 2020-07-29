@@ -16,6 +16,10 @@ public class SlimOvsA extends MergeableOvsA implements SlimModel, Partializable 
   public SlimOvsA(SlimOvsA a) {
     super(a);
   }
+  
+  protected SlimOvsA(SlimOvsA a, boolean deep) {
+    super(a, deep);
+  }
 
   @Override
   public SlimOvsA clone() {
@@ -24,7 +28,7 @@ public class SlimOvsA extends MergeableOvsA implements SlimModel, Partializable 
   
   @Override
   public Model getModelPart(Random r) {
-    SlimOvsA result = new SlimOvsA(this);
+    SlimOvsA result = new SlimOvsA(this,false);
     result.classifiers.clear();
     for (int i = 0; i < numberOfClasses; i++) {
       Model m = ((Partializable)this.classifiers.getModel(i)).getModelPart(r);
