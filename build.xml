@@ -170,7 +170,7 @@
       <batchtest fork="yes" todir="${reports}/raw/">
         <formatter type="xml"/>
         <fileset dir="${src}">
-          <include name="**/*Test*.java"/>
+          <include name="tests/**/*Test*.java"/>
         </fileset>
       </batchtest>
     </junit>
@@ -193,7 +193,7 @@
       <batchtest fork="yes" todir="${reports}/raw/">
         <formatter type="xml"/>
         <fileset dir="${src}">
-          <include name="**/*Test*.java"/>
+          <include name="tests/**/*Test*.java"/>
         </fileset>
       </batchtest>
     </junit>
