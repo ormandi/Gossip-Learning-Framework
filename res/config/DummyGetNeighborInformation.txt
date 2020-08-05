@@ -107,5 +107,6 @@ include.init overlayInit instanceLoader
 #-------------------- Observers --------------------
 
 control.churn gossipLearning.controls.GetNeighborhoodInformation
+control.churn.traceFile ../res/trace/trace.list
 control.churn.protocol learningProtocol
 control.churn.step LOGTIME
