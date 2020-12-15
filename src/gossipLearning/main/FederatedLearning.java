@@ -1,6 +1,7 @@
 package gossipLearning.main;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -106,7 +107,7 @@ public class FederatedLearning {
     
     // read database
     System.err.println("Reading data set.");
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, new FileInputStream(tFile), new FileInputStream(eFile));
     System.err.println("\tsize: " + reader.getTrainingSet().size() + ", " + reader.getEvalSet().size() + " x " + reader.getTrainingSet().getNumberOfFeatures());
     
     // normalize database
@@ -184,6 +185,11 @@ public class FederatedLearning {
     for (int t = iterOffset; t <= numIters; t++) {
       updateState(t, delay, sessionEnd, isOnline, churnProvider, C, perm);
       
+      // seeds for model part selection
+      for (int i = 0; i < K; i++) {
+        seeds[i] = CommonState.r.nextLong();
+      }
+      
       for (int m = 0; m < globalModels.length; m++) {
         // evaluate global model
         if (globalEval) {
@@ -194,7 +200,6 @@ public class FederatedLearning {
         for (int i = 0; i < K; i++) {
           //System.out.println(i + "\t" + isOnline(i, t, delay, sessionEnd, isOnline, C, true, perm));
           
-          seeds[i] = CommonState.r.nextLong();
           if (!isOnline(i, t, delay, sessionEnd, isOnline, C, true, perm)) {
             continue;
           }
@@ -252,7 +257,6 @@ public class FederatedLearning {
           if (!isOnline(i, t, delay, sessionEnd, isOnline, C, false, perm)) {
             continue;
           }
-          r[i].setSeed(seeds[i]);
           double coef = 1.0 / recvModels;
           // keep gradients only
           r[i].setSeed(seeds[i]);

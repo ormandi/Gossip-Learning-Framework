@@ -12,6 +12,7 @@ import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
@@ -78,7 +79,7 @@ public class FederatedRecSys {
     
     // read database
     System.err.println("Reading data set.");
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, new FileInputStream(tFile), new FileInputStream(eFile));
     
     // create models
     MatrixBasedModel[] globalModels = new MatrixBasedModel[modelNames.length];

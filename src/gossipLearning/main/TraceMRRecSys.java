@@ -8,6 +8,7 @@ import gossipLearning.utils.VectorEntry;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -130,7 +131,7 @@ public class TraceMRRecSys {
     
     // read database
     System.err.println("Reading data set.");
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, new FileInputStream(tFile), new FileInputStream(eFile));
     
     // evaluator
     RMSError evaluator = new RMSError();

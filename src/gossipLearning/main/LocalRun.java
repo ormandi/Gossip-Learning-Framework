@@ -1,6 +1,7 @@
 package gossipLearning.main;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Random;
 
 import gossipLearning.evaluators.ResultAggregator;
@@ -75,8 +76,11 @@ public class LocalRun {
     
     // read database
     System.err.println("Reading data set.");
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    //ZipFile zipFile = new ZipFile("res/db/spambase.zip");
+    //DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, zipFile.getInputStream(zipFile.getEntry("train.dat")), zipFile.getInputStream(zipFile.getEntry("test.dat")));
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, new FileInputStream(tFile), new FileInputStream(eFile));
     System.err.println("\tsize: " + reader.getTrainingSet().size() + ", " + reader.getEvalSet().size() + " x " + reader.getTrainingSet().getNumberOfFeatures());
+    //zipFile.close();
     
     // normalize database
     if (normalization == 2) {

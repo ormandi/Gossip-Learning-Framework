@@ -1,5 +1,7 @@
 package gossipLearning.controls.dynamic;
 
+import java.io.FileInputStream;
+
 import gossipLearning.controls.InstanceLoader;
 import gossipLearning.protocols.LearningProtocol;
 import gossipLearning.utils.AggregationResult;
@@ -50,7 +52,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
   
   private final long logTime;
   
-  public DynamicInstanceLoader(String prefix) {
+  public DynamicInstanceLoader(String prefix) throws Exception {
     super(prefix);
     
     numOfEvals = Configuration.getLong(prefix + "." + PAR_NUMOFEVALS);
@@ -67,7 +69,7 @@ public class DynamicInstanceLoader extends InstanceLoader {
     logTime = Configuration.getLong("simulation.logtime");
     
     try {
-      reader = DataBaseReader.createDataBaseReader(readerClassName, tFile, eFile);
+      reader = DataBaseReader.createDataBaseReader(readerClassName, new FileInputStream(tFile), new FileInputStream(eFile));
     } catch (Exception e) {
       throw new RuntimeException("Exception in " + getClass().getCanonicalName(), e);
     }

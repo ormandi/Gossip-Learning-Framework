@@ -1,25 +1,26 @@
-C 1000
+C 10000
 NETWORKSIZE 943
 SEED 1234567890
-CORES 1
+CORES 4
 
-CYCLE (C+1)*NETWORKSIZE
-LOGTIME NETWORKSIZE
+CYCLE NETWORKSIZE
+CYCLES (C+1)*CYCLE
+LOGTIME CYCLE
 
 # Transport parameters
 DROP 0.0
-DELAY 0.0087
-MINDELAY DELAY*NETWORKSIZE
-MAXDELAY DELAY*NETWORKSIZE*1.5
+DELAY 1.0
+MINDELAY DELAY*CYCLE
+MAXDELAY DELAY*CYCLE
 
 # Overlay parameters
-NEIGHBORS 10
-NEWSCAST_FREQ NETWORKSIZE/10.0
+NEIGHBORS 20
+NEWSCAST_FREQ CYCLE/10.0
 
 
 #-------------------- General Simulation Properties --------------------
 network.size NETWORKSIZE
-simulation.endtime CYCLE
+simulation.endtime CYCLES
 simulation.logtime LOGTIME
 simulation.messagemindelay MINDELAY
 simulation.threadnum CORES
@@ -43,41 +44,53 @@ protocol.overlay.cache NEIGHBORS
 protocol.overlay.baseFreq NEWSCAST_FREQ
 
 
-#-------------------- Extraction layer --------------------
-protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
-protocol.extractionProtocol.linkable overlay
-protocol.extractionProtocol.transport transport
-protocol.extractionProtocol.delayMean NETWORKSIZE
-protocol.extractionProtocol.delayVar NETWORKSIZE/10.0
-protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
-protocol.extractionProtocol.modelHolderCapacity 1
-protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
-protocol.extractionProtocol.isUseTMan false
-
-
 #-------------------- Learning layer(s) --------------------
-LAMBDA 1E-3
-ALPHA 1E-4
-DIMENSION 2
-ORIGDIM 1682
+ETA 1E-2
+LAMBDA 1E-1
+K 5
+DIMENSION 1682
+MIN 1
+MAX 5
+SIZE 0.1
+EPOCH 10
+#include.model RecSys MergeRecSys SlimRecSys
+#include.model RecSys
+#include.model MergeRecSys
+include.model SlimRecSys
+
 protocol.learningProtocol gossipLearning.protocols.FactorizationProtocol
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport transport
-protocol.learningProtocol.extractorProtocol extractionProtocol
-protocol.learningProtocol.delayMean NETWORKSIZE
-protocol.learningProtocol.delayVar NETWORKSIZE/10.0
-protocol.learningProtocol.numOfWaitingPeriods 10
-protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
-protocol.learningProtocol.modelHolderCapacity 3
+protocol.learningProtocol.delayMean CYCLE
+protocol.learningProtocol.delayVar 0.0
 protocol.learningProtocol.aggrName gossipLearning.evaluators.RecSysResultAggregator
-protocol.learningProtocol.learner.RecSysModel gossipLearning.models.factorization.RecSysModel
-protocol.learningProtocol.learner.RecSysModel.dimension DIMENSION
-protocol.learningProtocol.learner.RecSysModel.origdim ORIGDIM
-protocol.learningProtocol.learner.RecSysModel.lambda LAMBDA
-protocol.learningProtocol.learner.RecSysModel.alpha ALPHA
-protocol.learningProtocol.learner.RecSysModel.min 1
-protocol.learningProtocol.learner.RecSysModel.max 5
-protocol.learningProtocol.evalNames gossipLearning.evaluators.MAError
+
+protocol.learningProtocol.learner.RecSys gossipLearning.models.factorization.RecSysModel
+protocol.learningProtocol.learner.RecSys.dimension DIMENSION
+protocol.learningProtocol.learner.RecSys.k K
+protocol.learningProtocol.learner.RecSys.eta ETA
+protocol.learningProtocol.learner.RecSys.lambda LAMBDA
+protocol.learningProtocol.learner.RecSys.min MIN
+protocol.learningProtocol.learner.RecSys.max MAX
+protocol.learningProtocol.learner.RecSys.epoch EPOCH
+protocol.learningProtocol.learner.MergeRecSys gossipLearning.models.factorization.MergeableRecSys
+protocol.learningProtocol.learner.MergeRecSys.dimension DIMENSION
+protocol.learningProtocol.learner.MergeRecSys.k K
+protocol.learningProtocol.learner.MergeRecSys.eta ETA
+protocol.learningProtocol.learner.MergeRecSys.lambda LAMBDA
+protocol.learningProtocol.learner.MergeRecSys.min MIN
+protocol.learningProtocol.learner.MergeRecSys.max MAX
+protocol.learningProtocol.learner.MergeRecSys.epoch EPOCH
+protocol.learningProtocol.learner.SlimRecSys gossipLearning.models.factorization.SlimRecSys
+protocol.learningProtocol.learner.SlimRecSys.dimension DIMENSION
+protocol.learningProtocol.learner.SlimRecSys.k K
+protocol.learningProtocol.learner.SlimRecSys.eta ETA
+protocol.learningProtocol.learner.SlimRecSys.lambda LAMBDA
+protocol.learningProtocol.learner.SlimRecSys.min MIN
+protocol.learningProtocol.learner.SlimRecSys.max MAX
+protocol.learningProtocol.learner.SlimRecSys.epoch EPOCH
+protocol.learningProtocol.learner.SlimRecSys.size SIZE
+protocol.learningProtocol.evalNames gossipLearning.evaluators.RMSError
 protocol.learningProtocol.evalProbability 1.0
 
 
@@ -91,18 +104,16 @@ init.overlayStart.protocolID overlay
 
 init.instanceLoader gossipLearning.controls.InstanceLoader
 init.instanceLoader.readerClass gossipLearning.utils.RecSysDataBaseReader
-init.instanceLoader.extractionProtocol extractionProtocol
 init.instanceLoader.learningProtocols learningProtocol
-init.instanceLoader.trainingFile res/db/movielens_small.train
-init.instanceLoader.evaluationFile res/db/movielens_small.test
-
-init.instanceLoader.samplesPerNode 1
+init.instanceLoader.trainingFile res/db/movielens_100k.train
+init.instanceLoader.evaluationFile res/db/movielens_100k.test
+init.instanceLoader.cLabels -1
 init.instanceLoader.printPrecision 6
 init.instanceLoader.isPrintAges false
 
 init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
 init.learningProtocolStart.protocols learningProtocol
-init.learningProtocolStart.delay 0
+init.learningProtocolStart.delay CYCLE
 
 
 #-------------------- Define Init Sequence --------------------
@@ -111,7 +122,7 @@ include.init overlayInit overlayStart instanceLoader learningProtocolStart
 
 #-------------------- Observers --------------------
 control.prediction gossipLearning.controls.PredictionObserver
-control.prediction.from 1
+control.prediction.from CYCLE-1
 control.prediction.step LOGTIME
 control.prediction.protocol learningProtocol
 control.prediction.format gpt

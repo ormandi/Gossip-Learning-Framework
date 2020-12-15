@@ -1,6 +1,7 @@
 package gossipLearning.controls;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.LinkedList;
 
 import gossipLearning.protocols.LearningProtocol;
@@ -76,7 +77,7 @@ public class InstanceLoader implements Control {
    * Reads the parameters from the configuration file based on the specified prefix.
    * @param prefix prefix of parameters of this class
    */
-  public InstanceLoader(String prefix) {
+  public InstanceLoader(String prefix) throws Exception {
     String[] pidLSS = Configuration.getString(prefix + "." + PAR_PROTLS).split(",");
     pidLS = new int[pidLSS.length];
     for (int i = 0; i < pidLSS.length; i++) {
@@ -95,7 +96,11 @@ public class InstanceLoader implements Control {
   public boolean execute(){
     try {
       // read instances
-      reader = DataBaseReader.createDataBaseReader(readerClassName, tFile, eFile);
+      System.err.println("Reading data set.");
+      System.err.println("\ttraining file: " + tFile);
+      System.err.println("\tevaluation file: " + eFile);
+      reader = DataBaseReader.createDataBaseReader(readerClassName, new FileInputStream(tFile), new FileInputStream(eFile));
+      System.err.println("\tsize: " + reader.getTrainingSet().size() + ", " + reader.getEvalSet().size() + " x " + reader.getTrainingSet().getNumberOfFeatures());
       if (normalization == 1) {
         System.err.println("|--WARNING: feature values will be normalized into the [0-1] interval");
         reader.normalize();

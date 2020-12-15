@@ -1,14 +1,14 @@
 package gossipLearning.utils;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Vector;
 
 public class RecSysDataBaseReader extends DataBaseReader {
 
-  protected RecSysDataBaseReader(File tFile, File eFile) throws IOException{
+  protected RecSysDataBaseReader(InputStream tFile, InputStream eFile) throws IOException{
     super(tFile, eFile);
   }
   
@@ -17,14 +17,10 @@ public class RecSysDataBaseReader extends DataBaseReader {
    * @param file the file that has to be parsed
    * @throws IOException if file reading error occurs.
    */
-  protected InstanceHolder parseFile(final File file) throws IOException{
-    // throw exception if the file does not exist or null
-    if (file == null || !file.exists()){
-      throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
-    }
+  protected InstanceHolder parseFile(final InputStream file) throws IOException{
     Vector<SparseVector> instances = new Vector<SparseVector>();
     Vector<Double> labels = new Vector<Double>();
-    BufferedReader br = new BufferedReader(new FileReader(file));
+    BufferedReader br = new BufferedReader(new InputStreamReader(file, "utf8"));
     int numberOfClasses = -1;
     int numberOfFeatures = -1;
     String line;

@@ -56,10 +56,9 @@ protocol.extractionProtocol.isUseTMan false
 
 
 #-------------------- Learning layer(s) --------------------
-DIMENSION 2
-ORIGDIM 4
-LAMBDA 1E-2
-ALPHA 0
+DIMENSION 4
+K 2
+ETA 1E-1
 protocol.learningProtocol gossipLearning.protocols.FactorizationProtocol
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport transport
@@ -72,9 +71,12 @@ protocol.learningProtocol.modelHolderCapacity 5
 protocol.learningProtocol.aggrName gossipLearning.evaluators.LowRankResultAggregator
 protocol.learningProtocol.learner.LowRankDecomposition gossipLearning.models.factorization.LowRankDecomposition
 protocol.learningProtocol.learner.LowRankDecomposition.dimension DIMENSION
-protocol.learningProtocol.learner.LowRankDecomposition.origdim ORIGDIM
-protocol.learningProtocol.learner.LowRankDecomposition.lambda LAMBDA
-protocol.learningProtocol.learner.LowRankDecomposition.alpha ALPHA
+protocol.learningProtocol.learner.LowRankDecomposition.k K
+protocol.learningProtocol.learner.LowRankDecomposition.eta ETA
+protocol.learningProtocol.learner.MergeLowRankDecomposition gossipLearning.models.factorization.MergeableLowRank
+protocol.learningProtocol.learner.MergeLowRankDecomposition.dimension DIMENSION
+protocol.learningProtocol.learner.MergeLowRankDecomposition.k K
+protocol.learningProtocol.learner.MergeLowRankDecomposition.eta ETA
 protocol.learningProtocol.evalNames gossipLearning.evaluators.MAError
 protocol.learningProtocol.evalProbability 1.0
 
@@ -93,8 +95,8 @@ init.instanceLoader.extractionProtocol extractionProtocol
 init.instanceLoader.learningProtocols learningProtocol
 init.instanceLoader.trainingFile res/db/iris.dat
 init.instanceLoader.evaluationFile res/db/iris.dat
-init.instanceLoader.samplesPerNode 1
 init.instanceLoader.printPrecision 4
+init.instanceLoader.cLabels -1
 init.instanceLoader.isPrintAges false
 
 init.learningProtocolStart gossipLearning.controls.StartMessageInitializer

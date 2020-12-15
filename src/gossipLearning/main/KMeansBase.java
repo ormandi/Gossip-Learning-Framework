@@ -7,6 +7,7 @@ import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.SparseVector;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
@@ -41,7 +42,7 @@ public class KMeansBase {
     
     // read database
     System.err.println("Reading data set.");
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, new FileInputStream(tFile), new FileInputStream(eFile));
     reader.standardize();
     
     // initialize evaluator

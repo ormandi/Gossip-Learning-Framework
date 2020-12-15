@@ -10,6 +10,7 @@ import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -51,7 +52,7 @@ public class LowRankRun {
     
     // read database
     System.err.println("Reading data set.");
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, new FileInputStream(tFile), new FileInputStream(eFile));
     //reader.standardize();
     
     // create models

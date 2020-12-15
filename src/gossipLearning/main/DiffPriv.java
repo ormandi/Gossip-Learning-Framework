@@ -1,5 +1,9 @@
 package gossipLearning.main;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Random;
+
 import gossipLearning.evaluators.ResultAggregator;
 import gossipLearning.interfaces.models.LearningModel;
 import gossipLearning.interfaces.models.PrivateModel;
@@ -8,10 +12,6 @@ import gossipLearning.utils.DataBaseReader;
 import gossipLearning.utils.InstanceHolder;
 import gossipLearning.utils.SparseVector;
 import gossipLearning.utils.Utils;
-
-import java.io.File;
-import java.util.Random;
-
 import peersim.config.Configuration;
 import peersim.config.ParsedProperties;
 import peersim.core.CommonState;
@@ -106,7 +106,7 @@ public class DiffPriv {
     
     // read database
     System.err.println("Reading data set.");
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, new FileInputStream(tFile), new FileInputStream(eFile));
     
     // normalize database
     if (normalization.equals("standardize")) {

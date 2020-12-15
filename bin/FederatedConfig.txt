@@ -1,24 +1,25 @@
-SEED 1234567890
-THREADS 4
-WEIGHTED 0
+#java -cp bin/gossipLearning.jar gossipLearning.main.FederatedLearning bin/FederatedConfig.txt
 
-CLIENTS 100
-EPOCHS 1
-BATCH 10
+SEED 1234567890
+THREADS 1
+WEIGHTED 1
+GLOBALEVAL 1
+DOWNSLIM 1
+
+CLIENTS 1000
+EPOCH 1
+BATCH 1
 FRACTION 1.0
 C 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
 
-SIZE 16
-SLIMSIZE 4
-DATASIZE (SIZE/SLIMSIZE)/(1.0*SIZE)
+SLIMSIZE 1
 
-DELAY 172000.0*(1.0+DATASIZE) #millices for trace
+DELAY 172800.0*50*((1.0+DOWNSLIM)*SLIMSIZE+(1.0-DOWNSLIM))*FRACTION #millices for trace
 ITER 48*60*60*1000/DELAY
-
 
 NORMALIZATION 2 #0: none 1: normalize 2: standardize
 LAMBDA 1E-4
-ETA 1/LAMBDA
+ETA 1.0/LAMBDA
 ISTIME 1
 
 E 2.718281828459045
@@ -39,18 +40,17 @@ churn.traceFile ../res/trace/peersim_session_twoday_100_-1min.txt # (for TraceCh
 #include ANN ANNSlim ANNSlimU
 #include ANN
 #include OVSALogReg OVSALogRegSlim OVSAPegasos OVSAPegasosSlim
-#include OVSALogReg OVSAPegasos
-include OVSALogRegSlim
+include OVSALogReg
 
 dbReader gossipLearning.utils.DataBaseReader
 #trainingFile ../res/db/iris_train.dat
 #evaluationFile ../res/db/iris_eval.dat
-#trainingFile ../res/db/local/spambase_train.dat
-#evaluationFile ../res/db/local/spambase_test.dat
+trainingFile res/db/local/spambase_train.dat
+evaluationFile res/db/local/spambase_test.dat
 #trainingFile ../res/db/local/reuters_train.dat
 #evaluationFile ../res/db/local/reuters_test.dat
-trainingFile ../res/db/local/pendigits_train.dat
-evaluationFile ../res/db/local/pendigits_eval.dat
+#trainingFile ../res/db/local/pendigits_train.dat
+#evaluationFile ../res/db/local/pendigits_eval.dat
 #trainingFile ../res/db/local/har_train.dat
 #evaluationFile ../res/db/local/har_test.dat
 #trainingFile ../res/db/local/mnist_train.dat
@@ -116,12 +116,18 @@ learner.OVSALogReg.optimizer gossipLearning.interfaces.optimizers.GD
 learner.OVSALogReg.optimizer.alpha 0.9
 learner.OVSALogReg.optimizer.beta 0.999
 
+learner.OVSALogRegSlimTMP gossipLearning.models.learning.mergeable.slim.SlimOvsA
+learner.OVSALogRegSlimTMP.model gossipLearning.models.learning.mergeable.slim.SlimLogReg_Temp
+learner.OVSALogRegSlimTMP.lambda LAMBDA
+learner.OVSALogRegSlimTMP.eta ETA
+learner.OVSALogRegSlimTMP.is_time ISTIME
+learner.OVSALogRegSlimTMP.size 0.25
 learner.OVSALogRegSlim gossipLearning.models.learning.mergeable.slim.SlimOvsA
 learner.OVSALogRegSlim.model gossipLearning.models.learning.mergeable.slim.SlimLogReg
 learner.OVSALogRegSlim.lambda LAMBDA
 learner.OVSALogRegSlim.eta ETA
 learner.OVSALogRegSlim.is_time ISTIME
-learner.OVSALogRegSlim.size -SIZE/SLIMSIZE
+learner.OVSALogRegSlim.size SLIMSIZE
 learner.OVSALogRegSlim.weighted WEIGHTED
 learner.OVSAPegasos gossipLearning.models.learning.mergeable.MergeableOvsA
 learner.OVSAPegasos.model gossipLearning.models.learning.mergeable.MergeablePegasos
@@ -133,7 +139,7 @@ learner.OVSAPegasosSlim.model gossipLearning.models.learning.mergeable.slim.Slim
 learner.OVSAPegasosSlim.lambda LAMBDA
 learner.OVSAPegasosSlim.eta ETA
 learner.OVSAPegasosSlim.is_time ISTIME
-learner.OVSAPegasosSlim.size -SIZE/SLIMSIZE
+learner.OVSAPegasosSlim.size SLIMSIZE
 learner.OVSAPerceptron gossipLearning.models.learning.mergeable.MergeableOvsA
 learner.OVSAPerceptron.model gossipLearning.models.learning.mergeable.MergeablePerceptron
 learner.OVSAPerceptron.lambda LAMBDA

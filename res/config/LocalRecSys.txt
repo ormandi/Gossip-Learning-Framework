@@ -2,8 +2,8 @@ ITER 1000
 SEED 1234567890
 
 dbReader gossipLearning.utils.RecSysDataBaseReader
-trainingFile res/db/movielens_small.train
-evaluationFile res/db/movielens_small.test
+trainingFile res/db/movielens_100k.train
+evaluationFile res/db/movielens_100k.test
 
 learner.RecSysModel gossipLearning.models.factorization.RecSysModel
 learner.RecSysModel.dimension 2

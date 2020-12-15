@@ -2,8 +2,9 @@ package gossipLearning.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.Set;
 import java.util.TreeSet;
@@ -39,7 +40,7 @@ public class DataBaseReader {
   private SparseVector maxs;
   private boolean isNormalized;
   
-  protected DataBaseReader(final File tFile, final File eFile) throws IOException{
+  protected DataBaseReader(final InputStream tFile, final InputStream eFile) throws IOException{
     means = new SparseVector();
     devs = new SparseVector();
     mins = new SparseVector();
@@ -85,14 +86,10 @@ public class DataBaseReader {
    * @param file the file that has to be parsed
    * @throws IOException if file reading error occurs.
    */
-  protected InstanceHolder parseFile(final File file) throws IOException{
-    // throw exception if the file does not exist or null
-    if (file == null || !file.exists()){
-      throw new RuntimeException("The file \"" + file.toString() + "\" is null or does not exist!");
-    }
+  protected InstanceHolder parseFile(final InputStream file) throws IOException{
     Vector<SparseVector> instances = new Vector<SparseVector>();
     Vector<Double> labels = new Vector<Double>();
-    BufferedReader br = new BufferedReader(new FileReader(file));
+    BufferedReader br = new BufferedReader(new InputStreamReader(file, "utf8"));
     int numberOfClasses = -1;
     int numberOfFeatures = -1;
     Set<Double> classes = new TreeSet<Double>();
@@ -295,8 +292,8 @@ public class DataBaseReader {
   }
   
   private static DataBaseReader instance = null;
-  private static File tFile = null;
-  private static File eFile = null;
+  private static InputStream tFile = null;
+  private static InputStream eFile = null;
   
   /**
    * Creates and returns a DataBaseReader object that contains the training and the evaluation sets. 
@@ -309,12 +306,12 @@ public class DataBaseReader {
    * @throws IOException if file reading error occurs.
    */
   @SuppressWarnings("unchecked")
-  public static DataBaseReader createDataBaseReader(String className, final File tFile, final File eFile) throws Exception {
+  public static DataBaseReader createDataBaseReader(String className, final InputStream tFile, final InputStream eFile) throws Exception {
     if (instance == null || !instance.getClass().getCanonicalName().equals(className) || !tFile.equals(DataBaseReader.tFile) || !eFile.equals(DataBaseReader.eFile)) {
       DataBaseReader.tFile = tFile;
       DataBaseReader.eFile = eFile;
       Class<? extends DataBaseReader> dataBaseReaderClass = (Class<? extends DataBaseReader>) Class.forName(className);
-      Constructor<? extends DataBaseReader> dbrConst = dataBaseReaderClass.getDeclaredConstructor(File.class, File.class);
+      Constructor<? extends DataBaseReader> dbrConst = dataBaseReaderClass.getDeclaredConstructor(InputStream.class, InputStream.class);
       DataBaseReader.instance = dbrConst.newInstance(tFile, eFile);
     }
     return instance;

@@ -1,32 +1,52 @@
+#java -cp bin/gossipLearning.jar peersim.Simulator res/config/P2PLearning.txt
+
 C 100 #number of cycles
-NETWORKSIZE 90 #number of nodes (should be the same as the number of training instances)
+CLENGTH 1000 #length of a cycle
+NETWORKSIZE 1000 #number of nodes
 SEED 1234567890 #random seed
 CORES 1 #number of cores for running
 
-NORMALIZATION 0 #0: none, 1: normalize, 2: standardize
-LAMBDA 1E-4 #learning rate
-EPOCH 1 #number of local epochs
-BATCH 1 #local min-batch size
 
-CYCLE (C+1)*NETWORKSIZE
-LOGTIME NETWORKSIZE
+NORMALIZATION 2 #0: none, 1: normalize, 2: standardize
+CLABELS 0 #0: unbiased label distribution, 1: a client has instances from 1 class only ...
+
+LAMBDA 1E-4 #regularization
+ETA 1/LAMBDA #learning rate
+ISTIME 1 #dynamic learning rate
+
+EPOCH 1 #number of local epochs
+BATCH 1 #local min-batch size, 0: full batch
+
+SLIMSIZE 0.1 #percentage of parameters sent in slim mode
+
+#include.model Pegasos LogReg LogRegMerge LogRegSlim #the order of model include, not required
+#include.model LoggerModel
+#include.model LogReg LogRegMerge LogRegSlim Pegasos PegasosMerge PegasosSlim
+#include.model Pegasos PegasosMerge PegasosSlim
+include.model LogRegMerge
+
+
+# Symulation parameters
+CYCLES (C+1)*CLENGTH
+LOGTIME CLENGTH
 
 # Transport parameters
 DROP 0.0
 DELAY 1.0
-MINDELAY DELAY*NETWORKSIZE*0.9
-MAXDELAY DELAY*NETWORKSIZE*1.1
+MINDELAY DELAY*CLENGTH
+MAXDELAY DELAY*CLENGTH
 
 # Overlay parameters
-NEWSCAST_CACHESIZE 5
-NEWSCAST_FREQ NETWORKSIZE/10.0
+NEIGHBORS 10
+NEWSCAST_FREQ CLENGTH/10.0
 
 #-------------------- General Simulation Properties --------------------
 network.size NETWORKSIZE
-simulation.endtime CYCLE
+simulation.endtime CYCLES
 simulation.logtime LOGTIME
 simulation.messagemindelay MINDELAY
-simulation.threadnum CORES
+simulation.singlethread
+#simulation.threadnum CORES
 random.seed SEED
 
 
@@ -43,37 +63,50 @@ protocol.transport.drop DROP
 #-------------------- Connection layer --------------------
 protocol.overlay peersim.extras.mj.ednewscast.EdNewscast
 protocol.overlay.transport transport
-protocol.overlay.cache NEWSCAST_CACHESIZE
+protocol.overlay.cache NEIGHBORS
 protocol.overlay.baseFreq NEWSCAST_FREQ
-
-
-#-------------------- Extraction layer --------------------
-protocol.extractionProtocol gossipLearning.protocols.ExtractionProtocol
-protocol.extractionProtocol.linkable overlay
-protocol.extractionProtocol.transport transport
-protocol.extractionProtocol.delayMean NETWORKSIZE
-protocol.extractionProtocol.delayVar NETWORKSIZE/10.0
-protocol.extractionProtocol.modelHolderName gossipLearning.utils.BQModelHolder
-protocol.extractionProtocol.modelHolderCapacity 1
-protocol.extractionProtocol.modelName gossipLearning.models.extraction.DummyExtractor
-protocol.extractionProtocol.isUseTMan false
 
 
 #-------------------- Learning layer(s) --------------------
 protocol.learningProtocol gossipLearning.protocols.LearningProtocol
 protocol.learningProtocol.linkable overlay
 protocol.learningProtocol.transport transport
-protocol.learningProtocol.extractorProtocol extractionProtocol
-protocol.learningProtocol.delayMean NETWORKSIZE
-protocol.learningProtocol.delayVar NETWORKSIZE/10.0
-protocol.learningProtocol.numOfWaitingPeriods 10
-protocol.learningProtocol.modelHolderName gossipLearning.utils.BQModelHolder
-protocol.learningProtocol.modelHolderCapacity 3
+protocol.learningProtocol.delayMean CLENGTH
+protocol.learningProtocol.delayVar CLENGTH/10.0
 protocol.learningProtocol.aggrName gossipLearning.evaluators.ResultAggregator
-protocol.learningProtocol.learner.PegasosSVM gossipLearning.models.learning.P2Pegasos
-protocol.learningProtocol.learner.PegasosSVM.lambda LAMBDA
+
+protocol.learningProtocol.learner.LoggerModel gossipLearning.models.LoggerModel
+
 protocol.learningProtocol.learner.LogReg gossipLearning.models.learning.LogisticRegression
+protocol.learningProtocol.learner.LogRegMerge gossipLearning.models.learning.mergeable.MergeableLogReg
+protocol.learningProtocol.learner.LogRegSlim gossipLearning.models.learning.mergeable.slim.SlimLogReg
+protocol.learningProtocol.learner.Pegasos gossipLearning.models.learning.P2Pegasos
+protocol.learningProtocol.learner.PegasosMerge gossipLearning.models.learning.mergeable.MergeablePegasos
+protocol.learningProtocol.learner.PegasosSlim gossipLearning.models.learning.mergeable.slim.SlimPegasos
+
 protocol.learningProtocol.learner.LogReg.lambda LAMBDA
+protocol.learningProtocol.learner.LogReg.eta ETA
+protocol.learningProtocol.learner.LogReg.is_time ISTIME
+protocol.learningProtocol.learner.LogRegMerge.lambda LAMBDA
+protocol.learningProtocol.learner.LogRegMerge.eta ETA
+protocol.learningProtocol.learner.LogRegMerge.is_time ISTIME
+protocol.learningProtocol.learner.LogRegSlim.lambda LAMBDA
+protocol.learningProtocol.learner.LogRegSlim.eta ETA
+protocol.learningProtocol.learner.LogRegSlim.is_time ISTIME
+protocol.learningProtocol.learner.LogRegSlim.size SLIMSIZE
+protocol.learningProtocol.learner.LogRegSlim.weighted 1
+protocol.learningProtocol.learner.Pegasos.lambda LAMBDA
+protocol.learningProtocol.learner.Pegasos.eta ETA
+protocol.learningProtocol.learner.Pegasos.is_time ISTIME
+protocol.learningProtocol.learner.PegasosMerge.lambda LAMBDA
+protocol.learningProtocol.learner.PegasosMerge.eta ETA
+protocol.learningProtocol.learner.PegasosMerge.is_time ISTIME
+protocol.learningProtocol.learner.PegasosSlim.lambda LAMBDA
+protocol.learningProtocol.learner.PegasosSlim.eta ETA
+protocol.learningProtocol.learner.PegasosSlim.is_time ISTIME
+protocol.learningProtocol.learner.PegasosSlim.size SLIMSIZE
+protocol.learningProtocol.learner.PegasosSlim.weighted 1
+
 protocol.learningProtocol.evalNames gossipLearning.evaluators.ZeroOneError
 protocol.learningProtocol.evalProbability 1.0
 protocol.learningProtocol.epoch EPOCH
@@ -82,7 +115,7 @@ protocol.learningProtocol.batch BATCH
 
 #-------------------- Initializers --------------------
 init.overlayInit WireKOut
-init.overlayInit.k NEWSCAST_CACHESIZE
+init.overlayInit.k NEIGHBORS
 init.overlayInit.protocol overlay
 
 init.overlayStart peersim.extras.mj.ednewscast.EventInitializer
@@ -92,15 +125,18 @@ init.instanceLoader gossipLearning.controls.InstanceLoader
 init.instanceLoader.readerClass gossipLearning.utils.DataBaseReader
 init.instanceLoader.extractionProtocol extractionProtocol
 init.instanceLoader.learningProtocols learningProtocol
-init.instanceLoader.trainingFile res/db/iris_setosa_versicolor_train.dat
-init.instanceLoader.evaluationFile res/db/iris_setosa_versicolor_eval.dat
+#init.instanceLoader.trainingFile ../res/db/iris_setosa_versicolor_train.dat
+#init.instanceLoader.evaluationFile ../res/db/iris_setosa_versicolor_eval.dat
+init.instanceLoader.trainingFile res/db/local/spambase_train.dat
+init.instanceLoader.evaluationFile res/db/local/spambase_test.dat
 init.instanceLoader.printPrecision 4
 init.instanceLoader.isPrintAges false
 init.instanceLoader.normalization NORMALIZATION
+init.instanceLoader.cLabels CLABELS
 
 init.learningProtocolStart gossipLearning.controls.StartMessageInitializer
 init.learningProtocolStart.protocols learningProtocol
-init.learningProtocolStart.delay 0
+init.learningProtocolStart.delay CLENGTH
 
 
 #-------------------- Define Init Sequence --------------------
@@ -109,7 +145,7 @@ include.init overlayInit overlayStart instanceLoader learningProtocolStart
 
 #-------------------- Observers --------------------
 control.prediction gossipLearning.controls.PredictionObserver
-control.prediction.from 1
+control.prediction.from CLENGTH - 1
 control.prediction.step LOGTIME
 control.prediction.protocol learningProtocol
 control.prediction.format gpt

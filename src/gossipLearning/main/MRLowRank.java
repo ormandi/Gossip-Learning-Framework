@@ -10,6 +10,7 @@ import gossipLearning.utils.Utils;
 import gossipLearning.utils.VectorEntry;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.util.Arrays;
 
 import peersim.config.Configuration;
@@ -51,7 +52,7 @@ public class MRLowRank {
     
     // read database
     System.err.println("Reading data set.");
-    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, tFile, eFile);
+    DataBaseReader reader = DataBaseReader.createDataBaseReader(dbReaderName, new FileInputStream(tFile), new FileInputStream(eFile));
     
     Matrix M = new Matrix(reader.getEvalSet().size(), reader.getEvalSet().getNumberOfFeatures());
     for (int i = 0; i < reader.getEvalSet().size(); i++) {
