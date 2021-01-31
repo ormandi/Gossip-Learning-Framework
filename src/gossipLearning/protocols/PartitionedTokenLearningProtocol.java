@@ -61,7 +61,7 @@ public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
   
   @Override
   public void activeThread() {
-    if (!nodeIsOnline(currentNode))
+    if (!nodeIsOnline(currentNode,currentProtocolID))
       return;
     evaluate();
     if (!partPerm.hasNext())
@@ -96,7 +96,7 @@ public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
     for (int i=0; i<2; i++) {
       while (neighborPerm.hasNext()) {
         Node target = linkable.getNeighbor(neighborPerm.next());
-        if (nodeIsOnline(target)) {
+        if (nodeIsOnline(target,currentProtocolID)) {
           getTransport().send(currentNode,target,new PartitionedTokenMessage(currentNode,target,modelHolder,currentProtocolID,true,pi),currentProtocolID);
           return;
         }

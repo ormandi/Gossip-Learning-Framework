@@ -102,6 +102,13 @@ public abstract class AbstractProtocol implements GossipProtocol, Cloneable {
     return randomNode;
   }
   
+  public static boolean nodeIsOnline(Node node, int pid) {
+    Transport transport = (Transport)node.getProtocol(FastConfig.getTransport(pid));
+    if (transport instanceof ChurnTransportM)
+      return ((ChurnTransportM)transport).isOnline();
+    return true;
+  }
+  
   /**
    * Sends the specified message to the specified destination node for the 
    * specified protocol from the specified source node.

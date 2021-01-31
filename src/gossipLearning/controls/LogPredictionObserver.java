@@ -3,9 +3,8 @@ package gossipLearning.controls;
 import peersim.config.Configuration;
 import peersim.core.*;
 
-public class LogPredictionObserver extends TokenPredictionObserver {
+public class LogPredictionObserver extends LinearPredictionObserver {
   
-  private static final String PAR_SHIFT = "shift";
   private static final String PAR_START = "logStart";
   private static final String PAR_END = "logEnd";
   private static final String PAR_SAMPLES = "samples";
@@ -19,7 +18,7 @@ public class LogPredictionObserver extends TokenPredictionObserver {
   
   public LogPredictionObserver(String prefix) {
     super(prefix);
-    shift = Configuration.getLong(prefix+"."+PAR_SHIFT,0);
+    shift = new Scheduler(prefix,false).from;
     start = Configuration.getLong(prefix+"."+PAR_START);
     end = Configuration.getLong(prefix+"."+PAR_END);
     samples = Configuration.getLong(prefix+"."+PAR_SAMPLES);
@@ -27,10 +26,10 @@ public class LogPredictionObserver extends TokenPredictionObserver {
   
   @Override
   public boolean execute() {
-    long time = CommonState.getTime()/logTime-shift;
+    long time = (CommonState.getTime()-shift)/logTime;
     while (Math.round(Math.pow(end/start,counter/samples)*start)<time)
       counter++;
-    if (0<=time&&time<=start||Math.round(Math.pow(end/start,counter/samples)*start)==time)
+    if (time<=start||Math.round(Math.pow(end/start,counter/samples)*start)==time)
       return super.execute();
     return false;
   }

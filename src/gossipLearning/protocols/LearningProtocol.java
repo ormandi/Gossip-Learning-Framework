@@ -136,6 +136,11 @@ public class LearningProtocol extends AbstractProtocol {
       }
     }
   }
+
+  public void forceEvaluate(int pid) { // might be called before currentProtocolID is set
+    for (int i = 0; i < models.length; i++)
+      resultAggregator.push(pid, i, (LearningModel)models[i]);
+  }
   
   public ResultAggregator getResultAggregator() {
     return resultAggregator;

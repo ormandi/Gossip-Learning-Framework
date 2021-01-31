@@ -93,7 +93,7 @@ public class TokenLearningProtocol extends LearningProtocol {
   
   @Override
   public void activeThread() {
-    if (!nodeIsOnline(currentNode))
+    if (!nodeIsOnline(currentNode,currentProtocolID))
       return;
     evaluate();
     token++;
@@ -122,14 +122,6 @@ public class TokenLearningProtocol extends LearningProtocol {
     }
     return true;
   }
-
-  public double evaluate(double minAge) {
-    if (currentNode==null || !nodeIsOnline(currentNode) || models[0].getAge()<minAge)
-      return -1;
-    for (int i = 0; i < models.length; i++)
-      resultAggregator.push(currentProtocolID, i, (LearningModel)models[i]);
-    return models[0].getAge();
-  }
   
   private void sendMsg() {
     modelHolder.clear();
@@ -148,22 +140,13 @@ public class TokenLearningProtocol extends LearningProtocol {
     for (int i=0; i<2; i++) {
       while (neighborPerm.hasNext()) {
         Node target = linkable.getNeighbor(neighborPerm.next());
-        if (nodeIsOnline(target)) {
+        if (nodeIsOnline(target,currentProtocolID)) {
           getTransport().send(currentNode,target,new ModelMessage(currentNode,target,modelHolder,currentProtocolID,true),currentProtocolID);
           return;
         }
       }
       neighborPerm.reset(linkable.degree());
     }
-  }
-  
-  protected boolean nodeIsOnline(Node node) {
-    Protocol transport = node.getProtocol(FastConfig.getTransport(currentProtocolID));
-    if (transport instanceof ChurnTransport)
-      return ((ChurnTransport)transport).isOnline();
-    if (transport instanceof ChurnTransportM)
-      return ((ChurnTransportM)transport).isOnline();
-    return true;
   }
   
   // Token strategy
