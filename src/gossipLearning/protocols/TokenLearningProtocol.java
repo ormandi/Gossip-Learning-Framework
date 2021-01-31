@@ -44,6 +44,8 @@ public class TokenLearningProtocol extends LearningProtocol {
   
   private static final String PAR_WT = "warmupTime";
   
+  private static final String PAR_IL = "initLearn";
+  
   //---------------------------------------------------------------------
   //Fields
   //---------------------------------------------------------------------
@@ -55,6 +57,7 @@ public class TokenLearningProtocol extends LearningProtocol {
   protected final int B;
   protected final int permMode;
   protected final long warmupTime;
+  protected boolean toInitLearn;
   
   //---------------------------------------------------------------------
   //Initialization
@@ -67,6 +70,7 @@ public class TokenLearningProtocol extends LearningProtocol {
     B = Configuration.getInt(prefix+"."+PAR_B);
     permMode = Configuration.getInt(prefix+"."+PAR_PERM);
     warmupTime = Configuration.getLong(prefix+"."+PAR_WT,0);
+    toInitLearn = Configuration.getInt(prefix+"."+PAR_IL,0)==1;
   }
 
   /**
@@ -80,6 +84,7 @@ public class TokenLearningProtocol extends LearningProtocol {
     B = a.B;
     permMode = a.permMode;
     warmupTime = a.warmupTime;
+    toInitLearn = a.toInitLearn;
   }
   
   @Override
@@ -93,6 +98,7 @@ public class TokenLearningProtocol extends LearningProtocol {
   
   @Override
   public void activeThread() {
+    initLearn();
     if (!nodeIsOnline(currentNode,currentProtocolID))
       return;
     evaluate();
@@ -103,9 +109,24 @@ public class TokenLearningProtocol extends LearningProtocol {
   
   @Override
   protected void updateModels(ModelHolder modelHolder) {
+    initLearn();
     int x = (int)Math.floor(CommonState.r.nextDouble()+reactions(token,updateState(modelHolder)));
     for (int i=0; i<x; i++)
       sendMsg();
+  }
+  
+  @Override
+  public void forceEvaluate(int pid) {
+    initLearn();
+    super.forceEvaluate(pid);
+  }
+  
+  protected void initLearn() {
+    if (toInitLearn && CommonState.getTime()>=warmupTime) {
+      toInitLearn = false;
+      for (int i=0; i<models.length; i++)
+        ((LearningModel)models[i]).update(instances,epoch,batch);
+    }
   }
   
   protected boolean updateState(ModelHolder modelHolder) {

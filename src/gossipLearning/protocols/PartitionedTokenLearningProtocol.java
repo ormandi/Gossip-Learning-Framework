@@ -61,6 +61,7 @@ public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
   
   @Override
   public void activeThread() {
+    initLearn();
     if (!nodeIsOnline(currentNode,currentProtocolID))
       return;
     evaluate();
@@ -74,6 +75,7 @@ public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
   
   @Override
   protected void updateModels(ModelHolder modelHolder){
+    initLearn();
     int pi = ((PartitionedTokenMessage)modelHolder).partIndex;
     int x = (int)Math.floor(CommonState.r.nextDouble()+reactions(token[pi],updateState(modelHolder)));
     for (int i=0; i<x; i++)
