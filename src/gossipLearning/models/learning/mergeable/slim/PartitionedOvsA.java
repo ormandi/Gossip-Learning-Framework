@@ -3,6 +3,9 @@ package gossipLearning.models.learning.mergeable.slim;
 import gossipLearning.interfaces.models.Partitioned;
 import gossipLearning.models.learning.mergeable.MergeableOvsA;
 
+/**
+ * A MergeableOvsA for Partitioned models.
+ */
 public class PartitionedOvsA extends MergeableOvsA implements Partitioned {
   
   public PartitionedOvsA(String prefix) {

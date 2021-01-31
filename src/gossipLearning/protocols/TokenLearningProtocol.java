@@ -12,6 +12,9 @@ import gossipLearning.interfaces.models.Mergeable;
 import gossipLearning.interfaces.models.Model;
 import gossipLearning.messages.ModelMessage;
 
+/**
+ * A LearningProtocol with token-based flow-control.
+ */
 public class TokenLearningProtocol extends LearningProtocol {
 
   //---------------------------------------------------------------------
@@ -42,8 +45,16 @@ public class TokenLearningProtocol extends LearningProtocol {
    */
   private static final String PAR_PERM = "permutation";
   
+  /** 
+   * The length of the warm-up period when no learning occurs.
+   * @config
+   */
   private static final String PAR_WT = "warmupTime";
   
+  /** 
+   * Set it to 1 to perform initial learning.
+   * @config
+   */
   private static final String PAR_IL = "initLearn";
   
   //---------------------------------------------------------------------
@@ -63,6 +74,9 @@ public class TokenLearningProtocol extends LearningProtocol {
   //Initialization
   //---------------------------------------------------------------------
 
+  /**
+   * Constructor for reading configuration parameters.
+   */
   public TokenLearningProtocol(String prefix) {
     super(prefix);
     strategy = Configuration.getString(prefix+"."+PAR_STRAT);
@@ -121,6 +135,9 @@ public class TokenLearningProtocol extends LearningProtocol {
     super.forceEvaluate(pid);
   }
   
+  /**
+   * Performs initial learning if needed.
+   */
   protected void initLearn() {
     if (toInitLearn && CommonState.getTime()>=warmupTime) {
       toInitLearn = false;

@@ -11,14 +11,17 @@ import peersim.core.Linkable;
 import peersim.core.Node;
 import peersim.util.RandPermutation;
 
+/**
+ * A TokenLearningProtocol for Partitioned models that has a separate token account for each model partition.
+ */
 public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
 
   //---------------------------------------------------------------------
   //Parameters
   //---------------------------------------------------------------------
   
-  /** 
-   * Subsampling factor.
+  /**
+   * Number of partitions. (Subsampling factor.)
    * @config
    */
   private static final String PAR_NP = "numParts";
@@ -35,6 +38,9 @@ public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
   //Initialization
   //---------------------------------------------------------------------
 
+  /**
+   * Constructor for reading configuration parameters.
+   */
   public PartitionedTokenLearningProtocol(String prefix) {
     super(prefix);
     numParts = Configuration.getInt(prefix+"."+PAR_NP);
@@ -109,6 +115,9 @@ public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
   
 }
 
+/**
+ * A ModelMessage that also contains a partition index.
+ */
 class PartitionedTokenMessage extends ModelMessage {
 
   public final int partIndex;

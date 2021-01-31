@@ -6,14 +6,23 @@ import gossipLearning.utils.AggregationResult;
 import peersim.config.Configuration;
 import peersim.core.*;
 
+/**
+ * Used for measuring model quality of the online nodes in the network at uniform intervals.
+ * The computed prediction error is written on the output channel.
+ */
 public class LinearPredictionObserver implements Control {
   
+  /**
+  * The learning protocol to measure.
+  * @config
+  */
   private static final String PAR_PROT = "protocol";
-  /** The protocol ID. This should be the id of one of the learning protocols.*/
+  
+  /** The protocol ID. */
   protected final int pid;
   /** @hidden*/
   protected boolean isPrintPrefix = true;
-  
+  /** Length of interval. */
   protected final long logTime;
   
   public LinearPredictionObserver(String prefix) {

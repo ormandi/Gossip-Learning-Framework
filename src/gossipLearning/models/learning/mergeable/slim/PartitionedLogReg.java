@@ -6,20 +6,33 @@ import gossipLearning.models.learning.mergeable.MergeableLogReg;
 import gossipLearning.utils.*;
 import peersim.config.Configuration;
 
+/**
+ * A MergeableLogReg that supports model partitioning.
+ */
 public class PartitionedLogReg extends MergeableLogReg implements Partitioned {
   
+  /**
+   * Number of partitions. (Subsampling factor.)
+   * @config
+   */
   private static final String PAR_NP = "numParts";
   
   protected final int numParts;
   
   protected double[] partAge;
   
+  /**
+   * Constructor for reading configuration parameters.
+   */
   public PartitionedLogReg(String prefix) {
     super(prefix);
     numParts = Configuration.getInt(prefix + "." + PAR_NP);
     partAge = new double[numParts];
   }
   
+  /**
+   * Deep copy constructor.
+   */
   protected PartitionedLogReg(PartitionedLogReg a) {
     super(a);
     numParts = a.numParts;
