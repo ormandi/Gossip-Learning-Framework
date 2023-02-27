@@ -17,6 +17,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
   private static final long serialVersionUID = -5680177111664068910L;
   private static final String PAR_OPIMIZER = "optimizer";
   private static final String PAR_AGESHIFT = "ageShift";
+  private static final String PAR_LIMIT = "mergeLimit";
   
   protected Vector w;
   protected double bias;
@@ -25,6 +26,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
   
   protected final Optimizer optimizer;
   protected final double ageshift;
+  protected final int limit;
   
   public LinearModel(double lambda) {
     super(lambda);
@@ -36,6 +38,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
     biasGradient = 0.0;
     optimizer = new GD();
     ageshift = 0;
+    limit = Integer.MAX_VALUE;
   }
   
   public LinearModel(String prefix) {
@@ -53,6 +56,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
       throw new RuntimeException("Exception while creating optimizer: ", e);
     }
     ageshift = Configuration.getDouble(prefix + "." + PAR_AGESHIFT, 0);
+    limit = Configuration.getInt(prefix + "." + PAR_LIMIT, Integer.MAX_VALUE);
   }
   
   public LinearModel(LinearModel a) {
@@ -63,6 +67,7 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
     bias = a.bias;
     biasGradient = a.biasGradient;
     ageshift = a.ageshift;
+    limit = a.limit;
   }
   
   public abstract LinearModel clone();
@@ -124,6 +129,10 @@ public abstract class LinearModel extends ProbabilityModel implements Addable, S
       return this;
     }
     double modelWeight = m.age / sum;
+    if (m.age-age>limit)
+      modelWeight = 1;
+    if (age-m.age>limit)
+      modelWeight = 0;
     age = Math.max(age, m.age);
     w.mul(1.0 - modelWeight).add(m.w, modelWeight);
     bias += (m.bias - bias) * modelWeight;

@@ -86,6 +86,10 @@ public class PartitionedLogReg extends MergeableLogReg implements Partitioned {
     if (sum==0)
       return this;
     double modelWeight = m.age/sum;
+    if (m.age-age>limit)
+      modelWeight = 1;
+    if (age-m.age>limit)
+      modelWeight = 0;
     age = Math.max(age,m.age);
     for (VectorEntry e : m.w) {
       int idx = e.index%numParts;
@@ -93,6 +97,10 @@ public class PartitionedLogReg extends MergeableLogReg implements Partitioned {
       if (sum2==0)
         continue;
       double modelWeight2 = m.partAge[idx]/sum2;
+      if (m.partAge[idx]-partAge[idx]>limit)
+        modelWeight2 = 1;
+      if (partAge[idx]-m.partAge[idx]>limit)
+        modelWeight2 = 0;
       w.add(e.index, (e.value-w.get(e.index))*modelWeight2);
     }
     bias += (m.bias-bias)*modelWeight;
