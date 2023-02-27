@@ -113,7 +113,7 @@ public class MultiLogReg extends ProbabilityModel {
       double err = cDelta - distribution[i];
       
       gradients[i].set(w[i]).mul(lambda).add(instance, -err);
-      biasGradients[i] = -err * lambda;
+      biasGradients[i] = bias[i]*lambda-err;
     }
   }
   
@@ -134,7 +134,7 @@ public class MultiLogReg extends ProbabilityModel {
   protected void gradient(InstanceHolder instances) {
     for (int i = 0; i < w.length; i++) {
       gradients[i].set(w[i]).mul(lambda * instances.size());
-      biasGradients[i] = 0.0;
+      biasGradients[i] = bias[i]*lambda*instances.size();
     }
     for (int i = 0; i < instances.size(); i++) {
       SparseVector instance = instances.getInstance(i);
@@ -145,7 +145,7 @@ public class MultiLogReg extends ProbabilityModel {
         double cDelta = (label == j) ? 1.0 : 0.0;
         double err = cDelta - distribution[j];
         gradients[j].add(instance, -err);
-        biasGradients[j] += -err * lambda;
+        biasGradients[j] += -err;
       }
     }
   }
