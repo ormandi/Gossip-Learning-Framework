@@ -30,9 +30,9 @@ public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
   //Fields
   //---------------------------------------------------------------------
 
-  private RandPermutation partPerm = new RandPermutation(CommonState.r);
-  private final int numParts;
-  private int[] token;
+  protected RandPermutation partPerm = new RandPermutation(CommonState.r);
+  protected final int numParts;
+  protected int[] token;
   
   //---------------------------------------------------------------------
   //Initialization
@@ -88,7 +88,7 @@ public class PartitionedTokenLearningProtocol extends TokenLearningProtocol {
       sendMsg(pi);
   }
   
-  private void sendMsg(int pi) {
+  protected void sendMsg(int pi) {
     modelHolder.clear();
     for (int i=0; i<models.length; i++) {
       Model model = models[i];
